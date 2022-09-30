@@ -24,7 +24,7 @@ class SettingController extends GetxController {
   Rx<List<String>> golonganDarahDropdown = Rx<List<String>>([]);
 
   var nomorIdentitas = TextEditingController().obs;
-  var namaDepan = TextEditingController().obs;
+  var fullName = TextEditingController().obs;
   var namaBelakang = TextEditingController().obs;
   var tanggalLahir = TextEditingController().obs;
   var email = TextEditingController().obs;
@@ -99,9 +99,8 @@ class SettingController extends GetxController {
     }
     this.golonganDarahDropdown.refresh();
     var date = Constanst.convertDate1("${user.value?[0].em_birthday}");
-    nomorIdentitas.value.text = "${user.value?[0].emp_id}";
-    namaDepan.value.text = "${user.value?[0].first_name}";
-    namaBelakang.value.text = "${user.value?[0].last_name}";
+    nomorIdentitas.value.text = "${user.value?[0].em_id}";
+    fullName.value.text = "${user.value?[0].full_name}";
     tanggalLahir.value.text = "$date";
     email.value.text = "${user.value?[0].em_email}";
     telepon.value.text = "${user.value?[0].em_phone}";
@@ -117,8 +116,7 @@ class SettingController extends GetxController {
     Map<String, dynamic> body = {
       'val': 'em_code',
       'cari': nomorIdentitas.value.text,
-      'first_name': namaDepan.value.text,
-      'last_name': namaBelakang.value.text,
+      'full_name': fullName.value.text,
       'em_birthday': convertTanggalSimpan,
       'em_email': email.value.text,
       'em_phone': telepon.value.text,
@@ -131,10 +129,8 @@ class SettingController extends GetxController {
         var valueBody = jsonDecode(res.body);
         List<UserModel> getData = <UserModel>[];
         var data = UserModel(
-            emp_id: "${user.value?[0].emp_id}",
-            em_code: "${user.value?[0].em_code}",
-            first_name: namaDepan.value.text,
-            last_name: namaBelakang.value.text,
+            em_id: "${user.value?[0].em_id}",
+            full_name: fullName.value.text,
             em_email: email.value.text,
             em_phone: telepon.value.text,
             em_birthday: convertTanggalSimpan,
@@ -159,10 +155,10 @@ class SettingController extends GetxController {
       UtilsAlert.showToast("Lengkapi form");
     } else {
       var dataUser = AppData.informasiUser;
-      var getEmpId = dataUser![0].emp_id;
+      var getEmid = dataUser![0].em_id;
       UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan");
       Map<String, dynamic> body = {
-        'emp_id': getEmpId,
+        'em_id': getEmid,
         'password_lama': passwordLama.value.text,
         'password_baru': passwordBaru.value.text
       };
@@ -335,10 +331,10 @@ class SettingController extends GetxController {
   void aksiGantiFoto() {
     UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan");
     var dataUser = AppData.informasiUser;
-    var getEmpId = dataUser![0].emp_id;
+    var getEmid = dataUser![0].em_id;
     Map<String, dynamic> body = {
-      'emp_id': getEmpId,
-      'created_by': getEmpId,
+      'em_id': getEmid,
+      'created_by': getEmid,
       'base64_foto_profile': base64fotoUser.value,
       'menu_name': "Setting Profile",
       'activity_name': "Mengganti foto profile",
@@ -350,12 +346,10 @@ class SettingController extends GetxController {
         var getImage = valueBody['nama_file'];
         List<UserModel> getData = <UserModel>[];
         var data = UserModel(
-          emp_id: "${dataUser[0].emp_id}",
-          em_code: "${dataUser[0].em_code}",
+          em_id: "${dataUser[0].em_id}",
           des_id: dataUser[0].des_id,
           dep_id: dataUser[0].dep_id,
-          first_name: "${dataUser[0].first_name}",
-          last_name: "${dataUser[0].last_name}",
+          full_name: "${dataUser[0].full_name}",
           em_email: "${dataUser[0].em_email}",
           em_phone: "${dataUser[0].em_phone}",
           em_birthday: "${dataUser[0].em_birthday}",

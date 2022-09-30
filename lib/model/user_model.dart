@@ -1,12 +1,10 @@
 import 'dart:convert';
 
 class UserModel {
-  String? emp_id;
-  String? em_code;
+  String? em_id;
   int? des_id;
   int? dep_id;
-  String? first_name;
-  String? last_name;
+  String? full_name;
   String? em_email;
   String? em_phone;
   String? em_birthday;
@@ -21,12 +19,10 @@ class UserModel {
   String? em_hak_akses;
 
   UserModel(
-      {this.emp_id,
-      this.em_code,
+      {this.em_id,
       this.des_id,
       this.dep_id,
-      this.first_name,
-      this.last_name,
+      this.full_name,
       this.em_email,
       this.em_phone,
       this.em_birthday,
@@ -42,12 +38,10 @@ class UserModel {
 
   Map<String, dynamic> toMap() {
     return {
-      'emp_id': emp_id,
-      'em_code': em_code,
+      'em_id': em_id,
       'des_id': des_id,
       'dep_id': dep_id,
-      'first_name': first_name,
-      'last_name': last_name,
+      'full_name': full_name,
       'em_email': em_email,
       'em_phone': em_phone,
       'em_birthday': em_birthday,
@@ -65,12 +59,10 @@ class UserModel {
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
-        emp_id: map['emp_id'],
-        em_code: map['em_code'],
+        em_id: map['em_id'],
         des_id: map['des_id'],
         dep_id: map['dep_id'],
-        first_name: map['first_name'],
-        last_name: map['last_name'],
+        full_name: map['full_name'],
         em_email: map['em_email'],
         em_phone: map['em_phone'],
         em_birthday: map['em_birthday'],

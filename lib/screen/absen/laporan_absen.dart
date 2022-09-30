@@ -259,11 +259,9 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
         physics: BouncingScrollPhysics(),
         itemCount: controller.listLaporanFilter.value.length,
         itemBuilder: (context, index) {
-          var namaDepan =
-              controller.listLaporanFilter.value[index]['first_name'] ?? "";
-          var namaBelakang =
-              controller.listLaporanFilter.value[index]['last_name'] ?? "";
-          var namaKaryawan = "$namaDepan $namaBelakang";
+          var fullName =
+              controller.listLaporanFilter.value[index]['full_name'] ?? "";
+          var namaKaryawan = "$fullName";
           var jamMasuk =
               controller.listLaporanFilter.value[index]['signin_time'];
           var jamKeluar =

@@ -131,7 +131,7 @@ class PersonalInfo extends StatelessWidget {
                                 height: 5,
                               ),
                               Text(
-                                "${controller.user.value?[0].emp_id}",
+                                "${controller.user.value?[0].em_id}",
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               )
                             ],
@@ -170,12 +170,11 @@ class PersonalInfo extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Expanded(
-                                flex: 45,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Nama Depan",
+                                      "Nama Lengkap",
                                       style: TextStyle(
                                           color: Constanst.colorText1),
                                     ),
@@ -183,44 +182,13 @@ class PersonalInfo extends StatelessWidget {
                                       height: 5,
                                     ),
                                     Text(
-                                      "${controller.user.value?[0].first_name}",
+                                      "${controller.user.value?[0].full_name}",
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold),
                                     )
                                   ],
                                 ),
                               ),
-                              Expanded(
-                                child: Container(
-                                  height: 50,
-                                  color: Color(0xffE9EDF5),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 54,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 8),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        "Nama Belakang",
-                                        style: TextStyle(
-                                            color: Constanst.colorText1),
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(
-                                        "${controller.user.value?[0].last_name}",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              )
                             ],
                           ),
                         )

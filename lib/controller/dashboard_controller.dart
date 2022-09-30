@@ -350,7 +350,8 @@ class DashboardController extends GetxController {
     if (url == "HistoryAbsen") {
       Get.offAll(HistoryAbsen());
     } else if (url == "TidakMasukKerja") {
-      Get.offAll(TidakMasukKerja());
+      // Get.offAll(TidakMasukKerja());
+      UtilsAlert.showToast("Tahap Development");
     } else if (url == "Lembur") {
       Get.offAll(Lembur());
     } else if (url == "FormPengajuanCuti") {
@@ -358,7 +359,8 @@ class DashboardController extends GetxController {
     } else if (url == "RiwayatCuti") {
       Get.offAll(RiwayatCuti());
     } else if (url == "TugasLuar") {
-      Get.offAll(TugasLuar());
+      // Get.offAll(TugasLuar());
+      UtilsAlert.showToast("Tahap Development");
     } else if (url == "lainnya") {
       widgetButtomSheetMenuLebihDetail();
     } else {
@@ -376,9 +378,10 @@ class DashboardController extends GetxController {
         dataForm: [[], false],
       ));
     } else if (id == 3) {
-      Get.offAll(FormTugasLuar(
-        dataForm: [[], false],
-      ));
+      // Get.offAll(FormTugasLuar(
+      //   dataForm: [[], false],
+      // ));
+      UtilsAlert.showToast("Tahap Development");
     } else if (id == 4) {
       Get.offAll(FormTidakMasukKerja(
         dataForm: [[], false],

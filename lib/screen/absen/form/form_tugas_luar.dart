@@ -31,11 +31,17 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
     if (widget.dataForm![1] == true) {
       controller.tanggalLembur.value.text =
           Constanst.convertDate("${widget.dataForm![0]['atten_date']}");
-      controller.dariJam.value.text = widget.dataForm![0]['dari_jam'];
-      controller.sampaiJam.value.text = widget.dataForm![0]['sampai_jam'];
+      var convertDariJam = widget.dataForm![0]['dari_jam'].split(":");
+      var convertSampaiJam = widget.dataForm![0]['sampai_jam'].split(":");
+      var hasilDarijam = "${convertDariJam[0]}:${convertDariJam[1]}";
+      var hasilSampaijam = "${convertSampaiJam[0]}:${convertSampaiJam[1]}";
+      controller.dariJam.value.text = hasilDarijam;
+      controller.sampaiJam.value.text = hasilSampaijam;
       controller.catatan.value.text = widget.dataForm![0]['uraian'];
       controller.statusForm.value = true;
       controller.idpengajuanTugasLuar.value = "${widget.dataForm![0]['id']}";
+      controller.nomorAjuan.value.text =
+          "${widget.dataForm![0]['nomor_ajuan']}";
     }
     super.initState();
   }
@@ -143,10 +149,15 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
                 flex: 10,
                 child: IconButton(
                   onPressed: () async {
+                    // DateTime now = DateTime.now();
+                    // DateTime firstDateOfMonth =
+                    //     DateTime(now.year, now.month + 0, 1);
+                    // DateTime lastDayOfMonth =
+                    //     DateTime(now.year, now.month + 1, 0);
                     var dateSelect = await showDatePicker(
                       context: Get.context!,
-                      firstDate: DateTime(1800),
-                      lastDate: DateTime(2200),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
                       initialDate: controller.initialDate.value,
                     );
                     if (dateSelect == null) {
@@ -211,10 +222,10 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
                                 if (value == null) {
                                   UtilsAlert.showToast('gagal pilih jam');
                                 } else {
-                                  var convertJam = value.hour < 9
+                                  var convertJam = value.hour <= 9
                                       ? "0${value.hour}"
                                       : "${value.hour}";
-                                  var convertMenit = value.minute < 9
+                                  var convertMenit = value.minute <= 9
                                       ? "0${value.minute}"
                                       : "${value.minute}";
                                   controller.dariJam.value.text =
@@ -269,10 +280,10 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
                                 if (value == null) {
                                   UtilsAlert.showToast('gagal pilih jam');
                                 } else {
-                                  var convertJam = value.hour < 9
+                                  var convertJam = value.hour <= 9
                                       ? "0${value.hour}"
                                       : "${value.hour}";
-                                  var convertMenit = value.minute < 9
+                                  var convertMenit = value.minute <= 9
                                       ? "0${value.minute}"
                                       : "${value.minute}";
                                   controller.sampaiJam.value.text =

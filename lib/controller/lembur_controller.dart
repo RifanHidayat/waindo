@@ -11,9 +11,11 @@ import 'package:siscom_operasional/utils/custom_dialog.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 
 class LemburController extends GetxController {
+  var nomorAjuan = TextEditingController().obs;
   var tanggalLembur = TextEditingController().obs;
   var dariJam = TextEditingController().obs;
   var sampaiJam = TextEditingController().obs;
+  var durasi = TextEditingController().obs;
   var catatan = TextEditingController().obs;
 
   Rx<List<String>> allEmployeeDelegasi = Rx<List<String>>([]);
@@ -67,9 +69,9 @@ class LemburController extends GetxController {
   void loadDataLembur() {
     listLembur.value.clear();
     var dataUser = AppData.informasiUser;
-    var getEmCode = dataUser![0].em_code;
+    var getEmid = dataUser![0].em_id;
     Map<String, dynamic> body = {
-      'emp_id': getEmCode,
+      'em_id': getEmid,
       'bulan': bulanSelectedSearchHistory.value,
       'tahun': tahunSelectedSearchHistory.value,
     };
@@ -77,18 +79,24 @@ class LemburController extends GetxController {
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
-        for (var element in valueBody['data']) {
-          if (element['ajuan'] == 1) {
-            listLembur.value.add(element);
-          }
-        }
-        if (listLembur.value.length == 0) {
+        if (valueBody['status'] == false) {
           loadingString.value = "Tidak ada pengajuan";
+          this.loadingString.refresh();
         } else {
-          loadingString.value = "Sedang Memuat...";
-        }
+          for (var element in valueBody['data']) {
+            if (element['ajuan'] == 1) {
+              listLembur.value.add(element);
+            }
+          }
+          if (listLembur.value.length == 0) {
+            loadingString.value = "Tidak ada pengajuan";
+          } else {
+            loadingString.value = "Sedang Memuat...";
+          }
 
-        this.listLembur.refresh();
+          this.listLembur.refresh();
+          this.loadingString.refresh();
+        }
       }
     });
   }
@@ -108,14 +116,12 @@ class LemburController extends GetxController {
           var valueBody = jsonDecode(res.body);
           var data = valueBody['data'];
           var listFirst = valueBody['data'].first;
-          var namaDepan = listFirst['first_name'] ?? "";
-          var namaBelakang = listFirst['last_name'] ?? "";
-          String namaUserPertama = "$namaDepan $namaBelakang";
+          var fullName = listFirst['full_name'] ?? "";
+          String namaUserPertama = "$fullName";
           selectedDropdownDelegasi.value = namaUserPertama;
           for (var element in data) {
-            var namaDepan = element['first_name'] ?? "";
-            var namaBelakang = element['last_name'] ?? "";
-            String namaUser = "$namaDepan $namaBelakang";
+            var fullName = element['full_name'] ?? "";
+            String namaUser = "$fullName";
             allEmployeeDelegasi.value.add(namaUser);
             allEmployee.value.add(element);
           }
@@ -135,49 +141,110 @@ class LemburController extends GetxController {
       print(initialDate.value);
       UtilsAlert.showToast("Lengkapi form *");
     } else {
-      kirimPengajuan();
+      if (statusForm.value == false) {
+        checkNomorAjuan();
+      } else {
+        kirimPengajuan(nomorAjuan.value.text);
+      }
     }
   }
 
-  void kirimPengajuan() {
+  void checkNomorAjuan() {
+    var listTanggal = tanggalLembur.value.text.split(',');
+    var getTanggal = listTanggal[1].replaceAll(' ', '');
+    var tanggalLemburEditData = Constanst.convertDateSimpan(getTanggal);
+    var polaFormat = DateFormat('yyyy-MM-dd');
+    var tanggalPengajuanInsert = polaFormat.format(initialDate.value);
+    var finalTanggalPengajuan = statusForm.value == false
+        ? tanggalPengajuanInsert
+        : tanggalLemburEditData;
+
+    Map<String, dynamic> body = {
+      'atten_date': finalTanggalPengajuan,
+      'pola': 'LB'
+    };
+    var connect = Api.connectionApi("post", body, "emp_labor_lastrow");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == true) {
+          var data = valueBody['data'];
+          print(data);
+          if (valueBody['data'].length == 0) {
+            var now = DateTime.now();
+            var convertBulan = now.month <= 9 ? "0${now.month}" : now.month;
+            var finalNomor = "LB${now.year}${convertBulan}0001";
+            kirimPengajuan(finalNomor);
+          } else {
+            var getNomorAjuanTerakhir = valueBody['data'][0]['nomor_ajuan'];
+            var keyNomor = getNomorAjuanTerakhir.replaceAll("LB", '');
+            var hasilTambah = int.parse(keyNomor) + 1;
+            var finalNomor = "LB$hasilTambah";
+            kirimPengajuan(finalNomor);
+          }
+        } else {
+          UtilsAlert.showToast(
+              "Data periode $finalTanggalPengajuan belum tersedia, harap hubungi HRD");
+        }
+      }
+    });
+  }
+
+  void kirimPengajuan(getNomorAjuanTerakhir) {
     var listTanggal = tanggalLembur.value.text.split(',');
     var getTanggal = listTanggal[1].replaceAll(' ', '');
     var tanggalLemburEditData = Constanst.convertDateSimpan(getTanggal);
     var dataUser = AppData.informasiUser;
-    var getEmCode = dataUser![0].em_code;
-    var getEmpid = dataUser[0].emp_id;
+    var getEmid = dataUser![0].em_id;
     var validasiDelegasiSelected = validasiSelectedDelegasi();
     var polaFormat = DateFormat('yyyy-MM-dd');
     var tanggalPengajuanInsert = polaFormat.format(initialDate.value);
     var finalTanggalPengajuan = statusForm.value == false
         ? tanggalPengajuanInsert
         : tanggalLemburEditData;
+    var hasilDurasi = hitungDurasi();
+
     UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan");
     Map<String, dynamic> body = {
-      'emp_id': getEmCode,
+      'em_id': getEmid,
+      'nomor_ajuan': getNomorAjuanTerakhir,
       'dari_jam': dariJam.value.text,
       'sampai_jam': sampaiJam.value.text,
+      'durasi': hasilDurasi,
       'atten_date': finalTanggalPengajuan,
       'status': 'PENDING',
       'approve_date': '',
       'em_delegation': validasiDelegasiSelected,
       'uraian': catatan.value.text,
       'ajuan': '1',
-      'created_by': getEmpid,
+      'created_by': getEmid,
       'menu_name': 'Lembur'
     };
     if (statusForm.value == false) {
+      print("sampe sini input");
       body['activity_name'] =
           "Membuat Pengajuan Lembur. alasan = ${catatan.value.text}";
       var connect = Api.connectionApi("post", body, "insert-emp_labor");
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
-          Navigator.pop(Get.context!);
-          var pesan =
-              "Pengajuan Form lembur berhasil dibuat. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah dibuat";
-          Get.offAll(BerhasilPengajuan(
-            dataBerhasil: [pesan],
-          ));
+          var valueBody = jsonDecode(res.body);
+          if (valueBody['status'] == true) {
+            Navigator.pop(Get.context!);
+            var pesan =
+                "Pengajuan Form lembur berhasil dibuat. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah dibuat";
+            Get.offAll(BerhasilPengajuan(
+              dataBerhasil: [pesan],
+            ));
+          } else {
+            print("sampe sini ulang");
+            if (valueBody['message'] == "ulang") {
+              checkNomorAjuan();
+            } else {
+              Navigator.pop(Get.context!);
+              UtilsAlert.showToast(
+                  "Data periode $finalTanggalPengajuan belum tersedia, harap hubungi HRD");
+            }
+          }
         }
       });
     } else {
@@ -202,14 +269,31 @@ class LemburController extends GetxController {
   String validasiSelectedDelegasi() {
     var result = [];
     for (var element in allEmployee.value) {
-      var namaDepan = element['first_name'] ?? "";
-      var namaBelakang = element['last_name'] ?? "";
-      var namaElement = "$namaDepan $namaBelakang";
+      var fullName = element['full_name'] ?? "";
+      var namaElement = "$fullName";
       if (namaElement == selectedDropdownDelegasi.value) {
         result.add(element);
       }
     }
     return "${result[0]['em_code']}";
+  }
+
+  String hitungDurasi() {
+    var dariJamConvert = dariJam.value.text.replaceAll(':', '');
+    var sampaiJamConvert = sampaiJam.value.text.replaceAll(':', '');
+    var hitung = int.parse(sampaiJamConvert) - int.parse(dariJamConvert);
+    var hitungLength = "$hitung".length;
+    var getHour;
+    var getMenit;
+    if (hitungLength == 3) {
+      getHour = "$hitung".substring(0, 1);
+      getMenit = "$hitung".substring("$hitung".length - 2);
+    } else {
+      getHour = "$hitung".substring(0, 2);
+      getMenit = "$hitung".substring("$hitung".length - 2);
+    }
+    var hasilAkhir = "$getHour:$getMenit";
+    return "$hasilAkhir";
   }
 
   void batalkanPengajuanLembur(index) {
@@ -248,14 +332,15 @@ class LemburController extends GetxController {
   void batalkanPengajuan(index) {
     UtilsAlert.loadingSimpanData(Get.context!, "Batalkan Pengajuan");
     var dataUser = AppData.informasiUser;
-    var getEmpId = dataUser![0].emp_id;
+    var getEmid = dataUser![0].em_id;
     Map<String, dynamic> body = {
       'menu_name': 'Lembur',
       'activity_name':
           'Membatalkan form pengajuan Lembur. Waktu Lembur = ${index["dari_jam"]} sd ${index["sampai_jam"]} Alasan Pengajuan = ${index["reason"]} Tanggal Pengajuan = ${index["atten_date"]}',
-      'created_by': '$getEmpId',
+      'created_by': '$getEmid',
       'val': 'id',
       'cari': '${index["id"]}',
+      'atten_date': '${index["atten_date"]}',
     };
     var connect = Api.connectionApi("post", body, "delete-emp_labor");
     connect.then((dynamic res) {

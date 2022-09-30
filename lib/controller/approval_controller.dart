@@ -18,14 +18,18 @@ class ApprovalController extends GetxController {
   var alasanReject = TextEditingController().obs;
 
   var titleAppbar = "".obs;
+  var bulanSelected = "".obs;
+  var tahunSelected = "".obs;
   var loadingString = "Memuat Data...".obs;
 
   var listNotModif = [].obs;
   var listData = [].obs;
   var detailData = [].obs;
 
-  void startLoadData(title) {
+  void startLoadData(title, bulan, tahun) {
     titleAppbar.value = title;
+    bulanSelected.value = bulan;
+    tahunSelected.value = tahun;
     if (title == "Cuti") {
       loadDataCuti();
     } else if (title == "Lembur") {
@@ -41,10 +45,12 @@ class ApprovalController extends GetxController {
     listNotModif.value.clear();
     listData.value.clear();
     var dataUser = AppData.informasiUser;
-    var getEmCode = dataUser![0].em_code;
+    var getEmCode = dataUser![0].em_id;
     Map<String, dynamic> body = {
-      'emp_id': getEmCode,
+      'em_id': getEmCode,
       'name_data': 'cuti',
+      'bulan': bulanSelected.value,
+      'tahun': tahunSelected.value,
     };
     var connect = Api.connectionApi("post", body, "spesifik_approval");
     connect.then((dynamic res) {
@@ -57,9 +63,8 @@ class ApprovalController extends GetxController {
         ;
         listNotModif.value = valueBody['data'];
         for (var element in valueBody['data']) {
-          var namaDepan = element['first_name'] ?? "";
-          var namaBelakang = element['last_name'] ?? "";
-          var convertNama = "$namaDepan $namaBelakang";
+          var fullName = element['full_name'] ?? "";
+          var convertNama = "$fullName";
           var tanggalDari = Constanst.convertDate1("${element['start_date']}");
           var tanggalSampai = Constanst.convertDate1("${element['end_date']}");
           var data = {
@@ -86,10 +91,12 @@ class ApprovalController extends GetxController {
     listNotModif.value.clear();
     listData.value.clear();
     var dataUser = AppData.informasiUser;
-    var getEmCode = dataUser![0].em_code;
+    var getEmCode = dataUser![0].em_id;
     Map<String, dynamic> body = {
-      'emp_id': getEmCode,
+      'em_id': getEmCode,
       'name_data': 'lembur',
+      'bulan': bulanSelected.value,
+      'tahun': tahunSelected.value,
     };
     var connect = Api.connectionApi("post", body, "spesifik_approval");
     connect.then((dynamic res) {
@@ -102,9 +109,8 @@ class ApprovalController extends GetxController {
         ;
         listNotModif.value = valueBody['data'];
         for (var element in valueBody['data']) {
-          var namaDepan = element['first_name'] ?? "";
-          var namaBelakang = element['last_name'] ?? "";
-          var convertNama = "$namaDepan $namaBelakang";
+          var fullName = element['full_name'] ?? "";
+          var convertNama = "$fullName";
           var data = {
             'id': element['id'],
             'nama_pengaju': convertNama,
@@ -129,10 +135,12 @@ class ApprovalController extends GetxController {
     listNotModif.value.clear();
     listData.value.clear();
     var dataUser = AppData.informasiUser;
-    var getEmCode = dataUser![0].em_code;
+    var getEmCode = dataUser![0].em_id;
     Map<String, dynamic> body = {
-      'emp_id': getEmCode,
+      'em_id': getEmCode,
       'name_data': 'tidak_hadir',
+      'bulan': bulanSelected.value,
+      'tahun': tahunSelected.value,
     };
     var connect = Api.connectionApi("post", body, "spesifik_approval");
     connect.then((dynamic res) {
@@ -145,9 +153,8 @@ class ApprovalController extends GetxController {
         ;
         listNotModif.value = valueBody['data'];
         for (var element in valueBody['data']) {
-          var namaDepan = element['first_name'] ?? "";
-          var namaBelakang = element['last_name'] ?? "";
-          var convertNama = "$namaDepan $namaBelakang";
+          var fullName = element['full_name'] ?? "";
+          var convertNama = "$fullName";
           var convertType = element['typeid'] == 12 ? 'Izin' : 'Sakit';
           var tanggalDari = Constanst.convertDate1("${element['start_date']}");
           var tanggalSampai = Constanst.convertDate1("${element['end_date']}");
@@ -175,10 +182,12 @@ class ApprovalController extends GetxController {
     listNotModif.value.clear();
     listData.value.clear();
     var dataUser = AppData.informasiUser;
-    var getEmCode = dataUser![0].em_code;
+    var getEmCode = dataUser![0].em_id;
     Map<String, dynamic> body = {
-      'emp_id': getEmCode,
+      'em_id': getEmCode,
       'name_data': 'tugas_luar',
+      'bulan': bulanSelected.value,
+      'tahun': tahunSelected.value,
     };
     var connect = Api.connectionApi("post", body, "spesifik_approval");
     connect.then((dynamic res) {
@@ -191,9 +200,8 @@ class ApprovalController extends GetxController {
         ;
         listNotModif.value = valueBody['data'];
         for (var element in valueBody['data']) {
-          var namaDepan = element['first_name'] ?? "";
-          var namaBelakang = element['last_name'] ?? "";
-          var convertNama = "$namaDepan $namaBelakang";
+          var fullName = element['full_name'] ?? "";
+          var convertNama = "$fullName";
           var data = {
             'id': element['id'],
             'nama_pengaju': convertNama,
@@ -401,10 +409,9 @@ class ApprovalController extends GetxController {
 
     var statusPengajuan = pilihan == true ? 'Approve' : 'Rejected';
     var dataUser = AppData.informasiUser;
-    var getEmpid = dataUser![0].emp_id;
-    var namaDepan = dataUser[0].first_name ?? "";
-    var namaBelakang = dataUser[0].last_name ?? "";
-    var namaAtasanApprove = "$namaDepan $namaBelakang";
+    var getEmpid = dataUser![0].em_id;
+    var fullName = dataUser[0].full_name ?? "";
+    var namaAtasanApprove = "$fullName";
     if (url_tujuan == 'edit-emp_leave') {
       // emp_leave
       Map<String, dynamic> body = {
@@ -440,7 +447,7 @@ class ApprovalController extends GetxController {
       });
     } else if (url_tujuan == 'edit-emp_labor') {
       Map<String, dynamic> body = {
-        'emp_id': dataEditFinal[0]['emp_id'],
+        'em_id': dataEditFinal[0]['em_id'],
         'dari_jam': dataEditFinal[0]['dari_jam'],
         'sampai_jam': dataEditFinal[0]['sampai_jam'],
         'atten_date': dataEditFinal[0]['atten_date'],
@@ -497,7 +504,7 @@ class ApprovalController extends GetxController {
     if (url_tujuan == 'edit-emp_leave') {
       body['em_id'] = dataEditFinal[0]['em_id'];
     } else if (url_tujuan == 'edit-emp_labor') {
-      body['em_id'] = dataEditFinal[0]['emp_id'];
+      body['em_id'] = dataEditFinal[0]['em_id'];
     }
     var connect = Api.connectionApi("post", body, "insert-notifikasi");
     connect.then((dynamic res) {
@@ -505,7 +512,8 @@ class ApprovalController extends GetxController {
         var valueBody = jsonDecode(res.body);
         var pesanController = Get.find<PesanController>();
         pesanController.loadApproveInfo();
-        startLoadData(titleAppbar.value);
+        startLoadData(
+            titleAppbar.value, bulanSelected.value, tahunSelected.value);
         Navigator.pop(Get.context!);
         Navigator.pop(Get.context!);
         UtilsAlert.showToast(

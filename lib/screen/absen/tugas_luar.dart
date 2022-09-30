@@ -182,6 +182,7 @@ class TugasLuar extends StatelessWidget {
         physics: BouncingScrollPhysics(),
         itemCount: controller.listTugasLuar.value.length,
         itemBuilder: (context, index) {
+          var nomorAjuan = controller.listTugasLuar.value[index]['nomor_ajuan'];
           var dariJam = controller.listTugasLuar.value[index]['dari_jam'];
           var sampaiJam = controller.listTugasLuar.value[index]['sampai_jam'];
           var tanggalPengajuan =
@@ -296,6 +297,17 @@ class TugasLuar extends StatelessWidget {
                             ),
                           )
                         ],
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        "NO.$nomorAjuan",
+                        textAlign: TextAlign.justify,
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: Constanst.colorText1,
+                            fontWeight: FontWeight.bold),
                       ),
                       SizedBox(
                         height: 5,

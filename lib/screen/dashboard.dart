@@ -207,7 +207,7 @@ class Dashboard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "${controller.user.value![0].first_name ?? ""} ${controller.user.value![0].last_name ?? ""}",
+                        "${controller.user.value![0].full_name ?? ""}",
                         style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -232,13 +232,13 @@ class Dashboard extends StatelessWidget {
                 children: [
                   InkWell(
                     onTap: () {
+                      var pesanCtrl = Get.find<PesanController>();
+                      pesanCtrl.routesIcon();
                       pushNewScreen(
                         Get.context!,
                         screen: Pesan(true),
                         withNavBar: false,
                       );
-                      // var initController = Get.find<TabbController>();
-                      // initController.onClickItem(2);
                     },
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 10),
@@ -253,15 +253,16 @@ class Dashboard extends StatelessWidget {
                   controllerPesan.jumlahNotifikasiBelumDibaca.value == 0
                       ? SizedBox()
                       : Padding(
-                          padding: const EdgeInsets.only(bottom: 25, left: 30),
+                          padding: const EdgeInsets.only(bottom: 24, left: 16),
                           child: Center(
                               child: AnimatedTextKit(
                             animatedTexts: [
                               FadeAnimatedText(
-                                "${controllerPesan.jumlahNotifikasiBelumDibaca.value}",
+                                // "${controllerPesan.jumlahNotifikasiBelumDibaca.value}",
+                                "🔴",
                                 textStyle: const TextStyle(
-                                  fontSize: 16.0,
-                                  color: Color.fromARGB(255, 255, 174, 0),
+                                  fontSize: 10.0,
+                                  // color: Color.fromARGB(255, 255, 174, 0),
                                   fontWeight: FontWeight.bold,
                                 ),
                                 duration: const Duration(milliseconds: 2000),

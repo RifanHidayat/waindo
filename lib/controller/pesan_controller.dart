@@ -26,46 +26,76 @@ class PesanController extends GetxController {
   var jumlahApproveTidakHadir = 0.obs;
   var jumlahApproveTugasLuar = 0.obs;
   var jumlahNotifikasiBelumDibaca = 0.obs;
+  var jumlahPersetujuan = 0.obs;
+  var jumlahRiwayat = 0.obs;
 
   var stringLoading = "Memuat Data...".obs;
   var stringFilterSelected = "".obs;
+  var bulanSelectedSearchHistory = "".obs;
+  var tahunSelectedSearchHistory = "".obs;
+  var bulanDanTahunNow = "".obs;
 
   var statusScreenInfoApproval = false.obs;
   var statusFilteriwayat = false.obs;
-
   var listDummy = ["Cuti", "Lembur", "Tidak Hadir", "Tugas Luar"];
 
   @override
   void onReady() async {
-    loadApproveInfo();
-    loadApproveHistory();
+    getTimeNow();
     loadNotifikasi();
     super.onReady();
   }
 
+  void routesIcon() {
+    selectedView.value = 0;
+  }
+
+  void getTimeNow() {
+    var dt = DateTime.now();
+    bulanSelectedSearchHistory.value = "${dt.month}";
+    tahunSelectedSearchHistory.value = "${dt.year}";
+    bulanDanTahunNow.value = "${dt.month}-${dt.year}";
+
+    this.bulanSelectedSearchHistory.refresh();
+    this.tahunSelectedSearchHistory.refresh();
+    this.bulanDanTahunNow.refresh();
+    loadApproveInfo();
+    loadApproveHistory();
+  }
+
   void loadApproveInfo() {
+    statusScreenInfoApproval.value = true;
     var dataUser = AppData.informasiUser;
-    var getEmCode = dataUser![0].em_code;
-    Map<String, dynamic> body = {'emp_id': getEmCode};
+    var getEmid = dataUser![0].em_id;
+    Map<String, dynamic> body = {
+      'em_id': getEmid,
+      'bulan': bulanSelectedSearchHistory.value,
+      'tahun': tahunSelectedSearchHistory.value,
+    };
     var connect = Api.connectionApi("post", body, "load_approve_info");
     connect.then((dynamic res) async {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
-        jumlahApproveCuti.value = valueBody['jumlah_cuti'];
-        jumlahApproveLembur.value = valueBody['jumlah_lembur'];
-        jumlahApproveTidakHadir.value = valueBody['jumlah_tidak_hadir'];
-        jumlahApproveTugasLuar.value = valueBody['jumlah_tugasluar'];
-        if (jumlahApproveCuti.value != 0 &&
-            jumlahApproveLembur.value != 0 &&
-            jumlahApproveTidakHadir.value != 0 &&
-            jumlahApproveTugasLuar.value != 0) {
-          statusScreenInfoApproval.value = true;
+        if (valueBody['status'] == true) {
+          jumlahApproveCuti.value = valueBody['jumlah_cuti'];
+          jumlahApproveLembur.value = valueBody['jumlah_lembur'];
+          jumlahApproveTidakHadir.value = valueBody['jumlah_tidak_hadir'];
+          jumlahApproveTugasLuar.value = valueBody['jumlah_tugasluar'];
+          jumlahPersetujuan.value = jumlahApproveCuti.value +
+              jumlahApproveLembur.value +
+              jumlahApproveTidakHadir.value +
+              jumlahApproveTugasLuar.value;
+          this.jumlahApproveCuti.refresh();
+          this.jumlahApproveLembur.refresh();
+          this.jumlahApproveTidakHadir.refresh();
+          this.jumlahApproveTugasLuar.refresh();
+          this.jumlahPersetujuan.refresh();
+          loadScreenPersetujuan();
+        } else {
+          statusScreenInfoApproval.value = false;
+          UtilsAlert.showToast(
+              "Data periode ${bulanSelectedSearchHistory.value}-${tahunSelectedSearchHistory.value} belum tersedia, harap hubungi HRD");
         }
-        this.jumlahApproveCuti.refresh();
-        this.jumlahApproveLembur.refresh();
-        this.jumlahApproveTidakHadir.refresh();
-        this.jumlahApproveTugasLuar.refresh();
-        loadScreenPersetujuan();
       }
     });
   }
@@ -74,155 +104,159 @@ class PesanController extends GetxController {
     riwayatPersetujuan.value.clear();
     allRiwayatPersetujuan.value.clear();
     var dataUser = AppData.informasiUser;
-    var getEmCode = dataUser![0].em_code;
-    Map<String, dynamic> body = {'emp_id': getEmCode};
+    var getEmid = dataUser![0].em_id;
+    Map<String, dynamic> body = {
+      'em_id': getEmid,
+      'bulan': bulanSelectedSearchHistory.value,
+      'tahun': tahunSelectedSearchHistory.value,
+    };
     var connect = Api.connectionApi("post", body, "load_approve_history");
     connect.then((dynamic res) async {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
-        var tampungRiwayatPersetujuan = [];
-        if (valueBody['data_tidak_hadir'].length != 0) {
-          for (var element in valueBody['data_tidak_hadir']) {
-            if (element['leave_status'] != 'Pending') {
-              var namaDepan = element['first_name'] ?? "";
-              var namaBelakang = element['last_name'] ?? "";
-              var convertNama = "$namaDepan $namaBelakang";
-              var tanggalDari =
-                  Constanst.convertDate1("${element['start_date']}");
-              var tanggalSampai =
-                  Constanst.convertDate1("${element['end_date']}");
-              var tipe = element['typeid'] == 12 ? 'Izin' : 'Sakit';
-              var data = {
-                'id': element['id'],
-                'nama_pengaju': convertNama,
-                'title_ajuan': 'Pengajuan Tidak Hadir',
-                'waktu_dari': tanggalDari,
-                'waktu_sampai': tanggalSampai,
-                'durasi': element['leave_duration'],
-                'waktu_pengajuan': element['atten_date'],
-                'catatan': element['reason'],
-                'status': element['leave_status'],
-                'apply_date': element['apply_date'],
-                'apply_by': element['apply_by'],
-                'alasan_reject': element['alasan_reject'],
-                'type': tipe,
-                'file': element['leave_files']
-              };
-              tampungRiwayatPersetujuan.add(data);
-            }
-          }
-        }
-        if (valueBody['data_cuti'].length != 0) {
-          for (var element in valueBody['data_cuti']) {
-            if (element['leave_status'] != 'Pending') {
-              var namaDepan = element['first_name'] ?? "";
-              var namaBelakang = element['last_name'] ?? "";
-              var convertNama = "$namaDepan $namaBelakang";
-              var tanggalDari =
-                  Constanst.convertDate1("${element['start_date']}");
-              var tanggalSampai =
-                  Constanst.convertDate1("${element['end_date']}");
-              var data = {
-                'id': element['id'],
-                'nama_pengaju': convertNama,
-                'title_ajuan': 'Pengajuan Cuti',
-                'waktu_dari': tanggalDari,
-                'waktu_sampai': tanggalSampai,
-                'durasi': element['leave_duration'],
-                'waktu_pengajuan': element['atten_date'],
-                'catatan': element['reason'],
-                'status': element['leave_status'],
-                'apply_date': element['apply_date'],
-                'apply_by': element['apply_by'],
-                'alasan_reject': element['alasan_reject'],
-                'type': 'Cuti',
-                'file': element['leave_files']
-              };
-              tampungRiwayatPersetujuan.add(data);
-            }
-          }
-        }
-        if (valueBody['data_lembur'].length != 0) {
-          for (var element in valueBody['data_lembur']) {
-            if (element['status'] != 'Pending') {
-              var namaDepan = element['first_name'] ?? "";
-              var namaBelakang = element['last_name'] ?? "";
-              var convertNama = "$namaDepan $namaBelakang";
-              var data = {
-                'id': element['id'],
-                'nama_pengaju': convertNama,
-                'title_ajuan': 'Pengajuan Lembur',
-                'waktu_dari': element['dari_jam'],
-                'waktu_sampai': element['sampai_jam'],
-                'durasi': "",
-                'waktu_pengajuan': element['atten_date'],
-                'catatan': element['uraian'],
-                'status': element['status'],
-                'apply_date': element['approve_date'],
-                'apply_by': element['approve_by'],
-                'alasan_reject': element['alasan_reject'],
-                'type': 'Lembur',
-                'file': ""
-              };
-              tampungRiwayatPersetujuan.add(data);
-            }
-          }
-        }
-        if (valueBody['data_tugas_luar'].length != 0) {
-          for (var element in valueBody['data_tugas_luar']) {
-            if (element['status'] != 'Pending') {
-              var namaDepan = element['first_name'] ?? "";
-              var namaBelakang = element['last_name'] ?? "";
-              var convertNama = "$namaDepan $namaBelakang";
-              var data = {
-                'id': element['id'],
-                'nama_pengaju': convertNama,
-                'title_ajuan': 'Pengajuan Tugas Luar',
-                'waktu_dari': element['dari_jam'],
-                'waktu_sampai': element['sampai_jam'],
-                'durasi': '',
-                'waktu_pengajuan': element['atten_date'],
-                'catatan': element['uraian'],
-                'status': element['status'],
-                'apply_date': element['approve_date'],
-                'apply_by': element['approve_by'],
-                'alasan_reject': element['alasan_reject'],
-                'type': 'Tugas Luar',
-                'file': ''
-              };
-              tampungRiwayatPersetujuan.add(data);
-            }
-          }
-        }
-        if (tampungRiwayatPersetujuan.length != 0) {
-          allRiwayatPersetujuan.value = tampungRiwayatPersetujuan;
-          var listTanggal = [];
-          var finalData = [];
-          for (var element in tampungRiwayatPersetujuan) {
-            listTanggal.add(element['waktu_pengajuan']);
-          }
-          listTanggal = listTanggal.toSet().toList();
-          for (var element in listTanggal) {
-            var valueTurunan = [];
-            for (var element1 in tampungRiwayatPersetujuan) {
-              if (element == element1['waktu_pengajuan']) {
-                valueTurunan.add(element1);
+        if (valueBody['status'] == true) {
+          var tampungRiwayatPersetujuan = [];
+          if (valueBody['data_tidak_hadir'].length != 0) {
+            for (var element in valueBody['data_tidak_hadir']) {
+              if (element['leave_status'] != 'Pending') {
+                var fullName = element['full_name'] ?? "";
+                var convertNama = "$fullName";
+                var tanggalDari =
+                    Constanst.convertDate1("${element['start_date']}");
+                var tanggalSampai =
+                    Constanst.convertDate1("${element['end_date']}");
+                var tipe = element['typeid'] == 12 ? 'Izin' : 'Sakit';
+                var data = {
+                  'id': element['id'],
+                  'nama_pengaju': convertNama,
+                  'title_ajuan': 'Pengajuan Tidak Hadir',
+                  'waktu_dari': tanggalDari,
+                  'waktu_sampai': tanggalSampai,
+                  'durasi': element['leave_duration'],
+                  'waktu_pengajuan': element['atten_date'],
+                  'catatan': element['reason'],
+                  'status': element['leave_status'],
+                  'apply_date': element['apply_date'],
+                  'apply_by': element['apply_by'],
+                  'alasan_reject': element['alasan_reject'],
+                  'type': tipe,
+                  'file': element['leave_files']
+                };
+                tampungRiwayatPersetujuan.add(data);
               }
             }
-            var data = {
-              'waktu_pengajuan': element,
-              'turunan': valueTurunan,
-            };
-            finalData.add(data);
           }
-          finalData.sort((a, b) {
-            return DateTime.parse(b['waktu_pengajuan'])
-                .compareTo(DateTime.parse(a['waktu_pengajuan']));
-          });
-          riwayatPersetujuan.value = finalData;
+          if (valueBody['data_cuti'].length != 0) {
+            for (var element in valueBody['data_cuti']) {
+              if (element['leave_status'] != 'Pending') {
+                var fullName = element['full_name'] ?? "";
+                var convertNama = "$fullName";
+                var tanggalDari =
+                    Constanst.convertDate1("${element['start_date']}");
+                var tanggalSampai =
+                    Constanst.convertDate1("${element['end_date']}");
+                var data = {
+                  'id': element['id'],
+                  'nama_pengaju': convertNama,
+                  'title_ajuan': 'Pengajuan Cuti',
+                  'waktu_dari': tanggalDari,
+                  'waktu_sampai': tanggalSampai,
+                  'durasi': element['leave_duration'],
+                  'waktu_pengajuan': element['atten_date'],
+                  'catatan': element['reason'],
+                  'status': element['leave_status'],
+                  'apply_date': element['apply_date'],
+                  'apply_by': element['apply_by'],
+                  'alasan_reject': element['alasan_reject'],
+                  'type': 'Cuti',
+                  'file': element['leave_files']
+                };
+                tampungRiwayatPersetujuan.add(data);
+              }
+            }
+          }
+          if (valueBody['data_lembur'].length != 0) {
+            for (var element in valueBody['data_lembur']) {
+              if (element['status'] != 'Pending') {
+                var fullName = element['full_name'] ?? "";
+                var convertNama = "$fullName";
+                var data = {
+                  'id': element['id'],
+                  'nama_pengaju': convertNama,
+                  'title_ajuan': 'Pengajuan Lembur',
+                  'waktu_dari': element['dari_jam'],
+                  'waktu_sampai': element['sampai_jam'],
+                  'durasi': "",
+                  'waktu_pengajuan': element['atten_date'],
+                  'catatan': element['uraian'],
+                  'status': element['status'],
+                  'apply_date': element['approve_date'],
+                  'apply_by': element['approve_by'],
+                  'alasan_reject': element['alasan_reject'],
+                  'type': 'Lembur',
+                  'file': ""
+                };
+                tampungRiwayatPersetujuan.add(data);
+              }
+            }
+          }
+          if (valueBody['data_tugas_luar'].length != 0) {
+            for (var element in valueBody['data_tugas_luar']) {
+              if (element['status'] != 'Pending') {
+                var fullName = element['full_name'] ?? "";
+                var convertNama = "$fullName";
+                var data = {
+                  'id': element['id'],
+                  'nama_pengaju': convertNama,
+                  'title_ajuan': 'Pengajuan Tugas Luar',
+                  'waktu_dari': element['dari_jam'],
+                  'waktu_sampai': element['sampai_jam'],
+                  'durasi': '',
+                  'waktu_pengajuan': element['atten_date'],
+                  'catatan': element['uraian'],
+                  'status': element['status'],
+                  'apply_date': element['approve_date'],
+                  'apply_by': element['approve_by'],
+                  'alasan_reject': element['alasan_reject'],
+                  'type': 'Tugas Luar',
+                  'file': ''
+                };
+                tampungRiwayatPersetujuan.add(data);
+              }
+            }
+          }
+          if (tampungRiwayatPersetujuan.length != 0) {
+            allRiwayatPersetujuan.value = tampungRiwayatPersetujuan;
+            var listTanggal = [];
+            var finalData = [];
+            for (var element in tampungRiwayatPersetujuan) {
+              listTanggal.add(element['waktu_pengajuan']);
+            }
+            listTanggal = listTanggal.toSet().toList();
+            for (var element in listTanggal) {
+              var valueTurunan = [];
+              for (var element1 in tampungRiwayatPersetujuan) {
+                if (element == element1['waktu_pengajuan']) {
+                  valueTurunan.add(element1);
+                }
+              }
+              var data = {
+                'waktu_pengajuan': element,
+                'turunan': valueTurunan,
+              };
+              finalData.add(data);
+            }
+            finalData.sort((a, b) {
+              return DateTime.parse(b['waktu_pengajuan'])
+                  .compareTo(DateTime.parse(a['waktu_pengajuan']));
+            });
+            riwayatPersetujuan.value = finalData;
+          }
+          jumlahRiwayat.value = allRiwayatPersetujuan.value.length;
+          this.riwayatPersetujuan.refresh();
+          this.allRiwayatPersetujuan.refresh();
+          this.jumlahRiwayat.refresh();
         }
-        this.riwayatPersetujuan.refresh();
-        this.allRiwayatPersetujuan.refresh();
       }
     });
   }
@@ -296,8 +330,7 @@ class PesanController extends GetxController {
         this.dataScreenPersetujuan.refresh();
       }
     }
-    statusScreenInfoApproval.value = true;
-    print("kesini pesan controller jalan");
+    statusScreenInfoApproval.value = false;
   }
 
   void routeApproval(index) {
@@ -305,20 +338,24 @@ class PesanController extends GetxController {
     if (index['jumlah_approve'] == "0") {
       UtilsAlert.showToast("Tidak ada data yang harus di approve");
     } else {
-      Get.to(Approval(title: index['title']));
+      Get.to(Approval(
+        title: index['title'],
+        bulan: bulanSelectedSearchHistory.value,
+        tahun: tahunSelectedSearchHistory.value,
+      ));
     }
   }
 
   void loadNotifikasi() {
     listNotifikasi.value.clear();
     var dataUser = AppData.informasiUser;
-    var getEmpId = dataUser![0].emp_id;
+    var getEmid = dataUser![0].em_id;
     var dt = DateTime.now();
     var tanggalSekarang =
         Constanst.convertDate1("${dt.year}-${dt.month}-${dt.day}");
-    var getBulan = dt.month < 9 ? "0${dt.month}" : dt.month;
+    var getBulan = dt.month <= 9 ? "0${dt.month}" : dt.month;
     Map<String, dynamic> body = {
-      'emp_id': getEmpId,
+      'em_id': getEmid,
       'bulan': getBulan,
       'tahun': dt.year
     };

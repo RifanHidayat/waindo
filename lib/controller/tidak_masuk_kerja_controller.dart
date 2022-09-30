@@ -18,6 +18,7 @@ import 'package:file_picker/file_picker.dart';
 
 class TidakMasukKerjaController extends GetxController {
   var cari = TextEditingController().obs;
+  var nomorAjuan = TextEditingController().obs;
   var dariTanggal = TextEditingController().obs;
   var sampaiTanggal = TextEditingController().obs;
   var alasan = TextEditingController().obs;
@@ -29,6 +30,7 @@ class TidakMasukKerjaController extends GetxController {
   var listHistoryAjuan = [].obs;
   var allTipe = [].obs;
   var allEmployee = [].obs;
+  var tanggalSelected = [].obs;
 
   Rx<List<String>> allEmployeeDelegasi = Rx<List<String>>([]);
   Rx<List<String>> allTipeFormTidakMasukKerja = Rx<List<String>>([]);
@@ -49,6 +51,8 @@ class TidakMasukKerjaController extends GetxController {
   var selectedDropdownFormTidakMasukKerjaDelegasi = "".obs;
 
   var selectedType = 0.obs;
+  var durasiIzin = 0.obs;
+  var screenTanggalSelected = true.obs;
 
   var dataTypeAjuanDummy = ["Semua", "Approve", "Rejected", "Pending"];
 
@@ -73,8 +77,8 @@ class TidakMasukKerjaController extends GetxController {
     if (idEditFormTidakMasukKerja.value == "") {
       dariTanggal.value.text = "$afterConvert";
       sampaiTanggal.value.text = "$afterConvert";
+      tanggalBikinPengajuan.value = "$afterConvert";
     }
-    tanggalBikinPengajuan.value = "$afterConvert";
   }
 
   void getTypeAjuan() {
@@ -92,9 +96,9 @@ class TidakMasukKerjaController extends GetxController {
     AlllistHistoryAjuan.value.clear();
     listHistoryAjuan.value.clear();
     var dataUser = AppData.informasiUser;
-    var getEmCode = dataUser![0].em_code;
+    var getEmid = dataUser![0].em_id;
     Map<String, dynamic> body = {
-      'em_code': getEmCode,
+      'em_id': getEmid,
       'bulan': bulanSelectedSearchHistory.value,
       'tahun': tahunSelectedSearchHistory.value,
       'type': '1',
@@ -103,19 +107,25 @@ class TidakMasukKerjaController extends GetxController {
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
-        if (valueBody['data'].length == 0) {
+        if (valueBody['status'] == false) {
           loadingString.value = "Tidak ada pengajuan";
+          this.loadingString.refresh();
         } else {
-          loadingString.value = "Sedang memuat data...";
-        }
-        AlllistHistoryAjuan.value = valueBody['data'];
-        for (var element in valueBody['data']) {
-          if (element['name'] == "Sakit") {
-            listHistoryAjuan.value.add(element);
+          if (valueBody['data'].length == 0) {
+            loadingString.value = "Tidak ada pengajuan";
+          } else {
+            loadingString.value = "Sedang memuat data...";
           }
+          AlllistHistoryAjuan.value = valueBody['data'];
+          for (var element in valueBody['data']) {
+            if (element['name'] == "Sakit") {
+              listHistoryAjuan.value.add(element);
+            }
+          }
+          this.listHistoryAjuan.refresh();
+          this.AlllistHistoryAjuan.refresh();
+          this.loadingString.refresh();
         }
-        this.listHistoryAjuan.refresh();
-        this.AlllistHistoryAjuan.refresh();
       }
     });
   }
@@ -135,14 +145,12 @@ class TidakMasukKerjaController extends GetxController {
           var valueBody = jsonDecode(res.body);
           var data = valueBody['data'];
           var listFirst = valueBody['data'].first;
-          var namaDepan = listFirst['first_name'] ?? "";
-          var namaBelakang = listFirst['last_name'] ?? "";
-          String namaUserPertama = "$namaDepan $namaBelakang";
+          var fullName = listFirst['full_name'] ?? "";
+          String namaUserPertama = "$fullName";
           selectedDropdownFormTidakMasukKerjaDelegasi.value = namaUserPertama;
           for (var element in data) {
-            var namaDepan = element['first_name'] ?? "";
-            var namaBelakang = element['last_name'] ?? "";
-            String namaUser = "$namaDepan $namaBelakang";
+            var fullName = element['full_name'] ?? "";
+            String namaUser = "$fullName";
             allEmployeeDelegasi.value.add(namaUser);
             allEmployee.value.add(element);
           }
@@ -295,37 +303,99 @@ class TidakMasukKerjaController extends GetxController {
         if (valueBody['status'] == true) {
           UtilsAlert.showToast("Berhasil upload file");
           Navigator.pop(Get.context!);
-          kirimFormAjuanTidakMasukKerja(status);
+          checkNomorAjuan(status);
         } else {
           UtilsAlert.showToast("Gagal kirim file");
         }
       } else {
-        kirimFormAjuanTidakMasukKerja(status);
+        if (status == false) {
+          checkNomorAjuan(status);
+        } else {
+          urutkanTanggalSelected();
+          kirimFormAjuanTidakMasukKerja(status, nomorAjuan.value.text);
+        }
       }
     }
   }
 
-  void kirimFormAjuanTidakMasukKerja(status) async {
+  void checkNomorAjuan(status) {
+    urutkanTanggalSelected();
+    var convertTanggalBikinPengajuan = status == false
+        ? Constanst.convertDateSimpan(tanggalBikinPengajuan.value)
+        : tanggalBikinPengajuan.value;
+
+    var pola =
+        selectedDropdownFormTidakMasukKerjaTipe.value == "Sakit" ? "SK" : "IZ";
+
+    Map<String, dynamic> body = {
+      'atten_date': convertTanggalBikinPengajuan,
+      'pola': pola
+    };
+    var connect = Api.connectionApi("post", body, "emp_leave_lastrow");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == true) {
+          if (valueBody['data'].isEmpty) {
+            var now = DateTime.now();
+            var convertBulan = now.month <= 9 ? "0${now.month}" : now.month;
+            var finalNomor = "$pola${now.year}${convertBulan}0001";
+            kirimFormAjuanTidakMasukKerja(status, finalNomor);
+          } else {
+            var getNomorAjuanTerakhir = valueBody['data'][0]['nomor_ajuan'];
+            var keyNomor = getNomorAjuanTerakhir.replaceAll("$pola", '');
+            var hasilTambah = int.parse(keyNomor) + 1;
+            var finalNomor = "$pola$hasilTambah";
+            kirimFormAjuanTidakMasukKerja(status, finalNomor);
+          }
+        } else {
+          UtilsAlert.showToast(
+              "Data periode $convertTanggalBikinPengajuan belum tersedia, harap hubungi HRD");
+        }
+      }
+    });
+  }
+
+  void urutkanTanggalSelected() {
+    var hasilConvert = [];
+    tanggalSelected.value.forEach((element) {
+      var inputFormat = DateFormat('yyyy-MM-dd');
+      String formatted = inputFormat.format(element);
+      hasilConvert.add(formatted);
+    });
+    hasilConvert.sort((a, b) {
+      return DateTime.parse(a).compareTo(DateTime.parse(b));
+    });
+    if (hasilConvert.isNotEmpty) {
+      var getFirst = hasilConvert.first;
+      var getLast = hasilConvert.last;
+      dariTanggal.value.text = getFirst;
+      sampaiTanggal.value.text = getLast;
+      durasiIzin.value = hasilConvert.length;
+      this.dariTanggal.refresh();
+      this.sampaiTanggal.refresh();
+      this.durasiIzin.refresh();
+    }
+  }
+
+  void kirimFormAjuanTidakMasukKerja(status, getNomorAjuanTerakhir) async {
     var dataUser = AppData.informasiUser;
-    var getEmCode = dataUser![0].em_code;
-    var getEmpid = "${dataUser[0].emp_id}";
+    var getEmid = "${dataUser![0].em_id}";
     var validasiTipeSelected = validasiSelectedType();
     var validasiDelegasiSelected = validasiSelectedDelegasi();
-    var hitungIzin = validasiHitungIzin();
-    var convertDariTanggal =
-        Constanst.convertDateSimpan(dariTanggal.value.text);
-    var convertSampaiTanggal =
-        Constanst.convertDateSimpan(sampaiTanggal.value.text);
-    var convertTanggalBikinPengajuan =
-        Constanst.convertDateSimpan(tanggalBikinPengajuan.value);
+
+    var convertTanggalBikinPengajuan = status == false
+        ? Constanst.convertDateSimpan(tanggalBikinPengajuan.value)
+        : tanggalBikinPengajuan.value;
     UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan Data");
     Map<String, dynamic> body = {
-      'em_id': '$getEmCode',
+      'em_id': '$getEmid',
       'typeid': validasiTipeSelected,
+      'nomor_ajuan': getNomorAjuanTerakhir,
       'leave_type': 'Full Day',
-      'start_date': convertDariTanggal,
-      'end_date': convertSampaiTanggal,
-      'leave_duration': hitungIzin,
+      'start_date': dariTanggal.value.text,
+      'end_date': sampaiTanggal.value.text,
+      'leave_duration': durasiIzin.value,
       'apply_date': '',
       'reason': alasan.value.text,
       'leave_status': 'Pending',
@@ -335,25 +405,36 @@ class TidakMasukKerjaController extends GetxController {
       'ajuan': '1',
     };
     if (status == false) {
-      body['created_by'] = getEmpid;
+      body['created_by'] = getEmid;
       body['menu_name'] = "Tidak Hadir";
       body['activity_name'] =
           "Membuat Pengajuan tidak hadir. alasan = ${alasan.value.text}";
       var connect = Api.connectionApi("post", body, "kirimPengajuanTMK");
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
-          Navigator.pop(Get.context!);
-          var pesan =
-              "Pengajuan Form ${selectedDropdownFormTidakMasukKerjaTipe.value} berhasil dibuat. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah dibuat";
-          Get.offAll(BerhasilPengajuan(
-            dataBerhasil: [pesan],
-          ));
+          var valueBody = jsonDecode(res.body);
+          if (valueBody['status'] == true) {
+            Navigator.pop(Get.context!);
+            var pesan =
+                "Pengajuan Form ${selectedDropdownFormTidakMasukKerjaTipe.value} berhasil dibuat. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah dibuat";
+            Get.offAll(BerhasilPengajuan(
+              dataBerhasil: [pesan],
+            ));
+          } else {
+            if (valueBody['message'] == "ulang") {
+              checkNomorAjuan(status);
+            } else {
+              Navigator.pop(Get.context!);
+              UtilsAlert.showToast(
+                  "Data periode $convertTanggalBikinPengajuan belum tersedia, harap hubungi HRD");
+            }
+          }
         }
       });
     } else {
       body['val'] = 'id';
       body['cari'] = idEditFormTidakMasukKerja.value;
-      body['created_by'] = getEmpid;
+      body['created_by'] = getEmid;
       body['menu_name'] = "Tidak Hadir";
       body['activity_name'] =
           "Edit form pengajuan Tidak Hadir. Tanggal pengajuan = ${dariTanggal.value.text} sd ${sampaiTanggal.value.text} Alasan Pengajuan = ${alasan.value.text}";
@@ -384,9 +465,8 @@ class TidakMasukKerjaController extends GetxController {
   String validasiSelectedDelegasi() {
     var result = [];
     for (var element in allEmployee.value) {
-      var namaDepan = element['first_name'] ?? "";
-      var namaBelakang = element['last_name'] ?? "";
-      var namaElement = "$namaDepan $namaBelakang";
+      var fullName = element['full_name'] ?? "";
+      var namaElement = "$fullName";
       if (namaElement == selectedDropdownFormTidakMasukKerjaDelegasi.value) {
         result.add(element);
       }
@@ -437,14 +517,15 @@ class TidakMasukKerjaController extends GetxController {
   void batalkanPengajuan(index) {
     UtilsAlert.loadingSimpanData(Get.context!, "Batalkan Pengajuan");
     var dataUser = AppData.informasiUser;
-    var getEmpId = dataUser![0].emp_id;
+    var getEmid = dataUser![0].em_id;
     Map<String, dynamic> body = {
       'menu_name': 'Tidak Hadir',
       'activity_name':
           'Membatalkan form pengajuan Tidak Hadir. Tanggal pengajuan = ${index["start_date"]} sd ${index["end_date"]} Alasan Pengajuan = ${index["reason"]}',
-      'created_by': '$getEmpId',
+      'created_by': '$getEmid',
       'val': 'id',
       'cari': '${index["id"]}',
+      'start_date': '${index["start_date"]}',
     };
     var connect = Api.connectionApi("post", body, "delete-emp_leave");
     connect.then((dynamic res) {

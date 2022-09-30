@@ -11,6 +11,7 @@ import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class FormTidakMasukKerja extends StatefulWidget {
   List? dataForm;
@@ -26,17 +27,23 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
   void initState() {
     print(widget.dataForm![0]);
     if (widget.dataForm![1] == true) {
-      var convertDariTanggal =
-          Constanst.convertDate1(widget.dataForm![0]['start_date']);
-      var convertSampaiTanggal =
-          Constanst.convertDate1(widget.dataForm![0]['end_date']);
+      var convertDariTanggal = widget.dataForm![0]['start_date'];
+      var convertSampaiTanggal = widget.dataForm![0]['end_date'];
       controller.dariTanggal.value.text = "$convertDariTanggal";
       controller.sampaiTanggal.value.text = "$convertSampaiTanggal";
       controller.alasan.value.text = "${widget.dataForm![0]['reason']}";
       controller.namaFileUpload.value = "${widget.dataForm![0]['leave_files']}";
+      controller.tanggalBikinPengajuan.value =
+          "${widget.dataForm![0]['atten_date']}";
       controller.idEditFormTidakMasukKerja.value =
           "${widget.dataForm![0]['id']}";
-      controller.selectedDropdownFormTidakMasukKerjaTipe.value = "${widget.dataForm![0]['name']}";
+      controller.selectedDropdownFormTidakMasukKerjaTipe.value =
+          "${widget.dataForm![0]['name']}";
+      controller.nomorAjuan.value.text =
+          "${widget.dataForm![0]['nomor_ajuan']}";
+      controller.durasiIzin.value =
+          int.parse(widget.dataForm![0]['leave_duration']);
+      controller.screenTanggalSelected.value = false;
     }
     super.initState();
   }
@@ -69,6 +76,7 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
               () => Padding(
                 padding: EdgeInsets.only(left: 16, right: 16),
                 child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -92,6 +100,9 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
                         height: 20,
                       ),
                       formAlasan(),
+                      SizedBox(
+                        height: 20,
+                      ),
                     ],
                   ),
                 ),
@@ -116,7 +127,10 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Tipe*"),
+        Text(
+          "Tipe*",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         SizedBox(
           height: 5,
         ),
@@ -160,96 +174,91 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Dari Tanggal*"),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: Constanst.borderStyle1,
-                          border: Border.all(
-                              width: 0.5,
-                              color: Color.fromARGB(255, 211, 205, 205))),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: DateTimeField(
-                          format: DateFormat('dd-MM-yyyy'),
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          controller: controller.dariTanggal.value,
-                          onShowPicker: (context, currentValue) {
-                            return showDatePicker(
-                              context: context,
-                              firstDate: DateTime(1800),
-                              lastDate: DateTime(2200),
-                              initialDate: currentValue ?? DateTime.now(),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
+        Text("Tanggal*", style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(
+          height: 5,
+        ),
+        widget.dataForm![1] == true
+            ? customTanggalDariSampaiDari()
+            : SizedBox(),
+        controller.screenTanggalSelected.value == true
+            ? Card(
+                margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                color: Constanst.colorButton2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
                 ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Sampai Tanggal*"),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: Constanst.borderStyle1,
-                          border: Border.all(
-                              width: 0.5,
-                              color: Color.fromARGB(255, 211, 205, 205))),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: DateTimeField(
-                          format: DateFormat('dd-MM-yyyy'),
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          controller: controller.sampaiTanggal.value,
-                          onShowPicker: (context, currentValue) {
-                            return showDatePicker(
-                              context: context,
-                              firstDate: DateTime(1800),
-                              lastDate: DateTime(2200),
-                              initialDate: currentValue ?? DateTime.now(),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          ],
-        )
+                child: SfDateRangePicker(
+                  selectionMode: DateRangePickerSelectionMode.multiple,
+                  monthCellStyle: DateRangePickerMonthCellStyle(
+                    weekendTextStyle: TextStyle(color: Colors.red),
+                    blackoutDateTextStyle: TextStyle(
+                        color: Colors.red,
+                        decoration: TextDecoration.lineThrough),
+                  ),
+                  onSelectionChanged:
+                      (DateRangePickerSelectionChangedArgs args) {
+                    controller.tanggalSelected.value = args.value;
+                    this.controller.tanggalSelected.refresh();
+                  },
+                ))
+            : SizedBox(),
       ],
     );
+  }
+
+  Widget customTanggalDariSampaiDari() {
+    return Container(
+        height: 50,
+        width: MediaQuery.of(Get.context!).size.width,
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: Constanst.borderStyle1,
+            border: Border.all(
+                width: 0.5, color: Color.fromARGB(255, 211, 205, 205))),
+        child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 90,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(Constanst.convertDate1(
+                            "${controller.dariTanggal.value.text}")),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Text("sd"),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Text(Constanst.convertDate1(
+                              "${controller.sampaiTanggal.value.text}")),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 10,
+                  child: IconButton(
+                    onPressed: () {
+                      controller.screenTanggalSelected.value =
+                          !controller.screenTanggalSelected.value;
+                    },
+                    icon: Icon(
+                      Iconsax.edit,
+                      size: 18,
+                    ),
+                  ),
+                )
+              ],
+            )));
   }
 
   Widget formDelegasiKepada() {
@@ -257,7 +266,10 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text("Delegasikan Kepada"),
+        Text(
+          "Delegasikan Kepada",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         SizedBox(
           height: 5,
         ),
@@ -304,7 +316,10 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Expanded(
-          child: Text("Upload File (Max 5MB)"),
+          child: Text(
+            "Upload File (Max 5MB)",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
         ),
         Expanded(
           child: Container(
@@ -357,7 +372,10 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text("Alasan*"),
+        Text(
+          "Alasan*",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         SizedBox(
           height: 5,
         ),
@@ -373,6 +391,7 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
               cursorColor: Colors.black,
               controller: controller.alasan.value,
               maxLines: null,
+              maxLength: 225,
               decoration: new InputDecoration(
                   border: InputBorder.none, hintText: "Tambahkan Alasan"),
               keyboardType: TextInputType.multiline,

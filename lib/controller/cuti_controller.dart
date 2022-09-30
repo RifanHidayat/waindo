@@ -4,8 +4,10 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:siscom_operasional/screen/absen/form/berhasil_pengajuan.dart';
 import 'package:siscom_operasional/utils/api.dart';
@@ -13,8 +15,10 @@ import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/custom_dialog.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class CutiController extends GetxController {
+  var nomorAjuan = TextEditingController().obs;
   var dariTanggal = TextEditingController().obs;
   var sampaiTanggal = TextEditingController().obs;
   var alasan = TextEditingController().obs;
@@ -27,13 +31,18 @@ class CutiController extends GetxController {
   var dataTypeAjuan = [].obs;
   var AlllistHistoryAjuan = [].obs;
   var listHistoryAjuan = [].obs;
+  var tanggalSelected = [].obs;
+  var seletedDateEdit = <DateTime>[].obs;
+
+  var stringSelectedTanggal = "".obs;
 
   Rx<List<String>> allEmployeeDelegasi = Rx<List<String>>([]);
   Rx<List<String>> allTipeFormCutiDropdown = Rx<List<String>>([]);
 
-  var jumlahCuti = 12.obs;
-  var cutiTerpakai = 4.obs;
+  var jumlahCuti = 0.obs;
+  var cutiTerpakai = 0.obs;
   var persenCuti = 0.0.obs;
+  var durasiIzin = 0.obs;
 
   var namaFileUpload = "".obs;
   var selectedTypeCuti = "".obs;
@@ -42,15 +51,17 @@ class CutiController extends GetxController {
   var tahunSelectedSearchHistory = "".obs;
   var bulanDanTahunNow = "".obs;
   var idEditFormCuti = "".obs;
+  var atten_date_edit = "".obs;
+  var stringLoading = "Sedang memuat...".obs;
 
   var statusForm = false.obs;
+  var screenTanggalSelected = true.obs;
 
   var dataTypeAjuanDummy = ["Semua", "Approve", "Rejected", "Pending"];
 
   @override
   void onReady() async {
     getTimeNow();
-    hitungCuti();
     loadCutiUser();
     getTypeAjuan();
     loadAllEmployeeDelegasi();
@@ -94,32 +105,21 @@ class CutiController extends GetxController {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
         var data = valueBody['data'];
-        if (data.length < 2) {
-          allTipeFormCutiDropdown.value.add(data[0]['name']);
-          selectedTypeCuti.value = data[0]['name'];
-          var insert = {
-            'type_id': data[0]['type_id'],
-            'name': data[0]['name'],
-            'status': data[0]['status'],
+        print(data);
+        for (var element in data) {
+          allTipeFormCutiDropdown.value.add(element['name']);
+          var data = {
+            'id': element['id'],
+            'name': element['name'],
+            'status': element['status'],
             'active': false,
           };
-          allTipe.value.add(insert);
-        } else {
-          for (var element in data) {
-            allTipeFormCutiDropdown.value.add(element['name']);
-            var data = {
-              'type_id': element['element'],
-              'name': element['name'],
-              'status': element['status'],
-              'active': false,
-            };
-            allTipe.value.add(data);
-            selectedTypeCuti.value = element['name'];
-          }
+          allTipe.value.add(data);
+          selectedTypeCuti.value = element['name'];
         }
         var getFirst = allTipe.value.first;
-        allTipe.value.firstWhere((element) =>
-            element['type_id'] == getFirst['type_id'])['active'] = true;
+        allTipe.value.firstWhere(
+            (element) => element['id'] == getFirst['id'])['active'] = true;
         this.allTipe.refresh();
         this.selectedTypeCuti.refresh();
         this.allTipeFormCutiDropdown.refresh();
@@ -130,10 +130,11 @@ class CutiController extends GetxController {
   void loadDataAjuanCuti() {
     AlllistHistoryAjuan.value.clear();
     listHistoryAjuan.value.clear();
+    stringLoading.value = "Sedang memuat...";
     var dataUser = AppData.informasiUser;
-    var getEmCode = dataUser![0].em_code;
+    var getEmid = dataUser![0].em_id;
     Map<String, dynamic> body = {
-      'em_code': getEmCode,
+      'em_id': getEmid,
       'bulan': bulanSelectedSearchHistory.value,
       'tahun': tahunSelectedSearchHistory.value,
       'type': '2',
@@ -142,14 +143,23 @@ class CutiController extends GetxController {
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
-        AlllistHistoryAjuan.value = valueBody['data'];
-        for (var element in valueBody['data']) {
-          if (element['name'] == "Cuti Tahunan") {
-            listHistoryAjuan.value.add(element);
+        if (valueBody['status'] == false) {
+          print("tidak ada data kesini");
+          stringLoading.value = "Tidak ada pengajuan";
+          this.stringLoading.refresh();
+        } else {
+          AlllistHistoryAjuan.value = valueBody['data'];
+          listHistoryAjuan.value = valueBody['data'];
+          if (listHistoryAjuan.value.isEmpty) {
+            stringLoading.value = "Tidak ada pengajuan";
+          } else {
+            stringLoading.value = "Sedang memuat...";
           }
+          print(listHistoryAjuan.value);
+          this.listHistoryAjuan.refresh();
+          this.AlllistHistoryAjuan.refresh();
+          this.stringLoading.refresh();
         }
-        this.listHistoryAjuan.refresh();
-        this.AlllistHistoryAjuan.refresh();
       }
     });
   }
@@ -179,6 +189,11 @@ class CutiController extends GetxController {
         }
       }
     }
+    if (listHistoryAjuan.value.length == 0) {
+      stringLoading.value = "Tidak ada Pengajuan";
+    } else {
+      stringLoading.value = "Sedang memuat...";
+    }
     this.dataTypeAjuan.refresh();
     this.listHistoryAjuan.refresh();
   }
@@ -198,14 +213,12 @@ class CutiController extends GetxController {
           var valueBody = jsonDecode(res.body);
           var data = valueBody['data'];
           var listFirst = valueBody['data'].first;
-          var namaDepan = listFirst['first_name'] ?? "";
-          var namaBelakang = listFirst['last_name'] ?? "";
-          String namaUserPertama = "$namaDepan $namaBelakang";
+          var fullName = listFirst['full_name'] ?? "";
+          String namaUserPertama = "$fullName";
           selectedDelegasi.value = namaUserPertama;
           for (var element in data) {
-            var namaDepan = element['first_name'] ?? "";
-            var namaBelakang = element['last_name'] ?? "";
-            String namaUser = "$namaDepan $namaBelakang";
+            var fullName = element['full_name'] ?? "";
+            String namaUser = "$fullName";
             allEmployeeDelegasi.value.add(namaUser);
             allEmployee.value.add(element);
           }
@@ -219,22 +232,28 @@ class CutiController extends GetxController {
 
   void loadCutiUser() {
     var dataUser = AppData.informasiUser;
-    var getEmCode = dataUser![0].em_code;
+    var getEmCode = dataUser![0].em_id;
     Map<String, dynamic> body = {
-      'val': 'emp_id',
+      'val': 'em_id',
       'cari': getEmCode,
     };
     var connect = Api.connectionApi("post", body, "whereOnce-assign_leave");
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
-        print("cuti user ${valueBody['data']}");
+        var totalDay = valueBody['data'][0]['total_day'];
+        var terpakai = valueBody['data'][0]['terpakai'];
+        jumlahCuti.value = totalDay;
+        cutiTerpakai.value = terpakai;
+        this.jumlahCuti.refresh();
+        this.cutiTerpakai.refresh();
+        hitungCuti(totalDay, terpakai);
       }
     });
   }
 
-  void hitungCuti() {
-    var hitung1 = (cutiTerpakai.value / jumlahCuti.value) * 100;
+  void hitungCuti(totalDay, terpakai) {
+    var hitung1 = (terpakai / totalDay) * 100;
     var convert1 = hitung1.toInt();
     var convertedValue = double.parse("${convert1}") / 100;
     persenCuti.value = convertedValue;
@@ -264,10 +283,7 @@ class CutiController extends GetxController {
   }
 
   void validasiKirimPengajuan() async {
-    if (selectedTypeCuti == "" ||
-        dariTanggal.value.text == "" ||
-        sampaiTanggal.value.text == "" ||
-        alasan.value.text == "") {
+    if (selectedTypeCuti == "" || alasan.value.text == "") {
       UtilsAlert.showToast("Form * harus di isi");
     } else {
       if (namaFileUpload.value != "") {
@@ -278,40 +294,118 @@ class CutiController extends GetxController {
         if (valueBody['status'] == true) {
           UtilsAlert.showToast("Berhasil upload file");
           Navigator.pop(Get.context!);
-          kirimFormAjuanCuti();
+          checkNomorAjuan();
         } else {
+          Navigator.pop(Get.context!);
           UtilsAlert.showToast("Gagal kirim file");
         }
       } else {
-        kirimFormAjuanCuti();
+        if (statusForm.value == false) {
+          if (tanggalSelected.value.isEmpty) {
+            UtilsAlert.showToast("Harap isi tanggal ajuan");
+          } else {
+            checkNomorAjuan();
+          }
+        } else {
+          urutkanTanggalSelected();
+          kirimFormAjuanCuti(nomorAjuan.value.text);
+        }
       }
     }
   }
 
-  void kirimFormAjuanCuti() async {
-    var dataUser = AppData.informasiUser;
-    var getEmCode = dataUser![0].em_code;
-    var getEmpid = dataUser[0].emp_id;
-    var validasiTipeSelected = validasiSelectedType();
-    var validasiDelegasiSelected = validasiSelectedDelegasi();
-    var hitungIzin = validasiHitungIzin();
-    var convertDariTanggal =
-        Constanst.convertDateSimpan(dariTanggal.value.text);
-    var convertSampaiTanggal =
-        Constanst.convertDateSimpan(sampaiTanggal.value.text);
+  void checkNomorAjuan() {
+    urutkanTanggalSelected();
     var dt = DateTime.now();
     var dateString = "${dt.year}-${dt.month}-${dt.day}";
     var afterConvert = Constanst.convertDate1(dateString);
-    var convertTanggalBikinPengajuan =
-        Constanst.convertDateSimpan(afterConvert);
+    var convertTanggalBikinPengajuan = statusForm.value == false
+        ? Constanst.convertDateSimpan(afterConvert)
+        : atten_date_edit.value;
+
+    Map<String, dynamic> body = {
+      'atten_date': convertTanggalBikinPengajuan,
+      'pola': 'CT'
+    };
+    var connect = Api.connectionApi("post", body, "emp_leave_lastrow");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == true) {
+          if (valueBody['data'].isEmpty) {
+            var now = DateTime.now();
+            var convertBulan = now.month <= 9 ? "0${now.month}" : now.month;
+            var finalNomor = "CT${now.year}${convertBulan}0001";
+            kirimFormAjuanCuti(finalNomor);
+          } else {
+            var getNomorAjuanTerakhir = valueBody['data'][0]['nomor_ajuan'];
+            var keyNomor = getNomorAjuanTerakhir.replaceAll("CT", '');
+            var hasilTambah = int.parse(keyNomor) + 1;
+            var finalNomor = "CT$hasilTambah";
+            kirimFormAjuanCuti(finalNomor);
+          }
+        } else {
+          UtilsAlert.showToast(
+              "Data periode $convertTanggalBikinPengajuan belum tersedia, harap hubungi HRD");
+        }
+      }
+    });
+  }
+
+  void urutkanTanggalSelected() {
+    var hasilConvert = [];
+    var tampungStringTanggal = "";
+    if (tanggalSelected.value.isNotEmpty) {
+      tanggalSelected.value.forEach((element) {
+        var inputFormat = DateFormat('yyyy-MM-dd');
+        String formatted = inputFormat.format(element);
+        hasilConvert.add(formatted);
+      });
+      hasilConvert.sort((a, b) {
+        return DateTime.parse(a).compareTo(DateTime.parse(b));
+      });
+      var getFirst = hasilConvert.first;
+      var getLast = hasilConvert.last;
+      dariTanggal.value.text = getFirst;
+      sampaiTanggal.value.text = getLast;
+      durasiIzin.value = hasilConvert.length;
+      hasilConvert.forEach((element) {
+        if (tampungStringTanggal == "") {
+          tampungStringTanggal = element;
+        } else {
+          tampungStringTanggal = "$tampungStringTanggal,$element";
+        }
+      });
+      stringSelectedTanggal.value = tampungStringTanggal;
+      this.dariTanggal.refresh();
+      this.sampaiTanggal.refresh();
+      this.durasiIzin.refresh();
+      this.stringSelectedTanggal.refresh();
+    }
+  }
+
+  void kirimFormAjuanCuti(getNomorAjuanTerakhir) async {
+    var dataUser = AppData.informasiUser;
+    var getEmid = dataUser![0].em_id;
+    var validasiTipeSelected = validasiSelectedType();
+    var validasiDelegasiSelected = validasiSelectedDelegasi();
+    var dt = DateTime.now();
+    var dateString = "${dt.year}-${dt.month}-${dt.day}";
+    var afterConvert = Constanst.convertDate1(dateString);
+    var convertTanggalBikinPengajuan = statusForm.value == false
+        ? Constanst.convertDateSimpan(afterConvert)
+        : atten_date_edit.value;
+
     UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan Data");
     Map<String, dynamic> body = {
-      'em_id': '$getEmCode',
+      'em_id': '$getEmid',
       'typeid': validasiTipeSelected,
+      'nomor_ajuan': getNomorAjuanTerakhir,
       'leave_type': 'Full Day',
-      'start_date': convertDariTanggal,
-      'end_date': convertSampaiTanggal,
-      'leave_duration': hitungIzin,
+      'start_date': dariTanggal.value.text,
+      'end_date': sampaiTanggal.value.text,
+      'leave_duration': durasiIzin.value,
+      'date_selected': stringSelectedTanggal.value,
       'apply_date': '',
       'reason': alasan.value.text,
       'leave_status': 'Pending',
@@ -319,7 +413,7 @@ class CutiController extends GetxController {
       'em_delegation': validasiDelegasiSelected,
       'leave_files': namaFileUpload.value,
       'ajuan': '2',
-      'created_by': getEmpid,
+      'created_by': getEmid,
       'menu_name': 'Cuti'
     };
     if (statusForm.value == false) {
@@ -328,12 +422,23 @@ class CutiController extends GetxController {
       var connect = Api.connectionApi("post", body, "insert-emp_leave");
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
-          Navigator.pop(Get.context!);
-          var pesan =
-              "Pengajuan Form ${selectedTypeCuti.value} berhasil dibuat. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah dibuat";
-          Get.offAll(BerhasilPengajuan(
-            dataBerhasil: [pesan],
-          ));
+          var valueBody = jsonDecode(res.body);
+          if (valueBody['status'] == true) {
+            Navigator.pop(Get.context!);
+            var pesan =
+                "Pengajuan Form ${selectedTypeCuti.value} berhasil dibuat. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah dibuat";
+            Get.offAll(BerhasilPengajuan(
+              dataBerhasil: [pesan],
+            ));
+          } else {
+            if (valueBody['message'] == "ulang") {
+              checkNomorAjuan();
+            } else {
+              Navigator.pop(Get.context!);
+              UtilsAlert.showToast(
+                  "Data periode $convertTanggalBikinPengajuan belum tersedia, harap hubungi HRD");
+            }
+          }
         }
       });
     } else {
@@ -344,6 +449,8 @@ class CutiController extends GetxController {
       var connect = Api.connectionApi("post", body, "edit-emp_leave");
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
+          var valueBody = jsonDecode(res.body);
+          print(valueBody['data']);
           Navigator.pop(Get.context!);
           var pesan =
               "Pengajuan Form Cuti berhasil diedit. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah diedit";
@@ -362,26 +469,37 @@ class CutiController extends GetxController {
         result.add(element);
       }
     }
-    return "${result[0]['type_id']}";
+    return "${result[0]['id']}";
   }
 
   String validasiSelectedDelegasi() {
     var result = [];
     for (var element in allEmployee.value) {
-      var namaDepan = element['first_name'] ?? "";
-      var namaBelakang = element['last_name'] ?? "";
-      var namaElement = "$namaDepan $namaBelakang";
+      var fullName = element['full_name'] ?? "";
+      var namaElement = "$fullName";
       if (namaElement == selectedDelegasi.value) {
         result.add(element);
       }
     }
-    return "${result[0]['em_code']}";
+    return "${result[0]['em_id']}";
   }
 
   String validasiHitungIzin() {
-    var getDari = Constanst.convertOnlyDate(dariTanggal.value.text);
-    var getSampai = Constanst.convertOnlyDate(sampaiTanggal.value.text);
-    var hitung = (int.parse(getSampai) - int.parse(getDari)) + 1;
+    var getDari = dariTanggal.value.text.split('-');
+    var getSampai = sampaiTanggal.value.text.split('-');
+    var hitung;
+    if (getDari[1] == getSampai[1]) {
+      hitung = (int.parse(getSampai[0]) - int.parse(getDari[0])) + 1;
+    } else {
+      // get dari
+      var year = int.parse(getDari[2]);
+      var bulan = int.parse(getDari[1]);
+      DateTime convert1 = new DateTime(year, bulan + 1, 0);
+      var allDayMonthDari = "${convert1.day}";
+      var proses1 = int.parse(allDayMonthDari) - int.parse(getDari[0]);
+      // get sampai
+      hitung = (proses1 + int.parse(getSampai[0])) + 1;
+    }
     return "$hitung";
   }
 
@@ -421,14 +539,15 @@ class CutiController extends GetxController {
   void batalkanPengajuan(index) {
     UtilsAlert.loadingSimpanData(Get.context!, "Batalkan Pengajuan");
     var dataUser = AppData.informasiUser;
-    var getEmpId = dataUser![0].emp_id;
+    var getEmid = dataUser![0].em_id;
     Map<String, dynamic> body = {
       'menu_name': 'Cuti',
       'activity_name':
           'Membatalkan form pengajuan Cuti. Tanggal = ${index["start_date"]} sd Tanggal = ${index["end_date"]} Durasi Cuti = ${index["leave_duration"]} Alasan = ${index["reason"]}',
-      'created_by': '$getEmpId',
+      'created_by': '$getEmid',
       'val': 'id',
       'cari': '${index["id"]}',
+      'start_date': '${index["start_date"]}',
     };
     var connect = Api.connectionApi("post", body, "delete-emp_leave");
     connect.then((dynamic res) {
@@ -440,5 +559,4 @@ class CutiController extends GetxController {
       }
     });
   }
-
 }

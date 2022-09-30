@@ -160,7 +160,7 @@ class Setting extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "${controller.user.value![0].first_name} ${controller.user.value![0].last_name}",
+                    "${controller.user.value![0].full_name}",
                     style: TextStyle(color: Colors.white),
                   ),
                   SizedBox(
@@ -195,7 +195,7 @@ class Setting extends StatelessWidget {
                     height: 5,
                   ),
                   Text(
-                    "NIK. ${controller.user.value![0].emp_id}",
+                    "NIK. ${controller.user.value![0].em_id}",
                     style: TextStyle(color: Colors.white),
                   )
                 ],

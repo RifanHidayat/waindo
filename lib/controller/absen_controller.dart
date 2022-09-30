@@ -11,11 +11,9 @@ import 'dart:math';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:siscom_operasional/model/absen_model.dart';
 import 'package:siscom_operasional/screen/absen/berhasil_absen.dart';
 import 'package:siscom_operasional/screen/absen/detail_absen.dart';
-import 'package:siscom_operasional/screen/dashboard.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
@@ -96,17 +94,30 @@ class AbsenController extends GetxController {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
           var dataDepartemen = valueBody['data'];
+
           var dataUser = AppData.informasiUser;
           var hakAkses = dataUser![0].em_hak_akses;
-          print('hak akses $hakAkses');
-          if (hakAkses == '1') {
-            var data = {'id': 0, 'dep_name': 'Semua', 'parent_id': ''};
-            departementAkses.add(data);
-          }
+
           if (hakAkses != "") {
+            if (hakAkses == '0') {
+              var data = {
+                'id': 0,
+                'name': 'ALL DEPARTEMEN',
+                'inisial': 'AD',
+                'parent_id': '',
+                'aktif': '',
+                'pakai': '',
+                'ip': '',
+                'created_by': '',
+                'created_on': '',
+                'modified_by': '',
+                'modified_on': ''
+              };
+              departementAkses.add(data);
+            }
             var convert = hakAkses!.split(',');
             for (var element in dataDepartemen) {
-              if (hakAkses == '1') {
+              if (hakAkses == '0') {
                 departementAkses.add(element);
               }
               for (var element1 in convert) {
@@ -117,14 +128,14 @@ class AbsenController extends GetxController {
               }
             }
           }
-        }
-        this.departementAkses.refresh();
-        if (departementAkses.value.isNotEmpty) {
-          idDepartemenTerpilih.value = "${departementAkses[0]['id']}";
-          namaDepartemenTerpilih.value = departementAkses[0]['dep_name'];
-          departemen.value.text = departementAkses[0]['dep_name'];
-          showButtonlaporan.value = true;
-          aksiCariLaporan();
+          this.departementAkses.refresh();
+          if (departementAkses.value.isNotEmpty) {
+            idDepartemenTerpilih.value = "${departementAkses[0]['id']}";
+            namaDepartemenTerpilih.value = departementAkses[0]['name'];
+            departemen.value.text = departementAkses[0]['name'];
+            showButtonlaporan.value = true;
+            aksiCariLaporan();
+          }
         }
       }
     });
@@ -247,7 +258,7 @@ class AbsenController extends GetxController {
         if (statusPosisi == true) {
           var latLangAbsen = "${latUser.value},${langUser.value}";
           var dataUser = AppData.informasiUser;
-          var getEmpId = dataUser![0].emp_id;
+          var getEmpId = dataUser![0].em_id;
           var getSettingAppSaveImageAbsen =
               settingAppInfo.value![0].saveimage_attend;
           var validasiGambar =
@@ -262,7 +273,7 @@ class AbsenController extends GetxController {
             AppData.dateLastAbsen = tanggalUserFoto.value;
           }
           Map<String, dynamic> body = {
-            'emp_id': getEmpId,
+            'em_id': getEmpId,
             'tanggal_absen': tanggalUserFoto.value,
             'waktu': timeString.value,
             'gambar': validasiGambar,
@@ -305,6 +316,7 @@ class AbsenController extends GetxController {
   }
 
   void getValMock(values) {
+    print(values);
     String _latitude = values.latitude;
     String _longitude = values.longitude;
     bool _isMockLocation = values.isMockLocation;
@@ -373,9 +385,9 @@ class AbsenController extends GetxController {
   void loadHistoryAbsenUser() {
     historyAbsen.value.clear();
     var dataUser = AppData.informasiUser;
-    var getEmpId = dataUser![0].emp_id;
+    var getEmpId = dataUser![0].em_id;
     Map<String, dynamic> body = {
-      'emp_id': getEmpId,
+      'em_id': getEmpId,
       'bulan': bulanSelectedSearchHistory.value,
       'tahun': tahunSelectedSearchHistory.value,
     };
@@ -383,35 +395,39 @@ class AbsenController extends GetxController {
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
-        var data = valueBody['data'];
-        loading.value =
-            data.length == 0 ? "Data tidak ditemukan" : "Memuat data...";
-        for (var el in data) {
-          historyAbsen.value.add(AbsenModel(
-              id: el['id'] ?? "",
-              emp_id: el['emp_id'] ?? "",
-              atten_date: el['atten_date'] ?? "",
-              signin_time: el['signin_time'] ?? "",
-              signout_time: el['signout_time'] ?? "",
-              working_hour: el['working_hour'] ?? "",
-              place: el['place'] ?? "",
-              absence: el['absence'] ?? "",
-              overtime: el['overtime'] ?? "",
-              earnleave: el['earnleave'] ?? "",
-              status: el['status'] ?? "",
-              signin_longlat: el['signin_longlat'] ?? "",
-              signout_longlat: el['signout_longlat'] ?? "",
-              att_type: el['att_type'] ?? "",
-              signin_pict: el['signin_pict'] ?? "",
-              signout_pict: el['signout_pict'] ?? "",
-              signin_note: el['signin_note'] ?? "",
-              signout_note: el['signout_note'] ?? "",
-              signin_addr: el['signin_addr'] ?? "",
-              signout_addr: el['signout_addr'] ?? "",
-              atttype: el['atttype'] ?? 0));
+        if (valueBody['status'] == true) {
+          var data = valueBody['data'];
+          loading.value =
+              data.length == 0 ? "Data tidak ditemukan" : "Memuat data...";
+          for (var el in data) {
+            historyAbsen.value.add(AbsenModel(
+                id: el['id'] ?? "",
+                em_id: el['em_id'] ?? "",
+                atten_date: el['atten_date'] ?? "",
+                signin_time: el['signin_time'] ?? "",
+                signout_time: el['signout_time'] ?? "",
+                working_hour: el['working_hour'] ?? "",
+                place: el['place'] ?? "",
+                absence: el['absence'] ?? "",
+                overtime: el['overtime'] ?? "",
+                earnleave: el['earnleave'] ?? "",
+                status: el['status'] ?? "",
+                signin_longlat: el['signin_longlat'] ?? "",
+                signout_longlat: el['signout_longlat'] ?? "",
+                att_type: el['att_type'] ?? "",
+                signin_pict: el['signin_pict'] ?? "",
+                signout_pict: el['signout_pict'] ?? "",
+                signin_note: el['signin_note'] ?? "",
+                signout_note: el['signout_note'] ?? "",
+                signin_addr: el['signin_addr'] ?? "",
+                signout_addr: el['signout_addr'] ?? "",
+                atttype: el['atttype'] ?? 0));
+          }
+          this.historyAbsen.refresh();
+        } else {
+          loading.value = "Data tidak ditemukan";
         }
       }
-      this.historyAbsen.refresh();
     });
   }
 
@@ -478,22 +494,21 @@ class AbsenController extends GetxController {
         return AlertDialog(
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.circular(15.0))),
-            content: Container(
-              height: 300.0,
-              width: 300.0,
+            content: SizedBox(
+              width: double.minPositive,
               child: ListView.builder(
                   shrinkWrap: true,
                   physics: BouncingScrollPhysics(),
                   itemCount: departementAkses.value.length,
                   itemBuilder: (context, index) {
                     var id = departementAkses.value[index]['id'];
-                    var dep_name = departementAkses.value[index]['dep_name'];
+                    var dep_name = departementAkses.value[index]['name'];
                     return InkWell(
                       onTap: () {
                         idDepartemenTerpilih.value = "$id";
                         namaDepartemenTerpilih.value = dep_name;
                         departemen.value.text =
-                            departementAkses.value[index]['dep_name'];
+                            departementAkses.value[index]['name'];
                         Navigator.pop(context);
                       },
                       child: Padding(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:siscom_operasional/controller/pesan_controller.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
@@ -93,15 +95,42 @@ class Pesan extends StatelessWidget {
               ),
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: Center(
-                  child: Text(
-                    "Notifikasi",
-                    style: TextStyle(
-                        color: controller.selectedView.value == 0
-                            ? Constanst.colorPrimary
-                            : Constanst.colorText2,
-                        fontWeight: FontWeight.bold),
-                  ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Notifikasi",
+                      style: TextStyle(
+                          color: controller.selectedView.value == 0
+                              ? Constanst.colorPrimary
+                              : Constanst.colorText2,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    controller.jumlahNotifikasiBelumDibaca.value == 0
+                        ? SizedBox()
+                        : Obx(
+                            () => Container(
+                                margin: EdgeInsets.only(left: 6),
+                                decoration: BoxDecoration(
+                                  color: Constanst.colorButton2,
+                                  borderRadius: Constanst.borderStyle3,
+                                ),
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(left: 8, right: 8),
+                                  child: Text(
+                                    "${controller.jumlahNotifikasiBelumDibaca.value}"
+                                                .length >
+                                            2
+                                        ? "${controller.jumlahNotifikasiBelumDibaca.value}"
+                                                .substring(0, 2) +
+                                            '+'
+                                        : "${controller.jumlahNotifikasiBelumDibaca.value}",
+                                  ),
+                                )),
+                          ),
+                  ],
                 ),
               ),
             ),
@@ -126,15 +155,42 @@ class Pesan extends StatelessWidget {
               ),
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: Center(
-                  child: Text(
-                    "Persetujuan",
-                    style: TextStyle(
-                        color: controller.selectedView.value == 1
-                            ? Constanst.colorPrimary
-                            : Constanst.colorText2,
-                        fontWeight: FontWeight.bold),
-                  ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Persetujuan",
+                      style: TextStyle(
+                          color: controller.selectedView.value == 1
+                              ? Constanst.colorPrimary
+                              : Constanst.colorText2,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    controller.jumlahPersetujuan.value == 0
+                        ? SizedBox()
+                        : Obx(
+                            () => Container(
+                                margin: EdgeInsets.only(left: 6),
+                                decoration: BoxDecoration(
+                                  color: Constanst.colorButton2,
+                                  borderRadius: Constanst.borderStyle3,
+                                ),
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(left: 8, right: 8),
+                                  child: Text(
+                                    "${controller.jumlahPersetujuan.value}"
+                                                .length >
+                                            2
+                                        ? "${controller.jumlahPersetujuan.value}"
+                                                .substring(0, 2) +
+                                            '+'
+                                        : "${controller.jumlahPersetujuan.value}",
+                                  ),
+                                )),
+                          ),
+                  ],
                 ),
               ),
             ),
@@ -159,15 +215,41 @@ class Pesan extends StatelessWidget {
               ),
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 8),
-                child: Center(
-                  child: Text(
-                    "Riwayat",
-                    style: TextStyle(
-                        color: controller.selectedView.value == 2
-                            ? Constanst.colorPrimary
-                            : Constanst.colorText2,
-                        fontWeight: FontWeight.bold),
-                  ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Riwayat",
+                      style: TextStyle(
+                          color: controller.selectedView.value == 2
+                              ? Constanst.colorPrimary
+                              : Constanst.colorText2,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    controller.jumlahRiwayat.value == 0
+                        ? SizedBox()
+                        : Obx(
+                            () => Container(
+                                margin: EdgeInsets.only(left: 6),
+                                decoration: BoxDecoration(
+                                  color: Constanst.colorButton2,
+                                  borderRadius: Constanst.borderStyle3,
+                                ),
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(left: 8, right: 8),
+                                  child: Text(
+                                    "${controller.jumlahRiwayat.value}".length >
+                                            2
+                                        ? "${controller.jumlahRiwayat.value}"
+                                                .substring(0, 2) +
+                                            '+'
+                                        : "${controller.jumlahRiwayat.value}",
+                                  ),
+                                )),
+                          ),
+                  ],
                 ),
               ),
             ),
@@ -216,196 +298,235 @@ class Pesan extends StatelessWidget {
               ],
             ),
           )
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              controller.jumlahNotifikasiBelumDibaca.value == 0
-                  ? SizedBox()
-                  : Obx(
-                      () => Container(
-                          decoration: BoxDecoration(
-                            color: Constanst.colorButton2,
-                            borderRadius: Constanst.borderStyle3,
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            "${controller.jumlahNotifikasiBelumDibaca.value} notifikasi belum terbaca",
-                          )),
-                    ),
-              Flexible(
-                flex: 3,
-                child: ListView.builder(
-                    itemCount: controller.listNotifikasi.value.length,
-                    physics: BouncingScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      var tanggalNotif =
-                          controller.listNotifikasi.value[index]['tanggal'];
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(tanggalNotif),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Obx(
-                            () => Padding(
-                              padding: EdgeInsets.only(left: 8, right: 8),
-                              child: ListView.builder(
-                                  itemCount: controller.listNotifikasi
-                                      .value[index]['notifikasi'].length,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  shrinkWrap: true,
-                                  itemBuilder: (context, idx) {
-                                    var idNotif = controller.listNotifikasi
-                                        .value[index]['notifikasi'][idx]['id'];
-                                    var titleNotif =
-                                        controller.listNotifikasi.value[index]
-                                            ['notifikasi'][idx]['title'];
-                                    var deskripsiNotif =
-                                        controller.listNotifikasi.value[index]
-                                            ['notifikasi'][idx]['deskripsi'];
-                                    var urlRoute = controller.listNotifikasi
-                                        .value[index]['notifikasi'][idx]['url'];
-                                    var jam = controller.listNotifikasi
-                                        .value[index]['notifikasi'][idx]['jam'];
-                                    var statusNotif =
-                                        controller.listNotifikasi.value[index]
-                                            ['notifikasi'][idx]['status'];
-                                    var view =
-                                        controller.listNotifikasi.value[index]
-                                            ['notifikasi'][idx]['view'];
-                                    return Column(
-                                      children: [
-                                        SizedBox(height: 8),
-                                        Container(
-                                          decoration: BoxDecoration(
-                                            color: view == 0
-                                                ? Constanst.colorButton2
-                                                : Colors.transparent,
-                                            borderRadius:
-                                                Constanst.borderStyle1,
-                                          ),
-                                          child: InkWell(
-                                            onTap: () {
-                                              if (view == 0) {
-                                                controller
-                                                    .aksilihatNotif(idNotif);
-                                              } else {
-                                                controller
-                                                    .redirectToPage(urlRoute);
-                                              }
-                                            },
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: IntrinsicHeight(
-                                                child: Row(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment
-                                                          .stretch,
-                                                  children: [
-                                                    Expanded(
-                                                        flex: 10,
-                                                        child: Center(
-                                                          child:
-                                                              statusNotif == 1
-                                                                  ? Icon(
-                                                                      Iconsax
-                                                                          .tick_circle,
-                                                                      color: Colors
-                                                                          .green,
-                                                                    )
-                                                                  : Icon(
-                                                                      Iconsax
-                                                                          .close_circle,
-                                                                      color: Colors
-                                                                          .red,
-                                                                    ),
-                                                        )),
-                                                    Expanded(
-                                                      flex: 90,
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .only(right: 5),
-                                                        child: Column(
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .start,
-                                                          children: [
-                                                            Row(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Expanded(
-                                                                  flex: 75,
-                                                                  child:
-                                                                      Padding(
-                                                                    padding: const EdgeInsets
-                                                                            .only(
-                                                                        right:
-                                                                            5),
-                                                                    child: Text(
-                                                                      titleNotif,
-                                                                      style: TextStyle(
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                Expanded(
-                                                                  flex: 25,
-                                                                  child: Text(
-                                                                    "$jam WIB",
-                                                                    textAlign:
-                                                                        TextAlign
-                                                                            .right,
-                                                                    style: TextStyle(
-                                                                        fontSize:
-                                                                            12),
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                            Text(
-                                                              deskripsiNotif,
-                                                              style: TextStyle(
-                                                                  color: Constanst
-                                                                      .colorText2),
-                                                            ),
-                                                          ],
+        : ListView.builder(
+            itemCount: controller.listNotifikasi.value.length,
+            physics: BouncingScrollPhysics(),
+            itemBuilder: (context, index) {
+              var tanggalNotif =
+                  controller.listNotifikasi.value[index]['tanggal'];
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Text(tanggalNotif),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  Obx(
+                    () => Padding(
+                      padding: EdgeInsets.only(left: 8, right: 8),
+                      child: ListView.builder(
+                          itemCount: controller
+                              .listNotifikasi.value[index]['notifikasi'].length,
+                          physics: NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemBuilder: (context, idx) {
+                            var idNotif = controller.listNotifikasi.value[index]
+                                ['notifikasi'][idx]['id'];
+                            var titleNotif = controller.listNotifikasi
+                                .value[index]['notifikasi'][idx]['title'];
+                            var deskripsiNotif = controller.listNotifikasi
+                                .value[index]['notifikasi'][idx]['deskripsi'];
+                            var urlRoute = controller.listNotifikasi
+                                .value[index]['notifikasi'][idx]['url'];
+                            var jam = controller.listNotifikasi.value[index]
+                                ['notifikasi'][idx]['jam'];
+                            var statusNotif = controller.listNotifikasi
+                                .value[index]['notifikasi'][idx]['status'];
+                            var view = controller.listNotifikasi.value[index]
+                                ['notifikasi'][idx]['view'];
+                            return Column(
+                              children: [
+                                SizedBox(height: 8),
+                                Container(
+                                  decoration: BoxDecoration(
+                                    color: view == 0
+                                        ? Constanst.colorButton2
+                                        : Colors.transparent,
+                                    borderRadius: Constanst.borderStyle1,
+                                  ),
+                                  child: InkWell(
+                                    onTap: () {
+                                      if (view == 0) {
+                                        controller.aksilihatNotif(idNotif);
+                                      } else {
+                                        controller.redirectToPage(urlRoute);
+                                      }
+                                    },
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: IntrinsicHeight(
+                                        child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.stretch,
+                                          children: [
+                                            Expanded(
+                                                flex: 10,
+                                                child: Center(
+                                                  child: statusNotif == 1
+                                                      ? Icon(
+                                                          Iconsax.tick_circle,
+                                                          color: Colors.green,
+                                                        )
+                                                      : Icon(
+                                                          Iconsax.close_circle,
+                                                          color: Colors.red,
                                                         ),
-                                                      ),
+                                                )),
+                                            Expanded(
+                                              flex: 90,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    right: 5),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Row(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Expanded(
+                                                          flex: 75,
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                        .only(
+                                                                    right: 5),
+                                                            child: Text(
+                                                              titleNotif,
+                                                              style: TextStyle(
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .bold),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        Expanded(
+                                                          flex: 25,
+                                                          child: Text(
+                                                            "$jam WIB",
+                                                            textAlign:
+                                                                TextAlign.right,
+                                                            style: TextStyle(
+                                                                fontSize: 12),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    Text(
+                                                      deskripsiNotif,
+                                                      style: TextStyle(
+                                                          color: Constanst
+                                                              .colorText2),
                                                     ),
                                                   ],
                                                 ),
                                               ),
                                             ),
-                                          ),
+                                          ],
                                         ),
-                                        SizedBox(height: 8),
-                                        Divider(
-                                          height: 5,
-                                          color: Constanst.colorText2,
-                                        ),
-                                      ],
-                                    );
-                                  }),
-                            ),
-                          ),
-                          SizedBox(
-                            height: 16,
-                          ),
-                        ],
-                      );
-                    }),
-              ),
-            ],
-          );
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Divider(
+                                  height: 5,
+                                  color: Constanst.colorText2,
+                                ),
+                              ],
+                            );
+                          }),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                ],
+              );
+            });
+  }
+
+  Widget pickDate() {
+    return Container(
+      decoration: Constanst.styleBoxDecoration1,
+      margin: EdgeInsets.only(left: 5, right: 5),
+      child: Padding(
+        padding: EdgeInsets.only(top: 15, bottom: 10),
+        child: InkWell(
+          onTap: () {
+            showMonthPicker(
+              context: Get.context!,
+              firstDate: DateTime(DateTime.now().year - 1, 5),
+              lastDate: DateTime(DateTime.now().year + 1, 9),
+              initialDate: DateTime.now(),
+              locale: Locale("en"),
+            ).then((date) {
+              if (date != null) {
+                print(date);
+                var outputFormat1 = DateFormat('MM');
+                var outputFormat2 = DateFormat('yyyy');
+                var bulan = outputFormat1.format(date);
+                var tahun = outputFormat2.format(date);
+                controller.bulanSelectedSearchHistory.value = bulan;
+                controller.tahunSelectedSearchHistory.value = tahun;
+                controller.bulanDanTahunNow.value = "$bulan-$tahun";
+                this.controller.bulanSelectedSearchHistory.refresh();
+                this.controller.tahunSelectedSearchHistory.refresh();
+                this.controller.bulanDanTahunNow.refresh();
+                controller.loadApproveInfo();
+                controller.loadApproveHistory();
+              }
+            });
+          },
+          child: Obx(
+            () => Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 90,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Icon(Iconsax.calendar_2),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Text(
+                          "${Constanst.convertDateBulanDanTahun(controller.bulanDanTahunNow.value)}",
+                          style:
+                              TextStyle(fontSize: 16, color: Constanst.color2),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 10,
+                  child: Container(
+                    alignment: Alignment.topRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Icon(
+                        Iconsax.arrow_down_14,
+                        size: 24,
+                        color: Constanst.colorText2,
+                      ),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   Widget screenPersetujuan() {
@@ -415,12 +536,24 @@ class Pesan extends StatelessWidget {
         SizedBox(
           height: 8,
         ),
+        pickDate(),
+        SizedBox(
+          height: 16,
+        ),
         Obx(
           () => Padding(
             padding: EdgeInsets.only(left: 8, right: 8),
-            child: controller.statusScreenInfoApproval.value == false
+            child: controller.statusScreenInfoApproval.value == true
                 ? Center(
-                    child: Text(controller.stringLoading.value),
+                    child: Column(
+                      children: [
+                        CircularProgressIndicator(strokeWidth: 3),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Text(controller.stringLoading.value),
+                      ],
+                    ),
                   )
                 : ListView.builder(
                     itemCount: controller.dataScreenPersetujuan.value.length,

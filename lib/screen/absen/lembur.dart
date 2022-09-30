@@ -183,6 +183,7 @@ class Lembur extends StatelessWidget {
         physics: BouncingScrollPhysics(),
         itemCount: controller.listLembur.value.length,
         itemBuilder: (context, index) {
+          var nomorAjuan = controller.listLembur.value[index]['nomor_ajuan'];
           var dariJam = controller.listLembur.value[index]['dari_jam'];
           var sampaiJam = controller.listLembur.value[index]['sampai_jam'];
           var tanggalPengajuan =
@@ -296,6 +297,17 @@ class Lembur extends StatelessWidget {
                             ),
                           )
                         ],
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        "NO.$nomorAjuan",
+                        textAlign: TextAlign.justify,
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: Constanst.colorText1,
+                            fontWeight: FontWeight.bold),
                       ),
                       SizedBox(
                         height: 5,

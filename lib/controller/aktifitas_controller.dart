@@ -28,9 +28,9 @@ class AktifitasController extends GetxController {
 
   void loadAktifitas() {
     var dataUser = AppData.informasiUser;
-    var getEmpid = dataUser![0].emp_id;
+    var getEmpid = dataUser![0].em_id;
     Map<String, dynamic> body = {
-      'emp_id': getEmpid,
+      'em_id': getEmpid,
       'offset': listAktifitas.value.length,
       'limit': limit.value,
     };
@@ -58,9 +58,9 @@ class AktifitasController extends GetxController {
     statusPencarian.value = true;
     listAktifitas.value.clear();
     var dataUser = AppData.informasiUser;
-    var getEmpid = dataUser![0].emp_id;
+    var getEmpid = dataUser![0].em_id;
     Map<String, dynamic> body = {
-      'emp_id': getEmpid,
+      'em_id': getEmpid,
       'cari': cari.value.text,
     };
     var connect = Api.connectionApi("post", body, "pencarian_aktifitas");

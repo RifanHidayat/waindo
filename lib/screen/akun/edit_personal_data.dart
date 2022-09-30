@@ -21,7 +21,7 @@ class EditPersonalInfo extends StatelessWidget {
       backgroundColor: Constanst.coloBackgroundScreen,
       appBar: AppBar(
           backgroundColor: Constanst.coloBackgroundScreen,
-          elevation : 2,
+          elevation: 2,
           flexibleSpace: AppbarMenu1(
             title: "Edit Personal Info",
             icon: 1,
@@ -130,7 +130,7 @@ class EditPersonalInfo extends StatelessWidget {
                                           color: Constanst.colorText1),
                                     ),
                                     TextField(
-                                      controller: controller.namaDepan.value,
+                                      controller: controller.fullName.value,
                                       decoration: InputDecoration(
                                         border: InputBorder.none,
                                       ),

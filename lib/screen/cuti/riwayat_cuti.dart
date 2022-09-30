@@ -90,7 +90,8 @@ class RiwayatCuti extends StatelessWidget {
                                   child: controller
                                           .listHistoryAjuan.value.isEmpty
                                       ? Center(
-                                          child: Text("Tidak ada pengajuan"),
+                                          child: Obx(() => Text(
+                                              controller.stringLoading.value)),
                                         )
                                       : listAjuanCuti()),
                             ],
@@ -305,6 +306,8 @@ class RiwayatCuti extends StatelessWidget {
         physics: BouncingScrollPhysics(),
         itemCount: controller.listHistoryAjuan.value.length,
         itemBuilder: (context, index) {
+          var nomorAjuan =
+              controller.listHistoryAjuan.value[index]['nomor_ajuan'];
           var tanggalMasukAjuan =
               controller.listHistoryAjuan.value[index]['atten_date'];
           var namaTypeAjuan = controller.listHistoryAjuan.value[index]['name'];
@@ -318,6 +321,10 @@ class RiwayatCuti extends StatelessWidget {
           var typeAjuan =
               controller.listHistoryAjuan.value[index]['leave_status'];
           var apply_by = controller.listHistoryAjuan.value[index]['apply_by'];
+          var tanggalTerpilih =
+              controller.listHistoryAjuan.value[index]['date_selected'];
+          var durasi =
+              controller.listHistoryAjuan.value[index]['leave_duration'];
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -429,10 +436,25 @@ class RiwayatCuti extends StatelessWidget {
                         height: 10,
                       ),
                       Text(
-                          "${Constanst.convertDate("$tanggalAjuanDari")}  --  ${Constanst.convertDate("$tanggalAjuanSampai")}"),
+                        "NO.$nomorAjuan",
+                        textAlign: TextAlign.justify,
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: Constanst.colorText1,
+                            fontWeight: FontWeight.bold),
+                      ),
                       SizedBox(
                         height: 5,
                       ),
+                      Text(
+                          "${Constanst.convertDate("$tanggalAjuanDari")}  --  ${Constanst.convertDate("$tanggalAjuanSampai")} (${durasi} Hari)"),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      // Text("$tanggalTerpilih ($durasi Hari)"),
+                      // SizedBox(
+                      //   height: 5,
+                      // ),
                       Text(
                         alasan,
                         textAlign: TextAlign.justify,

@@ -11,7 +11,7 @@ import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
-import 'package:siscom_operasional/utils/widget_utils.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class FormPengajuanCuti extends StatefulWidget {
   List? dataForm;
@@ -23,17 +23,34 @@ class FormPengajuanCuti extends StatefulWidget {
 class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
   final controller = Get.put(CutiController());
 
+  // List<DateTime>? initialSelectedDates;
+
   @override
   void initState() {
     print(widget.dataForm![0]);
     if (widget.dataForm![1] == true) {
-      controller.dariTanggal.value.text =
-          Constanst.convertDate1("${widget.dataForm![0]['start_date']}");
-      controller.sampaiTanggal.value.text =
-          Constanst.convertDate1("${widget.dataForm![0]['end_date']}");
+      controller.dariTanggal.value.text = widget.dataForm![0]['start_date'];
+      controller.sampaiTanggal.value.text = widget.dataForm![0]['end_date'];
       controller.alasan.value.text = widget.dataForm![0]['reason'];
+      controller.atten_date_edit.value = widget.dataForm![0]['atten_date'];
       controller.statusForm.value = true;
       controller.idEditFormCuti.value = "${widget.dataForm![0]['id']}";
+      controller.durasiIzin.value =
+          int.parse(widget.dataForm![0]['leave_duration']);
+      controller.nomorAjuan.value.text =
+          "${widget.dataForm![0]['nomor_ajuan']}";
+      controller.screenTanggalSelected.value = false;
+      print(widget.dataForm![0]['id']);
+      // var listDateTerpilih = widget.dataForm![0]['date_selected'].split(',');
+      // List<DateTime> getDummy = [];
+      // for (var element in listDateTerpilih) {
+      //   var convertDate = DateTime.parse(element);
+      //   getDummy.add(convertDate);
+      // }
+      // print(getDummy);
+      // setState(() {
+      //   initialSelectedDates = getDummy;
+      // });
     }
     super.initState();
   }
@@ -65,6 +82,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
               () => Padding(
                 padding: EdgeInsets.only(left: 16, right: 16),
                 child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -94,7 +112,10 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                       SizedBox(
                         height: 30,
                       ),
-                      formAlasan()
+                      formAlasan(),
+                      SizedBox(
+                        height: 30,
+                      ),
                     ],
                   ),
                 ),
@@ -122,47 +143,49 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
           borderRadius: Constanst.styleBoxDecoration1.borderRadius),
       child: Padding(
         padding: EdgeInsets.only(left: 16, right: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 10,
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                    child: Text(
-                  "Cuti Khusus",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                )),
-                Expanded(
-                    child: Text(
-                  "4/12",
-                  textAlign: TextAlign.right,
-                )),
-              ],
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            SizedBox(
-              width: MediaQuery.of(Get.context!).size.width,
-              child: Center(
-                child: LinearPercentIndicator(
-                  barRadius: Radius.circular(15.0),
-                  lineHeight: 8.0,
-                  percent: controller.persenCuti.value,
-                  progressColor: Colors.blue,
+        child: Obx(
+          () => Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 10,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                      child: Text(
+                    "Cuti Pribadi",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  )),
+                  Expanded(
+                      child: Text(
+                    "${controller.cutiTerpakai.value}/${controller.jumlahCuti.value}",
+                    textAlign: TextAlign.right,
+                  )),
+                ],
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              SizedBox(
+                width: MediaQuery.of(Get.context!).size.width,
+                child: Center(
+                  child: LinearPercentIndicator(
+                    barRadius: Radius.circular(15.0),
+                    lineHeight: 8.0,
+                    percent: controller.persenCuti.value,
+                    progressColor: Colors.blue,
+                  ),
                 ),
               ),
-            ),
-            SizedBox(
-              height: 16,
-            ),
-            // Text("Cuti Khusus"),
-          ],
+              SizedBox(
+                height: 16,
+              ),
+              // Text("Cuti Khusus"),
+            ],
+          ),
         ),
       ),
     );
@@ -206,98 +229,226 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Dari Tanggal*",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: Constanst.borderStyle1,
-                          border: Border.all(
-                              width: 0.5,
-                              color: Color.fromARGB(255, 211, 205, 205))),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: DateTimeField(
-                          format: DateFormat('dd-MM-yyyy'),
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          controller: controller.dariTanggal.value,
-                          onShowPicker: (context, currentValue) {
-                            return showDatePicker(
-                              context: context,
-                              firstDate: DateTime(1800),
-                              lastDate: DateTime(2200),
-                              initialDate: currentValue ?? DateTime.now(),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
+        Text("Tanggal*", style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(
+          height: 5,
+        ),
+        widget.dataForm![1] == true
+            ? customTanggalDariSampaiDari()
+            : SizedBox(),
+        controller.screenTanggalSelected.value == true
+            ? Card(
+                margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
                 ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Sampai Tanggal*",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: Constanst.borderStyle1,
-                          border: Border.all(
-                              width: 0.5,
-                              color: Color.fromARGB(255, 211, 205, 205))),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: DateTimeField(
-                          format: DateFormat('dd-MM-yyyy'),
-                          decoration: const InputDecoration(
-                            border: InputBorder.none,
-                          ),
-                          controller: controller.sampaiTanggal.value,
-                          onShowPicker: (context, currentValue) {
-                            return showDatePicker(
-                              context: context,
-                              firstDate: DateTime(1800),
-                              lastDate: DateTime(2200),
-                              initialDate: currentValue ?? DateTime.now(),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          ],
-        )
+                child: SfDateRangePicker(
+                  selectionMode: DateRangePickerSelectionMode.multiple,
+                  // initialSelectedDate: initialSelectedDates.forEach((element) { }),
+                  // initialSelectedDates: <DateTime>[
+                  //   DateTime.parse("2022-09-30 00:00:00.000"),
+                  //   DateTime.parse("2022-10-03 00:00:00.000"),
+                  //   DateTime.parse("2022-10-04 00:00:00.000"),
+                  //   DateTime.parse("2022-10-05 00:00:00.000")
+                  //   // DateTime.now().add((Duration(days: 4))),
+                  //   // DateTime.now().add((Duration(days: 5))),
+                  //   // DateTime.now().add((Duration(days: 9))),
+                  //   // DateTime.now().add((Duration(days: 11)))
+                  // ],
+                  monthCellStyle: DateRangePickerMonthCellStyle(
+                    weekendTextStyle: TextStyle(color: Colors.red),
+                    blackoutDateTextStyle: TextStyle(
+                        color: Colors.red,
+                        decoration: TextDecoration.lineThrough),
+                  ),
+                  onSelectionChanged:
+                      (DateRangePickerSelectionChangedArgs args) {
+                    controller.tanggalSelected.value = args.value;
+                    this.controller.tanggalSelected.refresh();
+                  },
+                ))
+            : SizedBox(),
       ],
     );
+
+    //  Column(
+    //   crossAxisAlignment: CrossAxisAlignment.start,
+    //   children: [
+    //     Row(
+    //       crossAxisAlignment: CrossAxisAlignment.start,
+    //       mainAxisAlignment: MainAxisAlignment.start,
+    //       children: [
+    //         Expanded(
+    //           child: Padding(
+    //             padding: const EdgeInsets.only(right: 8),
+    //             child: Column(
+    //               crossAxisAlignment: CrossAxisAlignment.start,
+    //               children: [
+    //                 Text("Tanggal*",
+    //                     style: TextStyle(fontWeight: FontWeight.bold)),
+    //                 SizedBox(
+    //                   height: 5,
+    //                 ),
+    //                 Positioned(
+    //                   left: 0,
+    //                   top: 80,
+    //                   right: 0,
+    //                   bottom: 0,
+    //                   child: SfDateRangePicker(
+    //                     selectionMode: DateRangePickerSelectionMode.range,
+    //                     initialSelectedRange: PickerDateRange(
+    //                         DateTime.now().subtract(const Duration(days: 4)),
+    //                         DateTime.now().add(const Duration(days: 3))),
+    //                   ),
+    //                 )
+    //                 // Container(
+    //                 //   height: 50,
+    //                 //   decoration: BoxDecoration(
+    //                 //       color: Colors.white,
+    //                 //       borderRadius: Constanst.borderStyle1,
+    //                 //       border: Border.all(
+    //                 //           width: 0.5,
+    //                 //           color: Color.fromARGB(255, 211, 205, 205))),
+    //                 //   child: Padding(
+    //                 //       padding: const EdgeInsets.all(8.0),
+    //                 //       child: SfDateRangePicker(
+    //                 //         initialSelectedRange: PickerDateRange(
+    //                 //             DateTime.now()
+    //                 //                 .subtract(const Duration(days: 4)),
+    //                 //             DateTime.now().add(const Duration(days: 3))),
+    //                 //         selectionMode: DateRangePickerSelectionMode.range,
+    //                 //       )
+    //                 //       // DateTimeField(
+    //                 //       //   format: DateFormat('dd-MM-yyyy'),
+    //                 //       //   decoration: const InputDecoration(
+    //                 //       //     border: InputBorder.none,
+    //                 //       //   ),
+    //                 //       //   controller: controller.dariTanggal.value,
+    //                 //       //   onShowPicker: (context, currentValue) {
+    //                 //       //     // DateTime now = DateTime.now();
+    //                 //       //     // DateTime firstDateOfMonth =
+    //                 //       //     //     DateTime(now.year, now.month + 0, 1);
+    //                 //       //     // DateTime lastDayOfMonth =
+    //                 //       //     //     DateTime(now.year, now.month + 1, 0);
+    //                 //       //     return showDatePicker(
+    //                 //       //       context: context,
+    //                 //       //       firstDate: DateTime(2000),
+    //                 //       //       lastDate: DateTime(2100),
+    //                 //       //       initialDate: currentValue ?? DateTime.now(),
+    //                 //       //     );
+    //                 //       //   },
+    //                 //       // ),
+    //                 //       ),
+    //                 // ),
+    //               ],
+    //             ),
+    //           ),
+    //         ),
+    //         Expanded(
+    //           child: Padding(
+    //             padding: const EdgeInsets.only(left: 8),
+    //             child: Column(
+    //               crossAxisAlignment: CrossAxisAlignment.start,
+    //               children: [
+    //                 Text("Sampai Tanggal*",
+    //                     style: TextStyle(fontWeight: FontWeight.bold)),
+    //                 SizedBox(
+    //                   height: 5,
+    //                 ),
+    //                 Container(
+    //                   height: 50,
+    //                   decoration: BoxDecoration(
+    //                       color: Colors.white,
+    //                       borderRadius: Constanst.borderStyle1,
+    //                       border: Border.all(
+    //                           width: 0.5,
+    //                           color: Color.fromARGB(255, 211, 205, 205))),
+    //                   child: Padding(
+    //                     padding: const EdgeInsets.all(8.0),
+    //                     child: DateTimeField(
+    //                       format: DateFormat('dd-MM-yyyy'),
+    //                       decoration: const InputDecoration(
+    //                         border: InputBorder.none,
+    //                       ),
+    //                       controller: controller.sampaiTanggal.value,
+    //                       onShowPicker: (context, currentValue) {
+    //                         // DateTime now = DateTime.now();
+    //                         // DateTime firstDateOfMonth =
+    //                         //     DateTime(now.year, now.month + 0, 1);
+    //                         // DateTime lastDayOfMonth =
+    //                         //     DateTime(now.year, now.month + 1, 0);
+    //                         return showDatePicker(
+    //                           context: context,
+    //                           firstDate: DateTime(2000),
+    //                           lastDate: DateTime(2100),
+    //                           initialDate: currentValue ?? DateTime.now(),
+    //                         );
+    //                       },
+    //                     ),
+    //                   ),
+    //                 ),
+    //               ],
+    //             ),
+    //           ),
+    //         )
+    //       ],
+    //     )
+    //   ],
+    // );
+  }
+
+  Widget customTanggalDariSampaiDari() {
+    return Container(
+        height: 50,
+        width: MediaQuery.of(Get.context!).size.width,
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: Constanst.borderStyle1,
+            border: Border.all(
+                width: 0.5, color: Color.fromARGB(255, 211, 205, 205))),
+        child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 90,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(Constanst.convertDate1(
+                            "${controller.dariTanggal.value.text}")),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Text("sd"),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Text(Constanst.convertDate1(
+                              "${controller.sampaiTanggal.value.text}")),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 10,
+                  child: IconButton(
+                    onPressed: () {
+                      controller.screenTanggalSelected.value =
+                          !controller.screenTanggalSelected.value;
+                    },
+                    icon: Icon(
+                      Iconsax.edit,
+                      size: 18,
+                    ),
+                  ),
+                )
+              ],
+            )));
   }
 
   Widget formDelegasiKepada() {

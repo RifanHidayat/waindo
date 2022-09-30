@@ -88,12 +88,10 @@ class AuthController extends GetxController {
         List<UserModel> getData = AppData.informasiUser ?? [];
         for (var element in valueBody['data']) {
           var data = UserModel(
-            emp_id: element['em_code'] ?? "",
-            em_code: element['em_id'] ?? "",
+            em_id: element['em_id'] ?? "",
             des_id: element['des_id'] ?? 0,
             dep_id: element['dep_id'] ?? 0,
-            first_name: element['first_name'] ?? "",
-            last_name: element['last_name'] ?? "",
+            full_name: element['full_name'] ?? "",
             em_email: element['em_email'] ?? "",
             em_phone: element['em_phone'] ?? "",
             em_birthday: element['em_birthday'] ?? "1999-09-09",

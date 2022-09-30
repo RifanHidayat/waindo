@@ -27,11 +27,9 @@ class DetailAbsen extends StatelessWidget {
     var longlatKeluar = status == false
         ? absenSelected![0].signout_longlat ?? ""
         : absenSelected![0]['signout_longlat'] ?? "";
-    var getNamaDepan =
-        status == false ? "" : absenSelected![0]['first_name'] ?? "";
-    var getNamaBelakang =
-        status == false ? "" : absenSelected![0]['last_name'] ?? "";
-    var namaKaryawan = status == false ? "" : "$getNamaDepan $getNamaBelakang";
+    var getFullName =
+        status == false ? "" : absenSelected![0]['full_name'] ?? "";
+    var namaKaryawan = status == false ? "" : "$getFullName";
 
     return Scaffold(
         backgroundColor: Constanst.coloBackgroundScreen,

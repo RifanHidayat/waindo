@@ -9,8 +9,8 @@ import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 
 class Approval extends StatefulWidget {
-  String? title;
-  Approval({Key? key, this.title}) : super(key: key);
+  String? title, bulan, tahun;
+  Approval({Key? key, this.title, this.bulan, this.tahun}) : super(key: key);
   @override
   _ApprovalState createState() => _ApprovalState();
 }
@@ -20,7 +20,7 @@ class _ApprovalState extends State<Approval> {
 
   @override
   void initState() {
-    controller.startLoadData(widget.title);
+    controller.startLoadData(widget.title, widget.bulan, widget.tahun);
     super.initState();
   }
 
@@ -42,6 +42,7 @@ class _ApprovalState extends State<Approval> {
               onTap: () {
                 var pesanController = Get.find<PesanController>();
                 pesanController.loadApproveInfo();
+                pesanController.loadApproveHistory();
                 Get.back();
               },
             ),
@@ -50,6 +51,7 @@ class _ApprovalState extends State<Approval> {
           onWillPop: () async {
             var pesanController = Get.find<PesanController>();
             pesanController.loadApproveInfo();
+            pesanController.loadApproveHistory();
             Get.back();
             return true;
           },

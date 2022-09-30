@@ -350,6 +350,8 @@ class TidakMasukKerja extends StatelessWidget {
         physics: BouncingScrollPhysics(),
         itemCount: controller.listHistoryAjuan.value.length,
         itemBuilder: (context, index) {
+          var nomorAjuan =
+              controller.listHistoryAjuan.value[index]['nomor_ajuan'];
           var tanggalMasukAjuan =
               controller.listHistoryAjuan.value[index]['atten_date'];
           var namaTypeAjuan = controller.listHistoryAjuan.value[index]['name'];
@@ -363,6 +365,8 @@ class TidakMasukKerja extends StatelessWidget {
           var typeAjuan =
               controller.listHistoryAjuan.value[index]['leave_status'];
           var approve_by = controller.listHistoryAjuan.value[index]['apply_by'];
+          var durasi =
+              controller.listHistoryAjuan.value[index]['leave_duration'];
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -475,7 +479,18 @@ class TidakMasukKerja extends StatelessWidget {
                         height: 10,
                       ),
                       Text(
-                          "${Constanst.convertDate("$tanggalAjuanDari")}  --  ${Constanst.convertDate("$tanggalAjuanSampai")}"),
+                        "NO.$nomorAjuan",
+                        textAlign: TextAlign.justify,
+                        style: TextStyle(
+                            fontSize: 14,
+                            color: Constanst.colorText1,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                          "${Constanst.convertDate("$tanggalAjuanDari")}  --  ${Constanst.convertDate("$tanggalAjuanSampai")} (${durasi} Hari)"),
                       SizedBox(
                         height: 5,
                       ),
