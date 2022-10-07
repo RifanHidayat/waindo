@@ -5,6 +5,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:siscom_operasional/screen/absen/form/berhasil_pengajuan.dart';
@@ -13,6 +14,7 @@ import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/custom_dialog.dart';
+import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 import 'package:file_picker/file_picker.dart';
 
@@ -31,6 +33,7 @@ class TidakMasukKerjaController extends GetxController {
   var allTipe = [].obs;
   var allEmployee = [].obs;
   var tanggalSelected = [].obs;
+  var tanggalSelectedEdit = <DateTime>[].obs;
 
   Rx<List<String>> allEmployeeDelegasi = Rx<List<String>>([]);
   Rx<List<String>> allTipeFormTidakMasukKerja = Rx<List<String>>([]);
@@ -41,9 +44,10 @@ class TidakMasukKerjaController extends GetxController {
   var namaFileUpload = "".obs;
   var tanggalBikinPengajuan = "".obs;
   var idEditFormTidakMasukKerja = "".obs;
+  var emDelegationEdit = "".obs;
   var loadingString = "Memuat Data...".obs;
 
-  var testing = "".obs;
+  var stringSelectedTanggal = "".obs;
 
   var selectedTypeAjuan = "Semua".obs;
 
@@ -53,6 +57,9 @@ class TidakMasukKerjaController extends GetxController {
   var selectedType = 0.obs;
   var durasiIzin = 0.obs;
   var screenTanggalSelected = true.obs;
+  var uploadFile = false.obs;
+  var statusCari = false.obs;
+  var showTipe = false.obs;
 
   var dataTypeAjuanDummy = ["Semua", "Approve", "Rejected", "Pending"];
 
@@ -61,9 +68,9 @@ class TidakMasukKerjaController extends GetxController {
     super.onReady();
     getTimeNow();
     getTypeAjuan();
-    loadDataAjuanTidakMasukKerja();
     loadAllEmployeeDelegasi();
-    loadDataLeaveTypeTidakMasukKerja();
+    loadTypeSakit();
+    loadDataAjuanSakit();
   }
 
   void getTimeNow() {
@@ -92,7 +99,7 @@ class TidakMasukKerjaController extends GetxController {
     this.dataTypeAjuan.refresh();
   }
 
-  void loadDataAjuanTidakMasukKerja() {
+  void loadDataAjuanSakit() {
     AlllistHistoryAjuan.value.clear();
     listHistoryAjuan.value.clear();
     var dataUser = AppData.informasiUser;
@@ -101,7 +108,7 @@ class TidakMasukKerjaController extends GetxController {
       'em_id': getEmid,
       'bulan': bulanSelectedSearchHistory.value,
       'tahun': tahunSelectedSearchHistory.value,
-      'type': '1',
+      'ajuan': '2',
     };
     var connect = Api.connectionApi("post", body, "history-emp_leave");
     connect.then((dynamic res) {
@@ -116,26 +123,86 @@ class TidakMasukKerjaController extends GetxController {
           } else {
             loadingString.value = "Sedang memuat data...";
           }
-          AlllistHistoryAjuan.value = valueBody['data'];
           for (var element in valueBody['data']) {
-            if (element['name'] == "Sakit") {
-              listHistoryAjuan.value.add(element);
-            }
+            AlllistHistoryAjuan.value.add(element);
           }
-          this.listHistoryAjuan.refresh();
           this.AlllistHistoryAjuan.refresh();
           this.loadingString.refresh();
+          loadDataAjuanIzin();
         }
       }
     });
+  }
+
+  void loadDataAjuanIzin() {
+    var dataUser = AppData.informasiUser;
+    var getEmid = dataUser![0].em_id;
+    Map<String, dynamic> body = {
+      'em_id': getEmid,
+      'bulan': bulanSelectedSearchHistory.value,
+      'tahun': tahunSelectedSearchHistory.value,
+      'ajuan': '3',
+    };
+    var connect = Api.connectionApi("post", body, "history-emp_leave");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == false) {
+          loadingString.value = "Tidak ada pengajuan";
+          this.loadingString.refresh();
+        } else {
+          if (valueBody['data'].length == 0) {
+            loadingString.value = "Tidak ada pengajuan";
+          } else {
+            loadingString.value = "Sedang memuat data...";
+          }
+          for (var element in valueBody['data']) {
+            AlllistHistoryAjuan.value.add(element);
+          }
+          this.AlllistHistoryAjuan.refresh();
+          this.loadingString.refresh();
+          filterAjuanSakit();
+        }
+      }
+    });
+  }
+
+  void filterAjuanSakit() {
+    AlllistHistoryAjuan.value.forEach((element) {
+      if (element['ajuan'] == 2) {
+        listHistoryAjuan.value.add(element);
+      }
+    });
+    this.listHistoryAjuan.refresh();
+  }
+
+  void cariData(value) {
+    var text = value.toLowerCase();
+    var data = [];
+    for (var element in AlllistHistoryAjuan) {
+      var nomorAjuan = element['nomor_ajuan'].toLowerCase();
+      if (nomorAjuan == text) {
+        data.add(element);
+      }
+    }
+    if (data.isEmpty) {
+      loadingString.value = "Tidak ada pengajuan";
+    } else {
+      loadingString.value = "Memuat data...";
+    }
+    listHistoryAjuan.value = data;
+    statusCari.value = true;
+    this.listHistoryAjuan.refresh();
+    this.loadingString.refresh();
+    this.statusCari.refresh();
   }
 
   void loadAllEmployeeDelegasi() {
     allEmployeeDelegasi.value.clear();
     allEmployee.value.clear();
     var dataUser = AppData.informasiUser;
-    var getDepId = dataUser![0].dep_id;
-    Map<String, dynamic> body = {'val': 'dep_id', 'cari': getDepId};
+    var getDepGroup = dataUser![0].dep_group;
+    Map<String, dynamic> body = {'val': 'dep_group_id', 'cari': getDepGroup};
     var connect = Api.connectionApi("post", body, "whereOnce-employee");
     connect.then((dynamic res) {
       if (res == false) {
@@ -144,15 +211,22 @@ class TidakMasukKerjaController extends GetxController {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
           var data = valueBody['data'];
-          var listFirst = valueBody['data'].first;
-          var fullName = listFirst['full_name'] ?? "";
-          String namaUserPertama = "$fullName";
-          selectedDropdownFormTidakMasukKerjaDelegasi.value = namaUserPertama;
           for (var element in data) {
             var fullName = element['full_name'] ?? "";
             String namaUser = "$fullName";
             allEmployeeDelegasi.value.add(namaUser);
             allEmployee.value.add(element);
+          }
+          if (idEditFormTidakMasukKerja == "") {
+            var listFirst = valueBody['data'].first;
+            var fullName = listFirst['full_name'] ?? "";
+            String namaUserPertama = "$fullName";
+            selectedDropdownFormTidakMasukKerjaDelegasi.value = namaUserPertama;
+          } else {
+            var getFirst = allEmployee.value.firstWhere(
+                (element) => element['em_id'] == emDelegationEdit.value);
+            selectedDropdownFormTidakMasukKerjaDelegasi.value =
+                getFirst['full_name'];
           }
           this.allEmployee.refresh();
           this.allEmployeeDelegasi.refresh();
@@ -162,8 +236,7 @@ class TidakMasukKerjaController extends GetxController {
     });
   }
 
-  void loadDataLeaveTypeTidakMasukKerja() {
-    listHistoryAjuan.value.clear();
+  void loadTypeSakit() {
     allTipe.value.clear();
     Map<String, dynamic> body = {'val': 'status', 'cari': '2'};
     var connect = Api.connectionApi("post", body, "whereOnce-leave_types");
@@ -171,28 +244,48 @@ class TidakMasukKerjaController extends GetxController {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
         var data = valueBody['data'];
-        if (idEditFormTidakMasukKerja.value == "") {
-          var listFirst = valueBody['data'].first;
-          selectedDropdownFormTidakMasukKerjaTipe.value = listFirst['name'];
-        }
         for (var element in data) {
           allTipeFormTidakMasukKerja.value.add(element['name']);
           var data = {
-            'type_id': element['element'],
+            'type_id': element['id'],
             'name': element['name'],
             'status': element['status'],
+            'ajuan': 2,
             'active': false,
           };
-          allTipe.value.add(element);
+          allTipe.value.add(data);
         }
-        var getFirst = allTipe.value.first;
-        allTipe.value.firstWhere((element) =>
-            element['type_id'] == getFirst['type_id'])['active'] = true;
-        selectedType.value = getFirst['type_id'];
-        this.selectedType.refresh();
+        if (idEditFormTidakMasukKerja == "") {
+          var listFirst = allTipeFormTidakMasukKerja.value.first;
+          selectedDropdownFormTidakMasukKerjaTipe.value = listFirst;
+        }
+        loadTypeIzin();
+      }
+    });
+  }
+
+  void loadTypeIzin() {
+    Map<String, dynamic> body = {'val': 'status', 'cari': '3'};
+    var connect = Api.connectionApi("post", body, "whereOnce-leave_types");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        var data = valueBody['data'];
+        for (var element in data) {
+          allTipeFormTidakMasukKerja.value.add(element['name']);
+          var data = {
+            'type_id': element['id'],
+            'name': element['name'],
+            'status': element['status'],
+            'ajuan': 3,
+            'active': false,
+          };
+          allTipe.value.add(data);
+        }
+        showTipe.value = true;
+        this.showTipe.refresh();
         this.allTipe.refresh();
         this.allTipeFormTidakMasukKerja.refresh();
-        this.selectedDropdownFormTidakMasukKerjaTipe.refresh();
       }
     });
   }
@@ -200,21 +293,28 @@ class TidakMasukKerjaController extends GetxController {
   void changeTypeSelected(index) {
     print(index);
     listHistoryAjuan.value.clear();
-    AlllistHistoryAjuan.value.forEach((element) {
-      if (element['typeid'] == index) {
-        listHistoryAjuan.value.add(element);
-      }
-    });
-    allTipe.value.forEach((element) {
-      if (element['type_id'] == index) {
-        element['active'] = true;
-      } else {
-        element['active'] = false;
-      }
-    });
+    if (index == 0) {
+      AlllistHistoryAjuan.value.forEach((element) {
+        if (element['ajuan'] == 2) {
+          listHistoryAjuan.value.add(element);
+        }
+      });
+    } else {
+      AlllistHistoryAjuan.value.forEach((element) {
+        if (element['ajuan'] == 3) {
+          listHistoryAjuan.value.add(element);
+        }
+      });
+    }
+    if (idEditFormTidakMasukKerja.value == "") {
+      this.allTipe.refresh();
+      this.allTipeFormTidakMasukKerja.refresh();
+      var listFirst = allTipeFormTidakMasukKerja.value.first;
+      selectedDropdownFormTidakMasukKerjaTipe.value = listFirst;
+      this.selectedDropdownFormTidakMasukKerjaTipe.refresh();
+    }
     selectedType.value = index;
     this.listHistoryAjuan.refresh();
-    this.allTipe.refresh();
     this.selectedType.refresh();
     typeAjuanRefresh("Semua");
   }
@@ -231,6 +331,7 @@ class TidakMasukKerjaController extends GetxController {
   }
 
   void changeTypeAjuan(name) {
+    print(name);
     for (var element in dataTypeAjuan.value) {
       if (element['nama'] == name) {
         element['status'] = true;
@@ -239,19 +340,21 @@ class TidakMasukKerjaController extends GetxController {
       }
     }
     if (name == "Semua") {
+      var type = selectedType.value == 0 ? 2 : 3;
       listHistoryAjuan.value.clear();
-      AlllistHistoryAjuan.value.forEach((element) {
-        if (element['typeid'] == selectedType.value) {
+      for (var element in AlllistHistoryAjuan) {
+        if (element['ajuan'] == type) {
           listHistoryAjuan.value.add(element);
         }
-      });
+      }
       this.listHistoryAjuan.refresh();
       this.selectedType.refresh();
     } else {
+      var type = selectedType.value == 0 ? 2 : 3;
       listHistoryAjuan.value.clear();
       for (var element in AlllistHistoryAjuan.value) {
         if (element['leave_status'] == name) {
-          if (element['typeid'] == selectedType.value) {
+          if (element['ajuan'] == type) {
             listHistoryAjuan.value.add(element);
           }
         }
@@ -271,6 +374,7 @@ class TidakMasukKerjaController extends GetxController {
       } else {
         namaFileUpload.value = "${file.name}";
         filePengajuan.value = await saveFilePermanently(file);
+        uploadFile.value = true;
         // print(file.name);
         // print(file.bytes);
         // print(file.size);
@@ -289,13 +393,10 @@ class TidakMasukKerjaController extends GetxController {
   }
 
   void validasiKirimPengajuan(status) async {
-    if (selectedDropdownFormTidakMasukKerjaTipe == "" ||
-        dariTanggal.value.text == "" ||
-        sampaiTanggal.value.text == "" ||
-        alasan.value.text == "") {
+    if (alasan.value.text == "") {
       UtilsAlert.showToast("Form * harus di isi");
     } else {
-      if (namaFileUpload.value != "") {
+      if (uploadFile.value == true) {
         UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan File");
         var connectUpload = await Api.connectionApiUploadFile(
             "upload_form_tidakMasukKerja", filePengajuan.value);
@@ -309,9 +410,11 @@ class TidakMasukKerjaController extends GetxController {
         }
       } else {
         if (status == false) {
+          UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan Data");
           checkNomorAjuan(status);
         } else {
-          urutkanTanggalSelected();
+          UtilsAlert.loadingSimpanData(Get.context!, "Proses edit data");
+          urutkanTanggalSelected(status);
           kirimFormAjuanTidakMasukKerja(status, nomorAjuan.value.text);
         }
       }
@@ -319,13 +422,15 @@ class TidakMasukKerjaController extends GetxController {
   }
 
   void checkNomorAjuan(status) {
-    urutkanTanggalSelected();
+    urutkanTanggalSelected(status);
     var convertTanggalBikinPengajuan = status == false
         ? Constanst.convertDateSimpan(tanggalBikinPengajuan.value)
         : tanggalBikinPengajuan.value;
 
-    var pola =
-        selectedDropdownFormTidakMasukKerjaTipe.value == "Sakit" ? "SK" : "IZ";
+    var pola = selectedDropdownFormTidakMasukKerjaTipe.value ==
+            allTipe.value[0]['name']
+        ? "SD"
+        : "ST";
 
     Map<String, dynamic> body = {
       'atten_date': convertTanggalBikinPengajuan,
@@ -356,38 +461,80 @@ class TidakMasukKerjaController extends GetxController {
     });
   }
 
-  void urutkanTanggalSelected() {
+  void urutkanTanggalSelected(status) {
     var hasilConvert = [];
-    tanggalSelected.value.forEach((element) {
-      var inputFormat = DateFormat('yyyy-MM-dd');
-      String formatted = inputFormat.format(element);
-      hasilConvert.add(formatted);
-    });
-    hasilConvert.sort((a, b) {
-      return DateTime.parse(a).compareTo(DateTime.parse(b));
-    });
-    if (hasilConvert.isNotEmpty) {
-      var getFirst = hasilConvert.first;
-      var getLast = hasilConvert.last;
-      dariTanggal.value.text = getFirst;
-      sampaiTanggal.value.text = getLast;
-      durasiIzin.value = hasilConvert.length;
-      this.dariTanggal.refresh();
-      this.sampaiTanggal.refresh();
-      this.durasiIzin.refresh();
+    var tampungStringTanggal = "";
+    if (status == true) {
+      if (tanggalSelectedEdit.value.isNotEmpty) {
+        tanggalSelectedEdit.value.forEach((element) {
+          var inputFormat = DateFormat('yyyy-MM-dd');
+          String formatted = inputFormat.format(element);
+          hasilConvert.add(formatted);
+        });
+        hasilConvert.sort((a, b) {
+          return DateTime.parse(a).compareTo(DateTime.parse(b));
+        });
+        var getFirst = hasilConvert.first;
+        var getLast = hasilConvert.last;
+        dariTanggal.value.text = getFirst;
+        sampaiTanggal.value.text = getLast;
+        durasiIzin.value = hasilConvert.length;
+        hasilConvert.forEach((element) {
+          if (tampungStringTanggal == "") {
+            tampungStringTanggal = element;
+          } else {
+            tampungStringTanggal = "$tampungStringTanggal,$element";
+          }
+        });
+        stringSelectedTanggal.value = tampungStringTanggal;
+        this.dariTanggal.refresh();
+        this.sampaiTanggal.refresh();
+        this.durasiIzin.refresh();
+        this.stringSelectedTanggal.refresh();
+      }
+    } else {
+      if (tanggalSelected.value.isNotEmpty) {
+        tanggalSelected.value.forEach((element) {
+          var inputFormat = DateFormat('yyyy-MM-dd');
+          String formatted = inputFormat.format(element);
+          hasilConvert.add(formatted);
+        });
+        hasilConvert.sort((a, b) {
+          return DateTime.parse(a).compareTo(DateTime.parse(b));
+        });
+        var getFirst = hasilConvert.first;
+        var getLast = hasilConvert.last;
+        dariTanggal.value.text = getFirst;
+        sampaiTanggal.value.text = getLast;
+        durasiIzin.value = hasilConvert.length;
+        hasilConvert.forEach((element) {
+          if (tampungStringTanggal == "") {
+            tampungStringTanggal = element;
+          } else {
+            tampungStringTanggal = "$tampungStringTanggal,$element";
+          }
+        });
+        stringSelectedTanggal.value = tampungStringTanggal;
+        this.dariTanggal.refresh();
+        this.sampaiTanggal.refresh();
+        this.durasiIzin.refresh();
+        this.stringSelectedTanggal.refresh();
+      }
     }
   }
 
   void kirimFormAjuanTidakMasukKerja(status, getNomorAjuanTerakhir) async {
     var dataUser = AppData.informasiUser;
     var getEmid = "${dataUser![0].em_id}";
+    var getFullName = "${dataUser[0].full_name}";
     var validasiTipeSelected = validasiSelectedType();
+    var getAjuanType = validasiTypeAjuan();
     var validasiDelegasiSelected = validasiSelectedDelegasi();
 
     var convertTanggalBikinPengajuan = status == false
         ? Constanst.convertDateSimpan(tanggalBikinPengajuan.value)
         : tanggalBikinPengajuan.value;
-    UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan Data");
+
     Map<String, dynamic> body = {
       'em_id': '$getEmid',
       'typeid': validasiTipeSelected,
@@ -396,13 +543,14 @@ class TidakMasukKerjaController extends GetxController {
       'start_date': dariTanggal.value.text,
       'end_date': sampaiTanggal.value.text,
       'leave_duration': durasiIzin.value,
+      'date_selected': stringSelectedTanggal.value,
       'apply_date': '',
       'reason': alasan.value.text,
       'leave_status': 'Pending',
       'atten_date': convertTanggalBikinPengajuan,
       'em_delegation': validasiDelegasiSelected,
       'leave_files': namaFileUpload.value,
-      'ajuan': '1',
+      'ajuan': getAjuanType,
     };
     if (status == false) {
       body['created_by'] = getEmid;
@@ -414,6 +562,8 @@ class TidakMasukKerjaController extends GetxController {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
           if (valueBody['status'] == true) {
+            kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
+                validasiDelegasiSelected);
             Navigator.pop(Get.context!);
             var pesan =
                 "Pengajuan Form ${selectedDropdownFormTidakMasukKerjaTipe.value} berhasil dibuat. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah dibuat";
@@ -452,6 +602,29 @@ class TidakMasukKerjaController extends GetxController {
     }
   }
 
+  void kirimNotifikasiToDelegasi(
+      getFullName, convertTanggalBikinPengajuan, validasiDelegasiSelected) {
+    var dt = DateTime.now();
+    var jamSekarang = DateFormat('HH:mm:ss').format(dt);
+    Map<String, dynamic> body = {
+      'em_id': validasiDelegasiSelected,
+      'title': 'Delegasi Pengajuan Tidak Hadir',
+      'deskripsi':
+          'Anda mendapatkan delegasi pekerjaan dari $getFullName untuk pengajuan $selectedDropdownFormTidakMasukKerjaTipe',
+      'url': '',
+      'atten_date': convertTanggalBikinPengajuan,
+      'jam': jamSekarang,
+      'status': '2',
+      'view': '0',
+    };
+    var connect = Api.connectionApi("post", body, "insert-notifikasi");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        UtilsAlert.showToast("Berhasil kirim delegasi");
+      }
+    });
+  }
+
   String validasiSelectedType() {
     var result = [];
     for (var element in allTipe.value) {
@@ -460,6 +633,16 @@ class TidakMasukKerjaController extends GetxController {
       }
     }
     return "${result[0]['type_id']}";
+  }
+
+  int validasiTypeAjuan() {
+    var result = [];
+    for (var element in allTipe.value) {
+      if (element['name'] == selectedDropdownFormTidakMasukKerjaTipe.value) {
+        result.add(element);
+      }
+    }
+    return result[0]['ajuan'];
   }
 
   String validasiSelectedDelegasi() {
@@ -471,7 +654,7 @@ class TidakMasukKerjaController extends GetxController {
         result.add(element);
       }
     }
-    return "${result[0]['em_code']}";
+    return "${result[0]['em_id']}";
   }
 
   String validasiHitungIzin() {
@@ -481,35 +664,146 @@ class TidakMasukKerjaController extends GetxController {
     return "$hitung";
   }
 
-  void batalkanPengajuanTidakMasuk(index) {
-    showGeneralDialog(
-      barrierDismissible: false,
+  void showModalBatalPengajuan(index) {
+    showModalBottomSheet(
       context: Get.context!,
-      barrierColor: Colors.black54, // space around dialog
-      transitionDuration: Duration(milliseconds: 200),
-      transitionBuilder: (context, a1, a2, child) {
-        return ScaleTransition(
-          scale: CurvedAnimation(
-              parent: a1,
-              curve: Curves.elasticOut,
-              reverseCurve: Curves.easeOutCubic),
-          child: CustomDialog(
-            // our custom dialog
-            title: "Peringatan",
-            content: "Yakin Batalkan Pengajuan ?",
-            positiveBtnText: "Batalkan",
-            negativeBtnText: "Kembali",
-            style: 1,
-            buttonStatus: 1,
-            positiveBtnPressed: () {
-              batalkanPengajuan(index);
-            },
-          ),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(10.0),
+        ),
+      ),
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 16,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 90,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                color: Constanst.colorBGRejected,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Iconsax.minus_cirlce,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(left: 6),
+                              child: Padding(
+                                padding: EdgeInsets.only(top: 6),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Batalkan Pengajuan",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16),
+                                    ),
+                                    Text(
+                                      index['name'],
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12,
+                                          color: Constanst.colorText2),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                          flex: 10,
+                          child: InkWell(
+                            onTap: () => Navigator.pop(Get.context!),
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 6),
+                              child: Icon(Iconsax.close_circle),
+                            ),
+                          ))
+                    ],
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Text(
+                    "Data pengajuan yang telah kamu buat akan di hapus. Yakin ingin membatalkan pengajuan?",
+                    textAlign: TextAlign.justify,
+                    style: TextStyle(color: Constanst.colorText2),
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 5),
+                          child: TextButtonWidget(
+                            title: "Ya, Batalkan",
+                            onTap: () async {
+                              batalkanPengajuan(index);
+                            },
+                            colorButton: Constanst.colorButton1,
+                            colortext: Constanst.colorWhite,
+                            border: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () => Navigator.pop(Get.context!),
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: Constanst.borderStyle2,
+                                  border: Border.all(
+                                      color: Constanst.colorPrimary)),
+                              child: Center(
+                                child: Padding(
+                                  padding: EdgeInsets.only(top: 12, bottom: 12),
+                                  child: Text(
+                                    "Urungkan",
+                                    style: TextStyle(
+                                        color: Constanst.colorPrimary),
+                                  ),
+                                ),
+                              )),
+                        ),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 16,
+            )
+          ],
         );
-      },
-      pageBuilder: (BuildContext context, Animation animation,
-          Animation secondaryAnimation) {
-        return null!;
       },
     );
   }
@@ -536,5 +830,285 @@ class TidakMasukKerjaController extends GetxController {
         onReady();
       }
     });
+  }
+
+  void showDetailRiwayat(detailData) {
+    var nomorAjuan = detailData['nomor_ajuan'];
+    var tanggalMasukAjuan = detailData['atten_date'];
+    var namaTypeAjuan = detailData['name'];
+    var tanggalAjuanDari = detailData['start_date'];
+    var tanggalAjuanSampai = detailData['end_date'];
+    var alasan = detailData['reason'];
+    var durasi = detailData['leave_duration'];
+    var typeAjuan = detailData['leave_status'];
+    var listTanggalTerpilih = detailData['date_selected'].split(',');
+    showModalBottomSheet(
+      context: Get.context!,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20.0),
+        ),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 16,
+              ),
+              Center(
+                child: Text(
+                  "$namaTypeAjuan",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Center(
+                child: Text("${Constanst.convertDate("$tanggalMasukAjuan")}"),
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 30,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Nomor Ajuan"),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(":"),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 68,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("$nomorAjuan"),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 30,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Tanggal izin"),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(":"),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 68,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                            "${Constanst.convertDate("$tanggalAjuanDari")}  SD  ${Constanst.convertDate("$tanggalAjuanSampai")}"),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 30,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Durasi Izin"),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(":"),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 68,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("$durasi Hari"),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 30,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Alasan"),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(":"),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 68,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("$alasan"),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Text("Tanggal Terpilih"),
+              SizedBox(
+                height: 8,
+              ),
+              ListView.builder(
+                  itemCount: listTanggalTerpilih.length,
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    var nomor = index + 1;
+                    var tanggalConvert =
+                        Constanst.convertDate1(listTanggalTerpilih[index]);
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("$nomor."),
+                        Padding(
+                          padding: EdgeInsets.only(left: 8),
+                          child: Text(tanggalConvert),
+                        )
+                      ],
+                    );
+                  }),
+              SizedBox(
+                height: 16,
+              ),
+              Center(
+                child: Container(
+                  margin: EdgeInsets.only(right: 8),
+                  decoration: BoxDecoration(
+                    color: typeAjuan == 'Approve'
+                        ? Constanst.colorBGApprove
+                        : typeAjuan == 'Rejected'
+                            ? Constanst.colorBGRejected
+                            : typeAjuan == 'Pending'
+                                ? Constanst.colorBGPending
+                                : Colors.grey,
+                    borderRadius: Constanst.borderStyle1,
+                  ),
+                  child: Padding(
+                    padding:
+                        EdgeInsets.only(left: 3, right: 3, top: 5, bottom: 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        typeAjuan == 'Approve'
+                            ? Icon(
+                                Iconsax.tick_square,
+                                color: Constanst.color5,
+                                size: 14,
+                              )
+                            : typeAjuan == 'Rejected'
+                                ? Icon(
+                                    Iconsax.close_square,
+                                    color: Constanst.color4,
+                                    size: 14,
+                                  )
+                                : typeAjuan == 'Pending'
+                                    ? Icon(
+                                        Iconsax.timer,
+                                        color: Constanst.color3,
+                                        size: 14,
+                                      )
+                                    : SizedBox(),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 3),
+                          child: Text(
+                            '$typeAjuan',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: typeAjuan == 'Approve'
+                                    ? Colors.green
+                                    : typeAjuan == 'Rejected'
+                                        ? Colors.red
+                                        : typeAjuan == 'Pending'
+                                            ? Constanst.color3
+                                            : Colors.black),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 16,
+              )
+            ],
+          ),
+        );
+      },
+    );
   }
 }

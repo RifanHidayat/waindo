@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:siscom_operasional/utils/constans.dart';
 
 class CustomDialog extends StatelessWidget {
   final String? title, content, positiveBtnText, negativeBtnText;
@@ -86,7 +87,7 @@ class CustomDialog extends StatelessWidget {
           ),
         ),
         CircleAvatar(
-          backgroundColor: style == 1 ? Colors.red : Colors.blue,
+          backgroundColor: style == 1 ? Colors.red : Constanst.colorPrimary,
           maxRadius: 25.0,
           child: Icon(
             Iconsax.info_circle,

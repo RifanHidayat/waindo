@@ -4,9 +4,9 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:siscom_operasional/screen/absen/form/berhasil_pengajuan.dart';
@@ -14,8 +14,8 @@ import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/custom_dialog.dart';
+import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class CutiController extends GetxController {
   var nomorAjuan = TextEditingController().obs;
@@ -32,19 +32,19 @@ class CutiController extends GetxController {
   var AlllistHistoryAjuan = [].obs;
   var listHistoryAjuan = [].obs;
   var tanggalSelected = [].obs;
-  var seletedDateEdit = <DateTime>[].obs;
-
-  var stringSelectedTanggal = "".obs;
+  var tanggalSelectedEdit = <DateTime>[].obs;
 
   Rx<List<String>> allEmployeeDelegasi = Rx<List<String>>([]);
   Rx<List<String>> allTipeFormCutiDropdown = Rx<List<String>>([]);
 
   var jumlahCuti = 0.obs;
+  var typeIdEdit = 0.obs;
   var cutiTerpakai = 0.obs;
   var persenCuti = 0.0.obs;
   var durasiIzin = 0.obs;
 
   var namaFileUpload = "".obs;
+  var stringSelectedTanggal = "".obs;
   var selectedTypeCuti = "".obs;
   var selectedDelegasi = "".obs;
   var bulanSelectedSearchHistory = "".obs;
@@ -52,10 +52,14 @@ class CutiController extends GetxController {
   var bulanDanTahunNow = "".obs;
   var idEditFormCuti = "".obs;
   var atten_date_edit = "".obs;
+  var emDelegationEdit = "".obs;
   var stringLoading = "Sedang memuat...".obs;
 
   var statusForm = false.obs;
+  var statusHitungCuti = false.obs;
   var screenTanggalSelected = true.obs;
+  var uploadFile = false.obs;
+  var statusCari = false.obs;
 
   var dataTypeAjuanDummy = ["Semua", "Approve", "Rejected", "Pending"];
 
@@ -67,7 +71,6 @@ class CutiController extends GetxController {
     loadAllEmployeeDelegasi();
     loadDataTypeCuti();
     loadDataAjuanCuti();
-    print("jalankan cuti controller");
     super.onReady();
   }
 
@@ -105,7 +108,6 @@ class CutiController extends GetxController {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
         var data = valueBody['data'];
-        print(data);
         for (var element in data) {
           allTipeFormCutiDropdown.value.add(element['name']);
           var data = {
@@ -115,11 +117,15 @@ class CutiController extends GetxController {
             'active': false,
           };
           allTipe.value.add(data);
-          selectedTypeCuti.value = element['name'];
         }
-        var getFirst = allTipe.value.first;
-        allTipe.value.firstWhere(
-            (element) => element['id'] == getFirst['id'])['active'] = true;
+        if (statusForm.value == false) {
+          var getFirst = allTipe.value.first;
+          selectedTypeCuti.value = getFirst['name'];
+        } else {
+          var getFirst = allTipe.value
+              .firstWhere((element) => element['id'] == typeIdEdit.value);
+          selectedTypeCuti.value = getFirst['name'];
+        }
         this.allTipe.refresh();
         this.selectedTypeCuti.refresh();
         this.allTipeFormCutiDropdown.refresh();
@@ -137,14 +143,13 @@ class CutiController extends GetxController {
       'em_id': getEmid,
       'bulan': bulanSelectedSearchHistory.value,
       'tahun': tahunSelectedSearchHistory.value,
-      'type': '2',
+      'ajuan': '1',
     };
     var connect = Api.connectionApi("post", body, "history-emp_leave");
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
         if (valueBody['status'] == false) {
-          print("tidak ada data kesini");
           stringLoading.value = "Tidak ada pengajuan";
           this.stringLoading.refresh();
         } else {
@@ -155,7 +160,6 @@ class CutiController extends GetxController {
           } else {
             stringLoading.value = "Sedang memuat...";
           }
-          print(listHistoryAjuan.value);
           this.listHistoryAjuan.refresh();
           this.AlllistHistoryAjuan.refresh();
           this.stringLoading.refresh();
@@ -164,7 +168,30 @@ class CutiController extends GetxController {
     });
   }
 
+  void cariData(value) {
+    var text = value.toLowerCase();
+    var data = [];
+    for (var element in AlllistHistoryAjuan.value) {
+      var nomorAjuan = element['nomor_ajuan'].toLowerCase();
+      if (nomorAjuan == text) {
+        data.add(element);
+      }
+    }
+    if (data.isEmpty) {
+      stringLoading.value = "Tidak ada pengajuan";
+    } else {
+      stringLoading.value = "Memuat data...";
+    }
+    print(data);
+    listHistoryAjuan.value = data;
+    statusCari.value = true;
+    this.listHistoryAjuan.refresh();
+    this.stringLoading.refresh();
+    this.statusCari.refresh();
+  }
+
   void changeTypeAjuan(name) {
+    print(name);
     for (var element in dataTypeAjuan.value) {
       if (element['nama'] == name) {
         element['status'] = true;
@@ -172,38 +199,32 @@ class CutiController extends GetxController {
         element['status'] = false;
       }
     }
-    if (name == "Semua") {
-      listHistoryAjuan.value.clear();
-      AlllistHistoryAjuan.value.forEach((element) {
-        if (element['name'] == "Cuti Tahunan") {
-          listHistoryAjuan.value.add(element);
-        }
-      });
-    } else {
-      listHistoryAjuan.value.clear();
-      for (var element in AlllistHistoryAjuan.value) {
+    this.dataTypeAjuan.refresh();
+    var dataFilter = [];
+    AlllistHistoryAjuan.value.forEach((element) {
+      if (name == "Semua") {
+        dataFilter.add(element);
+      } else {
         if (element['leave_status'] == name) {
-          if (element['name'] == "Cuti Tahunan") {
-            listHistoryAjuan.value.add(element);
-          }
+          dataFilter.add(element);
         }
       }
-    }
-    if (listHistoryAjuan.value.length == 0) {
+    });
+    listHistoryAjuan.value = dataFilter;
+    this.listHistoryAjuan.refresh();
+    if (dataFilter.isEmpty) {
       stringLoading.value = "Tidak ada Pengajuan";
     } else {
       stringLoading.value = "Sedang memuat...";
     }
-    this.dataTypeAjuan.refresh();
-    this.listHistoryAjuan.refresh();
   }
 
   void loadAllEmployeeDelegasi() {
     allEmployeeDelegasi.value.clear();
     allEmployee.value.clear();
     var dataUser = AppData.informasiUser;
-    var getDepId = dataUser![0].dep_id;
-    Map<String, dynamic> body = {'val': 'dep_id', 'cari': getDepId};
+    var getDepGroup = dataUser![0].dep_group;
+    Map<String, dynamic> body = {'val': 'dep_group_id', 'cari': getDepGroup};
     var connect = Api.connectionApi("post", body, "whereOnce-employee");
     connect.then((dynamic res) {
       if (res == false) {
@@ -212,15 +233,23 @@ class CutiController extends GetxController {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
           var data = valueBody['data'];
-          var listFirst = valueBody['data'].first;
-          var fullName = listFirst['full_name'] ?? "";
-          String namaUserPertama = "$fullName";
-          selectedDelegasi.value = namaUserPertama;
           for (var element in data) {
             var fullName = element['full_name'] ?? "";
             String namaUser = "$fullName";
             allEmployeeDelegasi.value.add(namaUser);
             allEmployee.value.add(element);
+          }
+          if (statusForm.value == false) {
+            var listFirst = valueBody['data'].first;
+            var fullName = listFirst['full_name'] ?? "";
+            String namaUserPertama = "$fullName";
+            selectedDelegasi.value = namaUserPertama;
+          } else {
+            var listFirst = allEmployee.value.firstWhere(
+                (element) => element['em_id'] == emDelegationEdit.value);
+            var fullName = listFirst['full_name'] ?? "";
+            String namaUserPertama = "$fullName";
+            selectedDelegasi.value = namaUserPertama;
           }
           this.allEmployee.refresh();
           this.allEmployeeDelegasi.refresh();
@@ -232,29 +261,43 @@ class CutiController extends GetxController {
 
   void loadCutiUser() {
     var dataUser = AppData.informasiUser;
-    var getEmCode = dataUser![0].em_id;
+    var getEmid = dataUser![0].em_id;
     Map<String, dynamic> body = {
       'val': 'em_id',
-      'cari': getEmCode,
+      'cari': getEmid,
     };
     var connect = Api.connectionApi("post", body, "whereOnce-assign_leave");
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
-        var totalDay = valueBody['data'][0]['total_day'];
-        var terpakai = valueBody['data'][0]['terpakai'];
-        jumlahCuti.value = totalDay;
-        cutiTerpakai.value = terpakai;
-        this.jumlahCuti.refresh();
-        this.cutiTerpakai.refresh();
-        hitungCuti(totalDay, terpakai);
+        if (valueBody['data'].isNotEmpty) {
+          var totalDay = valueBody['data'][0]['total_day'];
+          var terpakai = valueBody['data'][0]['terpakai'];
+          print("ini data cuti user ${valueBody['data']}");
+          if (totalDay == 0) {
+            statusHitungCuti.value = false;
+            this.statusHitungCuti.refresh();
+          } else {
+            jumlahCuti.value = totalDay;
+            cutiTerpakai.value = terpakai;
+            this.jumlahCuti.refresh();
+            this.cutiTerpakai.refresh();
+            statusHitungCuti.value = true;
+            hitungCuti(totalDay, terpakai);
+            this.statusHitungCuti.refresh();
+          }
+        } else {
+          statusHitungCuti.value = false;
+          this.statusHitungCuti.refresh();
+        }
       }
     });
   }
 
   void hitungCuti(totalDay, terpakai) {
     var hitung1 = (terpakai / totalDay) * 100;
-    var convert1 = hitung1.toInt();
+    // var convert1 = hitung1.toInt();
+    var convert1 = hitung1;
     var convertedValue = double.parse("${convert1}") / 100;
     persenCuti.value = convertedValue;
     this.persenCuti.refresh();
@@ -270,6 +313,7 @@ class CutiController extends GetxController {
       } else {
         namaFileUpload.value = "${file.name}";
         filePengajuan.value = await saveFilePermanently(file);
+        uploadFile.value = true;
       }
     } else {
       UtilsAlert.showToast("Gagal mengambil file");
@@ -286,7 +330,7 @@ class CutiController extends GetxController {
     if (selectedTypeCuti == "" || alasan.value.text == "") {
       UtilsAlert.showToast("Form * harus di isi");
     } else {
-      if (namaFileUpload.value != "") {
+      if (uploadFile.value == true) {
         UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan File");
         var connectUpload = await Api.connectionApiUploadFile(
             "upload_form_cuti", filePengajuan.value);
@@ -304,9 +348,11 @@ class CutiController extends GetxController {
           if (tanggalSelected.value.isEmpty) {
             UtilsAlert.showToast("Harap isi tanggal ajuan");
           } else {
+            UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan Data");
             checkNomorAjuan();
           }
         } else {
+          UtilsAlert.loadingSimpanData(Get.context!, "Proses edit data");
           urutkanTanggalSelected();
           kirimFormAjuanCuti(nomorAjuan.value.text);
         }
@@ -355,38 +401,69 @@ class CutiController extends GetxController {
   void urutkanTanggalSelected() {
     var hasilConvert = [];
     var tampungStringTanggal = "";
-    if (tanggalSelected.value.isNotEmpty) {
-      tanggalSelected.value.forEach((element) {
-        var inputFormat = DateFormat('yyyy-MM-dd');
-        String formatted = inputFormat.format(element);
-        hasilConvert.add(formatted);
-      });
-      hasilConvert.sort((a, b) {
-        return DateTime.parse(a).compareTo(DateTime.parse(b));
-      });
-      var getFirst = hasilConvert.first;
-      var getLast = hasilConvert.last;
-      dariTanggal.value.text = getFirst;
-      sampaiTanggal.value.text = getLast;
-      durasiIzin.value = hasilConvert.length;
-      hasilConvert.forEach((element) {
-        if (tampungStringTanggal == "") {
-          tampungStringTanggal = element;
-        } else {
-          tampungStringTanggal = "$tampungStringTanggal,$element";
-        }
-      });
-      stringSelectedTanggal.value = tampungStringTanggal;
-      this.dariTanggal.refresh();
-      this.sampaiTanggal.refresh();
-      this.durasiIzin.refresh();
-      this.stringSelectedTanggal.refresh();
+    if (statusForm.value == true) {
+      if (tanggalSelectedEdit.value.isNotEmpty) {
+        tanggalSelectedEdit.value.forEach((element) {
+          var inputFormat = DateFormat('yyyy-MM-dd');
+          String formatted = inputFormat.format(element);
+          hasilConvert.add(formatted);
+        });
+        hasilConvert.sort((a, b) {
+          return DateTime.parse(a).compareTo(DateTime.parse(b));
+        });
+        var getFirst = hasilConvert.first;
+        var getLast = hasilConvert.last;
+        dariTanggal.value.text = getFirst;
+        sampaiTanggal.value.text = getLast;
+        durasiIzin.value = hasilConvert.length;
+        hasilConvert.forEach((element) {
+          if (tampungStringTanggal == "") {
+            tampungStringTanggal = element;
+          } else {
+            tampungStringTanggal = "$tampungStringTanggal,$element";
+          }
+        });
+        stringSelectedTanggal.value = tampungStringTanggal;
+        this.dariTanggal.refresh();
+        this.sampaiTanggal.refresh();
+        this.durasiIzin.refresh();
+        this.stringSelectedTanggal.refresh();
+      }
+    } else {
+      if (tanggalSelected.value.isNotEmpty) {
+        tanggalSelected.value.forEach((element) {
+          var inputFormat = DateFormat('yyyy-MM-dd');
+          String formatted = inputFormat.format(element);
+          hasilConvert.add(formatted);
+        });
+        hasilConvert.sort((a, b) {
+          return DateTime.parse(a).compareTo(DateTime.parse(b));
+        });
+        var getFirst = hasilConvert.first;
+        var getLast = hasilConvert.last;
+        dariTanggal.value.text = getFirst;
+        sampaiTanggal.value.text = getLast;
+        durasiIzin.value = hasilConvert.length;
+        hasilConvert.forEach((element) {
+          if (tampungStringTanggal == "") {
+            tampungStringTanggal = element;
+          } else {
+            tampungStringTanggal = "$tampungStringTanggal,$element";
+          }
+        });
+        stringSelectedTanggal.value = tampungStringTanggal;
+        this.dariTanggal.refresh();
+        this.sampaiTanggal.refresh();
+        this.durasiIzin.refresh();
+        this.stringSelectedTanggal.refresh();
+      }
     }
   }
 
   void kirimFormAjuanCuti(getNomorAjuanTerakhir) async {
     var dataUser = AppData.informasiUser;
     var getEmid = dataUser![0].em_id;
+    var getFullName = dataUser[0].full_name;
     var validasiTipeSelected = validasiSelectedType();
     var validasiDelegasiSelected = validasiSelectedDelegasi();
     var dt = DateTime.now();
@@ -395,8 +472,6 @@ class CutiController extends GetxController {
     var convertTanggalBikinPengajuan = statusForm.value == false
         ? Constanst.convertDateSimpan(afterConvert)
         : atten_date_edit.value;
-
-    UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan Data");
     Map<String, dynamic> body = {
       'em_id': '$getEmid',
       'typeid': validasiTipeSelected,
@@ -412,7 +487,7 @@ class CutiController extends GetxController {
       'atten_date': convertTanggalBikinPengajuan,
       'em_delegation': validasiDelegasiSelected,
       'leave_files': namaFileUpload.value,
-      'ajuan': '2',
+      'ajuan': '1',
       'created_by': getEmid,
       'menu_name': 'Cuti'
     };
@@ -424,6 +499,8 @@ class CutiController extends GetxController {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
           if (valueBody['status'] == true) {
+            kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
+                validasiDelegasiSelected);
             Navigator.pop(Get.context!);
             var pesan =
                 "Pengajuan Form ${selectedTypeCuti.value} berhasil dibuat. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah dibuat";
@@ -450,7 +527,6 @@ class CutiController extends GetxController {
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
-          print(valueBody['data']);
           Navigator.pop(Get.context!);
           var pesan =
               "Pengajuan Form Cuti berhasil diedit. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah diedit";
@@ -460,6 +536,29 @@ class CutiController extends GetxController {
         }
       });
     }
+  }
+
+  void kirimNotifikasiToDelegasi(
+      getFullName, convertTanggalBikinPengajuan, validasiDelegasiSelected) {
+    var dt = DateTime.now();
+    var jamSekarang = DateFormat('HH:mm:ss').format(dt);
+    Map<String, dynamic> body = {
+      'em_id': validasiDelegasiSelected,
+      'title': 'Delegasi Pengajuan Cuti',
+      'deskripsi':
+          'Anda mendapatkan delegasi pekerjaan dari $getFullName untuk pengajuan $selectedTypeCuti',
+      'url': '',
+      'atten_date': convertTanggalBikinPengajuan,
+      'jam': jamSekarang,
+      'status': '2',
+      'view': '0',
+    };
+    var connect = Api.connectionApi("post", body, "insert-notifikasi");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        UtilsAlert.showToast("Berhasil kirim delegasi");
+      }
+    });
   }
 
   String validasiSelectedType() {
@@ -558,5 +657,417 @@ class CutiController extends GetxController {
         onReady();
       }
     });
+  }
+
+  void showModalBatalPengajuan(index) {
+    showModalBottomSheet(
+      context: Get.context!,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(10.0),
+        ),
+      ),
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 16,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 90,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 40,
+                              width: 40,
+                              decoration: BoxDecoration(
+                                color: Constanst.colorBGRejected,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Iconsax.minus_cirlce,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(left: 6),
+                              child: Padding(
+                                padding: EdgeInsets.only(top: 6),
+                                child: Text(
+                                  "Batalkan Pengajuan Cuti",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                          flex: 10,
+                          child: InkWell(
+                            onTap: () => Navigator.pop(Get.context!),
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 6),
+                              child: Icon(Iconsax.close_circle),
+                            ),
+                          ))
+                    ],
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Text(
+                    "Data pengajuan yang telah kamu buat akan di hapus. Yakin ingin membatalkan pengajuan?",
+                    textAlign: TextAlign.justify,
+                    style: TextStyle(color: Constanst.colorText2),
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 5),
+                          child: TextButtonWidget(
+                            title: "Ya, Batalkan",
+                            onTap: () async {
+                              batalkanPengajuan(index);
+                            },
+                            colorButton: Constanst.colorButton1,
+                            colortext: Constanst.colorWhite,
+                            border: BorderRadius.circular(10.0),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () => Navigator.pop(Get.context!),
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: Constanst.borderStyle2,
+                                  border: Border.all(
+                                      color: Constanst.colorPrimary)),
+                              child: Center(
+                                child: Padding(
+                                  padding: EdgeInsets.only(top: 12, bottom: 12),
+                                  child: Text(
+                                    "Urungkan",
+                                    style: TextStyle(
+                                        color: Constanst.colorPrimary),
+                                  ),
+                                ),
+                              )),
+                        ),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 16,
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  void showDetailRiwayat(detailData) {
+    var nomorAjuan = detailData['nomor_ajuan'];
+    var tanggalMasukAjuan = detailData['atten_date'];
+    var namaTypeAjuan = detailData['name'];
+    var tanggalAjuanDari = detailData['start_date'];
+    var tanggalAjuanSampai = detailData['end_date'];
+    var alasan = detailData['reason'];
+    var durasi = detailData['leave_duration'];
+    var typeAjuan = detailData['leave_status'];
+    var listTanggalTerpilih = detailData['date_selected'].split(',');
+    showModalBottomSheet(
+      context: Get.context!,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20.0),
+        ),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 16,
+              ),
+              Center(
+                child: Text(
+                  "$namaTypeAjuan",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Center(
+                child: Text("${Constanst.convertDate("$tanggalMasukAjuan")}"),
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 30,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Nomor Ajuan"),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(":"),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 68,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("$nomorAjuan"),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 30,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Tanggal Cuti"),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(":"),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 68,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                            "${Constanst.convertDate("$tanggalAjuanDari")}  SD  ${Constanst.convertDate("$tanggalAjuanSampai")}"),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 30,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Durasi Cuti"),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(":"),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 68,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("$durasi Hari"),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 30,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Alasan"),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(":"),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 68,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("$alasan"),
+                      ],
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Text("Tanggal Terpilih"),
+              SizedBox(
+                height: 8,
+              ),
+              ListView.builder(
+                  itemCount: listTanggalTerpilih.length,
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    var nomor = index + 1;
+                    var tanggalConvert =
+                        Constanst.convertDate1(listTanggalTerpilih[index]);
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("$nomor."),
+                        Padding(
+                          padding: EdgeInsets.only(left: 8),
+                          child: Text(tanggalConvert),
+                        )
+                      ],
+                    );
+                  }),
+              SizedBox(
+                height: 16,
+              ),
+              Center(
+                child: Container(
+                  margin: EdgeInsets.only(right: 8),
+                  decoration: BoxDecoration(
+                    color: typeAjuan == 'Approve'
+                        ? Constanst.colorBGApprove
+                        : typeAjuan == 'Rejected'
+                            ? Constanst.colorBGRejected
+                            : typeAjuan == 'Pending'
+                                ? Constanst.colorBGPending
+                                : Colors.grey,
+                    borderRadius: Constanst.borderStyle1,
+                  ),
+                  child: Padding(
+                    padding:
+                        EdgeInsets.only(left: 3, right: 3, top: 5, bottom: 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        typeAjuan == 'Approve'
+                            ? Icon(
+                                Iconsax.tick_square,
+                                color: Constanst.color5,
+                                size: 14,
+                              )
+                            : typeAjuan == 'Rejected'
+                                ? Icon(
+                                    Iconsax.close_square,
+                                    color: Constanst.color4,
+                                    size: 14,
+                                  )
+                                : typeAjuan == 'Pending'
+                                    ? Icon(
+                                        Iconsax.timer,
+                                        color: Constanst.color3,
+                                        size: 14,
+                                      )
+                                    : SizedBox(),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 3),
+                          child: Text(
+                            '$typeAjuan',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: typeAjuan == 'Approve'
+                                    ? Colors.green
+                                    : typeAjuan == 'Rejected'
+                                        ? Colors.red
+                                        : typeAjuan == 'Pending'
+                                            ? Constanst.color3
+                                            : Colors.black),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 16,
+              )
+            ],
+          ),
+        );
+      },
+    );
   }
 }

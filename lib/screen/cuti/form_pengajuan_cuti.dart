@@ -23,8 +23,6 @@ class FormPengajuanCuti extends StatefulWidget {
 class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
   final controller = Get.put(CutiController());
 
-  // List<DateTime>? initialSelectedDates;
-
   @override
   void initState() {
     print(widget.dataForm![0]);
@@ -33,24 +31,26 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
       controller.sampaiTanggal.value.text = widget.dataForm![0]['end_date'];
       controller.alasan.value.text = widget.dataForm![0]['reason'];
       controller.atten_date_edit.value = widget.dataForm![0]['atten_date'];
+      controller.typeIdEdit.value = widget.dataForm![0]['typeid'];
       controller.statusForm.value = true;
       controller.idEditFormCuti.value = "${widget.dataForm![0]['id']}";
+      controller.emDelegationEdit.value =
+          "${widget.dataForm![0]['em_delegation']}";
       controller.durasiIzin.value =
           int.parse(widget.dataForm![0]['leave_duration']);
       controller.nomorAjuan.value.text =
           "${widget.dataForm![0]['nomor_ajuan']}";
       controller.screenTanggalSelected.value = false;
       print(widget.dataForm![0]['id']);
-      // var listDateTerpilih = widget.dataForm![0]['date_selected'].split(',');
-      // List<DateTime> getDummy = [];
-      // for (var element in listDateTerpilih) {
-      //   var convertDate = DateTime.parse(element);
-      //   getDummy.add(convertDate);
-      // }
-      // print(getDummy);
-      // setState(() {
-      //   initialSelectedDates = getDummy;
-      // });
+      var listDateTerpilih = widget.dataForm![0]['date_selected'].split(',');
+      List<DateTime> getDummy = [];
+      for (var element in listDateTerpilih) {
+        var convertDate = DateTime.parse(element);
+        getDummy.add(convertDate);
+      }
+      setState(() {
+        controller.tanggalSelectedEdit.value = getDummy;
+      });
     }
     super.initState();
   }
@@ -83,56 +83,78 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 padding: EdgeInsets.only(left: 16, right: 16),
                 child: SingleChildScrollView(
                   physics: BouncingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 16,
-                      ),
-                      informasiSisaCuti(),
-                      SizedBox(
-                        height: 16,
-                      ),
-                      Text("Tipe *",
-                          style: TextStyle(fontWeight: FontWeight.bold)),
-                      SizedBox(height: 5),
-                      formTipe(),
-                      SizedBox(
-                        height: 16,
-                      ),
-                      formTanggalCuti(),
-                      SizedBox(
-                        height: 16,
-                      ),
-                      formDelegasiKepada(),
-                      SizedBox(
-                        height: 30,
-                      ),
-                      formUploadFile(),
-                      SizedBox(
-                        height: 30,
-                      ),
-                      formAlasan(),
-                      SizedBox(
-                        height: 30,
-                      ),
-                    ],
-                  ),
+                  child: !controller.statusHitungCuti.value
+                      ? Container(
+                          width: MediaQuery.of(Get.context!).size.width,
+                          height: MediaQuery.of(Get.context!).size.height,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                "assets/amico.png",
+                                height: 250,
+                              ),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Text("Anda belum memiliki hak cuti"),
+                            ],
+                          ),
+                        )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: 16,
+                            ),
+                            informasiSisaCuti(),
+                            SizedBox(
+                              height: 16,
+                            ),
+                            Text("Tipe *",
+                                style: TextStyle(fontWeight: FontWeight.bold)),
+                            SizedBox(height: 5),
+                            formTipe(),
+                            SizedBox(
+                              height: 16,
+                            ),
+                            formTanggalCuti(),
+                            SizedBox(
+                              height: 16,
+                            ),
+                            formDelegasiKepada(),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            formUploadFile(),
+                            SizedBox(
+                              height: 30,
+                            ),
+                            formAlasan(),
+                            SizedBox(
+                              height: 30,
+                            ),
+                          ],
+                        ),
                 ),
               ),
             ),
           )),
-      bottomNavigationBar: Padding(
-          padding: EdgeInsets.all(16.0),
-          child: TextButtonWidget(
-            title: "Simpan",
-            onTap: () {
-              controller.validasiKirimPengajuan();
-            },
-            colorButton: Colors.blue,
-            colortext: Constanst.colorWhite,
-            border: BorderRadius.circular(20.0),
-          )),
+      bottomNavigationBar: Obx(
+        () => Padding(
+            padding: EdgeInsets.all(16.0),
+            child: !controller.statusHitungCuti.value
+                ? SizedBox()
+                : TextButtonWidget(
+                    title: "Simpan",
+                    onTap: () {
+                      controller.validasiKirimPengajuan();
+                    },
+                    colorButton: Constanst.colorPrimary,
+                    colortext: Constanst.colorWhite,
+                    border: BorderRadius.circular(20.0),
+                  )),
+      ),
     );
   }
 
@@ -176,7 +198,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                     barRadius: Radius.circular(15.0),
                     lineHeight: 8.0,
                     percent: controller.persenCuti.value,
-                    progressColor: Colors.blue,
+                    progressColor: Constanst.colorPrimary,
                   ),
                 ),
               ),
@@ -244,17 +266,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                 ),
                 child: SfDateRangePicker(
                   selectionMode: DateRangePickerSelectionMode.multiple,
-                  // initialSelectedDate: initialSelectedDates.forEach((element) { }),
-                  // initialSelectedDates: <DateTime>[
-                  //   DateTime.parse("2022-09-30 00:00:00.000"),
-                  //   DateTime.parse("2022-10-03 00:00:00.000"),
-                  //   DateTime.parse("2022-10-04 00:00:00.000"),
-                  //   DateTime.parse("2022-10-05 00:00:00.000")
-                  //   // DateTime.now().add((Duration(days: 4))),
-                  //   // DateTime.now().add((Duration(days: 5))),
-                  //   // DateTime.now().add((Duration(days: 9))),
-                  //   // DateTime.now().add((Duration(days: 11)))
-                  // ],
+                  initialSelectedDates: controller.tanggalSelectedEdit.value,
                   monthCellStyle: DateRangePickerMonthCellStyle(
                     weekendTextStyle: TextStyle(color: Colors.red),
                     blackoutDateTextStyle: TextStyle(
@@ -263,8 +275,13 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                   ),
                   onSelectionChanged:
                       (DateRangePickerSelectionChangedArgs args) {
-                    controller.tanggalSelected.value = args.value;
-                    this.controller.tanggalSelected.refresh();
+                    if (controller.statusForm.value == true) {
+                      controller.tanggalSelectedEdit.value = args.value;
+                      this.controller.tanggalSelectedEdit.refresh();
+                    } else {
+                      controller.tanggalSelected.value = args.value;
+                      this.controller.tanggalSelected.refresh();
+                    }
                   },
                 ))
             : SizedBox(),
@@ -516,7 +533,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
                       },
                       child: Icon(
                         Iconsax.document_upload,
-                        color: Colors.blue,
+                        color: Constanst.colorPrimary,
                       ))
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.end,

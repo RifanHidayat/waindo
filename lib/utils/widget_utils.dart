@@ -6,6 +6,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:siscom_operasional/utils/api.dart';
+import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/custom_dialog.dart';
 
@@ -44,6 +45,79 @@ class UtilsAlert {
                           ),
                           padding: EdgeInsets.all(8))
                     ],
+                  )
+                ]));
+      },
+    );
+  }
+
+  static informasiDashboard(BuildContext context) {
+    var informasiRadius = AppData.infoSettingApp;
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.circular(15.0))),
+            content: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 90,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              height: 35,
+                              width: 35,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Constanst.colorButton2),
+                              child: Center(
+                                  child: Icon(
+                                Iconsax.message_question,
+                                size: 20,
+                                color: Constanst.colorPrimary,
+                              )),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(left: 8, top: 5),
+                              child: Text(
+                                "Info",
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 10,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: InkWell(
+                            onTap: () {
+                              Navigator.pop(Get.context!);
+                            },
+                            child: Icon(
+                              Iconsax.close_circle,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: 6,
+                  ),
+                  Text(
+                    "Jarak radius untuk melakukan absen masuk dan keluar adalah ${informasiRadius![0].radius} m",
+                    style: TextStyle(color: Constanst.colorText2, fontSize: 14),
                   )
                 ]));
       },
@@ -106,7 +180,7 @@ class UtilsAlert {
                         child: Padding(
                             child: Icon(
                               Iconsax.tick_circle,
-                              color: Colors.blue,
+                              color: Constanst.colorPrimary,
                             ),
                             padding: EdgeInsets.all(8)),
                       ),
@@ -124,6 +198,49 @@ class UtilsAlert {
                   )
                 ]));
       },
+    );
+  }
+
+  static shimmerInfoPersonal(BuildContext context) {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      child: Shimmer.fromColors(
+          baseColor: Colors.grey.shade300,
+          highlightColor: Colors.grey.shade100,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: Colors.grey,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(left: 8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                            height: 20,
+                            width: 100,
+                            child: Card(child: ListTile(title: Text('')))),
+                        SizedBox(
+                            height: 20,
+                            width: 100,
+                            child: Card(child: ListTile(title: Text('')))),
+                      ],
+                    ),
+                  )
+                ],
+              )
+            ],
+          )),
     );
   }
 

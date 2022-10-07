@@ -13,10 +13,12 @@ import 'package:siscom_operasional/utils/widget_utils.dart';
 class DetailAbsen extends StatelessWidget {
   List<dynamic>? absenSelected;
   bool? status;
+  String? fullName;
   DetailAbsen({
     Key? key,
     this.absenSelected,
     this.status,
+    this.fullName,
   }) : super(key: key);
   final controller = Get.put(AbsenController());
   @override
@@ -29,7 +31,7 @@ class DetailAbsen extends StatelessWidget {
         : absenSelected![0]['signout_longlat'] ?? "";
     var getFullName =
         status == false ? "" : absenSelected![0]['full_name'] ?? "";
-    var namaKaryawan = status == false ? "" : "$getFullName";
+    var namaKaryawan = fullName != "" ? fullName : "$getFullName";
 
     return Scaffold(
         backgroundColor: Constanst.coloBackgroundScreen,
@@ -60,22 +62,17 @@ class DetailAbsen extends StatelessWidget {
                     height: 30,
                   ),
                   status == true
-                      ? Container(
-                          margin: EdgeInsets.only(bottom: 8),
-                          decoration: BoxDecoration(
-                            color: Constanst.colorButton2,
-                            borderRadius: Constanst.borderStyle3,
-                          ),
-                          child: Center(
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(
-                            namaKaryawan,
-                            style: TextStyle(
-                                  fontSize: 16, fontWeight: FontWeight.bold, color: Constanst.colorText1),
-                          ),
-                              )),
-                        )
+                      ? Center(
+                          child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "$namaKaryawan",
+                          style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Constanst.colorPrimary),
+                        ),
+                      ))
                       : SizedBox(),
                   SizedBox(
                     height: 15,
@@ -112,6 +109,9 @@ class DetailAbsen extends StatelessWidget {
     var catatanMasuk = status == false
         ? absenSelected![0].signin_note ?? ""
         : absenSelected![0]['signin_note'] ?? "";
+    var placeIn = status == false
+        ? absenSelected![0].place_in ?? ""
+        : absenSelected![0]['place_in'] ?? "";
     return Container(
       decoration: Constanst.styleBoxDecoration1,
       child: Padding(
@@ -175,11 +175,17 @@ class DetailAbsen extends StatelessWidget {
                           children: [
                             Expanded(
                                 flex: 10,
-                                child: Image.asset("assets/ic_galery.png")),
+                                child: Icon(
+                                  Iconsax.gallery,
+                                  size: 24,
+                                  color: Constanst.colorPrimary,
+                                )
+                                // Image.asset("assets/ic_galery.png")
+                                ),
                             Expanded(
                               flex: 90,
                               child: Padding(
-                                padding: const EdgeInsets.only(top: 7),
+                                padding: const EdgeInsets.only(top: 2, left: 3),
                                 child: Text(gambarMasuk ?? ''),
                               ),
                             )
@@ -193,30 +199,39 @@ class DetailAbsen extends StatelessWidget {
                             Expanded(flex: 10, child: SizedBox()),
                             Expanded(
                               flex: 90,
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  InkWell(
-                                    onTap: () {
-                                      controller.stringImageSelected.value = "";
-                                      controller.stringImageSelected.value =
-                                          gambarMasuk ?? '';
-                                      controller.showDetailImage();
-                                    },
-                                    child: Text(
-                                      "Lihat Foto",
-                                      style: TextStyle(
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 3, left: 3),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        controller.stringImageSelected.value =
+                                            "";
+                                        controller.stringImageSelected.value =
+                                            gambarMasuk ?? '';
+                                        controller.showDetailImage();
+                                      },
+                                      child: Text(
+                                        "Lihat Foto",
+                                        style: TextStyle(
+                                          color: Constanst.colorPrimary,
+                                          decoration: TextDecoration.underline,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.only(left: 8, top: 3),
-                                    child:
-                                        Image.asset("assets/ic_lihat_foto.png"),
-                                  )
-                                ],
+                                    Padding(
+                                        padding:
+                                            EdgeInsets.only(left: 8, top: 3),
+                                        child: Icon(
+                                          Iconsax.export_3,
+                                          size: 16,
+                                          color: Constanst.color1,
+                                        )
+                                        // Image.asset("assets/ic_lihat_foto.png"),
+                                        )
+                                  ],
+                                ),
                               ),
                             )
                           ],
@@ -229,13 +244,19 @@ class DetailAbsen extends StatelessWidget {
                     children: [
                       Expanded(
                           flex: 10,
-                          child: Image.asset("assets/ic_location_black.png")),
+                          child: Icon(
+                            Iconsax.location_tick,
+                            size: 24,
+                            color: Constanst.colorPrimary,
+                          )
+                          // Image.asset("assets/ic_location_black.png")
+                          ),
                       Expanded(
                         flex: 90,
                         child: Padding(
-                            padding: const EdgeInsets.only(top: 7),
+                            padding: const EdgeInsets.only(top: 3, left: 3),
                             child: Text(
-                              alamatMasuk ?? '',
+                              "${alamatMasuk ?? ''}  (${placeIn ?? ''})",
                             )),
                       )
                     ],
@@ -248,11 +269,17 @@ class DetailAbsen extends StatelessWidget {
                     children: [
                       Expanded(
                           flex: 10,
-                          child: Image.asset("assets/ic_note_black.png")),
+                          child: Icon(
+                            Iconsax.note_text,
+                            size: 24,
+                            color: Constanst.colorPrimary,
+                          )
+                          // Image.asset("assets/ic_note_black.png")
+                          ),
                       Expanded(
                         flex: 90,
                         child: Padding(
-                          padding: const EdgeInsets.only(top: 7),
+                          padding: const EdgeInsets.only(top: 3, left: 3),
                           child: Text(catatanMasuk ?? ''),
                         ),
                       )
@@ -262,7 +289,7 @@ class DetailAbsen extends StatelessWidget {
               ),
             ),
             SizedBox(
-              height: 10,
+              height: 18,
             ),
           ],
         ),
@@ -283,6 +310,9 @@ class DetailAbsen extends StatelessWidget {
     var catatanKeluar = status == false
         ? absenSelected![0].signout_note
         : absenSelected![0]['signout_note'];
+    var placeOut = status == false
+        ? absenSelected![0].place_out ?? ""
+        : absenSelected![0]['place_out'] ?? "";
     return Container(
       decoration: Constanst.styleBoxDecoration1,
       child: Padding(
@@ -346,11 +376,17 @@ class DetailAbsen extends StatelessWidget {
                           children: [
                             Expanded(
                                 flex: 10,
-                                child: Image.asset("assets/ic_galery.png")),
+                                child: Icon(
+                                  Iconsax.gallery,
+                                  size: 24,
+                                  color: Constanst.colorPrimary,
+                                )
+                                // Image.asset("assets/ic_galery.png")
+                                ),
                             Expanded(
                               flex: 90,
                               child: Padding(
-                                padding: const EdgeInsets.only(top: 7),
+                                padding: const EdgeInsets.only(top: 3, left: 3),
                                 child: Text(gambarKeluar ?? ''),
                               ),
                             )
@@ -364,30 +400,39 @@ class DetailAbsen extends StatelessWidget {
                             Expanded(flex: 10, child: SizedBox()),
                             Expanded(
                               flex: 90,
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  InkWell(
-                                    onTap: () {
-                                      controller.stringImageSelected.value = "";
-                                      controller.stringImageSelected.value =
-                                          gambarKeluar ?? '';
-                                      controller.showDetailImage();
-                                    },
-                                    child: Text(
-                                      "Lihat Foto",
-                                      style: TextStyle(
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 3, left: 3),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    InkWell(
+                                      onTap: () {
+                                        controller.stringImageSelected.value =
+                                            "";
+                                        controller.stringImageSelected.value =
+                                            gambarKeluar ?? '';
+                                        controller.showDetailImage();
+                                      },
+                                      child: Text(
+                                        "Lihat Foto",
+                                        style: TextStyle(
+                                          color: Constanst.colorPrimary,
+                                          decoration: TextDecoration.underline,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Padding(
-                                    padding: EdgeInsets.only(left: 8, top: 3),
-                                    child:
-                                        Image.asset("assets/ic_lihat_foto.png"),
-                                  )
-                                ],
+                                    Padding(
+                                        padding:
+                                            EdgeInsets.only(left: 8, top: 3),
+                                        child: Icon(
+                                          Iconsax.export_3,
+                                          size: 16,
+                                          color: Constanst.color1,
+                                        )
+                                        // Image.asset("assets/ic_lihat_foto.png"),
+                                        )
+                                  ],
+                                ),
                               ),
                             )
                           ],
@@ -400,12 +445,19 @@ class DetailAbsen extends StatelessWidget {
                     children: [
                       Expanded(
                           flex: 10,
-                          child: Image.asset("assets/ic_location_black.png")),
+                          child: Icon(
+                            Iconsax.location_tick,
+                            size: 24,
+                            color: Constanst.colorPrimary,
+                          )
+                          // Image.asset("assets/ic_location_black.png")
+                          ),
                       Expanded(
                         flex: 90,
                         child: Padding(
-                          padding: const EdgeInsets.only(top: 7),
-                          child: Text(alamatKeluar ?? ''),
+                          padding: const EdgeInsets.only(top: 3, left: 3),
+                          child: Text(
+                              "${alamatKeluar ?? ''}  (${placeOut ?? ''})"),
                         ),
                       )
                     ],
@@ -418,11 +470,17 @@ class DetailAbsen extends StatelessWidget {
                     children: [
                       Expanded(
                           flex: 10,
-                          child: Image.asset("assets/ic_note_black.png")),
+                          child: Icon(
+                            Iconsax.note_text,
+                            size: 24,
+                            color: Constanst.colorPrimary,
+                          )
+                          // Image.asset("assets/ic_note_black.png")
+                          ),
                       Expanded(
                         flex: 90,
                         child: Padding(
-                          padding: const EdgeInsets.only(top: 7),
+                          padding: const EdgeInsets.only(top: 3, left: 3),
                           child: Text(catatanKeluar ?? ''),
                         ),
                       )
@@ -432,7 +490,7 @@ class DetailAbsen extends StatelessWidget {
               ),
             ),
             SizedBox(
-              height: 10,
+              height: 18,
             ),
           ],
         ),

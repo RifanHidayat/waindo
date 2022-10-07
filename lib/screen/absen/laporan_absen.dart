@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/screen/absen/history_absen.dart';
+import 'package:siscom_operasional/screen/absen/laporan_absen_karyawan.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
@@ -22,6 +24,11 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<void> refreshData() async {
+    await Future.delayed(Duration(seconds: 2));
+    controller.carilaporanAbsenkaryawan();
   }
 
   @override
@@ -55,7 +62,9 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                       SizedBox(
                         height: 16,
                       ),
-                      cariData(),
+                      controller.bulanDanTahunNow.value == ""
+                          ? SizedBox()
+                          : cariData(),
                       SizedBox(
                         height: 8,
                       ),
@@ -71,51 +80,30 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              flex: 85,
                               child: Container(
                                 alignment: Alignment.centerLeft,
-                                child: Text(
-                                  "Riwayat Absensi Karyawan ${controller.namaDepartemenTerpilih.value}",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "List Laporan Absensi Karyawan",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14),
+                                    ),
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                    Text(
+                                      controller.namaDepartemenTerpilih.value,
+                                      style: TextStyle(
+                                          color: Constanst.colorText2,
+                                          fontSize: 12),
+                                    )
+                                  ],
                                 ),
                               ),
                             ),
-                            Expanded(
-                              flex: 15,
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  PopupMenuButton(
-                                    padding: EdgeInsets.all(0.0),
-                                    icon: Icon(
-                                      Iconsax.filter,
-                                    ),
-                                    offset: const Offset(0, 40),
-                                    elevation: 2,
-                                    itemBuilder: (context) => [
-                                      PopupMenuItem(
-                                          value: "1",
-                                          onTap: () =>
-                                              controller.filterData('1'),
-                                          child: Text("Terlambat absen masuk")),
-                                      PopupMenuItem(
-                                          value: "2",
-                                          onTap: () =>
-                                              controller.filterData('2'),
-                                          child: Text("Pulang lebih lama")),
-                                      PopupMenuItem(
-                                          value: "3",
-                                          onTap: () =>
-                                              controller.filterData('3'),
-                                          child: Text("Tidak absen keluar"))
-                                    ],
-                                  )
-                                ],
-                              ),
-                            )
                           ],
                         ),
                       ),
@@ -123,11 +111,21 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                         height: 16,
                       ),
                       Flexible(
-                        child: controller.listLaporanFilter.value.isEmpty
-                            ? Center(
-                                child: Text(controller.loading.value),
-                              )
-                            : listAbsensiKaryawan(),
+                        child: RefreshIndicator(
+                          onRefresh: refreshData,
+                          child: controller.statusLoadingSubmitLaporan.value
+                              ? Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 3,
+                                    color: Constanst.colorPrimary,
+                                  ),
+                                )
+                              : controller.listLaporanFilter.value.isEmpty
+                                  ? Center(
+                                      child: Text(controller.loading.value),
+                                    )
+                                  : listAbsensiKaryawan(),
+                        ),
                       )
                     ],
                   ),
@@ -138,117 +136,123 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
 
   Widget cariData() {
     return SizedBox(
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 5),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Tanggal",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14),
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: Constanst.borderStyle4,
-                            border: Border.all(
-                                width: 0.5,
-                                color: Color.fromARGB(255, 211, 205, 205))),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: DateTimeField(
-                            format: DateFormat('dd-MM-yyyy'),
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
+          Expanded(
+            flex: 44,
+            child: Padding(
+                padding: const EdgeInsets.only(right: 5),
+                child: InkWell(
+                  onTap: () {
+                    showMonthPicker(
+                      context: Get.context!,
+                      firstDate: DateTime(DateTime.now().year - 1, 5),
+                      lastDate: DateTime(DateTime.now().year + 1, 9),
+                      initialDate: DateTime.now(),
+                      locale: Locale("en"),
+                    ).then((date) {
+                      if (date != null) {
+                        print(date);
+                        var outputFormat1 = DateFormat('MM');
+                        var outputFormat2 = DateFormat('yyyy');
+                        var bulan = outputFormat1.format(date);
+                        var tahun = outputFormat2.format(date);
+                        controller.bulanSelectedSearchHistory.value = bulan;
+                        controller.tahunSelectedSearchHistory.value = tahun;
+                        controller.bulanDanTahunNow.value = "$bulan-$tahun";
+                        this.controller.bulanSelectedSearchHistory.refresh();
+                        this.controller.tahunSelectedSearchHistory.refresh();
+                        this.controller.bulanDanTahunNow.refresh();
+                      }
+                    });
+                  },
+                  child: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                        borderRadius: Constanst.borderStyle1,
+                        border: Border.all(color: Constanst.colorText2)),
+                    child: Padding(
+                      padding: EdgeInsets.only(top: 15, bottom: 8),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 6),
+                                  child: Icon(Iconsax.calendar_2),
+                                ),
+                                Flexible(
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 3),
+                                    child: Text(
+                                      "${Constanst.convertDateBulanDanTahun(controller.bulanDanTahunNow.value)}",
+                                      style: TextStyle(fontSize: 16),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
-                            controller: controller.tanggalLaporan.value,
-                            onShowPicker: (context, currentValue) {
-                              return showDatePicker(
-                                context: context,
-                                firstDate: DateTime(1800),
-                                lastDate: DateTime(2200),
-                                initialDate: currentValue ?? DateTime.now(),
-                              );
-                            },
                           ),
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
+                )),
+          ),
+          Expanded(
+            flex: 44,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 5),
+              child: InkWell(
+                onTap: () {
+                  controller.showDataDepartemenAkses();
+                },
+                child: Container(
+                  height: 50,
+                  width: MediaQuery.of(Get.context!).size.width,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: Constanst.borderStyle1,
+                      border: Border.all(color: Constanst.colorText2)),
+                  child: Padding(
+                      padding: const EdgeInsets.only(top: 15, bottom: 15),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Text(controller.departemen.value.text),
+                      )),
                 ),
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 5),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Departement",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 14),
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      InkWell(
-                        onTap: () {
-                          controller.showDataDepartemenAkses();
-                        },
-                        child: Container(
-                          height: 50,
-                          width: MediaQuery.of(Get.context!).size.width,
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(15),
-                                  topRight: Radius.circular(15),
-                                  bottomLeft: Radius.circular(15),
-                                  bottomRight: Radius.circular(15)),
-                              border: Border.all(
-                                  width: 0.5,
-                                  color: Color.fromARGB(255, 211, 205, 205))),
-                          child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 8),
-                                child: Text(controller.departemen.value.text),
-                              )),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
-          SizedBox(
-            height: 16,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 30, right: 30),
-            child: InkWell(
-              onTap: () => controller.carilaporanAbsenkaryawan(),
-              child: Container(
-                  decoration: BoxDecoration(
-                    color: Constanst.colorPrimary,
-                    borderRadius: Constanst.borderStyle3,
-                  ),
-                  child: textSubmit()),
             ),
           ),
+          Expanded(
+            flex: 12,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 5),
+              child: InkWell(
+                onTap: () {
+                  controller.carilaporanAbsenkaryawan();
+                },
+                child: Container(
+                    width: MediaQuery.of(Get.context!).size.width,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Constanst.colorPrimary,
+                      borderRadius: Constanst.borderStyle1,
+                    ),
+                    child: Center(
+                      child: Icon(
+                        Iconsax.search_normal_1,
+                        color: Colors.white,
+                        size: 16,
+                      ),
+                    )),
+              ),
+            ),
+          )
         ],
       ),
     );
@@ -256,45 +260,29 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
 
   Widget listAbsensiKaryawan() {
     return ListView.builder(
-        physics: BouncingScrollPhysics(),
+        physics: controller.listLaporanFilter.value.length <= 15
+            ? AlwaysScrollableScrollPhysics()
+            : BouncingScrollPhysics(),
         itemCount: controller.listLaporanFilter.value.length,
         itemBuilder: (context, index) {
           var fullName =
               controller.listLaporanFilter.value[index]['full_name'] ?? "";
           var namaKaryawan = "$fullName";
-          var jamMasuk =
+          var jobTitle = controller.listLaporanFilter.value[index]['job_title'];
+          var emId = controller.listLaporanFilter.value[index]['em_id'];
+          var attenDate =
+              controller.listLaporanFilter.value[index]['atten_date'];
+          var signinTime =
               controller.listLaporanFilter.value[index]['signin_time'];
-          var jamKeluar =
+          var signoutTime =
               controller.listLaporanFilter.value[index]['signout_time'];
-          var tanggal = controller.listLaporanFilter.value[index]['atten_date'];
-          var listJamMasuk = (jamMasuk!.split(':'));
-          var listJamKeluar = (jamKeluar!.split(':'));
-          var perhitunganJamMasuk1 =
-              830 - int.parse("${listJamMasuk[0]}${listJamMasuk[1]}");
-          var perhitunganJamMasuk2 =
-              1800 - int.parse("${listJamKeluar[0]}${listJamKeluar[1]}");
-
-          var getColorMasuk;
-          var getColorKeluar;
-
-          if (perhitunganJamMasuk1 < 0) {
-            getColorMasuk = Colors.red;
-          } else {
-            getColorMasuk = Colors.black;
-          }
-
-          if (perhitunganJamMasuk2 == 0) {
-            getColorKeluar = Colors.black;
-          } else if (perhitunganJamMasuk2 > 0) {
-            getColorKeluar = Colors.red;
-          } else if (perhitunganJamMasuk2 < 0) {
-            getColorKeluar = Colors.blue;
-          }
-
           return InkWell(
             onTap: () {
-              controller.historySelected(
-                  controller.listLaporanFilter.value[index]['id'], 'laporan');
+              Get.to(LaporanAbsenKaryawan(
+                em_id: emId,
+                bulan: controller.bulanDanTahunNow.value,
+                full_name: namaKaryawan,
+              ));
             },
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -302,73 +290,105 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                 SizedBox(
                   height: 10,
                 ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 40,
-                      child: Text(
-                        namaKaryawan,
-                        style: TextStyle(fontSize: 14),
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 50,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              namaKaryawan,
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            Text(
+                              jobTitle,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 25,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.login_rounded,
-                            color: getColorMasuk,
+                      Expanded(
+                        flex: 40,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              "${Constanst.convertDate2("$attenDate")}",
+                              style: TextStyle(fontSize: 12),
+                            ),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Padding(
+                                  padding: EdgeInsets.only(left: 3, right: 3),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.login_rounded,
+                                        color: Constanst.color5,
+                                        size: 14,
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 3),
+                                        child: Text(
+                                          signinTime,
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: Constanst.color5),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                signoutTime == "00:00:00" ||
+                                        signoutTime == "null"
+                                    ? SizedBox()
+                                    : Padding(
+                                        padding:
+                                            EdgeInsets.only(left: 3, right: 3),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.logout_rounded,
+                                              color: Constanst.color4,
+                                              size: 14,
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(left: 3),
+                                              child: Text(
+                                                signoutTime,
+                                                style: TextStyle(
+                                                    fontSize: 12,
+                                                    color: Constanst.color4),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 10,
+                        child: Center(
+                          child: Icon(
+                            Icons.arrow_forward_ios_rounded,
                             size: 14,
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 8),
-                            child: Text(
-                              jamMasuk,
-                              style:
-                                  TextStyle(color: getColorMasuk, fontSize: 14),
-                            ),
-                          )
-                        ],
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      flex: 25,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.logout_rounded,
-                            color: getColorKeluar,
-                            size: 14,
-                          ),
-                          Flexible(
-                            child: Padding(
-                              padding: EdgeInsets.only(left: 8),
-                              child: controller.listLaporanFilter.value[index]
-                                          ['signout_longlat'] ==
-                                      ""
-                                  ? Text("")
-                                  : Text(
-                                      jamKeluar,
-                                      style: TextStyle(
-                                          color: getColorKeluar, fontSize: 14),
-                                    ),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      flex: 10,
-                      child: Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        size: 14,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 SizedBox(
-                  height: 15,
+                  height: 8,
                 ),
                 Divider(
                   height: 3,
@@ -386,7 +406,7 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
-                Iconsax.search_favorite,
+                Iconsax.search_normal_1,
                 size: 18,
                 color: Constanst.colorWhite,
               ),

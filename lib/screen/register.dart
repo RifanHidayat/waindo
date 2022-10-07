@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:siscom_operasional/controller/auth_controller.dart';
+import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 
@@ -160,7 +161,7 @@ class Register extends StatelessWidget {
                                     icon: Icon(
                                       Icons.remove_red_eye,
                                       color: this.controller.showpassword.value
-                                          ? Colors.blue
+                                          ? Constanst.colorPrimary
                                           : Colors.grey,
                                     ),
                                     onPressed: () {
@@ -190,7 +191,7 @@ class Register extends StatelessWidget {
                             controller.registrasiAkun();
                           }
                         },
-                        colorButton : Colors.blue,
+                        colorButton : Constanst.colorPrimary,
                         colortext : Colors.white,
                         border : BorderRadius.circular(15.0),
                       )

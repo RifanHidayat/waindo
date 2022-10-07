@@ -38,6 +38,7 @@ class _FormLemburState extends State<FormLembur> {
       controller.catatan.value.text = widget.dataForm![0]['uraian'];
       controller.statusForm.value = true;
       controller.idpengajuanLembur.value = "${widget.dataForm![0]['id']}";
+      controller.emIdDelegasi.value = "${widget.dataForm![0]['em_delegation']}";
       controller.nomorAjuan.value.text =
           "${widget.dataForm![0]['nomor_ajuan']}";
     }
@@ -100,7 +101,7 @@ class _FormLemburState extends State<FormLembur> {
           child: TextButtonWidget(
             title: "Simpan",
             onTap: () => controller.validasiKirimPengajuan(),
-            colorButton: Colors.blue,
+            colorButton: Constanst.colorPrimary,
             colortext: Constanst.colorWhite,
             border: BorderRadius.circular(20.0),
           )),
@@ -130,17 +131,30 @@ class _FormLemburState extends State<FormLembur> {
             children: [
               Expanded(
                 flex: 90,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    readOnly: true,
-                    controller: controller.tanggalLembur.value,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                    ),
-                    style: TextStyle(
-                        fontSize: 14.0, height: 2.0, color: Colors.black),
-                  ),
+                child: InkWell(
+                  onTap: () async {
+                    var dateSelect = await showDatePicker(
+                      context: Get.context!,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                      initialDate: controller.initialDate.value,
+                    );
+                    if (dateSelect == null) {
+                      UtilsAlert.showToast("Tanggal tidak terpilih");
+                    } else {
+                      controller.initialDate.value = dateSelect;
+                      controller.tanggalLembur.value.text =
+                          Constanst.convertDate("$dateSelect");
+                      this.controller.tanggalLembur.refresh();
+                    }
+                  },
+                  child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        controller.tanggalLembur.value.text,
+                        style: TextStyle(
+                            fontSize: 14.0, height: 2.0, color: Colors.black),
+                      )),
                 ),
               ),
               Expanded(

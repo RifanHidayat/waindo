@@ -477,7 +477,7 @@ class EditPersonalInfo extends StatelessWidget {
           onPressed: () {
             controller.editDataPersonalInfo();
           },
-          color: Colors.blue,
+          color: Constanst.colorPrimary,
           textColor: Colors.white,
           child: Padding(
             padding: const EdgeInsets.only(top: 14, bottom: 14),

@@ -54,9 +54,12 @@ class BerhasilPengajuan extends StatelessWidget {
           onPressed: () {
             Get.offAll(InitScreen());
           },
-          color: Colors.blue,
+          color: Constanst.colorPrimary,
           textColor: Colors.white,
-          child: Text('Kembali ke beranda'),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 16, bottom: 16),
+            child: Text('Kembali ke beranda'),
+          ),
         ),
       ),
     );

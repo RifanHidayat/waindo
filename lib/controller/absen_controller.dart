@@ -4,6 +4,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -39,6 +40,10 @@ class AbsenController extends GetxController {
   var departementAkses = [].obs;
   var listLaporanFilter = [].obs;
   var allListLaporanFilter = [].obs;
+  var listLaporanBelumAbsen = [].obs;
+  var allListLaporanBelumAbsen = [].obs;
+  var listEmployeeTelat = [].obs;
+  var alllistEmployeeTelat = [].obs;
   var absenSelected;
 
   var loading = "Memuat data...".obs;
@@ -54,6 +59,10 @@ class AbsenController extends GetxController {
   var bulanDanTahunNow = "".obs;
   var namaDepartemenTerpilih = "".obs;
   var idDepartemenTerpilih = "".obs;
+  var testingg = "".obs;
+  var jumlahData = 0.obs;
+
+  Rx<DateTime> pilihTanggalTelatAbsen = DateTime.now().obs;
 
   var latUser = 0.0.obs;
   var langUser = 0.0.obs;
@@ -66,13 +75,13 @@ class AbsenController extends GetxController {
   var showButtonlaporan = false.obs;
   var statusLoadingSubmitLaporan = false.obs;
 
-  var absenStatus = AppData.statusAbsen.obs;
+  var absenStatus = false.obs;
 
   @override
   void onReady() async {
     getTimeNow();
     loadHistoryAbsenUser();
-    getDepartemen();
+    getDepartemen(1, "");
     super.onReady();
   }
 
@@ -83,9 +92,12 @@ class AbsenController extends GetxController {
     bulanDanTahunNow.value = "${dt.month}-${dt.year}";
     var convert = Constanst.convertDate1("${dt.year}-${dt.month}-${dt.day}");
     tanggalLaporan.value.text = convert;
+    absenStatus.value = AppData.statusAbsen;
+    this.absenStatus.refresh();
   }
 
-  void getDepartemen() {
+  void getDepartemen(status, tanggal) {
+    jumlahData.value = 0;
     var connect = Api.connectionApi("get", {}, "all_department");
     connect.then((dynamic res) {
       if (res == false) {
@@ -97,12 +109,12 @@ class AbsenController extends GetxController {
 
           var dataUser = AppData.informasiUser;
           var hakAkses = dataUser![0].em_hak_akses;
-
-          if (hakAkses != "") {
+          print(hakAkses);
+          if (hakAkses != "" || hakAkses != null) {
             if (hakAkses == '0') {
               var data = {
                 'id': 0,
-                'name': 'ALL DEPARTEMEN',
+                'name': 'SEMUA DIVISI',
                 'inisial': 'AD',
                 'parent_id': '',
                 'aktif': '',
@@ -130,11 +142,25 @@ class AbsenController extends GetxController {
           }
           this.departementAkses.refresh();
           if (departementAkses.value.isNotEmpty) {
-            idDepartemenTerpilih.value = "${departementAkses[0]['id']}";
-            namaDepartemenTerpilih.value = departementAkses[0]['name'];
-            departemen.value.text = departementAkses[0]['name'];
-            showButtonlaporan.value = true;
-            aksiCariLaporan();
+            if (status == 1) {
+              idDepartemenTerpilih.value = "${departementAkses[0]['id']}";
+              namaDepartemenTerpilih.value = departementAkses[0]['name'];
+              departemen.value.text = departementAkses[0]['name'];
+              showButtonlaporan.value = true;
+              aksiCariLaporan();
+            } else if (status == 2) {
+              idDepartemenTerpilih.value = "${departementAkses[0]['id']}";
+              namaDepartemenTerpilih.value = departementAkses[0]['name'];
+              departemen.value.text = departementAkses[0]['name'];
+              showButtonlaporan.value = true;
+              aksiEmployeeTerlambatAbsen(tanggal);
+            } else if (status == 3) {
+              idDepartemenTerpilih.value = "${departementAkses[0]['id']}";
+              namaDepartemenTerpilih.value = departementAkses[0]['name'];
+              departemen.value.text = departementAkses[0]['name'];
+              showButtonlaporan.value = true;
+              aksiEmployeeBelumAbsen(tanggal);
+            }
           }
         }
       }
@@ -160,9 +186,112 @@ class AbsenController extends GetxController {
     });
   }
 
+  void filterAbsenTelat() {
+    var tanggal = DateFormat('yyyy-MM-dd').format(pilihTanggalTelatAbsen.value);
+    getDepartemen(2, tanggal);
+  }
+
+  void filterBelumAbsen() {
+    var tanggal = DateFormat('yyyy-MM-dd').format(pilihTanggalTelatAbsen.value);
+    getDepartemen(3, tanggal);
+  }
+
+  void aksiEmployeeTerlambatAbsen(tanggal) {
+    statusLoadingSubmitLaporan.value = true;
+    listLaporanFilter.value.clear();
+    Map<String, dynamic> body = {
+      'atten_date': tanggal,
+      'status': idDepartemenTerpilih.value
+    };
+    var connect =
+        Api.connectionApi("post", body, "load_laporan_absensi_harian");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == false) {
+          statusLoadingSubmitLaporan.value = false;
+          UtilsAlert.showToast(
+              "Data periode $bulanSelectedSearchHistory belum tersedia, harap hubungi HRD");
+        } else {
+          var data = valueBody['data'];
+          loading.value =
+              data.length == 0 ? "Data tidak tersedia" : "Memuat data...";
+          var seen = Set<String>();
+          List filter =
+              data.where((country) => seen.add(country['full_name'])).toList();
+          List filterTelat = [];
+          for (var element in filter) {
+            var listJam = element['signin_time'].split(':');
+            var getJamMenit = "${listJam[0]}${listJam[1]}";
+            var jamMasukEmployee = int.parse(getJamMenit);
+            var hitung = jamMasukEmployee - 840;
+            if (hitung > 0) {
+              filterTelat.add(element);
+            }
+          }
+          filterTelat.sort((a, b) => a['full_name']
+              .toUpperCase()
+              .compareTo(b['full_name'].toUpperCase()));
+          if (filterTelat.isEmpty) {
+            loading.value = "Data tidak tersedia";
+          } else {
+            loading.value = "Memuat Data...";
+          }
+          jumlahData.value = filterTelat.length;
+          listEmployeeTelat.value = filterTelat;
+          alllistEmployeeTelat.value = filterTelat;
+          this.jumlahData.refresh();
+          this.listEmployeeTelat.refresh();
+          this.alllistEmployeeTelat.refresh();
+          this.loading.refresh();
+          statusLoadingSubmitLaporan.value = false;
+          this.statusLoadingSubmitLaporan.refresh();
+        }
+      }
+    });
+  }
+
+  void aksiEmployeeBelumAbsen(tanggal) {
+    statusLoadingSubmitLaporan.value = true;
+    listLaporanBelumAbsen.value.clear();
+    Map<String, dynamic> body = {
+      'atten_date': tanggal,
+      'status': idDepartemenTerpilih.value
+    };
+    var connect = Api.connectionApi("post", body, "load_laporan_belum_absen");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == false) {
+          statusLoadingSubmitLaporan.value = false;
+          UtilsAlert.showToast(
+              "Data periode $bulanSelectedSearchHistory belum tersedia, harap hubungi HRD");
+        } else {
+          List data = valueBody['data'];
+          data.sort((a, b) => a['full_name']
+              .toUpperCase()
+              .compareTo(b['full_name'].toUpperCase()));
+          if (data.isEmpty) {
+            loading.value = "Data tidak tersedia";
+          } else {
+            loading.value = "Memuat Data...";
+          }
+          jumlahData.value = valueBody['jumlah'];
+          listLaporanBelumAbsen.value = data;
+          allListLaporanBelumAbsen.value = data;
+          this.jumlahData.refresh();
+          this.listLaporanBelumAbsen.refresh();
+          this.allListLaporanBelumAbsen.refresh();
+          this.loading.refresh();
+          statusLoadingSubmitLaporan.value = false;
+          this.statusLoadingSubmitLaporan.refresh();
+        }
+      }
+    });
+  }
+
   void removeAll() {
     fotoUser.value = File("");
-
     base64fotoUser.value = "";
     timeString.value = "";
     dateNow.value = "";
@@ -407,7 +536,8 @@ class AbsenController extends GetxController {
                 signin_time: el['signin_time'] ?? "",
                 signout_time: el['signout_time'] ?? "",
                 working_hour: el['working_hour'] ?? "",
-                place: el['place'] ?? "",
+                place_in: el['place_in'] ?? "",
+                place_out: el['place_out'] ?? "",
                 absence: el['absence'] ?? "",
                 overtime: el['overtime'] ?? "",
                 earnleave: el['earnleave'] ?? "",
@@ -487,57 +617,117 @@ class AbsenController extends GetxController {
     );
   }
 
+  void filterDataArray() {
+    var data = departementAkses.value;
+    var seen = Set<String>();
+    List filter = data.where((divisi) => seen.add(divisi['name'])).toList();
+    departementAkses.value = filter;
+    this.departementAkses.refresh();
+  }
+
   showDataDepartemenAkses() {
-    showDialog(
-      context: Get.context!,
-      builder: (BuildContext context) {
-        return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(15.0))),
-            content: SizedBox(
-              width: double.minPositive,
-              child: ListView.builder(
-                  shrinkWrap: true,
-                  physics: BouncingScrollPhysics(),
-                  itemCount: departementAkses.value.length,
-                  itemBuilder: (context, index) {
-                    var id = departementAkses.value[index]['id'];
-                    var dep_name = departementAkses.value[index]['name'];
-                    return InkWell(
-                      onTap: () {
-                        idDepartemenTerpilih.value = "$id";
-                        namaDepartemenTerpilih.value = dep_name;
-                        departemen.value.text =
-                            departementAkses.value[index]['name'];
-                        Navigator.pop(context);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 5, bottom: 5),
-                        child: Container(
-                          decoration: BoxDecoration(
-                              color: Constanst.colorButton2,
-                              borderRadius:
-                                  Constanst.styleBoxDecoration1.borderRadius),
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 10, bottom: 10),
-                            child: Center(
-                              child: Text(
-                                dep_name,
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
+    filterDataArray();
+    showModalBottomSheet(
+        context: Get.context!,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(20.0),
+          ),
+        ),
+        builder: (context) {
+          return Padding(
+            padding:
+                EdgeInsets.fromLTRB(0, AppBar().preferredSize.height, 0, 0),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 90,
+                        child: Text(
+                          "Pilih Divisi",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 14),
                         ),
                       ),
-                    );
-                  }),
-            ));
-      },
-    );
+                      Expanded(
+                          flex: 10,
+                          child: InkWell(
+                              onTap: () => Navigator.pop(Get.context!),
+                              child: Icon(Iconsax.close_circle)))
+                    ],
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Flexible(
+                    flex: 3,
+                    child: Padding(
+                        padding: EdgeInsets.only(left: 8, right: 8),
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.vertical,
+                            physics: BouncingScrollPhysics(),
+                            itemCount: departementAkses.value.length,
+                            itemBuilder: (context, index) {
+                              var id = departementAkses.value[index]['id'];
+                              var dep_name =
+                                  departementAkses.value[index]['name'];
+                              return InkWell(
+                                onTap: () {
+                                  idDepartemenTerpilih.value = "$id";
+                                  namaDepartemenTerpilih.value = dep_name;
+                                  departemen.value.text =
+                                      departementAkses.value[index]['name'];
+                                  Navigator.pop(context);
+                                },
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(top: 5, bottom: 5),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: Constanst
+                                            .styleBoxDecoration1.borderRadius,
+                                        border: Border.all(
+                                            color: Constanst.colorText2)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 10, bottom: 10),
+                                      child: Center(
+                                        child: Text(
+                                          dep_name,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            })),
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   void carilaporanAbsenkaryawan() {
-    if (tanggalLaporan.value.text == "" || departemen.value.text == "") {
+    if (departemen.value.text == "") {
       UtilsAlert.showToast("Lengkapi form");
     } else {
       aksiCariLaporan();
@@ -547,73 +737,31 @@ class AbsenController extends GetxController {
   void aksiCariLaporan() async {
     statusLoadingSubmitLaporan.value = true;
     listLaporanFilter.value.clear();
-    await Future.delayed(const Duration(seconds: 1));
-    var tanggalConvert = Constanst.convertDateSimpan(tanggalLaporan.value.text);
     Map<String, dynamic> body = {
-      'tanggal': tanggalConvert,
+      'bulan': bulanSelectedSearchHistory.value,
+      'tahun': tahunSelectedSearchHistory.value,
       'status': idDepartemenTerpilih.value
     };
     var connect = Api.connectionApi("post", body, "load_laporan_absensi");
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
-        var data = valueBody['data'];
-        loading.value =
-            data.length == 0 ? "Data tidak tersedia" : "Memuat data...";
-        listLaporanFilter.value = data;
-        allListLaporanFilter.value = data;
+        if (valueBody['status'] == false) {
+          statusLoadingSubmitLaporan.value = false;
+          UtilsAlert.showToast(
+              "Data periode $bulanSelectedSearchHistory belum tersedia, harap hubungi HRD");
+        } else {
+          var data = valueBody['data'];
+          loading.value =
+              data.length == 0 ? "Data tidak tersedia" : "Memuat data...";
+          listLaporanFilter.value = data;
+          allListLaporanFilter.value = data;
+          this.listLaporanFilter.refresh();
+          this.allListLaporanFilter.refresh();
+          statusLoadingSubmitLaporan.value = false;
+          this.statusLoadingSubmitLaporan.refresh();
+        }
       }
     });
-    this.listLaporanFilter.refresh();
-    this.allListLaporanFilter.refresh();
-    statusLoadingSubmitLaporan.value = false;
-    this.statusLoadingSubmitLaporan.refresh();
-  }
-
-  void filterData(id) {
-    if (id == '1') {
-      var tampung = [];
-      for (var element in allListLaporanFilter.value) {
-        var listJamMasuk = (element['signin_time']!.split(':'));
-        var perhitunganJamMasuk1 =
-            830 - int.parse("${listJamMasuk[0]}${listJamMasuk[1]}");
-        print(perhitunganJamMasuk1);
-        if (perhitunganJamMasuk1 <= 0) {
-          tampung.add(element);
-        }
-      }
-      loading.value =
-          tampung.length == 0 ? "Data tidak tersedia" : "Memuat data...";
-      listLaporanFilter.value = tampung;
-      this.listLaporanFilter.refresh();
-    } else if (id == '2') {
-      var tampung = [];
-      for (var element in allListLaporanFilter.value) {
-        if (element['signout_time'] != '00:00:00') {
-          var listJamKeluar = (element['signout_time']!.split(':'));
-          var perhitunganJamKeluar =
-              1830 - int.parse("${listJamKeluar[0]}${listJamKeluar[1]}");
-          print(perhitunganJamKeluar);
-          if (perhitunganJamKeluar <= 0) {
-            tampung.add(element);
-          }
-        }
-      }
-      loading.value =
-          tampung.length == 0 ? "Data tidak tersedia" : "Memuat data...";
-      listLaporanFilter.value = tampung;
-      this.listLaporanFilter.refresh();
-    } else if (id == '3') {
-      var tampung = [];
-      for (var element in allListLaporanFilter.value) {
-        if (element['signout_time'] == '00:00:00') {
-          tampung.add(element);
-        }
-      }
-      loading.value =
-          tampung.length == 0 ? "Data tidak tersedia" : "Memuat data...";
-      listLaporanFilter.value = tampung;
-      this.listLaporanFilter.refresh();
-    }
   }
 }

@@ -17,17 +17,9 @@ class AuthController extends GetxController {
 
   @override
   void onReady() {
+    email.value.text = AppData.emailUser;
+    password.value.text = AppData.passwordUser;
     super.onReady();
-  }
-
-  @override
-  void onClose() {
-    super.onClose();
-  }
-
-  @override
-  void onInit() async {
-    super.onInit();
   }
 
   bool validateEmail(String? value) {
@@ -84,13 +76,15 @@ class AuthController extends GetxController {
         UtilsAlert.showToast(valueBody['message']);
         Navigator.pop(Get.context!);
       } else {
-        UtilsAlert.showToast("Selamat Datang");
         List<UserModel> getData = AppData.informasiUser ?? [];
+        var lastLoginUser = "";
+        var getEmId = "";
         for (var element in valueBody['data']) {
           var data = UserModel(
             em_id: element['em_id'] ?? "",
             des_id: element['des_id'] ?? 0,
             dep_id: element['dep_id'] ?? 0,
+            dep_group: element['dep_group'] ?? 0,
             full_name: element['full_name'] ?? "",
             em_email: element['em_email'] ?? "",
             em_phone: element['em_phone'] ?? "",
@@ -100,17 +94,64 @@ class AuthController extends GetxController {
             em_joining_date: element['em_joining_date'] ?? "1999-09-09",
             em_status: element['em_status'] ?? "",
             em_blood_group: element['em_blood_group'] ?? "",
+            posisi: element['posisi'] ?? "",
             emp_jobTitle: element['emp_jobTitle'] ?? "",
             emp_departmen: element['emp_departmen'] ?? "",
             emp_att_working: element['emp_att_working'] ?? 0,
             em_hak_akses: element['em_hak_akses'] ?? "",
           );
           getData.add(data);
+          lastLoginUser = "${element['last_login']}";
+          getEmId = "${element['em_id']}";
         }
-        username.value.text = "";
-        password.value.text = "";
-        AppData.informasiUser = getData;
-        // Get.offAll(Dashboard());
+        print(lastLoginUser);
+        if (lastLoginUser == "" ||
+            lastLoginUser == "null" ||
+            lastLoginUser == "0000-00-00 00:00:00") {
+          print("sampe sini");
+          fillLastLoginUser(getEmId, getData);
+        } else {
+          UtilsAlert.showToast("Anda telah masuk di perangkat lain");
+          Navigator.pop(Get.context!);
+        }
+      }
+    });
+  }
+
+  void fillLastLoginUser(getEmId, getData) {
+    var now = DateTime.now();
+    var jam = "${DateFormat('yyyy-MM-dd HH:mm:ss').format(now)}";
+    Map<String, dynamic> body = {'last_login': jam, 'em_id': getEmId};
+    var connect = Api.connectionApi("post", body, "edit_last_login");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        print(valueBody['data']);
+        if (valueBody['status'] == true) {
+          var dateNow = DateTime.now();
+          var convert = DateFormat('yyyy-MM-dd').format(dateNow);
+          AppData.emailUser = email.value.text;
+          AppData.passwordUser = password.value.text;
+          AppData.informasiUser = getData;
+          checkAbsenUser(convert, getEmId);
+        }
+      }
+    });
+  }
+
+  void checkAbsenUser(convert, getEmid) {
+    Map<String, dynamic> body = {'atten_date': convert, 'em_id': getEmid};
+    var connect = Api.connectionApi("post", body, "view_last_absen_user");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        var data = valueBody['data'];
+        print(data[0]['signout_time']);
+        if (data[0]['signout_time'] == "00:00:00") {
+          AppData.statusAbsen = true;
+        } else {
+          AppData.statusAbsen = false;
+        }
         Get.offAll(InitScreen());
       }
     });

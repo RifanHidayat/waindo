@@ -10,6 +10,7 @@ import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/pesan_controller.dart';
 import 'package:siscom_operasional/controller/tab_controller.dart';
 import 'package:siscom_operasional/screen/absen/absen_masuk_keluar.dart';
+import 'package:siscom_operasional/screen/akun/personal_info.dart';
 import 'package:siscom_operasional/screen/informasi.dart';
 import 'package:siscom_operasional/screen/pesan/pesan.dart';
 import 'package:siscom_operasional/utils/api.dart';
@@ -20,10 +21,25 @@ import 'package:siscom_operasional/utils/widget_utils.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
 
-class Dashboard extends StatelessWidget {
+class Dashboard extends StatefulWidget {
+  const Dashboard({Key? key}) : super(key: key);
+  @override
+  _DashboardState createState() => _DashboardState();
+}
+
+class _DashboardState extends State<Dashboard> {
   final controller = Get.put(DashboardController());
   final controllerAbsensi = Get.put(AbsenController());
   final controllerPesan = Get.put(PesanController());
+
+  Future<void> refreshData() async {
+    controller.refreshPagesStatus.value = true;
+    await Future.delayed(Duration(seconds: 2));
+    setState(() {
+      controller.updateInformasiUser();
+      controller.onInit();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +72,9 @@ class Dashboard extends StatelessWidget {
                   SizedBox(
                     height: 20,
                   ),
-                  informasiUser(),
+                  controller.refreshPagesStatus.value
+                      ? UtilsAlert.shimmerInfoPersonal(Get.context!)
+                      : Obx(() => informasiUser()),
                   SizedBox(
                     height: 20,
                   ),
@@ -66,63 +84,68 @@ class Dashboard extends StatelessWidget {
                   ),
                   Flexible(
                       flex: 3,
-                      child: SingleChildScrollView(
-                        physics: BouncingScrollPhysics(),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            controller.menuShowInMain.value.isEmpty
-                                ? SizedBox()
-                                : listModul(),
-                            SizedBox(
-                              height: 15,
-                            ),
-                            controller.menuShowInMain.value.isEmpty
-                                ? UtilsAlert.shimmerMenuDashboard(Get.context!)
-                                : MenuDashboard(),
-                            cardFormPengajuan(),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            controller.bannerDashboard.value.isEmpty
-                                ? SizedBox()
-                                : sliderBanner(),
-                            SizedBox(
-                              height: 8,
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                    flex: 70,
-                                    child: Text(
-                                      "Informasi",
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: Constanst.colorText3),
-                                    )),
-                                Expanded(
-                                    flex: 30,
-                                    child: InkWell(
-                                      onTap: () => Get.offAll(Informasi()),
+                      child: RefreshIndicator(
+                        onRefresh: refreshData,
+                        child: SingleChildScrollView(
+                          physics: BouncingScrollPhysics(),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              controller.menuShowInMain.value.isEmpty
+                                  ? SizedBox()
+                                  : listModul(),
+                              SizedBox(
+                                height: 15,
+                              ),
+                              controller.menuShowInMain.value.isEmpty
+                                  ? UtilsAlert.shimmerMenuDashboard(
+                                      Get.context!)
+                                  : MenuDashboard(),
+                              cardFormPengajuan(),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              controller.bannerDashboard.value.isEmpty
+                                  ? SizedBox()
+                                  : sliderBanner(),
+                              SizedBox(
+                                height: 8,
+                              ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                      flex: 70,
                                       child: Text(
-                                        "Lihat semua",
-                                        textAlign: TextAlign.end,
+                                        "Informasi",
                                         style: TextStyle(
-                                            fontSize: 12, color: Colors.blue),
-                                      ),
-                                    ))
-                              ],
-                            ),
-                            SizedBox(
-                              height: 16,
-                            ),
-                            listInformasi(),
-                            SizedBox(
-                              height: 20,
-                            )
-                          ],
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.bold,
+                                            color: Constanst.colorText3),
+                                      )),
+                                  Expanded(
+                                      flex: 30,
+                                      child: InkWell(
+                                        onTap: () => Get.offAll(Informasi()),
+                                        child: Text(
+                                          "Lihat semua",
+                                          textAlign: TextAlign.end,
+                                          style: TextStyle(
+                                              fontSize: 12,
+                                              color: Constanst.colorPrimary),
+                                        ),
+                                      ))
+                                ],
+                              ),
+                              SizedBox(
+                                height: 16,
+                              ),
+                              listInformasi(),
+                              SizedBox(
+                                height: 20,
+                              )
+                            ],
+                          ),
                         ),
                       ))
 
@@ -144,7 +167,7 @@ class Dashboard extends StatelessWidget {
                   //           textAlign: TextAlign.right,
                   //           style: TextStyle(
                   //               fontWeight: FontWeight.bold,
-                  //               color: Colors.blue,
+                  //               color: Constanst.colorPrimary,
                   //               fontSize: 10),
                   //         ),
                   //       )
@@ -168,62 +191,67 @@ class Dashboard extends StatelessWidget {
         children: [
           Expanded(
             flex: 85,
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                controller.user.value![0].em_image == null ||
-                        controller.user.value![0].em_image == ""
-                    ? Image.asset(
-                        'assets/avatar_default.png',
-                        width: 40,
-                        height: 40,
-                      )
-                    : CircleAvatar(
-                        radius: 25, // Image radius
-                        child: ClipOval(
+            child: InkWell(
+              onTap: () => Get.to(PersonalInfo()),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  controller.user.value[0]['em_image'] == ""
+                      ? Image.asset(
+                          'assets/avatar_default.png',
+                          width: 40,
+                          height: 40,
+                        )
+                      : CircleAvatar(
+                          radius: 25, // Image radius
                           child: ClipOval(
-                            child: CachedNetworkImage(
-                              imageUrl: Api.UrlfotoProfile +
-                                  "${controller.user.value![0].em_image}",
-                              progressIndicatorBuilder:
-                                  (context, url, downloadProgress) => Container(
-                                alignment: Alignment.center,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.5,
-                                width: MediaQuery.of(context).size.width,
-                                child: CircularProgressIndicator(
-                                    value: downloadProgress.progress),
+                            child: ClipOval(
+                              child: CachedNetworkImage(
+                                imageUrl: Api.UrlfotoProfile +
+                                    "${controller.user.value[0]['em_image']}",
+                                progressIndicatorBuilder:
+                                    (context, url, downloadProgress) =>
+                                        Container(
+                                  alignment: Alignment.center,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.5,
+                                  width: MediaQuery.of(context).size.width,
+                                  child: CircularProgressIndicator(
+                                      value: downloadProgress.progress),
+                                ),
+                                fit: BoxFit.cover,
+                                width: 50,
+                                height: 50,
                               ),
-                              fit: BoxFit.cover,
-                              width: 50,
-                              height: 50,
                             ),
                           ),
                         ),
-                      ),
-                Padding(
-                  padding: EdgeInsets.only(left: 10),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "${controller.user.value![0].full_name ?? ""}",
-                        style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Text(
-                        "${controller.user.value![0].emp_jobTitle ?? ""} - ${controller.user.value![0].emp_departmen ?? ""}",
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                )
-              ],
+                  Padding(
+                    padding: EdgeInsets.only(left: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Obx(
+                          () => Text(
+                            "${controller.user.value[0]['full_name'] ?? ""}",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          "${controller.user.value[0]['emp_jobTitle'] ?? ""} - ${controller.user.value[0]['posisi'] ?? ""}",
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
           Expanded(
@@ -236,7 +264,9 @@ class Dashboard extends StatelessWidget {
                       pesanCtrl.routesIcon();
                       pushNewScreen(
                         Get.context!,
-                        screen: Pesan(true),
+                        screen: Pesan(
+                          status: true,
+                        ),
                         withNavBar: false,
                       );
                     },
@@ -323,11 +353,11 @@ class Dashboard extends StatelessWidget {
                   child: Container(
                     alignment: Alignment.centerRight,
                     child: InkWell(
-                      // onTap: () => controller.getMenuTest(),
+                      onTap: () => UtilsAlert.informasiDashboard(Get.context!),
                       child: Icon(
                         Iconsax.info_circle,
                         size: 20,
-                        color: Colors.blue,
+                        color: Constanst.colorPrimary,
                       ),
                     ),
                   ),
@@ -448,7 +478,7 @@ class Dashboard extends StatelessWidget {
                             }
                           },
                           colorButton: !controllerAbsensi.absenStatus.value
-                              ? Colors.blue
+                              ? Constanst.colorPrimary
                               : Constanst.colorNonAktif,
                           colortext: !controllerAbsensi.absenStatus.value
                               ? Constanst.colorWhite
@@ -499,7 +529,7 @@ class Dashboard extends StatelessWidget {
                             }
                           },
                           colorButton: controllerAbsensi.absenStatus.value
-                              ? Colors.blue
+                              ? Constanst.colorPrimary
                               : Constanst.colorNonAktif,
                           colortext: controllerAbsensi.absenStatus.value
                               ? Constanst.colorWhite
@@ -546,9 +576,14 @@ class Dashboard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.all(8),
-                        child: Image.asset("assets/document_dash.png"),
-                      ),
+                          padding: const EdgeInsets.all(8),
+                          child: Icon(
+                            Iconsax.document_text_15,
+                            color: Constanst.colorPrimary,
+                            size: 26,
+                          )
+                          // Image.asset("assets/document_dash.png"),
+                          ),
                       Padding(
                         padding: const EdgeInsets.only(left: 10),
                         child: Text(
@@ -633,6 +668,7 @@ class Dashboard extends StatelessWidget {
             position: double.parse("${controller.indexBanner.value}"),
             decorator: DotsDecorator(
               size: const Size.square(9.0),
+              activeColor: Constanst.colorPrimary,
               activeSize: const Size(30.0, 9.0),
               activeShape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5.0)),
@@ -730,7 +766,7 @@ class Dashboard extends StatelessWidget {
                                             .styleBoxDecoration1.borderRadius),
                                     child: Padding(
                                       padding: const EdgeInsets.only(
-                                          left: 8, right: 8, top: 3, bottom: 3),
+                                          left: 3, right: 3, top: 3, bottom: 3),
                                       child: CachedNetworkImage(
                                         imageUrl:
                                             Api.UrlgambarDashboard + gambar,
@@ -750,6 +786,7 @@ class Dashboard extends StatelessWidget {
                                         fit: BoxFit.cover,
                                         width: 32,
                                         height: 32,
+                                        color: Constanst.colorButton1,
                                       ),
                                     ),
                                   )

@@ -18,7 +18,7 @@ class EditPassword extends StatelessWidget {
     return Scaffold(
       backgroundColor: Constanst.coloBackgroundScreen,
       appBar: AppBar(
-          backgroundColor: Colors.blue,
+          backgroundColor: Constanst.colorPrimary,
           automaticallyImplyLeading: false,
           elevation: 2,
           flexibleSpace: AppbarMenu1(
@@ -77,7 +77,7 @@ class EditPassword extends StatelessWidget {
                                     Iconsax.eye,
                                     color:
                                         this.controller.showpasswordLama.value
-                                            ? Colors.blue
+                                            ? Constanst.colorPrimary
                                             : Colors.grey,
                                   ),
                                   onPressed: () {
@@ -128,7 +128,7 @@ class EditPassword extends StatelessWidget {
                                     Iconsax.eye,
                                     color:
                                         this.controller.showpasswordBaru.value
-                                            ? Colors.blue
+                                            ? Constanst.colorPrimary
                                             : Colors.grey,
                                   ),
                                   onPressed: () {
@@ -182,9 +182,9 @@ class EditPassword extends StatelessWidget {
                           },
                         );
                       },
-                      colorButton: Colors.blue,
+                      colorButton: Constanst.colorPrimary,
                       colortext: Constanst.colorWhite,
-                      border: BorderRadius.circular(15.0),
+                      border: BorderRadius.circular(8.0),
                     ),
                   ],
                 ),

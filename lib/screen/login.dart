@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:siscom_operasional/controller/auth_controller.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:siscom_operasional/screen/register.dart';
+import 'package:siscom_operasional/utils/constans.dart';
 
 class Login extends StatelessWidget {
   final controller = Get.put(AuthController());
@@ -30,16 +31,28 @@ class Login extends StatelessWidget {
                     () => Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        SizedBox(height: 30,),
+                        SizedBox(
+                          height: 30,
+                        ),
                         Image.asset(
                           'assets/logo_login.png',
                           width: 200,
                         ),
-                        SizedBox(height: 20,),
+                        SizedBox(
+                          height: 20,
+                        ),
                         Text(
                           "Login",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 28),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          "Selamat Datang di SISCOM HRIS 👋",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
                         ),
                         SizedBox(
                           height: 10,
@@ -125,10 +138,12 @@ class Login extends StatelessWidget {
                                     // ignore: unnecessary_this
                                     suffixIcon: IconButton(
                                       icon: Icon(
-                                        Iconsax.eye,
+                                        controller.showpassword.value
+                                            ? Iconsax.eye
+                                            : Iconsax.eye_slash,
                                         color:
                                             this.controller.showpassword.value
-                                                ? Colors.blue
+                                                ? Constanst.colorPrimary
                                                 : Colors.grey,
                                       ),
                                       onPressed: () {
@@ -147,22 +162,22 @@ class Login extends StatelessWidget {
                         SizedBox(
                           height: 5,
                         ),
-                        Container(
-                          alignment: Alignment.centerRight,
-                          child: Text(
-                            "Lupa Password?",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Color.fromARGB(255, 18, 134, 230)),
-                          ),
-                        ),
+                        // Container(
+                        //   alignment: Alignment.centerRight,
+                        //   child: Text(
+                        //     "Lupa Password?",
+                        //     style: TextStyle(
+                        //         fontWeight: FontWeight.bold,
+                        //         color: Color.fromARGB(255, 18, 134, 230)),
+                        //   ),
+                        // ),
                         SizedBox(
                           height: 30,
                         ),
                         TextButton(
                           style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all<Color>(Colors.blue),
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Constanst.colorPrimary),
                               shape: MaterialStateProperty.all<
                                       RoundedRectangleBorder>(
                                   RoundedRectangleBorder(
@@ -171,12 +186,23 @@ class Login extends StatelessWidget {
                           onPressed: () => controller.loginUser(),
                           child: Center(
                             child: Padding(
-                              padding: EdgeInsets.only(left: 15, right: 15, top: 6, bottom: 6),
+                              padding: EdgeInsets.only(
+                                  left: 15, right: 15, top: 6, bottom: 6),
                               child: Text(
                                 "Login",
                                 style: TextStyle(color: Colors.white),
                               ),
                             ),
+                          ),
+                        ),
+                        SizedBox(
+                          height: 8,
+                        ),
+                        Center(
+                          child: Text(
+                            "© Copyright 2022 PT. Shan Informasi Sistem",
+                            style: TextStyle(
+                                fontSize: 10, color: Constanst.color1),
                           ),
                         ),
                         SizedBox(
@@ -202,7 +228,7 @@ class Login extends StatelessWidget {
                         //             "Register",
                         //             style: TextStyle(
                         //                 fontWeight: FontWeight.bold,
-                        //                 color: Colors.blue),
+                        //                 color: Constanst.colorPrimary),
                         //           ),
                         //         ),
                         //       ),

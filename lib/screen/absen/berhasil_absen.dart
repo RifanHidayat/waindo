@@ -93,14 +93,17 @@ class BerhasilAbsensi extends StatelessWidget {
         padding: EdgeInsets.all(10.0),
         child: RaisedButton(
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           onPressed: () {
             AbsenController().removeAll();
             Get.offAll(InitScreen());
           },
-          color: Colors.blue,
+          color: Constanst.colorPrimary,
           textColor: Colors.white,
-          child: Text('Kembali ke beranda'),
+          child: Padding(
+            padding: const EdgeInsets.only(top: 16, bottom: 16),
+            child: Text('Kembali ke beranda'),
+          ),
         ),
       ),
     );

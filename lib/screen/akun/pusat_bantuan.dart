@@ -17,8 +17,8 @@ class PusatBantuan extends StatelessWidget {
     return Scaffold(
       backgroundColor: Constanst.coloBackgroundScreen,
       appBar: AppBar(
-          backgroundColor: Colors.blue,
-          elevation : 2,
+          backgroundColor: Constanst.colorPrimary,
+          elevation: 2,
           flexibleSpace: AppbarMenu1(
             title: "Pusat Bantuan",
             colorTitle: Colors.white,
@@ -74,7 +74,7 @@ class PusatBantuan extends StatelessWidget {
             flex: 15,
             child: Padding(
               padding: const EdgeInsets.only(top: 7, left: 10),
-              child: Icon(Iconsax.search_normal),
+              child: Icon(Iconsax.search_normal_1),
             ),
           ),
           Expanded(
@@ -135,7 +135,7 @@ class PusatBantuan extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       InkWell(
-                        onTap: () => controller.changeStatusPusatBantuan(id), 
+                        onTap: () => controller.changeStatusPusatBantuan(id),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.start,

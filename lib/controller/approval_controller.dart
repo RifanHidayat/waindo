@@ -12,6 +12,7 @@ import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/custom_dialog.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ApprovalController extends GetxController {
   var cari = TextEditingController().obs;
@@ -20,11 +21,23 @@ class ApprovalController extends GetxController {
   var titleAppbar = "".obs;
   var bulanSelected = "".obs;
   var tahunSelected = "".obs;
+  var fullNameDelegasi = "".obs;
   var loadingString = "Memuat Data...".obs;
+
+  var statusCari = false.obs;
 
   var listNotModif = [].obs;
   var listData = [].obs;
+  var listDataAll = [].obs;
   var detailData = [].obs;
+
+  var jumlahCuti = 0.obs;
+  var typeIdEdit = 0.obs;
+  var cutiTerpakai = 0.obs;
+  var persenCuti = 0.0.obs;
+  var durasiIzin = 0.obs;
+
+  var statusHitungCuti = false.obs;
 
   void startLoadData(title, bulan, tahun) {
     titleAppbar.value = title;
@@ -44,6 +57,7 @@ class ApprovalController extends GetxController {
   void loadDataCuti() {
     listNotModif.value.clear();
     listData.value.clear();
+    listDataAll.value.clear();
     var dataUser = AppData.informasiUser;
     var getEmCode = dataUser![0].em_id;
     Map<String, dynamic> body = {
@@ -70,16 +84,19 @@ class ApprovalController extends GetxController {
           var data = {
             'id': element['id'],
             'nama_pengaju': convertNama,
+            'emId_pengaju': element['em_id'],
             'title_ajuan': 'Pengajuan Cuti',
             'waktu_dari': tanggalDari,
             'waktu_sampai': tanggalSampai,
             'durasi': element['leave_duration'],
+            'delegasi': element['em_delegation'],
             'waktu_pengajuan': element['atten_date'],
             'catatan': element['reason'],
             'type': 'Cuti',
             'file': element['leave_files']
           };
           listData.value.add(data);
+          listDataAll.value.add(data);
         }
         this.listData.refresh();
         this.listNotModif.refresh();
@@ -90,6 +107,7 @@ class ApprovalController extends GetxController {
   void loadDataLembur() {
     listNotModif.value.clear();
     listData.value.clear();
+    listDataAll.value.clear();
     var dataUser = AppData.informasiUser;
     var getEmCode = dataUser![0].em_id;
     Map<String, dynamic> body = {
@@ -118,12 +136,14 @@ class ApprovalController extends GetxController {
             'waktu_dari': element['dari_jam'],
             'waktu_sampai': element['sampai_jam'],
             'durasi': "",
+            'delegasi': element['em_delegation'],
             'waktu_pengajuan': element['atten_date'],
             'catatan': element['uraian'],
             'type': 'Lembur',
             'file': ""
           };
           listData.value.add(data);
+          listDataAll.value.add(data);
         }
         this.listData.refresh();
         this.listNotModif.refresh();
@@ -134,6 +154,7 @@ class ApprovalController extends GetxController {
   void loadDataTidakHadir() {
     listNotModif.value.clear();
     listData.value.clear();
+    listDataAll.value.clear();
     var dataUser = AppData.informasiUser;
     var getEmCode = dataUser![0].em_id;
     Map<String, dynamic> body = {
@@ -155,7 +176,6 @@ class ApprovalController extends GetxController {
         for (var element in valueBody['data']) {
           var fullName = element['full_name'] ?? "";
           var convertNama = "$fullName";
-          var convertType = element['typeid'] == 12 ? 'Izin' : 'Sakit';
           var tanggalDari = Constanst.convertDate1("${element['start_date']}");
           var tanggalSampai = Constanst.convertDate1("${element['end_date']}");
           var data = {
@@ -165,12 +185,14 @@ class ApprovalController extends GetxController {
             'waktu_dari': tanggalDari,
             'waktu_sampai': tanggalSampai,
             'durasi': element['leave_duration'],
+            'delegasi': element['em_delegation'],
             'waktu_pengajuan': element['atten_date'],
             'catatan': element['reason'],
-            'type': convertType,
+            'type': element['nama_tipe'],
             'file': element['leave_files']
           };
           listData.value.add(data);
+          listDataAll.value.add(data);
         }
         this.listData.refresh();
         this.listNotModif.refresh();
@@ -181,6 +203,7 @@ class ApprovalController extends GetxController {
   void loadDataTugasLuar() {
     listNotModif.value.clear();
     listData.value.clear();
+    listDataAll.value.clear();
     var dataUser = AppData.informasiUser;
     var getEmCode = dataUser![0].em_id;
     Map<String, dynamic> body = {
@@ -209,12 +232,14 @@ class ApprovalController extends GetxController {
             'waktu_dari': element['dari_jam'],
             'waktu_sampai': element['sampai_jam'],
             'durasi': '',
+            'delegasi': element['em_delegation'],
             'waktu_pengajuan': element['atten_date'],
             'catatan': element['uraian'],
             'type': 'Tugas Luar',
             'file': ''
           };
           listData.value.add(data);
+          listDataAll.value.add(data);
         }
         this.listData.refresh();
         this.listNotModif.refresh();
@@ -222,7 +247,31 @@ class ApprovalController extends GetxController {
     });
   }
 
-  void getDetailData(idxDetail) {
+  void cariData(value) {
+    print("kesini cari");
+    listData.value.clear();
+    var text = value.toLowerCase();
+    var data = [];
+    for (var element in listDataAll) {
+      var namaPengaju = element['nama_pengaju'].toLowerCase();
+      if (namaPengaju == text) {
+        data.add(element);
+      }
+    }
+    if (data.length == 0) {
+      loadingString.value = 'Tidak ada pengajuan';
+    }
+    statusCari.value = true;
+    listData.value = data;
+    this.listData.refresh();
+    this.statusCari.refresh();
+  }
+
+  void getDetailData(idxDetail, emId, title, delegasi) {
+    if (title == "Cuti") {
+      loadCutiPengaju(emId);
+    }
+    infoDelegasi(delegasi);
     detailData.value.clear();
     for (var element in listData.value) {
       if ("${element['id']}" == "$idxDetail") {
@@ -230,6 +279,58 @@ class ApprovalController extends GetxController {
       }
     }
     this.detailData.refresh();
+  }
+
+  void infoDelegasi(delegasi) {
+    Map<String, dynamic> body = {
+      'val': 'em_id',
+      'cari': delegasi,
+    };
+    var connect = Api.connectionApi("post", body, "whereOnce-employee");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        fullNameDelegasi.value = valueBody['data'][0]['full_name'];
+        this.fullNameDelegasi.refresh();
+      }
+    });
+  }
+
+  void loadCutiPengaju(emId) {
+    Map<String, dynamic> body = {
+      'val': 'em_id',
+      'cari': emId,
+    };
+    var connect = Api.connectionApi("post", body, "whereOnce-assign_leave");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['data'].isNotEmpty) {
+          var totalDay = valueBody['data'][0]['total_day'];
+          var terpakai = valueBody['data'][0]['terpakai'];
+          print("ini data cuti user ${valueBody['data']}");
+          jumlahCuti.value = totalDay;
+          cutiTerpakai.value = terpakai;
+          this.jumlahCuti.refresh();
+          this.cutiTerpakai.refresh();
+          statusHitungCuti.value = true;
+          hitungCuti(totalDay, terpakai);
+          this.statusHitungCuti.refresh();
+        } else {
+          statusHitungCuti.value = false;
+          this.statusHitungCuti.refresh();
+        }
+      }
+    });
+  }
+
+  void hitungCuti(totalDay, terpakai) {
+    var hitung1 = (terpakai / totalDay) * 100;
+    // var convert1 = hitung1.toInt();
+    var convert1 = hitung1;
+    var convertedValue = double.parse("${convert1}") / 100;
+    persenCuti.value = convertedValue;
+    this.persenCuti.refresh();
   }
 
   void showBottomAlasanReject() {
@@ -401,17 +502,24 @@ class ApprovalController extends GetxController {
     var dateString = "${dt.day}-${dt.month}-${dt.year}";
     var tanggalNow = Constanst.convertDateSimpan(dateString);
 
-    var url_tujuan = detailData[0]['type'] == 'Cuti' ||
-            detailData[0]['type'] == 'Izin' ||
-            detailData[0]['type'] == 'Sakit'
-        ? 'edit-emp_leave'
-        : 'edit-emp_labor';
+    var url_tujuan = detailData[0]['type'] == 'Tugas Luar' ||
+            detailData[0]['type'] == 'Lembur'
+        ? 'edit-emp_labor'
+        : 'edit-emp_leave';
+
+    if (pilihan == true && url_tujuan == "edit-emp_leave") {
+      print("kesiniiii atuh");
+      validasiPemakaianCuti(dataEditFinal);
+    }
 
     var statusPengajuan = pilihan == true ? 'Approve' : 'Rejected';
     var dataUser = AppData.informasiUser;
     var getEmpid = dataUser![0].em_id;
     var fullName = dataUser[0].full_name ?? "";
     var namaAtasanApprove = "$fullName";
+    var alasanRejectShow = alasanReject.value.text != ""
+        ? ", Alasan pengajuan di tolak = ${alasanReject.value.text}"
+        : "";
     if (url_tujuan == 'edit-emp_leave') {
       // emp_leave
       Map<String, dynamic> body = {
@@ -435,14 +543,14 @@ class ApprovalController extends GetxController {
         'val': 'id',
         'cari': dataEditFinal[0]['id'],
         'activity_name':
-            "$statusPengajuan Pengajuan ${detailData[0]['type']} pada tanggal $tanggalNow. Pengajuan atas nama ${detailData[0]['nama_pengaju']}"
+            "$statusPengajuan Pengajuan ${detailData[0]['type']} pada tanggal $tanggalNow. Pengajuan atas nama ${detailData[0]['nama_pengaju']} $alasanRejectShow"
       };
       var connect = Api.connectionApi("post", body, "edit-emp_leave");
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
           print('berhasil sampai sini');
           insertNotifikasi(dataEditFinal, statusPengajuan, tanggalNow, dt,
-              pilihan, namaAtasanApprove, url_tujuan);
+              pilihan, namaAtasanApprove, url_tujuan, alasanRejectShow);
         }
       });
     } else if (url_tujuan == 'edit-emp_labor') {
@@ -463,21 +571,67 @@ class ApprovalController extends GetxController {
         'val': 'id',
         'cari': dataEditFinal[0]['id'],
         'activity_name':
-            "$statusPengajuan Pengajuan ${detailData[0]['type']} pada tanggal $tanggalNow. Pengajuan atas nama ${detailData[0]['nama_pengaju']}"
+            "$statusPengajuan Pengajuan ${detailData[0]['type']} pada tanggal $tanggalNow. Pengajuan atas nama ${detailData[0]['nama_pengaju']} $alasanRejectShow"
       };
       var connect = Api.connectionApi("post", body, "edit-emp_labor");
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
           print('berhasil sampai sini');
           insertNotifikasi(dataEditFinal, statusPengajuan, tanggalNow, dt,
-              pilihan, namaAtasanApprove, url_tujuan);
+              pilihan, namaAtasanApprove, url_tujuan, alasanRejectShow);
         }
       });
     }
   }
 
+  void validasiPemakaianCuti(dataEditFinal) {
+    Map<String, dynamic> body = {
+      'val': 'name',
+      'cari': dataEditFinal[0]['nama_tipe']
+    };
+    var connect = Api.connectionApi("post", body, "whereOnce-leave_types");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        var statusPemotongan = valueBody['data'][0]['cut_leave'];
+        if (statusPemotongan == 1) {
+          cariEmployee(dataEditFinal);
+        }
+      }
+    });
+  }
+
+  void cariEmployee(dataEditFinal) {
+    Map<String, dynamic> body = {
+      'val': 'full_name',
+      'cari': dataEditFinal[0]['full_name']
+    };
+    var connect = Api.connectionApi("post", body, "whereOnce-employee");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        var getEmidEmployee = valueBody['data'][0]['em_id'];
+        potongCuti(dataEditFinal, getEmidEmployee);
+      }
+    });
+  }
+
+  void potongCuti(dataEditFinal, getEmidEmployee) {
+    Map<String, dynamic> body = {
+      'em_id': getEmidEmployee,
+      'terpakai': dataEditFinal[0]['leave_duration'],
+    };
+    var connect = Api.connectionApi("post", body, "potong_cuti");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        UtilsAlert.showToast("${valueBody['message']}");
+      }
+    });
+  }
+
   void insertNotifikasi(dataEditFinal, statusPengajuan, tanggalNow, dt, pilihan,
-      namaAtasanApprove, url_tujuan) {
+      namaAtasanApprove, url_tujuan,  alasanRejectShow) {
     var statusNotif = pilihan == true ? 1 : 0;
     var jamSekarang = DateFormat('HH:mm:ss').format(dt);
     var url_notifikasi = detailData[0]['type'] == 'Cuti'
@@ -491,7 +645,7 @@ class ApprovalController extends GetxController {
                     : '';
     var title = "Pengajuan ${detailData[0]['type']} telah di $statusPengajuan";
     var stringDeskripsi =
-        "Pengajuan ${detailData[0]['type']} kamu telah di $statusPengajuan oleh $namaAtasanApprove";
+        "Pengajuan ${detailData[0]['type']} kamu telah di $statusPengajuan oleh $namaAtasanApprove $alasanRejectShow";
     Map<String, dynamic> body = {
       'title': title,
       'deskripsi': stringDeskripsi,
@@ -521,5 +675,19 @@ class ApprovalController extends GetxController {
         Get.back();
       }
     });
+  }
+
+  void viewFile(status, file) {
+    if (status == "tidak_hadir") {
+      _launchURL() async => await canLaunch(Api.UrlfileTidakhadir + file)
+          ? await launch(Api.UrlfileTidakhadir + file)
+          : throw UtilsAlert.showToast('Tidak dapat membuka');
+      _launchURL();
+    } else {
+      _launchURL() async => await canLaunch(Api.UrlfileCuti + file)
+          ? await launch(Api.UrlfileCuti + file)
+          : throw UtilsAlert.showToast('Tidak dapat membuka');
+      _launchURL();
+    }
   }
 }

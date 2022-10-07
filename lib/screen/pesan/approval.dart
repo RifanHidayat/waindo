@@ -29,7 +29,7 @@ class _ApprovalState extends State<Approval> {
     return Scaffold(
       backgroundColor: Constanst.coloBackgroundScreen,
       appBar: AppBar(
-          backgroundColor: Colors.blue,
+          backgroundColor: Constanst.colorPrimary,
           automaticallyImplyLeading: false,
           elevation: 2,
           flexibleSpace: Obx(
@@ -65,10 +65,10 @@ class _ApprovalState extends State<Approval> {
                     SizedBox(
                       height: 10,
                     ),
-                    // pencarianData(),
-                    // SizedBox(
-                    //   height: 16,
-                    // ),
+                    pencarianData(),
+                    SizedBox(
+                      height: 16,
+                    ),
                     Flexible(
                         flex: 3,
                         child: controller.listData.value.isEmpty
@@ -97,7 +97,7 @@ class _ApprovalState extends State<Approval> {
             flex: 15,
             child: Padding(
               padding: const EdgeInsets.only(top: 7, left: 10),
-              child: Icon(Iconsax.search_normal),
+              child: Icon(Iconsax.search_normal_1),
             ),
           ),
           Expanded(
@@ -106,12 +106,40 @@ class _ApprovalState extends State<Approval> {
               padding: const EdgeInsets.only(left: 10),
               child: SizedBox(
                 height: 40,
-                child: TextField(
-                  controller: controller.cari.value,
-                  decoration: InputDecoration(
-                      border: InputBorder.none, hintText: "Cari"),
-                  style: TextStyle(
-                      fontSize: 14.0, height: 1.0, color: Colors.black),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 85,
+                      child: TextField(
+                        controller: controller.cari.value,
+                        decoration: InputDecoration(
+                            border: InputBorder.none, hintText: "Cari"),
+                        style: TextStyle(
+                            fontSize: 14.0, height: 1.0, color: Colors.black),
+                        onSubmitted: (value) {
+                          controller.cariData(value);
+                        },
+                      ),
+                    ),
+                    !controller.statusCari.value
+                        ? SizedBox()
+                        : Expanded(
+                            flex: 15,
+                            child: IconButton(
+                              icon: Icon(
+                                Iconsax.close_circle,
+                                color: Colors.red,
+                              ),
+                              onPressed: () {
+                                controller.statusCari.value = false;
+                                controller.cari.value.text = "";
+                                controller.startLoadData(
+                                    widget.title, widget.bulan, widget.tahun);
+                              },
+                            ),
+                          )
+                  ],
                 ),
               ),
             ),
@@ -128,6 +156,8 @@ class _ApprovalState extends State<Approval> {
         itemBuilder: (context, index) {
           var idx = controller.listData.value[index]['id'];
           var namaPengaju = controller.listData.value[index]['nama_pengaju'];
+          var emIdPengaju = controller.listData.value[index]['emId_pengaju'];
+          var delegasi = controller.listData.value[index]['delegasi'];
           var typeAjuan = controller.listData.value[index]['type'];
           var tanggalPengajuan =
               controller.listData.value[index]['waktu_pengajuan'];
@@ -226,8 +256,10 @@ class _ApprovalState extends State<Approval> {
                       InkWell(
                         onTap: () {
                           Get.to(DetailApproval(
+                            emId: emIdPengaju,
                             title: typeAjuan,
                             idxDetail: "$idx",
+                            delegasi: delegasi,
                           ));
                         },
                         child: Container(

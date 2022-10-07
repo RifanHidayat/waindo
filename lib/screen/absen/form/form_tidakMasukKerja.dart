@@ -1,4 +1,6 @@
 // ignore_for_file: deprecated_member_use
+import 'dart:io';
+
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -33,17 +35,28 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
       controller.sampaiTanggal.value.text = "$convertSampaiTanggal";
       controller.alasan.value.text = "${widget.dataForm![0]['reason']}";
       controller.namaFileUpload.value = "${widget.dataForm![0]['leave_files']}";
+      controller.selectedDropdownFormTidakMasukKerjaTipe.value =
+          "${widget.dataForm![0]['name']}";
       controller.tanggalBikinPengajuan.value =
           "${widget.dataForm![0]['atten_date']}";
       controller.idEditFormTidakMasukKerja.value =
           "${widget.dataForm![0]['id']}";
-      controller.selectedDropdownFormTidakMasukKerjaTipe.value =
-          "${widget.dataForm![0]['name']}";
+      controller.emDelegationEdit.value =
+          "${widget.dataForm![0]['em_delegation']}";
       controller.nomorAjuan.value.text =
           "${widget.dataForm![0]['nomor_ajuan']}";
       controller.durasiIzin.value =
           int.parse(widget.dataForm![0]['leave_duration']);
       controller.screenTanggalSelected.value = false;
+      var listDateTerpilih = widget.dataForm![0]['date_selected'].split(',');
+      List<DateTime> getDummy = [];
+      for (var element in listDateTerpilih) {
+        var convertDate = DateTime.parse(element);
+        getDummy.add(convertDate);
+      }
+      setState(() {
+        controller.tanggalSelectedEdit.value = getDummy;
+      });
     }
     super.initState();
   }
@@ -77,34 +90,41 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
                 padding: EdgeInsets.only(left: 16, right: 16),
                 child: SingleChildScrollView(
                   physics: BouncingScrollPhysics(),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 20,
-                      ),
-                      formTipe(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      formAjuanTanggal(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      formDelegasiKepada(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      formUploadFile(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      formAlasan(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                    ],
-                  ),
+                  child: !controller.showTipe.value
+                      ? Center(
+                        child: LinearProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation(Colors.blue),
+                          minHeight: 3,
+                        ),
+                      )
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              height: 20,
+                            ),
+                            formTipe(),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            formAjuanTanggal(),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            formDelegasiKepada(),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            formUploadFile(),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            formAlasan(),
+                            SizedBox(
+                              height: 20,
+                            ),
+                          ],
+                        ),
                 ),
               ),
             ),
@@ -116,7 +136,7 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
             onTap: () {
               controller.validasiKirimPengajuan(widget.dataForm![1]);
             },
-            colorButton: Colors.blue,
+            colorButton: Constanst.colorPrimary,
             colortext: Constanst.colorWhite,
             border: BorderRadius.circular(20.0),
           )),
@@ -146,6 +166,8 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 isDense: true,
+                autofocus: true,
+                focusColor: Colors.grey,
                 items: controller.allTipeFormTidakMasukKerja.value
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
@@ -184,12 +206,12 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
         controller.screenTanggalSelected.value == true
             ? Card(
                 margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                color: Constanst.colorButton2,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20.0),
                 ),
                 child: SfDateRangePicker(
                   selectionMode: DateRangePickerSelectionMode.multiple,
+                  initialSelectedDates: controller.tanggalSelectedEdit.value,
                   monthCellStyle: DateRangePickerMonthCellStyle(
                     weekendTextStyle: TextStyle(color: Colors.red),
                     blackoutDateTextStyle: TextStyle(
@@ -198,8 +220,13 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
                   ),
                   onSelectionChanged:
                       (DateRangePickerSelectionChangedArgs args) {
-                    controller.tanggalSelected.value = args.value;
-                    this.controller.tanggalSelected.refresh();
+                    if (controller.idEditFormTidakMasukKerja.value != "") {
+                      controller.tanggalSelectedEdit.value = args.value;
+                      this.controller.tanggalSelectedEdit.refresh();
+                    } else {
+                      controller.tanggalSelected.value = args.value;
+                      this.controller.tanggalSelected.refresh();
+                    }
                   },
                 ))
             : SizedBox(),

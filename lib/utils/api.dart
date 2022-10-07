@@ -14,6 +14,8 @@ class Api {
   static var UrlfotoAbsen = basicUrl + "foto_absen/";
   static var UrlfotoProfile = basicUrl + "foto_profile/";
   static var UrlgambarDashboard = basicUrl + "gambar_dashboard/";
+  static var UrlfileCuti = basicUrl + "file_cuti";
+  static var UrlfileTidakhadir = basicUrl + "file_tidak_masuk_kerja/";
 
   static Future connectionApi(
       String typeConnect, valFormData, String url) async {

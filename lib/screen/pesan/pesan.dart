@@ -3,28 +3,42 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/pesan_controller.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
-import 'package:siscom_operasional/utils/widget_textButton.dart';
-import 'package:siscom_operasional/utils/widget_utils.dart';
+import 'dart:io';
+import 'dart:math';
 
-class Pesan extends StatelessWidget {
+class Pesan extends StatefulWidget {
+  final bool status;
+  const Pesan({Key? key, required this.status}) : super(key: key);
+  @override
+  _PesanState createState() => _PesanState();
+}
+
+class _PesanState extends State<Pesan> {
   final controller = Get.put(PesanController());
-  bool status;
-  Pesan(this.status);
+
+  Future<void> refreshData() async {
+    await Future.delayed(Duration(seconds: 2));
+    setState(() {
+      var dashboardController = Get.find<DashboardController>();
+      dashboardController.updateInformasiUser();
+      controller.onReady();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Constanst.coloBackgroundScreen,
       appBar: AppBar(
-          backgroundColor: Colors.blue,
+          backgroundColor: Constanst.colorPrimary,
           automaticallyImplyLeading: false,
           elevation: 2,
-          flexibleSpace: status == true
+          flexibleSpace: widget.status == true
               ? AppbarMenu1(
                   title: "Pesan",
                   colorTitle: Colors.white,
@@ -79,8 +93,10 @@ class Pesan extends StatelessWidget {
         Expanded(
           child: InkWell(
             onTap: () {
-              controller.selectedView.value = 0;
-              controller.menuController.jumpToPage(0);
+              if (widget.status == false) {
+                controller.selectedView.value = 0;
+                controller.menuController.jumpToPage(0);
+              }
             },
             child: Container(
               decoration: BoxDecoration(
@@ -139,8 +155,10 @@ class Pesan extends StatelessWidget {
         Expanded(
           child: InkWell(
             onTap: () {
-              controller.selectedView.value = 1;
-              controller.menuController.jumpToPage(1);
+              if (widget.status == false) {
+                controller.selectedView.value = 1;
+                controller.menuController.jumpToPage(1);
+              }
             },
             child: Container(
               decoration: BoxDecoration(
@@ -199,8 +217,10 @@ class Pesan extends StatelessWidget {
         Expanded(
           child: InkWell(
             onTap: () {
-              controller.selectedView.value = 2;
-              controller.menuController.jumpToPage(2);
+              if (widget.status == false) {
+                controller.selectedView.value = 2;
+                controller.menuController.jumpToPage(2);
+              }
             },
             child: Container(
               decoration: BoxDecoration(
@@ -298,157 +318,180 @@ class Pesan extends StatelessWidget {
               ],
             ),
           )
-        : ListView.builder(
-            itemCount: controller.listNotifikasi.value.length,
-            physics: BouncingScrollPhysics(),
-            itemBuilder: (context, index) {
-              var tanggalNotif =
-                  controller.listNotifikasi.value[index]['tanggal'];
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Text(tanggalNotif),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Obx(
-                    () => Padding(
-                      padding: EdgeInsets.only(left: 8, right: 8),
-                      child: ListView.builder(
-                          itemCount: controller
-                              .listNotifikasi.value[index]['notifikasi'].length,
-                          physics: NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemBuilder: (context, idx) {
-                            var idNotif = controller.listNotifikasi.value[index]
-                                ['notifikasi'][idx]['id'];
-                            var titleNotif = controller.listNotifikasi
-                                .value[index]['notifikasi'][idx]['title'];
-                            var deskripsiNotif = controller.listNotifikasi
-                                .value[index]['notifikasi'][idx]['deskripsi'];
-                            var urlRoute = controller.listNotifikasi
-                                .value[index]['notifikasi'][idx]['url'];
-                            var jam = controller.listNotifikasi.value[index]
-                                ['notifikasi'][idx]['jam'];
-                            var statusNotif = controller.listNotifikasi
-                                .value[index]['notifikasi'][idx]['status'];
-                            var view = controller.listNotifikasi.value[index]
-                                ['notifikasi'][idx]['view'];
-                            return Column(
-                              children: [
-                                SizedBox(height: 8),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: view == 0
-                                        ? Constanst.colorButton2
-                                        : Colors.transparent,
-                                    borderRadius: Constanst.borderStyle1,
-                                  ),
-                                  child: InkWell(
-                                    onTap: () {
-                                      if (view == 0) {
-                                        controller.aksilihatNotif(idNotif);
-                                      } else {
-                                        controller.redirectToPage(urlRoute);
-                                      }
-                                    },
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: IntrinsicHeight(
-                                        child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.stretch,
-                                          children: [
-                                            Expanded(
-                                                flex: 10,
-                                                child: Center(
-                                                  child: statusNotif == 1
-                                                      ? Icon(
-                                                          Iconsax.tick_circle,
-                                                          color: Colors.green,
-                                                        )
-                                                      : Icon(
-                                                          Iconsax.close_circle,
-                                                          color: Colors.red,
-                                                        ),
-                                                )),
-                                            Expanded(
-                                              flex: 90,
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    right: 5),
-                                                child: Column(
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    Row(
+        : RefreshIndicator(
+            onRefresh: refreshData,
+            child: ListView.builder(
+                itemCount: controller.listNotifikasi.value.length,
+                physics: controller.listNotifikasi.value.length <= 10
+                    ? AlwaysScrollableScrollPhysics()
+                    : BouncingScrollPhysics(),
+                itemBuilder: (context, index) {
+                  var tanggalNotif =
+                      controller.listNotifikasi.value[index]['tanggal'];
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(tanggalNotif),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Obx(
+                        () => Padding(
+                          padding: EdgeInsets.only(left: 8, right: 8),
+                          child: ListView.builder(
+                              itemCount: controller.listNotifikasi
+                                  .value[index]['notifikasi'].length,
+                              physics: NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemBuilder: (context, idx) {
+                                var idNotif = controller.listNotifikasi
+                                    .value[index]['notifikasi'][idx]['id'];
+                                var titleNotif = controller.listNotifikasi
+                                    .value[index]['notifikasi'][idx]['title'];
+                                var deskripsiNotif =
+                                    controller.listNotifikasi.value[index]
+                                        ['notifikasi'][idx]['deskripsi'];
+                                var urlRoute = controller.listNotifikasi
+                                    .value[index]['notifikasi'][idx]['url'];
+                                var jam = controller.listNotifikasi.value[index]
+                                    ['notifikasi'][idx]['jam'];
+                                var statusNotif = controller.listNotifikasi
+                                    .value[index]['notifikasi'][idx]['status'];
+                                var view = controller.listNotifikasi
+                                    .value[index]['notifikasi'][idx]['view'];
+                                return Column(
+                                  children: [
+                                    SizedBox(height: 8),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: view == 0
+                                            ? Constanst.colorButton2
+                                            : Colors.transparent,
+                                        borderRadius: Constanst.borderStyle1,
+                                      ),
+                                      child: InkWell(
+                                        onTap: () {
+                                          if (view == 0) {
+                                            controller.aksilihatNotif(idNotif);
+                                          } else {
+                                            controller.redirectToPage(urlRoute);
+                                          }
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(6),
+                                          child: IntrinsicHeight(
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.stretch,
+                                              children: [
+                                                Expanded(
+                                                    flex: 10,
+                                                    child: Center(
+                                                      child: statusNotif == 1
+                                                          ? Icon(
+                                                              Iconsax
+                                                                  .tick_circle,
+                                                              color:
+                                                                  Colors.green,
+                                                            )
+                                                          : statusNotif == 2
+                                                              ? Icon(
+                                                                  Iconsax.sms,
+                                                                  color: Constanst
+                                                                      .colorPrimary,
+                                                                )
+                                                              : statusNotif == 0
+                                                                  ? Icon(
+                                                                      Iconsax
+                                                                          .close_circle,
+                                                                      color: Colors
+                                                                          .red,
+                                                                    )
+                                                                  : SizedBox(),
+                                                    )),
+                                                Expanded(
+                                                  flex: 90,
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            right: 5),
+                                                    child: Column(
                                                       crossAxisAlignment:
                                                           CrossAxisAlignment
                                                               .start,
                                                       children: [
-                                                        Expanded(
-                                                          flex: 75,
-                                                          child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                        .only(
-                                                                    right: 5),
-                                                            child: Text(
-                                                              titleNotif,
-                                                              style: TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold),
+                                                        Row(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            Expanded(
+                                                              flex: 75,
+                                                              child: Padding(
+                                                                padding:
+                                                                    const EdgeInsets
+                                                                            .only(
+                                                                        right:
+                                                                            5),
+                                                                child: Text(
+                                                                  titleNotif,
+                                                                  style: TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold),
+                                                                ),
+                                                              ),
                                                             ),
-                                                          ),
+                                                            Expanded(
+                                                              flex: 25,
+                                                              child: Text(
+                                                                "$jam WIB",
+                                                                textAlign:
+                                                                    TextAlign
+                                                                        .right,
+                                                                style: TextStyle(
+                                                                    fontSize:
+                                                                        12),
+                                                              ),
+                                                            ),
+                                                          ],
                                                         ),
-                                                        Expanded(
-                                                          flex: 25,
-                                                          child: Text(
-                                                            "$jam WIB",
-                                                            textAlign:
-                                                                TextAlign.right,
-                                                            style: TextStyle(
-                                                                fontSize: 12),
-                                                          ),
+                                                        Text(
+                                                          deskripsiNotif,
+                                                          style: TextStyle(
+                                                              color: Constanst
+                                                                  .colorText2),
                                                         ),
                                                       ],
                                                     ),
-                                                    Text(
-                                                      deskripsiNotif,
-                                                      style: TextStyle(
-                                                          color: Constanst
-                                                              .colorText2),
-                                                    ),
-                                                  ],
+                                                  ),
                                                 ),
-                                              ),
+                                              ],
                                             ),
-                                          ],
+                                          ),
                                         ),
                                       ),
                                     ),
-                                  ),
-                                ),
-                                SizedBox(height: 8),
-                                Divider(
-                                  height: 5,
-                                  color: Constanst.colorText2,
-                                ),
-                              ],
-                            );
-                          }),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                ],
-              );
-            });
+                                    SizedBox(height: 8),
+                                    Divider(
+                                      height: 5,
+                                      color: Constanst.colorText2,
+                                    ),
+                                  ],
+                                );
+                              }),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 16,
+                      ),
+                    ],
+                  );
+                }),
+          );
   }
 
   Widget pickDate() {
@@ -555,108 +598,114 @@ class Pesan extends StatelessWidget {
                       ],
                     ),
                   )
-                : ListView.builder(
-                    itemCount: controller.dataScreenPersetujuan.value.length,
-                    shrinkWrap: true,
-                    physics: BouncingScrollPhysics(),
-                    itemBuilder: (context, index) {
-                      var title = controller.dataScreenPersetujuan.value[index]
-                          ['title'];
-                      var jumlah = controller.dataScreenPersetujuan.value[index]
-                          ['jumlah_approve'];
-                      return InkWell(
-                        highlightColor: Colors.white,
-                        onTap: () => controller.routeApproval(
-                            controller.dataScreenPersetujuan.value[index]),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Row(
+                : RefreshIndicator(
+                    onRefresh: refreshData,
+                    child: ListView.builder(
+                        itemCount:
+                            controller.dataScreenPersetujuan.value.length,
+                        shrinkWrap: true,
+                        physics: AlwaysScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          var title = controller
+                              .dataScreenPersetujuan.value[index]['title'];
+                          var jumlah = controller.dataScreenPersetujuan
+                              .value[index]['jumlah_approve'];
+                          return InkWell(
+                            highlightColor: Colors.white,
+                            onTap: () => controller.routeApproval(
+                                controller.dataScreenPersetujuan.value[index]),
+                            child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  flex: 10,
-                                  child: title == 'Cuti'
-                                      ? Icon(
-                                          Iconsax.calendar_remove,
-                                          color: Constanst.colorPrimary,
-                                        )
-                                      : title == 'Lembur'
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex: 10,
+                                      child: title == 'Cuti'
                                           ? Icon(
-                                              Iconsax.clock,
+                                              Iconsax.calendar_remove,
                                               color: Constanst.colorPrimary,
                                             )
-                                          : title == 'Tidak Hadir'
+                                          : title == 'Lembur'
                                               ? Icon(
-                                                  Iconsax.clipboard_close,
+                                                  Iconsax.clock,
                                                   color: Constanst.colorPrimary,
                                                 )
-                                              : title == 'Tugas Luar'
+                                              : title == 'Tidak Hadir'
                                                   ? Icon(
-                                                      Iconsax.send_2,
+                                                      Iconsax.clipboard_close,
                                                       color: Constanst
                                                           .colorPrimary,
                                                     )
-                                                  : SizedBox(),
-                                ),
-                                Expanded(
-                                  flex: 60,
-                                  child: Padding(
-                                    padding:
-                                        const EdgeInsets.only(top: 3, left: 8),
-                                    child: Text(
-                                      title,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Constanst.colorText3),
+                                                  : title == 'Tugas Luar'
+                                                      ? Icon(
+                                                          Iconsax.send_2,
+                                                          color: Constanst
+                                                              .colorPrimary,
+                                                        )
+                                                      : SizedBox(),
                                     ),
-                                  ),
-                                ),
-                                Expanded(
-                                  flex: 20,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Constanst.colorBGRejected,
-                                      borderRadius: Constanst.borderStyle1,
-                                    ),
-                                    child: Padding(
-                                      padding:
-                                          EdgeInsets.only(left: 8, right: 8),
-                                      child: Center(
+                                    Expanded(
+                                      flex: 60,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(
+                                            top: 3, left: 8),
                                         child: Text(
-                                          jumlah,
-                                          style: TextStyle(color: Colors.red),
+                                          title,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Constanst.colorText3),
                                         ),
                                       ),
                                     ),
-                                  ),
+                                    Expanded(
+                                      flex: 20,
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Constanst.colorBGRejected,
+                                          borderRadius: Constanst.borderStyle1,
+                                        ),
+                                        child: Padding(
+                                          padding: EdgeInsets.only(
+                                              left: 8, right: 8),
+                                          child: Center(
+                                            child: Text(
+                                              jumlah,
+                                              style:
+                                                  TextStyle(color: Colors.red),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 10,
+                                      child: Icon(
+                                        Icons.arrow_forward_ios,
+                                        color: Constanst.colorText2,
+                                      ),
+                                    )
+                                  ],
                                 ),
-                                Expanded(
-                                  flex: 10,
-                                  child: Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: Constanst.colorText2,
-                                  ),
-                                )
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Divider(
+                                  height: 5,
+                                  color: Constanst.colorText2,
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
                               ],
                             ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                            Divider(
-                              height: 5,
-                              color: Constanst.colorText2,
-                            ),
-                            SizedBox(
-                              height: 10,
-                            ),
-                          ],
-                        ),
-                      );
-                    }),
+                          );
+                        }),
+                  ),
           ),
         ),
         SizedBox(
@@ -826,7 +875,7 @@ class Pesan extends StatelessWidget {
                             child: Padding(
                               padding: const EdgeInsets.only(top: 5),
                               child: Text(
-                                namaPengaju,
+                                namaPengaju ?? "",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 16),
                               ),
@@ -898,7 +947,7 @@ class Pesan extends StatelessWidget {
                         height: 10,
                       ),
                       Text(
-                        typeAjuan,
+                        typeAjuan ?? "",
                         style: TextStyle(fontSize: 14),
                       ),
                       SizedBox(

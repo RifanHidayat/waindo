@@ -35,12 +35,16 @@ class Onboard extends StatelessWidget {
                 children: [
                   Expanded(
                     flex: 15,
-                    child: Center(
-                      child: Image.asset('assets/logo_splash.png', width: 110),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 25),
+                      child: Center(
+                        child:
+                            Image.asset('assets/logo_splash.png', width: 150),
+                      ),
                     ),
                   ),
                   Expanded(
-                    flex: 60,
+                    flex: !controller.deviceStatus.value ? 58 : 63,
                     child: Container(
                       alignment: Alignment.center,
                       margin: EdgeInsets.only(left: 20, right: 20),
@@ -50,7 +54,7 @@ class Onboard extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    flex: 25,
+                    flex: !controller.deviceStatus.value ? 27 : 22,
                     child: Container(
                       width: MediaQuery.of(Get.context!).size.width,
                       decoration: BoxDecoration(
@@ -76,7 +80,7 @@ class Onboard extends StatelessWidget {
                           Padding(
                             padding: const EdgeInsets.only(left: 20),
                             child: Text(
-                              "SISCOM HRIS 👋  ",
+                              "di SISCOM HRIS 👋  ",
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 24),
                             ),
@@ -86,9 +90,28 @@ class Onboard extends StatelessWidget {
                           ),
                           Padding(
                             padding: const EdgeInsets.only(left: 16, right: 16),
-                            child: Text(
-                              "Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis, lectus",
-                              textAlign: TextAlign.center,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  "SISCOM HRIS memberikan solusi untuk proses HR online di Perusahaan Anda. ",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Constanst.colorText2,
+                                      fontSize: 12),
+                                ),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                Text(
+                                  "Kini, semua kebutuhan HR dapat terintegrasi dalam satu aplikasi dengan data yang akurat dan real time.",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Constanst.colorText2,
+                                      fontSize: 12),
+                                ),
+                              ],
                             ),
                           ),
                           SizedBox(
@@ -107,7 +130,7 @@ class Onboard extends StatelessWidget {
           child: TextButton(
               style: ButtonStyle(
                   backgroundColor:
-                      MaterialStateProperty.all<Color>(Colors.blue),
+                      MaterialStateProperty.all<Color>(Constanst.colorPrimary),
                   shape: MaterialStateProperty.all<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0),

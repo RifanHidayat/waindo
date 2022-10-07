@@ -3,17 +3,36 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/setting_controller.dart';
 import 'package:siscom_operasional/screen/akun/edit_password.dart';
 import 'package:siscom_operasional/screen/akun/personal_info.dart';
 import 'package:siscom_operasional/screen/akun/pusat_bantuan.dart';
 import 'package:siscom_operasional/utils/api.dart';
+import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
-import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 
-class Setting extends StatelessWidget {
+class Setting extends StatefulWidget {
+  const Setting({Key? key}) : super(key: key);
+  @override
+  _SettingState createState() => _SettingState();
+}
+
+class _SettingState extends State<Setting> {
   final controller = Get.put(SettingController());
+  final controllerDashboard = Get.put(DashboardController());
+
+  Future<void> refreshData() async {
+    controller.refreshPageStatus.value = true;
+    await Future.delayed(Duration(seconds: 2));
+    setState(() {
+      var dashboardController = Get.find<DashboardController>();
+      dashboardController.updateInformasiUser();
+      controller.onReady();
+      controller.refreshPageStatus.value = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,81 +54,85 @@ class Setting extends StatelessWidget {
               ),
               Padding(
                 padding: EdgeInsets.only(left: 16, right: 16),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 50,
-                      ),
-                      firstLine(),
-                      SizedBox(
-                        height: 30,
-                      ),
-                      Text(
-                        "Pengaturan",
-                        style: TextStyle(
-                            fontSize: 14, color: Constanst.colorText1),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 8, right: 5, top: 15),
-                        child: lineInfoPengguna(),
-                      ),
-                      Text(
-                        "Lainnya",
-                        style: TextStyle(
-                            fontSize: 14, color: Constanst.colorText1),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 8, right: 5, top: 15),
-                        child: lineLainnya(),
-                      ),
-                      TextButton(
-                        style: ButtonStyle(
-                            backgroundColor:
-                                MaterialStateProperty.all<Color>(Colors.white),
-                            overlayColor: MaterialStateProperty.all<Color>(
-                                Color.fromARGB(255, 255, 200, 196)),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10.0),
-                                side: BorderSide(color: Colors.red),
-                              ),
-                            )),
-                        onPressed: () {
-                          controller.logout();
-                        },
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Keluar",
-                              style: TextStyle(color: Colors.red),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 8),
-                              child: Icon(
-                                Iconsax.logout,
-                                color: Colors.red,
-                                size: 20,
-                              ),
-                            )
-                          ],
+                child: RefreshIndicator(
+                  onRefresh: refreshData,
+                  child: SingleChildScrollView(
+                    physics: AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          height: 50,
                         ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Center(
-                        child: Text(
-                          "© Copyright 2022 PT. Shan Informasi Sistem",
+                        Obx(() => firstLine()),
+                        SizedBox(
+                          height: 30,
+                        ),
+                        Text(
+                          "Pengaturan",
                           style: TextStyle(
-                              color: Constanst.colorText1, fontSize: 10),
+                              fontSize: 14, color: Constanst.colorText1),
                         ),
-                      )
-                    ],
+                        Padding(
+                          padding: EdgeInsets.only(left: 8, right: 5, top: 15),
+                          child: lineInfoPengguna(),
+                        ),
+                        Text(
+                          "Lainnya",
+                          style: TextStyle(
+                              fontSize: 14, color: Constanst.colorText1),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 8, right: 5, top: 15),
+                          child: lineLainnya(),
+                        ),
+                        TextButton(
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.white),
+                              overlayColor: MaterialStateProperty.all<Color>(
+                                  Color.fromARGB(255, 255, 200, 196)),
+                              shape: MaterialStateProperty.all<
+                                  RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  side: BorderSide(color: Colors.red),
+                                ),
+                              )),
+                          onPressed: () {
+                            controller.logout();
+                          },
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Keluar",
+                                style: TextStyle(color: Colors.red),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 8),
+                                child: Icon(
+                                  Iconsax.logout,
+                                  color: Colors.red,
+                                  size: 20,
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Center(
+                          child: Text(
+                            "© Copyright 2022 PT. Shan Informasi Sistem",
+                            style: TextStyle(
+                                color: Constanst.colorText1, fontSize: 10),
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -119,92 +142,105 @@ class Setting extends StatelessWidget {
   }
 
   Widget firstLine() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(
-            child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            controller.user.value![0].em_image == null ||
-                    controller.user.value![0].em_image == ""
-                ? Image.asset(
-                    'assets/avatar_default.png',
-                  )
-                : CircleAvatar(
-                    radius: 35, // Image radius
-                    child: ClipOval(
-                      child: ClipOval(
-                        child: CachedNetworkImage(
-                          imageUrl: Api.UrlfotoProfile +
-                              "${controller.user.value![0].em_image}",
-                          progressIndicatorBuilder:
-                              (context, url, downloadProgress) => Container(
-                            alignment: Alignment.center,
-                            height: MediaQuery.of(context).size.height * 0.5,
-                            width: MediaQuery.of(context).size.width,
-                            child: CircularProgressIndicator(
-                                value: downloadProgress.progress),
-                          ),
-                          fit: BoxFit.cover,
-                          width: 70,
-                          height: 70,
-                        ),
-                      ),
-                    ),
-                  ),
-            Padding(
-              padding: EdgeInsets.only(left: 10),
-              child: Column(
+    return controller.refreshPageStatus.value
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              UtilsAlert.shimmerInfoPersonal(Get.context!),
+              SizedBox(
+                height: 30,
+              )
+            ],
+          )
+        : Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                  child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Text(
-                    "${controller.user.value![0].full_name}",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "${controller.user.value![0].emp_jobTitle}",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      Container(
-                        decoration: BoxDecoration(
-                            color: Constanst.colorButton2,
-                            borderRadius: Constanst.borderStyle1),
-                        margin: EdgeInsets.only(left: 15),
-                        child: Padding(
-                          padding: EdgeInsets.only(left: 15, right: 15),
-                          child: InkWell(
-                            onTap: () {},
-                            child: Text(
-                              "${controller.user.value![0].em_status}",
-                              style: TextStyle(color: Constanst.colorText3),
+                  controllerDashboard.user.value[0]['em_image'] == null ||
+                          controllerDashboard.user.value[0]['em_image'] == ""
+                      ? Image.asset(
+                          'assets/avatar_default.png',
+                        )
+                      : CircleAvatar(
+                          radius: 35, // Image radius
+                          child: ClipOval(
+                            child: ClipOval(
+                              child: CachedNetworkImage(
+                                imageUrl: Api.UrlfotoProfile +
+                                    "${controllerDashboard.user.value[0]['em_image']}",
+                                progressIndicatorBuilder:
+                                    (context, url, downloadProgress) =>
+                                        Container(
+                                  alignment: Alignment.center,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.5,
+                                  width: MediaQuery.of(context).size.width,
+                                  child: CircularProgressIndicator(
+                                      value: downloadProgress.progress),
+                                ),
+                                fit: BoxFit.cover,
+                                width: 70,
+                                height: 70,
+                              ),
                             ),
                           ),
                         ),
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
-                  Text(
-                    "NIK. ${controller.user.value![0].em_id}",
-                    style: TextStyle(color: Colors.white),
+                  Padding(
+                    padding: EdgeInsets.only(left: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "${controllerDashboard.user.value[0]['full_name']}",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "${controllerDashboard.user.value[0]['emp_jobTitle']}",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                  color: Constanst.colorButton2,
+                                  borderRadius: Constanst.borderStyle1),
+                              margin: EdgeInsets.only(left: 15),
+                              child: Padding(
+                                padding: EdgeInsets.only(left: 15, right: 15),
+                                child: InkWell(
+                                  onTap: () {},
+                                  child: Text(
+                                    "${controllerDashboard.user.value[0]['em_status']}",
+                                    style:
+                                        TextStyle(color: Constanst.colorText3),
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Text(
+                          "${controllerDashboard.user.value[0]['em_id']}",
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
                   )
                 ],
-              ),
-            )
-          ],
-        )),
-      ],
-    );
+              )),
+            ],
+          );
   }
 
   Widget lineInfoPengguna() {
@@ -224,7 +260,7 @@ class Setting extends StatelessWidget {
                     children: [
                       Icon(
                         Iconsax.personalcard,
-                        color: Colors.blue,
+                        color: Constanst.colorPrimary,
                       ),
                       Padding(
                         padding: EdgeInsets.only(left: 10),
@@ -275,7 +311,7 @@ class Setting extends StatelessWidget {
                     children: [
                       Icon(
                         Iconsax.unlock,
-                        color: Colors.blue,
+                        color: Constanst.colorPrimary,
                       ),
                       Padding(
                         padding: EdgeInsets.only(left: 10),
@@ -331,7 +367,7 @@ class Setting extends StatelessWidget {
                   children: [
                     Icon(
                       Iconsax.password_check,
-                      color: Colors.blue,
+                      color: Constanst.colorPrimary,
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 10),
@@ -378,7 +414,7 @@ class Setting extends StatelessWidget {
                   children: [
                     Icon(
                       Iconsax.unlock,
-                      color: Colors.blue,
+                      color: Constanst.colorPrimary,
                     ),
                     Padding(
                       padding: EdgeInsets.only(left: 10),
@@ -436,7 +472,7 @@ class Setting extends StatelessWidget {
                     children: [
                       Icon(
                         Iconsax.info_circle,
-                        color: Colors.blue,
+                        color: Constanst.colorPrimary,
                       ),
                       Padding(
                         padding: EdgeInsets.only(left: 10),

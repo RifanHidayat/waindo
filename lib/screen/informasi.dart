@@ -17,7 +17,7 @@ class Informasi extends StatelessWidget {
     return Scaffold(
       backgroundColor: Constanst.coloBackgroundScreen,
       appBar: AppBar(
-          backgroundColor: Colors.blue,
+          backgroundColor: Constanst.colorPrimary,
           elevation: 2,
           flexibleSpace: AppbarMenu1(
             title: "Informasi",

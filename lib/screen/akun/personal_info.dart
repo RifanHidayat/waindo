@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/setting_controller.dart';
 import 'package:siscom_operasional/screen/akun/edit_personal_data.dart';
 import 'package:siscom_operasional/screen/akun/setting.dart';
@@ -15,6 +16,7 @@ import 'package:siscom_operasional/utils/widget_textButton.dart';
 
 class PersonalInfo extends StatelessWidget {
   final controller = Get.put(SettingController());
+  final controllerDashboard = Get.put(DashboardController());
 
   @override
   Widget build(BuildContext context) {
@@ -53,8 +55,12 @@ class PersonalInfo extends StatelessWidget {
                     Stack(
                       children: [
                         Center(
-                          child: controller.user.value![0].em_image == null ||
-                                  controller.user.value![0].em_image == ""
+                          child: controllerDashboard.user.value[0]
+                                          ['em_image'] ==
+                                      null ||
+                                  controllerDashboard.user.value[0]
+                                          ['em_image'] ==
+                                      ""
                               ? Image.asset(
                                   'assets/avatar_default.png',
                                 )
@@ -64,7 +70,7 @@ class PersonalInfo extends StatelessWidget {
                                     child: ClipOval(
                                       child: CachedNetworkImage(
                                         imageUrl: Api.UrlfotoProfile +
-                                            "${controller.user.value![0].em_image}",
+                                            "${controllerDashboard.user.value[0]['em_image']}",
                                         progressIndicatorBuilder:
                                             (context, url, downloadProgress) =>
                                                 Container(
@@ -88,17 +94,26 @@ class PersonalInfo extends StatelessWidget {
                         ),
                         Container(
                           color: Colors.transparent,
-                          alignment: Alignment.center,
+                          alignment: Alignment.bottomCenter,
                           child: Padding(
-                            padding: const EdgeInsets.only(left: 110),
-                            child: InkWell(
-                                onTap: () {
-                                  controller.validasigantiFoto();
-                                },
-                                child: Icon(
-                                  Iconsax.camera,
-                                  size: 25,
-                                )),
+                            padding: const EdgeInsets.only(left: 90, top: 90),
+                            child: Container(
+                              width: 30.0,
+                              height: 30.0,
+                              decoration: BoxDecoration(
+                                color: Constanst.colorPrimary,
+                                shape: BoxShape.circle,
+                              ),
+                              child: InkWell(
+                                  onTap: () {
+                                    controller.validasigantiFoto();
+                                  },
+                                  child: Icon(
+                                    Iconsax.add,
+                                    color: Colors.white,
+                                    size: 25,
+                                  )),
+                            ),
                           ),
                         )
                       ],
@@ -131,7 +146,7 @@ class PersonalInfo extends StatelessWidget {
                                 height: 5,
                               ),
                               Text(
-                                "${controller.user.value?[0].em_id}",
+                                "${controllerDashboard.user.value[0]['em_id']}",
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               )
                             ],
@@ -182,7 +197,7 @@ class PersonalInfo extends StatelessWidget {
                                       height: 5,
                                     ),
                                     Text(
-                                      "${controller.user.value?[0].full_name}",
+                                      "${controllerDashboard.user.value[0]['full_name']}",
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold),
                                     )
@@ -232,7 +247,7 @@ class PersonalInfo extends StatelessWidget {
                                 height: 5,
                               ),
                               Text(
-                                "${Constanst.convertDate("${controller.user.value?[0].em_birthday}")}",
+                                "${Constanst.convertDate("${controllerDashboard.user.value[0]['em_birthday']}")}",
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               )
                             ],
@@ -278,7 +293,7 @@ class PersonalInfo extends StatelessWidget {
                                 height: 5,
                               ),
                               Text(
-                                "${controller.user.value?[0].em_email}",
+                                "${controllerDashboard.user.value[0]['em_email']}",
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               )
                             ],
@@ -317,23 +332,20 @@ class PersonalInfo extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               Text(
-                                "Telepon",
+                                "Hp",
                                 style: TextStyle(color: Constanst.colorText1),
                               ),
                               SizedBox(
                                 height: 5,
                               ),
                               Text(
-                                "${controller.user.value?[0].em_phone}",
+                                "${controllerDashboard.user.value[0]['em_phone']}",
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               )
                             ],
                           ),
                         )
                       ],
-                    ),
-                    SizedBox(
-                      height: 10,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 10),
@@ -353,7 +365,152 @@ class PersonalInfo extends StatelessWidget {
                           flex: 12,
                           child: Padding(
                             padding: const EdgeInsets.only(top: 10),
-                            child: Icon(Iconsax.man),
+                            child: Icon(Iconsax.briefcase),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 88,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Divisi",
+                                style: TextStyle(color: Constanst.colorText1),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              Text(
+                                "${controllerDashboard.user.value[0]['emp_departmen']}",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Divider(
+                        height: 5,
+                        color: Constanst.colorNonAktif,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 12,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: Icon(Iconsax.user_square),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 88,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 45,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Jabatan",
+                                      style: TextStyle(
+                                          color: Constanst.colorText1),
+                                    ),
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                    Text(
+                                      "${controllerDashboard.user.value[0]['emp_jobTitle']}",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                flex: 5,
+                                child: Container(
+                                  height: 50,
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    child: Container(
+                                      width: 2,
+                                      color: Color.fromARGB(24, 0, 22, 103),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 10,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 10),
+                                  child: Icon(Iconsax.user_tag),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 54,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 8),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Posisi",
+                                        style: TextStyle(
+                                            color: Constanst.colorText1),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
+                                      Text(
+                                        "${controllerDashboard.user.value[0]['posisi']}",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Divider(
+                        height: 5,
+                        color: Constanst.colorNonAktif,
+                      ),
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 12,
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: controllerDashboard.user.value[0]
+                                        ['em_gender'] ==
+                                    "PRIA"
+                                ? Icon(Iconsax.man)
+                                : Icon(Iconsax.woman),
                           ),
                         ),
                         Expanded(
@@ -376,7 +533,7 @@ class PersonalInfo extends StatelessWidget {
                                       height: 5,
                                     ),
                                     Text(
-                                      "${controller.user.value?[0].em_gender}",
+                                      "${controllerDashboard.user.value[0]['em_gender']}",
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold),
                                     )
@@ -384,9 +541,23 @@ class PersonalInfo extends StatelessWidget {
                                 ),
                               ),
                               Expanded(
+                                flex: 5,
                                 child: Container(
                                   height: 50,
-                                  color: Color(0xffE9EDF5),
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    child: Container(
+                                      width: 2,
+                                      color: Color.fromARGB(24, 0, 22, 103),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 10,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(top: 10),
+                                  child: Icon(Iconsax.command),
                                 ),
                               ),
                               Expanded(
@@ -406,7 +577,7 @@ class PersonalInfo extends StatelessWidget {
                                         height: 5,
                                       ),
                                       Text(
-                                        "${controller.user.value?[0].em_blood_group}",
+                                        "${controllerDashboard.user.value[0]['em_blood_group']}",
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold),
                                       )
@@ -457,7 +628,7 @@ class PersonalInfo extends StatelessWidget {
                                 height: 5,
                               ),
                               Text(
-                                "${Constanst.convertDate("${controller.user.value?[0].em_joining_date}")}",
+                                "${Constanst.convertDate("${controllerDashboard.user.value[0]['em_joining_date']}")}",
                                 // "${controller.user.value?[0].em_joining_date}",
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               )
@@ -504,7 +675,7 @@ class PersonalInfo extends StatelessWidget {
                                 height: 5,
                               ),
                               Text(
-                                "${controller.user.value?[0].em_status}",
+                                "${controllerDashboard.user.value[0]['em_status']}",
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               )
                             ],
@@ -539,7 +710,7 @@ class PersonalInfo extends StatelessWidget {
       //         onTap: () {
       //           Get.offAll(EditPersonalInfo());
       //         },
-      //         colorButton: Colors.blue,
+      //         colorButton: Constanst.colorPrimary,
       //         colortext: Constanst.colorWhite,
       //         border: BorderRadius.circular(10.0),
       //         icon: Icon(

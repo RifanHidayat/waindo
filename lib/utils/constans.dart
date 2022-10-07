@@ -16,10 +16,10 @@ class Constanst {
   static Color colorText2 = Color(0xff868FA0);
   static Color colorText3 = Color(0xff333B4A);
   static Color colorNonAktif = Color(0xffD5DBE5);
-  static Color colorButton1 = Color(0xff2F80ED);
+  static Color colorButton1 = Color(0xff001767);
   static Color colorButton2 = Color(0xffE9F5FE);
 
-  static Color colorPrimary = Color(0xff2F80ED);
+  static Color colorPrimary = Color(0xff001767);
   static Color color1 = Color(0xffBCC2CE);
   static Color color2 = Color(0xff11151E);
   static Color color3 = Color(0xffF2AA0D);
@@ -32,6 +32,8 @@ class Constanst {
       topRight: Radius.circular(15),
       bottomLeft: Radius.circular(15),
       bottomRight: Radius.circular(15));
+
+  
 
   static BorderRadius borderStyle2 = BorderRadius.only(
       topLeft: Radius.circular(10),
@@ -51,6 +53,12 @@ class Constanst {
       bottomLeft: Radius.circular(20),
       bottomRight: Radius.circular(20));
 
+      static BorderRadius borderStyle5 = BorderRadius.only(
+      topLeft: Radius.circular(6),
+      topRight: Radius.circular(6),
+      bottomLeft: Radius.circular(6),
+      bottomRight: Radius.circular(6));
+
   static TextStyle style1 =
       TextStyle(color: Colors.grey, fontWeight: FontWeight.bold);
   static TextStyle boldType1 =
@@ -65,10 +73,10 @@ class Constanst {
   static BoxDecoration styleBoxDecoration1 = BoxDecoration(
     color: Colors.white,
     borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(10),
-        topRight: Radius.circular(10),
-        bottomLeft: Radius.circular(10),
-        bottomRight: Radius.circular(10)),
+        topLeft: Radius.circular(8),
+        topRight: Radius.circular(8),
+        bottomLeft: Radius.circular(8),
+        bottomRight: Radius.circular(8)),
     boxShadow: [
       BoxShadow(
         color: Color.fromARGB(255, 135, 135, 135).withOpacity(0.5),
@@ -121,6 +129,14 @@ class Constanst {
     var tanggal = DateFormat('dd MMM');
     var valid2 = tanggal.format(convert);
     return valid2;
+  }
+
+  static String convertDate4(String date) {
+    var inputFormat = DateFormat('yyyy-MM-dd');
+    var inputDate = inputFormat.parse(date);
+    var outputFormat = DateFormat('dd MMM');
+    var outputDate = outputFormat.format(inputDate);
+    return outputDate;
   }
 
   static String convertDateSimpan(String date) {

@@ -44,42 +44,35 @@ class TugasLuar extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                    flex: 12,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 16,
-                        ),
-                        controller.bulanDanTahunNow.value == ""
-                            ? SizedBox()
-                            : pickDate(),
-                      ],
-                    )),
-                Expanded(
-                    flex: 85,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Riwayat Pengajuan Tugas Luar",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: Constanst.sizeTitle,
-                              color: Constanst.colorText3),
-                        ),
-                        SizedBox(
-                          height: 8,
-                        ),
-                        Flexible(
-                            child: controller.listTugasLuar.value.isEmpty
-                                ? Center(
-                                    child: Text(controller.loadingString.value),
-                                  )
-                                : riwayatTugasLuar())
-                      ],
-                    ))
+                SizedBox(
+                  height: 16,
+                ),
+                controller.bulanDanTahunNow.value == ""
+                    ? SizedBox()
+                    : pickDate(),
+                SizedBox(
+                  height: 16,
+                ),
+                listStatusAjuan(),
+                SizedBox(
+                  height: 16,
+                ),
+                Text(
+                  "Riwayat Pengajuan Tugas Luar",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: Constanst.sizeTitle,
+                      color: Constanst.colorText3),
+                ),
+                SizedBox(
+                  height: 8,
+                ),
+                Flexible(
+                    child: controller.listTugasLuar.value.isEmpty
+                        ? Center(
+                            child: Text(controller.loadingString.value),
+                          )
+                        : riwayatTugasLuar())
               ],
             ),
           ),
@@ -94,7 +87,7 @@ class TugasLuar extends StatelessWidget {
                   dataForm: [[], false],
                 ));
               },
-              colorButton: Colors.blue,
+              colorButton: Constanst.colorPrimary,
               colortext: Constanst.colorWhite,
               border: BorderRadius.circular(20.0),
               icon: Icon(
@@ -174,6 +167,78 @@ class TugasLuar extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  Widget listStatusAjuan() {
+    return SizedBox(
+      height: 30,
+      child: ListView.builder(
+          itemCount: controller.dataTypeAjuan.value.length,
+          scrollDirection: Axis.horizontal,
+          itemBuilder: (context, index) {
+            var namaType = controller.dataTypeAjuan[index]['nama'];
+            var status = controller.dataTypeAjuan[index]['status'];
+            return InkWell(
+              highlightColor: Constanst.colorButton2,
+              onTap: () => controller.changeTypeAjuan(
+                  controller.dataTypeAjuan.value[index]['nama']),
+              child: Container(
+                padding: EdgeInsets.only(left: 8, right: 8),
+                margin: EdgeInsets.only(left: 5, right: 5),
+                decoration: BoxDecoration(
+                  color: status == true
+                      ? Constanst.colorButton2
+                      : Constanst.colorNonAktif,
+                  borderRadius: Constanst.borderStyle1,
+                ),
+                child: Center(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      namaType == "Approve"
+                          ? Icon(
+                              Iconsax.tick_square,
+                              size: 14,
+                              color: status == true
+                                  ? Constanst.colorPrimary
+                                  : Constanst.colorText2,
+                            )
+                          : namaType == "Rejected"
+                              ? Icon(
+                                  Iconsax.close_square,
+                                  size: 14,
+                                  color: status == true
+                                      ? Constanst.colorPrimary
+                                      : Constanst.colorText2,
+                                )
+                              : namaType == "Pending"
+                                  ? Icon(
+                                      Iconsax.timer,
+                                      size: 14,
+                                      color: status == true
+                                          ? Constanst.colorPrimary
+                                          : Constanst.colorText2,
+                                    )
+                                  : SizedBox(),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 6, right: 6),
+                        child: Text(
+                          namaType,
+                          style: TextStyle(
+                              fontSize: 12,
+                              color: status == true
+                                  ? Constanst.colorPrimary
+                                  : Constanst.colorText2,
+                              fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }),
     );
   }
 
@@ -413,26 +478,18 @@ class TugasLuar extends StatelessWidget {
                                           Expanded(
                                               child: Padding(
                                             padding: EdgeInsets.only(right: 10),
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                color: Colors.red,
-                                                borderRadius:
-                                                    Constanst.borderStyle1,
-                                              ),
-                                              child: InkWell(
-                                                onTap: () {
-                                                  controller
-                                                      .batalkanPengajuanLembur(
-                                                          controller
-                                                              .listTugasLuar
-                                                              .value[index]);
-                                                },
-                                                child: Text(
-                                                  "Batalkan",
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                      color: Colors.white),
-                                                ),
+                                            child: InkWell(
+                                              onTap: () {
+                                                controller
+                                                    .showModalBatalPengajuan(
+                                                        controller.listTugasLuar
+                                                            .value[index]);
+                                              },
+                                              child: Text(
+                                                "Batalkan",
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                    color: Colors.red),
                                               ),
                                             ),
                                           )),
@@ -441,10 +498,11 @@ class TugasLuar extends StatelessWidget {
                                             padding: EdgeInsets.only(right: 10),
                                             child: Container(
                                               decoration: BoxDecoration(
-                                                color: Colors.green,
-                                                borderRadius:
-                                                    Constanst.borderStyle1,
-                                              ),
+                                                  borderRadius:
+                                                      Constanst.borderStyle1,
+                                                  border: Border.all(
+                                                      color: Constanst
+                                                          .colorPrimary)),
                                               child: InkWell(
                                                 onTap: () {
                                                   Get.offAll(FormTugasLuar(
@@ -459,7 +517,8 @@ class TugasLuar extends StatelessWidget {
                                                   "Edit",
                                                   textAlign: TextAlign.center,
                                                   style: TextStyle(
-                                                      color: Colors.white),
+                                                      color: Constanst
+                                                          .colorPrimary),
                                                 ),
                                               ),
                                             ),

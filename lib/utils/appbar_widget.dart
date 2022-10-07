@@ -102,7 +102,7 @@ class AppbarMenu1 extends StatelessWidget {
                     if (onTap != null) onTap!();
                   },
                   icon: Icon(
-                    Iconsax.search_normal,
+                    Iconsax.search_normal_1,
                     color: colorTitle,
                   ),
                 ),

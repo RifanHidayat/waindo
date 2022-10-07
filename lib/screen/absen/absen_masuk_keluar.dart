@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/screen/dashboard.dart';
@@ -77,8 +78,7 @@ class AbsenMasukKeluar extends StatelessWidget {
       bottomNavigationBar: Padding(
         padding: EdgeInsets.all(10.0),
         child: RaisedButton(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           onPressed: () => controller.kirimDataAbsensi(),
           color: Constanst.colorButton1,
           textColor: Colors.white,
@@ -141,10 +141,17 @@ class AbsenMasukKeluar extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Image.asset("assets/icon_ulangi.png"),
+                            // Image.asset("assets/icon_ulangi.png"),
+                            Icon(
+                              Iconsax.refresh,
+                              color: Constanst.colorPrimary,
+                            ),
                             Padding(
                               padding: EdgeInsets.only(left: 10),
-                              child: Text("Ulangi"),
+                              child: Text(
+                                "Ulangi",
+                                style: TextStyle(color: Constanst.colorPrimary),
+                              ),
                             )
                           ],
                         )),
@@ -181,22 +188,29 @@ class AbsenMasukKeluar extends StatelessWidget {
                                       Expanded(
                                         flex: 10,
                                         child: Container(
-                                          alignment: Alignment.topCenter,
-                                          child: Image.asset(
-                                              "assets/ic_clock.png"),
-                                        ),
+                                            alignment: Alignment.topCenter,
+                                            child: Icon(
+                                              Iconsax.clock,
+                                              size: 24,
+                                              color: Constanst.colorPrimary,
+                                            )),
                                       ),
                                       Expanded(
                                         flex: 90,
                                         child: Padding(
-                                            padding: EdgeInsets.only(left: 8),
+                                            padding: EdgeInsets.only(
+                                                left: 8, top: 3),
                                             child: Row(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Expanded(
-                                                  child: Text(controller
-                                                      .timeString.value),
+                                                  child: Text(
+                                                      controller
+                                                          .timeString.value,
+                                                      style: TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold)),
                                                 ),
                                                 Expanded(
                                                     child: controller.typeAbsen
@@ -285,16 +299,24 @@ class AbsenMasukKeluar extends StatelessWidget {
                                       Expanded(
                                         flex: 10,
                                         child: Container(
-                                          alignment: Alignment.topCenter,
-                                          child: Image.asset(
-                                              "assets/ic_calender.png"),
-                                        ),
+                                            alignment: Alignment.topCenter,
+                                            child: Icon(
+                                              Iconsax.calendar_2,
+                                              size: 24,
+                                              color: Constanst.colorPrimary,
+                                            )
+                                            // Image.asset(
+                                            //     "assets/ic_calender.png"),
+                                            ),
                                       ),
                                       Expanded(
                                         flex: 90,
                                         child: Padding(
-                                          padding: EdgeInsets.only(left: 8),
-                                          child: Text(controller.dateNow.value),
+                                          padding:
+                                              EdgeInsets.only(left: 8, top: 3),
+                                          child: Text(controller.dateNow.value,
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold)),
                                         ),
                                       ),
                                     ],
@@ -310,17 +332,25 @@ class AbsenMasukKeluar extends StatelessWidget {
                                       Expanded(
                                         flex: 10,
                                         child: Container(
-                                          alignment: Alignment.topCenter,
-                                          child: Image.asset(
-                                              "assets/ic_location.png"),
-                                        ),
+                                            alignment: Alignment.topCenter,
+                                            child: Icon(
+                                              Iconsax.location_tick,
+                                              size: 24,
+                                              color: Constanst.colorPrimary,
+                                            )
+                                            // Image.asset(
+                                            //     "assets/ic_location.png"),
+                                            ),
                                       ),
                                       Expanded(
                                           flex: 90,
                                           child: Padding(
-                                            padding:
-                                                const EdgeInsets.only(left: 8),
-                                            child: Text("Lokasi Absen"),
+                                            padding: const EdgeInsets.only(
+                                                left: 8, top: 3),
+                                            child: Text("Lokasi Absen",
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold)),
                                           )),
                                     ],
                                   ),
@@ -337,31 +367,49 @@ class AbsenMasukKeluar extends StatelessWidget {
                                         flex: 90,
                                         child: Padding(
                                           padding: EdgeInsets.only(left: 8),
-                                          child: DropdownButtonHideUnderline(
-                                            child: DropdownButton<String>(
-                                              isDense: true,
-                                              items: controller
-                                                  .placeCoordinateDropdown.value
-                                                  .map<
-                                                          DropdownMenuItem<
-                                                              String>>(
-                                                      (String value) {
-                                                return DropdownMenuItem<String>(
-                                                  value: value,
-                                                  child: Text(
-                                                    value,
-                                                    style:
-                                                        TextStyle(fontSize: 14),
-                                                  ),
-                                                );
-                                              }).toList(),
-                                              value:
-                                                  controller.selectedType.value,
-                                              onChanged: (selectedValue) {
-                                                controller.selectedType.value =
-                                                    selectedValue!;
-                                              },
-                                              isExpanded: true,
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                                borderRadius:
+                                                    Constanst.borderStyle2,
+                                                border: Border.all(
+                                                    color:
+                                                        Constanst.colorText1)),
+                                            child: Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 16,
+                                                  right: 16,
+                                                  top: 8,
+                                                  bottom: 8),
+                                              child:
+                                                  DropdownButtonHideUnderline(
+                                                child: DropdownButton<String>(
+                                                  isDense: true,
+                                                  items: controller
+                                                      .placeCoordinateDropdown
+                                                      .value
+                                                      .map<
+                                                              DropdownMenuItem<
+                                                                  String>>(
+                                                          (String value) {
+                                                    return DropdownMenuItem<
+                                                        String>(
+                                                      value: value,
+                                                      child: Text(
+                                                        value,
+                                                        style: TextStyle(
+                                                            fontSize: 14),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                  value: controller
+                                                      .selectedType.value,
+                                                  onChanged: (selectedValue) {
+                                                    controller.selectedType
+                                                        .value = selectedValue!;
+                                                  },
+                                                  isExpanded: true,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -379,36 +427,50 @@ class AbsenMasukKeluar extends StatelessWidget {
                                       Expanded(
                                         flex: 10,
                                         child: Container(
-                                          alignment: Alignment.topCenter,
-                                          child:
-                                              Image.asset("assets/ic_map.png"),
-                                        ),
+                                            alignment: Alignment.topCenter,
+                                            child: Icon(
+                                              Iconsax.map_1,
+                                              size: 24,
+                                              color: Constanst.colorPrimary,
+                                            )
+                                            // Image.asset("assets/ic_map.png"),
+                                            ),
                                       ),
                                       Expanded(
                                         flex: 80,
                                         child: Padding(
-                                            padding: EdgeInsets.only(left: 8),
-                                            child:
-                                                Text("Lokasi kamu saat ini")),
+                                            padding: EdgeInsets.only(
+                                                left: 8, top: 3),
+                                            child: Text(
+                                              "Lokasi kamu saat ini",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            )),
                                       ),
                                       Expanded(
                                         flex: 10,
-                                        child: InkWell(
-                                          onTap: () {
-                                            controller.detailAlamat.value =
-                                                !controller.detailAlamat.value;
-                                          },
-                                          child: !controller.detailAlamat.value
-                                              ? Icon(
-                                                  Icons
-                                                      .arrow_forward_ios_rounded,
-                                                  size: 16,
-                                                )
-                                              : Icon(
-                                                  Icons
-                                                      .arrow_drop_down_outlined,
-                                                  size: 20,
-                                                ),
+                                        child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 6),
+                                          child: InkWell(
+                                            onTap: () {
+                                              controller.detailAlamat.value =
+                                                  !controller
+                                                      .detailAlamat.value;
+                                            },
+                                            child:
+                                                !controller.detailAlamat.value
+                                                    ? Icon(
+                                                        Icons
+                                                            .arrow_forward_ios_rounded,
+                                                        size: 16,
+                                                      )
+                                                    : Icon(
+                                                        Icons
+                                                            .arrow_drop_down_outlined,
+                                                        size: 20,
+                                                      ),
+                                          ),
                                         ),
                                       )
                                     ],
@@ -431,8 +493,14 @@ class AbsenMasukKeluar extends StatelessWidget {
                                               child: Padding(
                                                 padding:
                                                     const EdgeInsets.all(8.0),
-                                                child: Text(controller
-                                                    .alamatUserFoto.value),
+                                                child: Text(
+                                                  controller
+                                                      .alamatUserFoto.value,
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color:
+                                                          Constanst.colorText2),
+                                                ),
                                               ),
                                             ),
                                           ],
@@ -447,20 +515,25 @@ class AbsenMasukKeluar extends StatelessWidget {
                                       Expanded(
                                         flex: 10,
                                         child: Container(
-                                          alignment: Alignment.topCenter,
-                                          child:
-                                              Image.asset("assets/ic_note.png"),
-                                        ),
+                                            alignment: Alignment.topCenter,
+                                            child: Icon(
+                                              Iconsax.note_1,
+                                              size: 24,
+                                              color: Constanst.colorPrimary,
+                                            )
+                                            // Image.asset("assets/ic_note.png"),
+                                            ),
                                       ),
                                       Expanded(
                                         flex: 90,
                                         child: Padding(
-                                          padding: EdgeInsets.only(left: 8),
+                                          padding:
+                                              EdgeInsets.only(left: 8, top: 3),
                                           child: Column(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Text("Tambahkan catatan"),
+                                              Text("Tambahkan catatan" , style: TextStyle(fontWeight: FontWeight.bold)),
                                               SizedBox(
                                                 height: 10,
                                               ),
@@ -468,19 +541,7 @@ class AbsenMasukKeluar extends StatelessWidget {
                                                 decoration: BoxDecoration(
                                                     color: Colors.white,
                                                     borderRadius:
-                                                        BorderRadius.only(
-                                                            topLeft:
-                                                                Radius.circular(
-                                                                    10),
-                                                            topRight:
-                                                                Radius.circular(
-                                                                    10),
-                                                            bottomLeft:
-                                                                Radius.circular(
-                                                                    10),
-                                                            bottomRight:
-                                                                Radius.circular(
-                                                                    10)),
+                                                        Constanst.borderStyle2,
                                                     border: Border.all(
                                                         width: 1.0,
                                                         color: Color.fromARGB(

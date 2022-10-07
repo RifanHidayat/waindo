@@ -7,7 +7,8 @@ class AbsenModel {
   String? signin_time;
   String? signout_time;
   String? working_hour;
-  String? place;
+  String? place_in;
+  String? place_out;
   String? absence;
   String? overtime;
   String? earnleave;
@@ -30,7 +31,8 @@ class AbsenModel {
       this.signin_time,
       this.signout_time,
       this.working_hour,
-      this.place,
+      this.place_in,
+      this.place_out,
       this.absence,
       this.overtime,
       this.earnleave,
@@ -54,7 +56,8 @@ class AbsenModel {
       "signin_time": signin_time,
       "signout_time": signout_time,
       "working_hour": working_hour,
-      "place": place,
+      "place_in": place_in,
+      "place_out": place_out,
       "absence": absence,
       "overtime": overtime,
       "earnleave": earnleave,
@@ -80,7 +83,8 @@ class AbsenModel {
         signin_time: map['signin_time'],
         signout_time: map['signout_time'],
         working_hour: map['working_hour'],
-        place: map['place'],
+        place_in: map['place_in'],
+        place_out: map['place_out'],
         absence: map['absence'],
         overtime: map['overtime'],
         earnleave: map['earnleave'],

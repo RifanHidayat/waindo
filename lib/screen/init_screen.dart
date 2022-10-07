@@ -21,7 +21,9 @@ class _InitScreenState extends State<InitScreen> {
     return [
       Dashboard(),
       Aktifitas(),
-      Pesan(false),
+      Pesan(
+        status: false,
+      ),
       Setting(),
     ];
   }
@@ -38,7 +40,7 @@ class _InitScreenState extends State<InitScreen> {
       PersistentBottomNavBarItem(
         icon: ImageIcon(AssetImage("assets/aktifitas_fill.png")),
         inactiveIcon: ImageIcon(AssetImage("assets/aktifitas.png")),
-        title: "Aktifitas",
+        title: "Aktivitas",
         activeColorPrimary: Constanst.colorButton1,
         inactiveColorPrimary: Constanst.color1,
       ),

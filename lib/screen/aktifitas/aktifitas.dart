@@ -2,6 +2,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:siscom_operasional/controller/aktifitas_controller.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
@@ -17,17 +20,19 @@ class Aktifitas extends StatelessWidget {
     return Scaffold(
       backgroundColor: Constanst.coloBackgroundScreen,
       appBar: AppBar(
-          backgroundColor: Colors.blue,
+          backgroundColor: Constanst.colorPrimary,
           elevation: 2,
-          flexibleSpace: AppbarMenu1(
-            title: "Aktifitas",
-            colorTitle: Colors.white,
-            icon: 2,
-            onTap: () {
-              controller.cari.value.text = "";
-              controller.cariDataAktifitas();
-            },
-          )),
+          flexibleSpace: appbarSetting()
+          // AppbarMenu1(
+          //   title: "Aktivitas",
+          //   colorTitle: Colors.white,
+          //   icon: 2,
+          //   onTap: () {
+          //     controller.cari.value.text = "";
+          //     controller.cariDataAktifitas();
+          //   },
+          // )
+          ),
       body: WillPopScope(
           onWillPop: () async {
             return false;
@@ -41,6 +46,20 @@ class Aktifitas extends StatelessWidget {
                   children: [
                     SizedBox(
                       height: 16,
+                    ),
+                    dashboardAktifitas(),
+                    SizedBox(
+                      height: 16,
+                    ),
+                    Text(
+                      "Log Aktifitas",
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Constanst.colorText3),
+                    ),
+                    SizedBox(
+                      height: 8,
                     ),
                     controller.statusPencarian.value == false
                         ? SizedBox()
@@ -58,6 +77,8 @@ class Aktifitas extends StatelessWidget {
                                   child: InkWell(
                                       onTap: () {
                                         controller.statusPencarian.value =
+                                            false;
+                                        controller.statusFormPencarian.value =
                                             false;
                                         controller.listAktifitas.value.clear();
                                         controller.loadAktifitas();
@@ -137,72 +158,85 @@ class Aktifitas extends StatelessWidget {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Expanded(
-                                                      flex: 40,
-                                                      child: Text(
-                                                        namaMenu,
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
+                                                      flex: 10,
+                                                      child: Container(
+                                                        height: 30,
+                                                        width: 30,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                                shape: BoxShape
+                                                                    .circle,
+                                                                color: Color
+                                                                    .fromARGB(
+                                                                        24,
+                                                                        0,
+                                                                        22,
+                                                                        103)),
+                                                        child: Center(
+                                                            child: Icon(
+                                                          Iconsax.document_code,
+                                                          size: 18,
+                                                          color: Constanst
+                                                              .colorPrimary,
+                                                        )),
                                                       )),
                                                   Expanded(
-                                                      flex: 60,
-                                                      child: Padding(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .only(top: 2),
-                                                        child: Row(
-                                                          mainAxisAlignment:
-                                                              MainAxisAlignment
-                                                                  .end,
-                                                          crossAxisAlignment:
-                                                              CrossAxisAlignment
-                                                                  .end,
-                                                          children: [
-                                                            Text(
-                                                              Constanst
-                                                                  .convertDate2(
-                                                                      createdDate),
-                                                              style: TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: Constanst
-                                                                      .colorText2,
-                                                                  fontSize: 12),
-                                                            ),
-                                                            Padding(
-                                                              padding: EdgeInsets
-                                                                  .only(
-                                                                      left: 5),
-                                                              child: Text(jam,
-                                                                  style: TextStyle(
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold,
-                                                                      color: Constanst
-                                                                          .colorText2,
-                                                                      fontSize:
-                                                                          12)),
-                                                            )
-                                                          ],
-                                                        ),
-                                                      ))
+                                                    flex: 75,
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              left: 8, top: 5),
+                                                      child: Text("$namaMenu"),
+                                                    ),
+                                                  ),
+                                                  Expanded(
+                                                    flex: 15,
+                                                    child: Text(
+                                                      "${Constanst.convertDate4('$createdDate')} $jam",
+                                                      textAlign:
+                                                          TextAlign.right,
+                                                      style: TextStyle(
+                                                          color: Constanst
+                                                              .colorText2,
+                                                          fontSize: 10),
+                                                    ),
+                                                  )
                                                 ],
                                               ),
                                               SizedBox(
-                                                height: 16,
+                                                height: 8,
                                               ),
-                                              Text(namaAktifitas),
+                                              IntrinsicHeight(
+                                                child: Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Expanded(
+                                                      flex: 10,
+                                                      child: Container(
+                                                        alignment:
+                                                            Alignment.center,
+                                                        child: Container(
+                                                          width: 2,
+                                                          color: Color.fromARGB(
+                                                              24, 0, 22, 103),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 90,
+                                                      child: Padding(
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                                  left: 8),
+                                                          child: Text(
+                                                              "$namaAktifitas")),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
                                               SizedBox(
                                                 height: 5,
-                                              ),
-                                              Divider(
-                                                height: 5,
-                                                color: Constanst.colorText2,
-                                              ),
-                                              SizedBox(
-                                                height: 10,
                                               ),
                                             ],
                                           );
@@ -233,70 +267,76 @@ class Aktifitas extends StatelessWidget {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Expanded(
-                                                  flex: 40,
-                                                  child: Text(
-                                                    namaMenu,
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold),
+                                                  flex: 10,
+                                                  child: Container(
+                                                    height: 30,
+                                                    width: 30,
+                                                    decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: Color.fromARGB(
+                                                            24, 0, 22, 103)),
+                                                    child: Center(
+                                                        child: Icon(
+                                                      Iconsax.document_code,
+                                                      size: 18,
+                                                      color: Constanst
+                                                          .colorPrimary,
+                                                    )),
                                                   )),
                                               Expanded(
-                                                  flex: 60,
-                                                  child: Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            top: 2),
-                                                    child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment.end,
-                                                      crossAxisAlignment:
-                                                          CrossAxisAlignment
-                                                              .end,
-                                                      children: [
-                                                        Text(
-                                                          Constanst
-                                                              .convertDate2(
-                                                                  createdDate),
-                                                          style: TextStyle(
-                                                              fontWeight:
-                                                                  FontWeight
-                                                                      .bold,
-                                                              color: Constanst
-                                                                  .colorText2,
-                                                              fontSize: 12),
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  left: 5),
-                                                          child: Text(jam,
-                                                              style: TextStyle(
-                                                                  fontWeight:
-                                                                      FontWeight
-                                                                          .bold,
-                                                                  color: Constanst
-                                                                      .colorText2,
-                                                                  fontSize:
-                                                                      12)),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ))
+                                                flex: 75,
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 8, top: 5),
+                                                  child: Text("$namaMenu"),
+                                                ),
+                                              ),
+                                              Expanded(
+                                                flex: 15,
+                                                child: Text(
+                                                  "${Constanst.convertDate4('$createdDate')} $jam",
+                                                  textAlign: TextAlign.right,
+                                                  style: TextStyle(
+                                                      color:
+                                                          Constanst.colorText2,
+                                                      fontSize: 10),
+                                                ),
+                                              )
                                             ],
                                           ),
                                           SizedBox(
-                                            height: 16,
+                                            height: 8,
                                           ),
-                                          Text(namaAktifitas),
+                                          IntrinsicHeight(
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Expanded(
+                                                  flex: 10,
+                                                  child: Container(
+                                                    alignment: Alignment.center,
+                                                    child: Container(
+                                                      width: 3,
+                                                      color: Color.fromARGB(
+                                                          24, 0, 22, 103),
+                                                    ),
+                                                  ),
+                                                ),
+                                                Expanded(
+                                                  flex: 90,
+                                                  child: Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: 8),
+                                                      child: Text(
+                                                          "$namaAktifitas")),
+                                                )
+                                              ],
+                                            ),
+                                          ),
                                           SizedBox(
                                             height: 5,
-                                          ),
-                                          Divider(
-                                            height: 5,
-                                            color: Constanst.colorText2,
-                                          ),
-                                          SizedBox(
-                                            height: 10,
                                           ),
                                         ],
                                       );
@@ -306,6 +346,287 @@ class Aktifitas extends StatelessWidget {
               ),
             ),
           )),
+    );
+  }
+
+  Widget dashboardAktifitas() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 60,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  "Kehadiran",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: Constanst.colorText3),
+                ),
+              ),
+            ),
+            Expanded(
+                flex: 40,
+                child: InkWell(
+                  onTap: () {
+                    showMonthPicker(
+                      context: Get.context!,
+                      firstDate: DateTime(DateTime.now().year - 1, 5),
+                      lastDate: DateTime(DateTime.now().year + 1, 9),
+                      initialDate: DateTime.now(),
+                      locale: Locale("en"),
+                    ).then((date) {
+                      if (date != null) {
+                        print(date);
+                        var outputFormat1 = DateFormat('MM');
+                        var outputFormat2 = DateFormat('yyyy');
+                        var bulan = outputFormat1.format(date);
+                        var tahun = outputFormat2.format(date);
+                        controller.bulanSelectedSearchHistory.value = bulan;
+                        controller.tahunSelectedSearchHistory.value = tahun;
+                        controller.bulanDanTahunNow.value = "$bulan-$tahun";
+                        this.controller.bulanSelectedSearchHistory.refresh();
+                        this.controller.tahunSelectedSearchHistory.refresh();
+                        this.controller.bulanDanTahunNow.refresh();
+                        // controller.loadDataTugasLuar();
+                      }
+                    });
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                        borderRadius: Constanst.borderStyle2,
+                        border: Border.all(color: Constanst.colorText2)),
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Iconsax.calendar_1,
+                            size: 16,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 8),
+                            child: Text(
+                                "${Constanst.convertDateBulanDanTahun(controller.bulanDanTahunNow.value)}"),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                ))
+          ],
+        ),
+        SizedBox(
+          height: 8,
+        ),
+        GridView.builder(
+            physics: BouncingScrollPhysics(),
+            padding: EdgeInsets.all(0),
+            shrinkWrap: true,
+            itemCount: controller.infoAktifitas.value.length,
+            scrollDirection: Axis.vertical,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+              childAspectRatio: 1.6,
+            ),
+            itemBuilder: (context, index) {
+              var id = controller.infoAktifitas.value[index]['id'];
+              var title = controller.infoAktifitas.value[index]['nama'];
+              var jumlah = controller.infoAktifitas.value[index]['jumlah'];
+              return Card(
+                elevation: 2,
+                child: ClipPath(
+                  child: Container(
+                    height: 50,
+                    decoration: BoxDecoration(
+                        border: Border(
+                            left: BorderSide(
+                                color: id == "1"
+                                    ? Color(0xff2F80ED)
+                                    : id == "2"
+                                        ? Color(0xffF2AA0D)
+                                        : id == "3"
+                                            ? Color(0xffFF463D)
+                                            : id == "4"
+                                                ? Color(0xff14B156)
+                                                : id == "5"
+                                                    ? Color(0xffFF806D)
+                                                    : id == "6"
+                                                        ? Color(0xffACD9FD)
+                                                        : Colors.white,
+                                width: 8))),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(jumlah),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(title),
+                        ],
+                      ),
+                    ),
+                  ),
+                  clipper: ShapeBorderClipper(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5.0))),
+                ),
+              );
+            }),
+        SizedBox(
+          height: 8,
+        ),
+        Container(
+          decoration: BoxDecoration(
+              color: Color(0xffE6FCE6),
+              borderRadius: Constanst.borderStyle2,
+              border: Border.all(color: Color(0xff14B156))),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CircularPercentIndicator(
+                  radius: 30.0,
+                  lineWidth: 4.0,
+                  percent: 0.80,
+                  center: new Text("80%"),
+                  progressColor: Color(0xff14B156),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(left: 18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Absen tepat waktu",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      Text(
+                        "Dari 1 Oktober sd 30 Oktober 2022",
+                        style: TextStyle(color: Constanst.colorText2),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget appbarSetting() {
+    return Obx(
+      () => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+              flex: 30,
+              child: Container(
+                alignment: Alignment.bottomCenter,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 14),
+                  child: Text(
+                    "Aktifitas",
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ),
+              )),
+          Expanded(
+              flex: 70,
+              child: Container(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 12, right: 8),
+                    child: controller.statusFormPencarian.value
+                        ? Container(
+                            width: MediaQuery.of(Get.context!).size.width,
+                            margin: EdgeInsets.all(0),
+                            padding: EdgeInsets.all(0),
+                            child: Padding(
+                              padding: EdgeInsets.only(top: 12),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    flex: 90,
+                                    child: SizedBox(
+                                      height: 30,
+                                      child: TextField(
+                                        controller: controller.cari.value,
+                                        decoration: InputDecoration(
+                                            hintStyle:
+                                                TextStyle(color: Colors.white),
+                                            enabledBorder: UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
+                                            ),
+                                            focusedBorder: UnderlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.white),
+                                            ),
+                                            hintText: "Cari judul aktifitas"),
+                                        style: TextStyle(
+                                            fontSize: 14.0,
+                                            height: 1.0,
+                                            color: Colors.white),
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                      flex: 10,
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(0),
+                                        child: InkWell(
+                                          onTap: () {
+                                            if (controller.cari.value.text ==
+                                                "") {
+                                              UtilsAlert.showToast(
+                                                  "Isi form cari terlebih dahulu");
+                                            } else {
+                                              UtilsAlert.loadingSimpanData(
+                                                  Get.context!,
+                                                  "Mencari Data...");
+                                              controller
+                                                  .pencarianDataAktifitas();
+                                            }
+                                          },
+                                          child: Icon(
+                                            Iconsax.search_normal,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ))
+                                ],
+                              ),
+                            ),
+                          )
+                        : InkWell(
+                            onTap: () => controller.showInputCari(),
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 6),
+                              child: Icon(
+                                Iconsax.search_normal,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                  ))),
+        ],
+      ),
     );
   }
 }

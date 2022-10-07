@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/model/user_model.dart';
 import 'package:siscom_operasional/screen/akun/edit_personal_data.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
@@ -16,8 +17,6 @@ import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 
 class SettingController extends GetxController {
-  var user = AppData.informasiUser.obs;
-
   var fotoUser = File("").obs;
 
   Rx<List<String>> jenisKelaminDropdown = Rx<List<String>>([]);
@@ -40,6 +39,7 @@ class SettingController extends GetxController {
 
   var showpasswordLama = false.obs;
   var showpasswordBaru = false.obs;
+  var refreshPageStatus = false.obs;
 
   var listPusatBantuan = [].obs;
 
@@ -74,8 +74,7 @@ class SettingController extends GetxController {
             style: 1,
             buttonStatus: 1,
             positiveBtnPressed: () {
-              AppData.informasiUser = null;
-              Get.offAll(Login());
+              aksiEditLastLogin();
             },
           ),
         );
@@ -85,6 +84,24 @@ class SettingController extends GetxController {
         return null!;
       },
     );
+  }
+
+  void aksiEditLastLogin() {
+    var dataUser = AppData.informasiUser;
+    var getEmid = dataUser![0].em_id;
+    Map<String, dynamic> body = {
+      'last_login': '0000-00-00 00:00:00',
+      'em_id': getEmid
+    };
+    var connect = Api.connectionApi("post", body, "edit_last_login");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        print(valueBody['data']);
+        AppData.informasiUser = null;
+        Get.offAll(Login());
+      }
+    });
   }
 
   void toRouteSimpanData() {
@@ -98,15 +115,16 @@ class SettingController extends GetxController {
       golonganDarahDropdown.value.add(element);
     }
     this.golonganDarahDropdown.refresh();
-    var date = Constanst.convertDate1("${user.value?[0].em_birthday}");
-    nomorIdentitas.value.text = "${user.value?[0].em_id}";
-    fullName.value.text = "${user.value?[0].full_name}";
+    var date =
+        Constanst.convertDate1("${AppData.informasiUser![0].em_birthday}");
+    nomorIdentitas.value.text = "${AppData.informasiUser![0].em_id}";
+    fullName.value.text = "${AppData.informasiUser![0].full_name}";
     tanggalLahir.value.text = "$date";
-    email.value.text = "${user.value?[0].em_email}";
-    telepon.value.text = "${user.value?[0].em_phone}";
+    email.value.text = "${AppData.informasiUser![0].em_email}";
+    telepon.value.text = "${AppData.informasiUser![0].em_phone}";
 
-    jenisKelamin.value = "${user.value?[0].em_gender}";
-    golonganDarah.value = "${user.value?[0].em_blood_group}";
+    jenisKelamin.value = "${AppData.informasiUser![0].em_gender}";
+    golonganDarah.value = "${AppData.informasiUser![0].em_blood_group}";
   }
 
   void editDataPersonalInfo() {
@@ -129,16 +147,16 @@ class SettingController extends GetxController {
         var valueBody = jsonDecode(res.body);
         List<UserModel> getData = <UserModel>[];
         var data = UserModel(
-            em_id: "${user.value?[0].em_id}",
+            em_id: "${AppData.informasiUser![0].em_id}",
             full_name: fullName.value.text,
             em_email: email.value.text,
             em_phone: telepon.value.text,
             em_birthday: convertTanggalSimpan,
             em_gender: jenisKelamin.value,
             em_blood_group: golonganDarah.value,
-            emp_jobTitle: "${user.value?[0].emp_jobTitle}",
-            emp_departmen: "${user.value?[0].emp_departmen}",
-            emp_att_working: user.value?[0].emp_att_working);
+            emp_jobTitle: "${AppData.informasiUser![0].emp_jobTitle}",
+            emp_departmen: "${AppData.informasiUser![0].emp_departmen}",
+            emp_att_working: AppData.informasiUser![0].emp_att_working);
         getData.add(data);
         AppData.informasiUser = getData;
         Navigator.pop(Get.context!);
@@ -182,6 +200,7 @@ class SettingController extends GetxController {
   }
 
   void getPusatBantuan() {
+    listPusatBantuan.value.clear();
     var connect = Api.connectionApi("get", {}, "faq");
     connect.then((dynamic res) {
       if (res == false) {
@@ -219,72 +238,205 @@ class SettingController extends GetxController {
     this.listPusatBantuan.refresh();
   }
 
+  // void validasigantiFoto() {
+  //   showDialog(
+  //     context: Get.context!,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //           shape: RoundedRectangleBorder(
+  //               borderRadius: BorderRadius.all(Radius.circular(15.0))),
+  //           content: Column(
+  //               mainAxisAlignment: MainAxisAlignment.start,
+  //               mainAxisSize: MainAxisSize.min,
+  //               children: [
+  //                 Center(
+  //                   child: Text(
+  //                     "Ubah Foto",
+  //                     style: TextStyle(fontWeight: FontWeight.bold),
+  //                   ),
+  //                 ),
+  //                 SizedBox(
+  //                   height: 10,
+  //                 ),
+  //                 Row(
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   mainAxisAlignment: MainAxisAlignment.start,
+  //                   children: [
+  //                     Expanded(
+  //                         child: Padding(
+  //                       padding: const EdgeInsets.all(8.0),
+  //                       child: TextButtonWidget2(
+  //                           title: "Camera",
+  //                           onTap: () {
+  //                             Navigator.pop(Get.context!);
+  //                             ubahFotoCamera();
+  //                           },
+  //                           colorButton: Constanst.colorPrimary,
+  //                           colortext: Constanst.colorWhite,
+  //                           border: BorderRadius.circular(5.0),
+  //                           icon: Icon(
+  //                             Iconsax.camera,
+  //                             size: 18,
+  //                             color: Constanst.colorWhite,
+  //                           )),
+  //                     )),
+  //                     Expanded(
+  //                         child: Padding(
+  //                       padding: const EdgeInsets.all(8.0),
+  //                       child: TextButtonWidget2(
+  //                           title: "Galery",
+  //                           onTap: () {
+  //                             Navigator.pop(Get.context!);
+  //                             ubahFotoGalery();
+  //                           },
+  //                           colorButton: Constanst.colorPrimary,
+  //                           colortext: Constanst.colorWhite,
+  //                           border: BorderRadius.circular(5.0),
+  //                           icon: Icon(
+  //                             Iconsax.gallery_edit,
+  //                             size: 18,
+  //                             color: Constanst.colorWhite,
+  //                           )),
+  //                     ))
+  //                   ],
+  //                 ),
+  //                 SizedBox(
+  //                   height: 10,
+  //                 ),
+  //               ]));
+  //     },
+  //   );
+  // }
+
   void validasigantiFoto() {
-    showDialog(
+    showModalBottomSheet(
       context: Get.context!,
-      builder: (BuildContext context) {
-        return AlertDialog(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(15.0))),
-            content: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(15.0),
+        ),
+      ),
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 8,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Center(
-                    child: Text(
-                      "Ubah Foto",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Expanded(
-                          child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextButtonWidget2(
-                            title: "Camera",
-                            onTap: () {
-                              Navigator.pop(Get.context!);
-                              ubahFotoCamera();
-                            },
-                            colorButton: Colors.blue,
-                            colortext: Constanst.colorWhite,
-                            border: BorderRadius.circular(5.0),
-                            icon: Icon(
-                              Iconsax.camera,
-                              size: 18,
-                              color: Constanst.colorWhite,
-                            )),
-                      )),
+                        flex: 90,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.only(left: 8, top: 5),
+                              child: Text(
+                                "Ubah Foto Profile",
+                                style: TextStyle(
+                                    fontSize: 16, fontWeight: FontWeight.bold),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
                       Expanded(
-                          child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextButtonWidget2(
-                            title: "Galery",
+                        flex: 10,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: InkWell(
                             onTap: () {
                               Navigator.pop(Get.context!);
-                              ubahFotoGalery();
                             },
-                            colorButton: Colors.blue,
-                            colortext: Constanst.colorWhite,
-                            border: BorderRadius.circular(5.0),
-                            icon: Icon(
-                              Iconsax.gallery_edit,
-                              size: 18,
-                              color: Constanst.colorWhite,
-                            )),
-                      ))
+                            child: Icon(
+                              Iconsax.close_circle,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ),
+                      )
                     ],
                   ),
                   SizedBox(
-                    height: 10,
+                    height: 16,
                   ),
-                ]));
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.pop(Get.context!);
+                        ubahFotoCamera();
+                      },
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Iconsax.camera,
+                            color: Constanst.colorPrimary,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 18, top: 3),
+                            child: Text(
+                              "Buka Kamera",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Constanst.colorText3),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.pop(Get.context!);
+                        ubahFotoGalery();
+                      },
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Iconsax.gallery_add,
+                            color: Constanst.colorPrimary,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 18, top: 3),
+                            child: Text(
+                              "Pilih dari Galeri",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Constanst.colorText3),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 8,
+            )
+          ],
+        );
       },
     );
   }

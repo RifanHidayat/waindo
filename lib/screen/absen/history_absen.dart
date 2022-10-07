@@ -6,8 +6,10 @@ import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/screen/absen/detail_absen.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:siscom_operasional/screen/absen/laporan_absen.dart';
-import 'package:siscom_operasional/screen/dashboard.dart';
+import 'package:siscom_operasional/screen/absen/laporan_absen_telat.dart';
+import 'package:siscom_operasional/screen/absen/laporan_belum_absen.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
@@ -17,104 +19,133 @@ class HistoryAbsen extends StatelessWidget {
   final controller = Get.put(AbsenController());
   final controllerDashboard = Get.put(DashboardController());
 
+  Future<void> refreshData() async {
+    await Future.delayed(Duration(seconds: 2));
+    controller.onReady();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Constanst.coloBackgroundScreen,
-      appBar: AppBar(
-          automaticallyImplyLeading: false,
-          backgroundColor: Constanst.coloBackgroundScreen,
-          elevation: 2,
-          flexibleSpace: AppbarMenu1(
-            title: "History Absen",
-            icon: 1,
-            colorTitle: Colors.black,
-            onTap: () {
-              controller.removeAll();
-              Get.offAll(InitScreen());
-            },
-          )),
-      body: WillPopScope(
-        onWillPop: () async {
-          controller.removeAll();
-          Get.offAll(InitScreen());
-          return true;
-        },
-        child: Obx(
-          () => Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 16,
-                ),
-                controller.bulanDanTahunNow.value == ""
-                    ? SizedBox()
-                    : pickDate(),
-                SizedBox(
-                  height: 16,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 85,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Text(
-                          "Riwayat Absensi",
-                          textAlign: TextAlign.left,
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: Constanst.sizeTitle),
+        backgroundColor: Constanst.coloBackgroundScreen,
+        appBar: AppBar(
+            automaticallyImplyLeading: false,
+            backgroundColor: Constanst.coloBackgroundScreen,
+            elevation: 2,
+            flexibleSpace: AppbarMenu1(
+              title: "History Absen",
+              icon: 1,
+              colorTitle: Colors.black,
+              onTap: () {
+                controller.removeAll();
+                Get.offAll(InitScreen());
+              },
+            )),
+        body: WillPopScope(
+          onWillPop: () async {
+            controller.removeAll();
+            Get.offAll(InitScreen());
+            return true;
+          },
+          child: Obx(
+            () => Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(
+                    height: 16,
+                  ),
+                  controller.bulanDanTahunNow.value == ""
+                      ? SizedBox()
+                      : pickDate(),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 85,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(
+                            "Riwayat Absensi",
+                            textAlign: TextAlign.left,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: Constanst.sizeTitle),
+                          ),
                         ),
                       ),
-                    ),
-                    controller.showButtonlaporan.value == false
-                        ? SizedBox()
-                        : Expanded(
-                            flex: 15,
-                            child: InkWell(
-                              onTap: () => Get.to(LaporanAbsen(
-                                dataForm: "",
-                              )),
-                              child: Container(
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: Constanst.colorBGRejected,
-                                  borderRadius: Constanst.borderStyle3,
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(Iconsax.calendar_remove,
-                                          size: 24, color: Colors.red),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            )),
-                  ],
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Flexible(
+                    ],
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                  Flexible(
+                      child: RefreshIndicator(
+                    onRefresh: refreshData,
                     child: controller.historyAbsen.value.isEmpty
                         ? Center(
                             child: Text(controller.loading.value),
                           )
-                        : listAbsen())
-              ],
+                        : listAbsen(),
+                  ))
+                ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButton: Obx(
+          () => controller.showButtonlaporan.value == false
+              ? SizedBox()
+              : SpeedDial(
+                  icon: Iconsax.more,
+                  activeIcon: Icons.close,
+                  backgroundColor: Constanst.colorPrimary,
+                  spacing: 3,
+                  childPadding: const EdgeInsets.all(5),
+                  spaceBetweenChildren: 4,
+                  elevation: 8.0,
+                  animationCurve: Curves.elasticInOut,
+                  animationDuration: const Duration(milliseconds: 200),
+                  children: [
+                    SpeedDialChild(
+                        child: Icon(Iconsax.document_text),
+                        backgroundColor: Color(0xff2F80ED),
+                        foregroundColor: Colors.white,
+                        label: 'Laporan Absensi',
+                        onTap: () {
+                          Get.to(LaporanAbsen(
+                            dataForm: "",
+                          ));
+                        }),
+                    SpeedDialChild(
+                        child: Icon(Iconsax.minus_cirlce),
+                        backgroundColor: Color(0xff2F80ED),
+                        foregroundColor: Colors.white,
+                        label: 'Absen Terlambat',
+                        onTap: () {
+                          Get.to(LaporanAbsenTelat(
+                            dataForm: "",
+                          ));
+                        }),
+                    SpeedDialChild(
+                        child: Icon(Iconsax.watch),
+                        backgroundColor: Color(0xff2F80ED),
+                        foregroundColor: Colors.white,
+                        label: 'Belum Absen',
+                        onTap: () {
+                          Get.to(LaporanBelumAbsen(
+                            dataForm: "",
+                          ));
+                        }),
+                  ],
+                ),
+        ));
   }
 
   Widget pickDate() {
@@ -191,7 +222,9 @@ class HistoryAbsen extends StatelessWidget {
 
   Widget listAbsen() {
     return ListView.builder(
-        physics: BouncingScrollPhysics(),
+        physics: controller.historyAbsen.value.length <= 20
+            ? AlwaysScrollableScrollPhysics()
+            : BouncingScrollPhysics(),
         itemCount: controller.historyAbsen.value.length,
         itemBuilder: (context, index) {
           var jamMasuk = controller.historyAbsen.value[index].signin_time;
@@ -218,7 +251,7 @@ class HistoryAbsen extends StatelessWidget {
           } else if (perhitunganJamMasuk2 > 0) {
             getColorKeluar = Colors.red;
           } else if (perhitunganJamMasuk2 < 0) {
-            getColorKeluar = Colors.blue;
+            getColorKeluar = Constanst.colorPrimary;
           }
 
           return InkWell(

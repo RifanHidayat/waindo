@@ -15,15 +15,63 @@ class AktifitasController extends GetxController {
   RefreshController refreshController = RefreshController(initialRefresh: true);
 
   var listAktifitas = [].obs;
+  var infoAktifitas = [].obs;
+
+  var bulanSelectedSearchHistory = "".obs;
+  var tahunSelectedSearchHistory = "".obs;
+  var bulanDanTahunNow = "".obs;
 
   var statusPencarian = false.obs;
+  var statusFormPencarian = false.obs;
 
   var limit = 10.obs;
 
+  List dummyInfo = [
+    {
+      'id': '1',
+      'nama': 'Masuk Kerja',
+      'jumlah': '0',
+    },
+    {
+      'id': '2',
+      'nama': 'Izin',
+      'jumlah': '0',
+    },
+    {
+      'id': '3',
+      'nama': 'Sakit',
+      'jumlah': '0',
+    },
+    {
+      'id': '4',
+      'nama': 'Cuti',
+      'jumlah': '0',
+    },
+    {
+      'id': '5',
+      'nama': 'Lembur',
+      'jumlah': '0',
+    },
+    {
+      'id': '6',
+      'nama': 'WFH',
+      'jumlah': '0',
+    },
+  ];
+
   @override
   void onReady() async {
+    getTimeNow();
     loadAktifitas();
+    getInformasiAktivitas();
     super.onReady();
+  }
+
+  void getTimeNow() {
+    var dt = DateTime.now();
+    bulanSelectedSearchHistory.value = "${dt.month}";
+    tahunSelectedSearchHistory.value = "${dt.year}";
+    bulanDanTahunNow.value = "${dt.month}-${dt.year}";
   }
 
   void loadAktifitas() {
@@ -54,8 +102,19 @@ class AktifitasController extends GetxController {
     });
   }
 
+  void getInformasiAktivitas() {
+    infoAktifitas.value.clear();
+    for (var element in dummyInfo) {
+      infoAktifitas.value.add(element);
+    }
+    this.infoAktifitas.refresh();
+  }
+
+  void showInputCari() {
+    statusFormPencarian.value = !statusFormPencarian.value;
+  }
+
   void pencarianDataAktifitas() {
-    statusPencarian.value = true;
     listAktifitas.value.clear();
     var dataUser = AppData.informasiUser;
     var getEmpid = dataUser![0].em_id;
@@ -79,8 +138,11 @@ class AktifitasController extends GetxController {
         };
         listAktifitas.value.add(data);
       }
+      statusPencarian.value = true;
+      statusFormPencarian.value = false;
+      this.statusFormPencarian.refresh();
+      this.statusPencarian.refresh();
       this.listAktifitas.refresh();
-      Navigator.pop(Get.context!);
       Navigator.pop(Get.context!);
     });
   }
@@ -113,7 +175,7 @@ class AktifitasController extends GetxController {
                         flex: 15,
                         child: Padding(
                           padding: const EdgeInsets.only(top: 7, left: 10),
-                          child: Icon(Iconsax.search_normal),
+                          child: Icon(Iconsax.search_normal_1),
                         ),
                       ),
                       Expanded(

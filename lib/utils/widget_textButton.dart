@@ -86,7 +86,7 @@ class TextButtonWidget2 extends StatelessWidget {
             icon!,
             Flexible(
               child: Padding(
-                padding: const EdgeInsets.only(left: 8, top: 6, bottom: 6),
+                padding: const EdgeInsets.only(left: 8, top: 5, bottom: 5),
                 child: Text(
                   title!,
                   overflow:TextOverflow.clip,

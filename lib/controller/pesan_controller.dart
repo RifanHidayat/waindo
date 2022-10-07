@@ -9,6 +9,7 @@ import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class PesanController extends GetxController {
   PageController menuController = PageController(initialPage: 0);
@@ -139,7 +140,8 @@ class PesanController extends GetxController {
                   'apply_date': element['apply_date'],
                   'apply_by': element['apply_by'],
                   'alasan_reject': element['alasan_reject'],
-                  'type': tipe,
+                  'nama_tipe': element['nama_tipe'],
+                  'type': "Tidak Hadir",
                   'file': element['leave_files']
                 };
                 tampungRiwayatPersetujuan.add(data);
@@ -168,6 +170,7 @@ class PesanController extends GetxController {
                   'apply_date': element['apply_date'],
                   'apply_by': element['apply_by'],
                   'alasan_reject': element['alasan_reject'],
+                  'nama_tipe': element['nama_tipe'],
                   'type': 'Cuti',
                   'file': element['leave_files']
                 };
@@ -193,6 +196,7 @@ class PesanController extends GetxController {
                   'apply_date': element['approve_date'],
                   'apply_by': element['approve_by'],
                   'alasan_reject': element['alasan_reject'],
+                  'nama_tipe': "",
                   'type': 'Lembur',
                   'file': ""
                 };
@@ -218,6 +222,7 @@ class PesanController extends GetxController {
                   'apply_date': element['approve_date'],
                   'apply_by': element['approve_by'],
                   'alasan_reject': element['alasan_reject'],
+                  'nama_tipe': "",
                   'type': 'Tugas Luar',
                   'file': ''
                 };
@@ -606,9 +611,23 @@ class PesanController extends GetxController {
               SizedBox(
                 height: 5,
               ),
-              Text(
-                dataDetail[0]['type'],
-                style: TextStyle(fontWeight: FontWeight.bold),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${dataDetail[0]['type']}",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  dataDetail[0]['nama_tipe'] == ""
+                      ? SizedBox()
+                      : Padding(
+                          padding: EdgeInsets.only(left: 8),
+                          child: Text(
+                            "(${dataDetail[0]['nama_tipe']})",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        )
+                ],
               ),
               SizedBox(
                 height: 10,
@@ -635,7 +654,7 @@ class PesanController extends GetxController {
                 height: 5,
               ),
               Text(
-                dataDetail[0]['status'],
+                "${dataDetail[0]['status']} oleh ${dataDetail[0]['apply_by']}",
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: dataDetail[0]['status'] == 'Approve'
@@ -693,23 +712,36 @@ class PesanController extends GetxController {
                               ),
                               Expanded(
                                 flex: 40,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      "Lihat File",
-                                      style: TextStyle(color: Colors.blue),
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 8),
-                                      child: Icon(
-                                        Icons.arrow_forward_ios,
-                                        color: Colors.blue,
-                                        size: 20,
+                                child: InkWell(
+                                  onTap: () {
+                                    if (dataDetail[0]['title_ajuan'] ==
+                                        "Pengajuan Tidak Hadir") {
+                                      viewFile(
+                                          "tidak_hadir", dataDetail[0]['file']);
+                                    } else {
+                                      viewFile("cuti", dataDetail[0]['file']);
+                                    }
+                                    // viewFile(status, file)
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Text(
+                                        "Lihat File",
+                                        style: TextStyle(
+                                            color: Constanst.colorPrimary),
                                       ),
-                                    )
-                                  ],
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 8),
+                                        child: Icon(
+                                          Icons.arrow_forward_ios,
+                                          color: Constanst.colorPrimary,
+                                          size: 20,
+                                        ),
+                                      )
+                                    ],
+                                  ),
                                 ),
                               )
                             ],
@@ -725,5 +757,19 @@ class PesanController extends GetxController {
         );
       },
     );
+  }
+
+  void viewFile(status, file) {
+    if (status == "tidak_hadir") {
+      _launchURL() async => await canLaunch(Api.UrlfileTidakhadir + file)
+          ? await launch(Api.UrlfileTidakhadir + file)
+          : throw UtilsAlert.showToast('Tidak dapat membuka');
+      _launchURL();
+    } else {
+      _launchURL() async => await canLaunch(Api.UrlfileCuti + file)
+          ? await launch(Api.UrlfileCuti + file)
+          : throw UtilsAlert.showToast('Tidak dapat membuka');
+      _launchURL();
+    }
   }
 }

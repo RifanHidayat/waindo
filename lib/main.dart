@@ -86,7 +86,7 @@ class _SplashScreenState extends State<SplashScreen> {
                       alignment: Alignment.bottomCenter,
                       child: Image.asset(
                         'assets/logo_splash.png',
-                        width: 250,
+                        width: 160,
                       ),
                     ),
                   ),
@@ -98,7 +98,7 @@ class _SplashScreenState extends State<SplashScreen> {
                         child: Padding(
                           padding: EdgeInsets.only(bottom: 20),
                           child: Text(
-                              "SISCOM ONLINE  © 2022 All right reserved",
+                              "© Copyright 2022 PT. Shan Informasi Sistem",
                               style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
