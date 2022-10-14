@@ -19,7 +19,7 @@ class AbsenMasukKeluar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromARGB(255, 232, 240, 248),
+      backgroundColor: Constanst.coloBackgroundScreen,
       appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 2,
@@ -77,14 +77,69 @@ class AbsenMasukKeluar extends StatelessWidget {
       ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.all(10.0),
-        child: RaisedButton(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          onPressed: () => controller.kirimDataAbsensi(),
-          color: Constanst.colorButton1,
-          textColor: Colors.white,
-          child: Padding(
-            padding: const EdgeInsets.only(top: 12, bottom: 12),
-            child: Text('OK'),
+        child: Obx(
+          () => SizedBox(
+            width: MediaQuery.of(Get.context!).size.width,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                controller.latUser.value == 0.0 ||
+                        controller.langUser.value == 0.0 ||
+                        controller.alamatUserFoto.value == ""
+                    ? SizedBox()
+                    : Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 6),
+                          child: RaisedButton(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side:
+                                    BorderSide(color: Constanst.colorPrimary)),
+                            onPressed: () => controller.ulangiFoto(),
+                            textColor: Colors.white,
+                            color: Colors.white,
+                            child: Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 12, bottom: 12),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Iconsax.refresh,
+                                    color: Constanst.colorPrimary,
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: Text(
+                                      'Ulangi Foto',
+                                      style: TextStyle(
+                                          color: Constanst.colorPrimary),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 6),
+                    child: RaisedButton(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
+                      onPressed: () => controller.kirimDataAbsensi(),
+                      color: Constanst.colorButton1,
+                      textColor: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 12, bottom: 12),
+                        child: Text('OK, Absen sekarang'),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -130,34 +185,8 @@ class AbsenMasukKeluar extends StatelessWidget {
                                 controller.fotoUser.value,
                               ),
                             ),
-                      TextButton(
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.white),
-                        ),
-                        onPressed: () => controller.ulangiFoto(),
-                        child: Center(
-                            child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Image.asset("assets/icon_ulangi.png"),
-                            Icon(
-                              Iconsax.refresh,
-                              color: Constanst.colorPrimary,
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(left: 10),
-                              child: Text(
-                                "Ulangi",
-                                style: TextStyle(color: Constanst.colorPrimary),
-                              ),
-                            )
-                          ],
-                        )),
-                      ),
                       SizedBox(
-                        height: 10,
+                        height: 20,
                       ),
                       controller.latUser.value == 0.0 ||
                               controller.langUser.value == 0.0 ||
@@ -533,7 +562,10 @@ class AbsenMasukKeluar extends StatelessWidget {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Text("Tambahkan catatan" , style: TextStyle(fontWeight: FontWeight.bold)),
+                                              Text("Tambahkan catatan",
+                                                  style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold)),
                                               SizedBox(
                                                 height: 10,
                                               ),

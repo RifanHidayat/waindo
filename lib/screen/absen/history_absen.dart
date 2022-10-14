@@ -7,17 +7,28 @@ import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/screen/absen/detail_absen.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:siscom_operasional/screen/absen/laporan_absen.dart';
-import 'package:siscom_operasional/screen/absen/laporan_absen_telat.dart';
-import 'package:siscom_operasional/screen/absen/laporan_belum_absen.dart';
+import 'package:siscom_operasional/screen/absen/laporan/laporan_absen.dart';
+import 'package:siscom_operasional/screen/absen/laporan/laporan_absen_telat.dart';
+import 'package:siscom_operasional/screen/absen/laporan/laporan_belum_absen.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 
-class HistoryAbsen extends StatelessWidget {
+class HistoryAbsen extends StatefulWidget {
+  var dataForm;
+  HistoryAbsen({Key? key, this.dataForm}) : super(key: key);
+  @override
+  _HistoryAbsenState createState() => _HistoryAbsenState();
+}
+
+class _HistoryAbsenState extends State<HistoryAbsen> {
   final controller = Get.put(AbsenController());
-  final controllerDashboard = Get.put(DashboardController());
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   Future<void> refreshData() async {
     await Future.delayed(Duration(seconds: 2));
@@ -125,7 +136,7 @@ class HistoryAbsen extends StatelessWidget {
                         }),
                     SpeedDialChild(
                         child: Icon(Iconsax.minus_cirlce),
-                        backgroundColor: Color(0xff2F80ED),
+                        backgroundColor: Color(0xffFF463D),
                         foregroundColor: Colors.white,
                         label: 'Absen Terlambat',
                         onTap: () {
@@ -135,7 +146,7 @@ class HistoryAbsen extends StatelessWidget {
                         }),
                     SpeedDialChild(
                         child: Icon(Iconsax.watch),
-                        backgroundColor: Color(0xff2F80ED),
+                        backgroundColor: Color(0xffF2AA0D),
                         foregroundColor: Colors.white,
                         label: 'Belum Absen',
                         onTap: () {
@@ -230,6 +241,19 @@ class HistoryAbsen extends StatelessWidget {
           var jamMasuk = controller.historyAbsen.value[index].signin_time;
           var jamKeluar = controller.historyAbsen.value[index].signout_time;
           var tanggal = controller.historyAbsen.value[index].atten_date;
+          var placeIn = controller.historyAbsen.value[index].place_in;
+          var placeOut = controller.historyAbsen.value[index].place_out;
+          var note = controller.historyAbsen.value[index].signin_note;
+          var signInLongLat =
+              controller.historyAbsen.value[index].signin_longlat;
+          var signOutLongLat =
+              controller.historyAbsen.value[index].signout_longlat;
+          var statusView = placeIn == "pengajuan" &&
+                  placeOut == "pengajuan" &&
+                  signInLongLat == "pengajuan" &&
+                  signOutLongLat == "pengajuan"
+              ? true
+              : false;
           var listJamMasuk = (jamMasuk!.split(':'));
           var listJamKeluar = (jamKeluar!.split(':'));
           var perhitunganJamMasuk1 =
@@ -256,8 +280,10 @@ class HistoryAbsen extends StatelessWidget {
 
           return InkWell(
             onTap: () {
-              controller.historySelected(
-                  controller.historyAbsen.value[index].id, 'history');
+              if (statusView == false) {
+                controller.historySelected(
+                    controller.historyAbsen.value[index].id, 'history');
+              }
             },
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -265,71 +291,100 @@ class HistoryAbsen extends StatelessWidget {
                 SizedBox(
                   height: 10,
                 ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 40,
-                      child: Text(
-                        "${Constanst.convertDate(tanggal ?? '')}",
-                        style: TextStyle(fontSize: 14),
-                      ),
-                    ),
-                    Expanded(
-                      flex: 25,
-                      child: Row(
+                statusView == false
+                    ? Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Icon(
-                            Icons.login_rounded,
-                            color: getColorMasuk,
-                            size: 14,
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 8),
+                          Expanded(
+                            flex: 40,
                             child: Text(
-                              jamMasuk,
-                              style:
-                                  TextStyle(color: getColorMasuk, fontSize: 14),
+                              "${Constanst.convertDate(tanggal ?? '')}",
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold),
                             ),
-                          )
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      flex: 25,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.logout_rounded,
-                            color: getColorKeluar,
-                            size: 14,
                           ),
-                          Flexible(
-                            child: Padding(
-                              padding: EdgeInsets.only(left: 8),
-                              child: controller.historyAbsen.value[index]
-                                          .signout_longlat ==
-                                      ""
-                                  ? Text("")
-                                  : Text(
-                                      jamKeluar,
-                                      style: TextStyle(
-                                          color: getColorKeluar, fontSize: 14),
-                                    ),
+                          Expanded(
+                            flex: 25,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.login_rounded,
+                                  color: getColorMasuk,
+                                  size: 14,
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(left: 8),
+                                  child: Text(
+                                    jamMasuk,
+                                    style: TextStyle(
+                                        color: getColorMasuk, fontSize: 14),
+                                  ),
+                                )
+                              ],
                             ),
-                          )
+                          ),
+                          Expanded(
+                            flex: 25,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.logout_rounded,
+                                  color: getColorKeluar,
+                                  size: 14,
+                                ),
+                                Flexible(
+                                  child: Padding(
+                                    padding: EdgeInsets.only(left: 8),
+                                    child: controller.historyAbsen.value[index]
+                                                .signout_longlat ==
+                                            ""
+                                        ? Text("")
+                                        : Text(
+                                            jamKeluar,
+                                            style: TextStyle(
+                                                color: getColorKeluar,
+                                                fontSize: 14),
+                                          ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            flex: 10,
+                            child: Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 14,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 40,
+                            child: Text(
+                              "${Constanst.convertDate(tanggal ?? '')}",
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 60,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "${note}".toLowerCase(),
+                                  style: TextStyle(color: Constanst.colorText3),
+                                )
+                              ],
+                            ),
+                          ),
                         ],
                       ),
-                    ),
-                    Expanded(
-                      flex: 10,
-                      child: Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        size: 14,
-                      ),
-                    ),
-                  ],
-                ),
                 SizedBox(
                   height: 15,
                 ),

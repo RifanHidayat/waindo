@@ -6,10 +6,11 @@ import 'package:intl/intl.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/screen/absen/history_absen.dart';
-import 'package:siscom_operasional/screen/absen/laporan_absen_karyawan.dart';
+import 'package:siscom_operasional/screen/absen/laporan/laporan_absen_karyawan.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
+import 'package:siscom_operasional/utils/widget_utils.dart';
 
 class LaporanAbsen extends StatefulWidget {
   var dataForm;
@@ -23,12 +24,13 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
 
   @override
   void initState() {
+    controller.onReady();
     super.initState();
   }
 
   Future<void> refreshData() async {
     await Future.delayed(Duration(seconds: 2));
-    controller.carilaporanAbsenkaryawan();
+    controller.carilaporanAbsenkaryawan('semua');
   }
 
   @override
@@ -38,13 +40,17 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
         appBar: AppBar(
             backgroundColor: Colors.white,
             automaticallyImplyLeading: false,
-            elevation: 2,
+            elevation: 3,
             flexibleSpace: AppbarMenu1(
               title: "Laporan Absensi",
               colorTitle: Colors.black,
-              icon: 1,
+              icon: 3,
+              rightIcon: Icon(Iconsax.document_download),
               onTap: () {
                 Get.back();
+              },
+              onTap2: () {
+                UtilsAlert.showToast("Comming Soon");
               },
             )),
         body: WillPopScope(
@@ -136,120 +142,182 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
 
   Widget cariData() {
     return SizedBox(
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            flex: 44,
-            child: Padding(
-                padding: const EdgeInsets.only(right: 5),
-                child: InkWell(
-                  onTap: () {
-                    showMonthPicker(
-                      context: Get.context!,
-                      firstDate: DateTime(DateTime.now().year - 1, 5),
-                      lastDate: DateTime(DateTime.now().year + 1, 9),
-                      initialDate: DateTime.now(),
-                      locale: Locale("en"),
-                    ).then((date) {
-                      if (date != null) {
-                        print(date);
-                        var outputFormat1 = DateFormat('MM');
-                        var outputFormat2 = DateFormat('yyyy');
-                        var bulan = outputFormat1.format(date);
-                        var tahun = outputFormat2.format(date);
-                        controller.bulanSelectedSearchHistory.value = bulan;
-                        controller.tahunSelectedSearchHistory.value = tahun;
-                        controller.bulanDanTahunNow.value = "$bulan-$tahun";
-                        this.controller.bulanSelectedSearchHistory.refresh();
-                        this.controller.tahunSelectedSearchHistory.refresh();
-                        this.controller.bulanDanTahunNow.refresh();
-                      }
-                    });
-                  },
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                        borderRadius: Constanst.borderStyle1,
-                        border: Border.all(color: Constanst.colorText2)),
-                    child: Padding(
-                      padding: EdgeInsets.only(top: 15, bottom: 8),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 6),
-                                  child: Icon(Iconsax.calendar_2),
-                                ),
-                                Flexible(
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 3),
-                                    child: Text(
-                                      "${Constanst.convertDateBulanDanTahun(controller.bulanDanTahunNow.value)}",
-                                      style: TextStyle(fontSize: 16),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                flex: 50,
+                child: Padding(
+                    padding: const EdgeInsets.only(right: 5),
+                    child: InkWell(
+                      onTap: () {
+                        showMonthPicker(
+                          context: Get.context!,
+                          firstDate: DateTime(DateTime.now().year - 1, 5),
+                          lastDate: DateTime(DateTime.now().year + 1, 9),
+                          initialDate: DateTime.now(),
+                          locale: Locale("en"),
+                        ).then((date) {
+                          if (date != null) {
+                            print(date);
+                            var outputFormat1 = DateFormat('MM');
+                            var outputFormat2 = DateFormat('yyyy');
+                            var bulan = outputFormat1.format(date);
+                            var tahun = outputFormat2.format(date);
+                            controller.bulanSelectedSearchHistory.value = bulan;
+                            controller.tahunSelectedSearchHistory.value = tahun;
+                            controller.bulanDanTahunNow.value = "$bulan-$tahun";
+                            this
+                                .controller
+                                .bulanSelectedSearchHistory
+                                .refresh();
+                            this
+                                .controller
+                                .tahunSelectedSearchHistory
+                                .refresh();
+                            this.controller.bulanDanTahunNow.refresh();
+                          }
+                        });
+                      },
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                            borderRadius: Constanst.borderStyle1,
+                            border: Border.all(color: Constanst.colorText2)),
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 15, bottom: 8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 6),
+                                      child: Icon(Iconsax.calendar_2),
                                     ),
-                                  ),
+                                    Flexible(
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(left: 3),
+                                        child: Text(
+                                          "${Constanst.convertDateBulanDanTahun(controller.bulanDanTahunNow.value)}",
+                                          style: TextStyle(fontSize: 16),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
+                    )),
+              ),
+              Expanded(
+                flex: 50,
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 5),
+                  child: InkWell(
+                    onTap: () {
+                      controller.showDataDepartemenAkses('semua');
+                    },
+                    child: Container(
+                      height: 50,
+                      width: MediaQuery.of(Get.context!).size.width,
+                      decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: Constanst.borderStyle1,
+                          border: Border.all(color: Constanst.colorText2)),
+                      child: Padding(
+                          padding: const EdgeInsets.only(top: 15, bottom: 15),
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 8),
+                            child: Text(controller.departemen.value.text),
+                          )),
                     ),
                   ),
-                )),
-          ),
-          Expanded(
-            flex: 44,
-            child: Padding(
-              padding: const EdgeInsets.only(left: 5),
-              child: InkWell(
-                onTap: () {
-                  controller.showDataDepartemenAkses();
-                },
-                child: Container(
-                  height: 50,
-                  width: MediaQuery.of(Get.context!).size.width,
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: Constanst.borderStyle1,
-                      border: Border.all(color: Constanst.colorText2)),
-                  child: Padding(
-                      padding: const EdgeInsets.only(top: 15, bottom: 15),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Text(controller.departemen.value.text),
-                      )),
                 ),
               ),
+            ],
+          ),
+          SizedBox(
+            height: 8,
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: pencarianData(),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget pencarianData() {
+    return Container(
+      decoration: BoxDecoration(
+          borderRadius: Constanst.borderStyle2,
+          border: Border.all(color: Constanst.colorText2)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 15,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 7, left: 10),
+              child: Icon(Iconsax.search_normal_1),
             ),
           ),
           Expanded(
-            flex: 12,
+            flex: 85,
             child: Padding(
-              padding: const EdgeInsets.only(left: 5),
-              child: InkWell(
-                onTap: () {
-                  controller.carilaporanAbsenkaryawan();
-                },
-                child: Container(
-                    width: MediaQuery.of(Get.context!).size.width,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Constanst.colorPrimary,
-                      borderRadius: Constanst.borderStyle1,
-                    ),
-                    child: Center(
-                      child: Icon(
-                        Iconsax.search_normal_1,
-                        color: Colors.white,
-                        size: 16,
+              padding: const EdgeInsets.only(left: 10),
+              child: SizedBox(
+                height: 40,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 85,
+                      child: TextField(
+                        controller: controller.cari.value,
+                        decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "Cari Nama Karyawan"),
+                        style: TextStyle(
+                            fontSize: 14.0, height: 1.0, color: Colors.black),
+                        onChanged: (value) {
+                          controller.pencarianNamaKaryawan(value);
+                        },
                       ),
-                    )),
+                    ),
+                    !controller.statusCari.value
+                        ? SizedBox()
+                        : Expanded(
+                            flex: 15,
+                            child: IconButton(
+                              icon: Icon(
+                                Iconsax.close_circle,
+                                color: Colors.red,
+                              ),
+                              onPressed: () {
+                                controller.statusCari.value = false;
+                                controller.cari.value.text = "";
+                                controller.onReady();
+                              },
+                            ),
+                          )
+                  ],
+                ),
               ),
             ),
           )
@@ -317,7 +385,7 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
                             Text(
-                              "${Constanst.convertDate2("$attenDate")}",
+                              "${Constanst.convertDate("$attenDate")}",
                               style: TextStyle(fontSize: 12),
                             ),
                             Row(

@@ -6,32 +6,32 @@ import 'package:intl/intl.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/screen/absen/history_absen.dart';
-import 'package:siscom_operasional/screen/absen/laporan_absen_karyawan.dart';
+import 'package:siscom_operasional/screen/absen/laporan/laporan_absen_karyawan.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 
-class LaporanAbsenTelat extends StatefulWidget {
+class LaporanBelumAbsen extends StatefulWidget {
   var dataForm;
-  LaporanAbsenTelat({Key? key, this.dataForm}) : super(key: key);
+  LaporanBelumAbsen({Key? key, this.dataForm}) : super(key: key);
   @override
-  _LaporanAbsenTelatState createState() => _LaporanAbsenTelatState();
+  _LaporanBelumAbsenState createState() => _LaporanBelumAbsenState();
 }
 
-class _LaporanAbsenTelatState extends State<LaporanAbsenTelat> {
+class _LaporanBelumAbsenState extends State<LaporanBelumAbsen> {
   var controller = Get.put(AbsenController());
 
   @override
   void initState() {
     controller.pilihTanggalTelatAbsen.value = DateTime.now();
-    controller.filterAbsenTelat();
+    controller.filterBelumAbsen();
     super.initState();
   }
 
   Future<void> refreshData() async {
     await Future.delayed(Duration(seconds: 2));
-    controller.aksiEmployeeTerlambatAbsen(
+    controller.aksiEmployeeBelumAbsen(
         "${DateFormat('yyyy-MM-dd').format(controller.pilihTanggalTelatAbsen.value)}");
   }
 
@@ -44,11 +44,15 @@ class _LaporanAbsenTelatState extends State<LaporanAbsenTelat> {
             automaticallyImplyLeading: false,
             elevation: 2,
             flexibleSpace: AppbarMenu1(
-              title: "Terlambat Absen",
+              title: "Laporan Belum Absen",
               colorTitle: Colors.black,
-              icon: 1,
+              icon: 3,
+              rightIcon: Icon(Iconsax.document_download),
               onTap: () {
                 Get.back();
+              },
+              onTap2: () {
+                UtilsAlert.showToast("Comming Soon");
               },
             )),
         body: WillPopScope(
@@ -131,7 +135,7 @@ class _LaporanAbsenTelatState extends State<LaporanAbsenTelat> {
                                       height: 5,
                                     ),
                                     Text(
-                                      "${controller.jumlahData.value} Karyawan Terlambat",
+                                      "${controller.jumlahData.value} Karyawan Belum Absen",
                                       textAlign: TextAlign.center,
                                       style: TextStyle(
                                           color: Constanst.colorText2,
@@ -157,7 +161,7 @@ class _LaporanAbsenTelatState extends State<LaporanAbsenTelat> {
                                     color: Constanst.colorPrimary,
                                   ),
                                 )
-                              : controller.listEmployeeTelat.value.isEmpty
+                              : controller.listLaporanBelumAbsen.value.isEmpty
                                   ? Center(
                                       child: Text(controller.loading.value),
                                     )
@@ -174,117 +178,109 @@ class _LaporanAbsenTelatState extends State<LaporanAbsenTelat> {
   Widget cariData() {
     return SizedBox(
       child: Obx(
-        () => Row(
+        () => Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              flex: 44,
-              child: InkWell(
-                onTap: () async {
-                  var dateSelect = await showDatePicker(
-                    context: Get.context!,
-                    firstDate: DateTime(2000),
-                    lastDate: DateTime(2100),
-                    initialDate: controller.pilihTanggalTelatAbsen.value,
-                  );
-                  if (dateSelect == null) {
-                    UtilsAlert.showToast("Tanggal tidak terpilih");
-                  } else {
-                    print(dateSelect);
-                    controller.pilihTanggalTelatAbsen.value = dateSelect;
-                    this.controller.pilihTanggalTelatAbsen.refresh();
-                  }
-                },
-                child: Padding(
-                    padding: const EdgeInsets.only(right: 5),
-                    child: Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                          borderRadius: Constanst.borderStyle1,
-                          border: Border.all(color: Constanst.colorText2)),
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 12),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 6),
-                                    child: Icon(Iconsax.calendar_2),
-                                  ),
-                                  Flexible(
-                                    child: Padding(
-                                        padding: const EdgeInsets.only(left: 5),
-                                        child: Text(
-                                          "${DateFormat('dd-MM-yyyy').format(controller.pilihTanggalTelatAbsen.value)}",
-                                          style: TextStyle(
-                                              fontSize: 14.0,
-                                              height: 2.0,
-                                              color: Colors.black),
-                                        )),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )),
-              ),
-            ),
-            Expanded(
-              flex: 44,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 5),
-                child: InkWell(
-                  onTap: () {
-                    controller.showDataDepartemenAkses();
-                  },
-                  child: Container(
-                    height: 50,
-                    width: MediaQuery.of(Get.context!).size.width,
-                    decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: Constanst.borderStyle1,
-                        border: Border.all(color: Constanst.colorText2)),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 50,
+                  child: InkWell(
+                    onTap: () async {
+                      var dateSelect = await showDatePicker(
+                        context: Get.context!,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                        initialDate: controller.pilihTanggalTelatAbsen.value,
+                      );
+                      if (dateSelect == null) {
+                        UtilsAlert.showToast("Tanggal tidak terpilih");
+                      } else {
+                        print(dateSelect);
+                        controller.pilihTanggalTelatAbsen.value = dateSelect;
+                        this.controller.pilihTanggalTelatAbsen.refresh();
+                      }
+                    },
                     child: Padding(
-                        padding: const EdgeInsets.only(top: 15, bottom: 15),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 8),
-                          child: Text(controller.departemen.value.text),
+                        padding: const EdgeInsets.only(right: 5),
+                        child: Container(
+                          height: 50,
+                          decoration: BoxDecoration(
+                              borderRadius: Constanst.borderStyle1,
+                              border: Border.all(color: Constanst.colorText2)),
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 12),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 6),
+                                        child: Icon(Iconsax.calendar_2),
+                                      ),
+                                      Flexible(
+                                        child: Padding(
+                                            padding:
+                                                const EdgeInsets.only(left: 5),
+                                            child: Text(
+                                              "${DateFormat('dd-MM-yyyy').format(controller.pilihTanggalTelatAbsen.value)}",
+                                              style: TextStyle(
+                                                  fontSize: 14.0,
+                                                  height: 2.0,
+                                                  color: Colors.black),
+                                            )),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         )),
                   ),
                 ),
-              ),
-            ),
-            Expanded(
-              flex: 12,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 5),
-                child: InkWell(
-                  onTap: () {
-                    controller.aksiEmployeeTerlambatAbsen(
-                        "${DateFormat('yyyy-MM-dd').format(controller.pilihTanggalTelatAbsen.value)}");
-                  },
-                  child: Container(
-                      width: MediaQuery.of(Get.context!).size.width,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Constanst.colorPrimary,
-                        borderRadius: Constanst.borderStyle1,
+                Expanded(
+                  flex: 50,
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 5),
+                    child: InkWell(
+                      onTap: () {
+                        controller.showDataDepartemenAkses('belum');
+                      },
+                      child: Container(
+                        height: 50,
+                        width: MediaQuery.of(Get.context!).size.width,
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: Constanst.borderStyle1,
+                            border: Border.all(color: Constanst.colorText2)),
+                        child: Padding(
+                            padding: const EdgeInsets.only(top: 15, bottom: 15),
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: Text(controller.departemen.value.text),
+                            )),
                       ),
-                      child: Center(
-                        child: Icon(
-                          Iconsax.search_normal_1,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                      )),
+                    ),
+                  ),
                 ),
-              ),
+              ],
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: pencarianData(),
+                )
+              ],
             )
           ],
         ),
@@ -292,20 +288,85 @@ class _LaporanAbsenTelatState extends State<LaporanAbsenTelat> {
     );
   }
 
+  Widget pencarianData() {
+    return Container(
+      decoration: BoxDecoration(
+          borderRadius: Constanst.borderStyle2,
+          border: Border.all(color: Constanst.colorText2)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 15,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 7, left: 10),
+              child: Icon(Iconsax.search_normal_1),
+            ),
+          ),
+          Expanded(
+            flex: 85,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: SizedBox(
+                height: 40,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 85,
+                      child: TextField(
+                        controller: controller.cari.value,
+                        decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: "Cari Nama Karyawan"),
+                        style: TextStyle(
+                            fontSize: 14.0, height: 1.0, color: Colors.black),
+                        onChanged: (value) {
+                          controller.pencarianNamaKaryawanBelumAbsen(value);
+                        },
+                      ),
+                    ),
+                    !controller.statusCari.value
+                        ? SizedBox()
+                        : Expanded(
+                            flex: 15,
+                            child: IconButton(
+                              icon: Icon(
+                                Iconsax.close_circle,
+                                color: Colors.red,
+                              ),
+                              onPressed: () {
+                                controller.statusCari.value = false;
+                                controller.cari.value.text = "";
+                                controller.aksiEmployeeBelumAbsen(
+                                    "${DateFormat('yyyy-MM-dd').format(controller.pilihTanggalTelatAbsen.value)}");
+                              },
+                            ),
+                          )
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   Widget listAbsensiKaryawan() {
     return ListView.builder(
-        physics: controller.listEmployeeTelat.value.length <= 15
+        physics: controller.listLaporanBelumAbsen.value.length <= 15
             ? AlwaysScrollableScrollPhysics()
             : BouncingScrollPhysics(),
-        itemCount: controller.listEmployeeTelat.value.length,
+        itemCount: controller.listLaporanBelumAbsen.value.length,
         itemBuilder: (context, index) {
           var fullName =
-              controller.listEmployeeTelat.value[index]['full_name'] ?? "";
+              controller.listLaporanBelumAbsen.value[index]['full_name'] ?? "";
           var namaKaryawan = "$fullName";
-          var jobTitle = controller.listEmployeeTelat.value[index]['job_title'];
-          var emId = controller.listEmployeeTelat.value[index]['em_id'];
-          var jamMasuk =
-              controller.listEmployeeTelat.value[index]['signin_time'];
+          var jobTitle =
+              controller.listLaporanBelumAbsen.value[index]['job_title'];
+          var emId = controller.listLaporanBelumAbsen.value[index]['em_id'];
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -332,14 +393,14 @@ class _LaporanAbsenTelatState extends State<LaporanAbsenTelat> {
                         ],
                       ),
                     ),
-                    Expanded(
-                      flex: 30,
-                      child: Center(
-                          child: Text(
-                        "$jamMasuk",
-                        style: TextStyle(color: Colors.red),
-                      )),
-                    ),
+                    // Expanded(
+                    //   flex: 30,
+                    //   child: Center(
+                    //       child: Text(
+                    //     "$jamMasuk",
+                    //     style: TextStyle(color: Colors.red),
+                    //   )),
+                    // ),
                   ],
                 ),
               ),

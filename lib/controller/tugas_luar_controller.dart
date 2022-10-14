@@ -31,11 +31,13 @@ class TugasLuarController extends GetxController {
 
   var statusForm = false.obs;
   var directStatus = false.obs;
+  var showButtonlaporan = false.obs;
 
   var listTugasLuar = [].obs;
   var listTugasLuarAll = [].obs;
   var allEmployee = [].obs;
   var dataTypeAjuan = [].obs;
+  var departementAkses = [].obs;
 
   Rx<DateTime> initialDate = DateTime.now().obs;
 
@@ -48,6 +50,7 @@ class TugasLuarController extends GetxController {
     getTypeAjuan();
     loadDataTugasLuar();
     loadAllEmployeeDelegasi();
+    getDepartemen(1, "");
   }
 
   void removeAll() {
@@ -55,6 +58,60 @@ class TugasLuarController extends GetxController {
     dariJam.value.text = "";
     sampaiJam.value.text = "";
     catatan.value.text = "";
+  }
+
+  void getDepartemen(status, tanggal) {
+    var connect = Api.connectionApi("get", {}, "all_department");
+    connect.then((dynamic res) {
+      if (res == false) {
+        UtilsAlert.koneksiBuruk();
+      } else {
+        if (res.statusCode == 200) {
+          var valueBody = jsonDecode(res.body);
+          var dataDepartemen = valueBody['data'];
+
+          var dataUser = AppData.informasiUser;
+          var hakAkses = dataUser![0].em_hak_akses;
+          print(hakAkses);
+          if (hakAkses != "" || hakAkses != null) {
+            if (hakAkses == '0') {
+              var data = {
+                'id': 0,
+                'name': 'SEMUA DIVISI',
+                'inisial': 'AD',
+                'parent_id': '',
+                'aktif': '',
+                'pakai': '',
+                'ip': '',
+                'created_by': '',
+                'created_on': '',
+                'modified_by': '',
+                'modified_on': ''
+              };
+              departementAkses.add(data);
+            }
+            var convert = hakAkses!.split(',');
+            for (var element in dataDepartemen) {
+              if (hakAkses == '0') {
+                departementAkses.add(element);
+              }
+              for (var element1 in convert) {
+                if ("${element['id']}" == element1) {
+                  print('sampe sini');
+                  departementAkses.add(element);
+                }
+              }
+            }
+          }
+          this.departementAkses.refresh();
+          if (departementAkses.value.isNotEmpty) {
+            if (status == 1) {
+              showButtonlaporan.value = true;
+            }
+          }
+        }
+      }
+    });
   }
 
   void getTypeAjuan() {
@@ -125,6 +182,7 @@ class TugasLuarController extends GetxController {
     allEmployee.value.clear();
     var dataUser = AppData.informasiUser;
     var getDepGroup = dataUser![0].dep_group;
+    var full_name = dataUser[0].full_name;
     Map<String, dynamic> body = {'val': 'dep_group_id', 'cari': getDepGroup};
     var connect = Api.connectionApi("post", body, "whereOnce-employee");
     connect.then((dynamic res) {
@@ -138,7 +196,9 @@ class TugasLuarController extends GetxController {
           for (var element in data) {
             var fullName = element['full_name'] ?? "";
             String namaUser = "$fullName";
-            allEmployeeDelegasi.value.add(namaUser);
+            if (namaUser != full_name) {
+              allEmployeeDelegasi.value.add(namaUser);
+            }
             allEmployee.value.add(element);
           }
           if (idpengajuanTugasLuar.value == "") {
@@ -358,20 +418,11 @@ class TugasLuarController extends GetxController {
   }
 
   String hitungDurasi() {
-    var dariJamConvert = dariJam.value.text.replaceAll(':', '');
-    var sampaiJamConvert = sampaiJam.value.text.replaceAll(':', '');
-    var hitung = int.parse(sampaiJamConvert) - int.parse(dariJamConvert);
-    var hitungLength = "$hitung".length;
-    var getHour;
-    var getMenit;
-    if (hitungLength == 3) {
-      getHour = "$hitung".substring(0, 1);
-      getMenit = "$hitung".substring("$hitung".length - 2);
-    } else {
-      getHour = "$hitung".substring(0, 2);
-      getMenit = "$hitung".substring("$hitung".length - 2);
-    }
-    var hasilAkhir = "$getHour:$getMenit";
+    var format = DateFormat("HH:mm");
+    var dari = format.parse("${dariJam.value.text}");
+    var sampai = format.parse("${sampaiJam.value.text}");
+    var hasil1 = "${sampai.difference(dari)}";
+    var hasilAkhir = hasil1.replaceAll(':00.000000', '');
     return "$hasilAkhir";
   }
 

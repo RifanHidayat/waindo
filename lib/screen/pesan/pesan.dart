@@ -737,20 +737,22 @@ class _PesanState extends State<Pesan> {
             () => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 85,
-                      child: controller.statusFilteriwayat.value == false
-                          ? SizedBox()
-                          : Padding(
-                              padding: const EdgeInsets.only(top: 6),
-                              child: Row(
+                SizedBox(
+                  height: 8,
+                ),
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 85,
+                        child: controller.statusFilteriwayat.value == false
+                            ? SizedBox()
+                            : Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
-                                    padding: EdgeInsets.only(top: 8),
+                                    padding: const EdgeInsets.only(top: 2),
                                     child: Text(
                                       "Filter ${controller.stringFilterSelected.value}",
                                       style: TextStyle(
@@ -763,49 +765,56 @@ class _PesanState extends State<Pesan> {
                                       controller.clearFilter();
                                     },
                                     child: Padding(
-                                        padding:
-                                            EdgeInsets.only(top: 6, left: 8),
+                                        padding: EdgeInsets.only(left: 8),
                                         child: Icon(Iconsax.close_circle,
                                             color: Colors.red)),
                                   ),
                                 ],
                               ),
-                            ),
-                    ),
-                    Expanded(
-                      flex: 15,
-                      child: Container(
-                          alignment: Alignment.centerRight,
-                          child: PopupMenuButton(
-                            padding: EdgeInsets.all(0.0),
-                            icon: Icon(
-                              Iconsax.filter,
-                            ),
-                            itemBuilder: (context) => [
-                              PopupMenuItem(
-                                  value: "1",
-                                  onTap: () => controller.filterApproveHistory(
-                                      'Pengajuan Tidak Hadir'),
-                                  child: Text("Pengajuan Tidak Hadir")),
-                              PopupMenuItem(
-                                  value: "2",
-                                  onTap: () => controller
-                                      .filterApproveHistory('Pengajuan Cuti'),
-                                  child: Text("Pengajuan Cuti")),
-                              PopupMenuItem(
-                                  value: "3",
-                                  onTap: () => controller
-                                      .filterApproveHistory('Pengajuan Lembur'),
-                                  child: Text("Pengajuan Lembur")),
-                              PopupMenuItem(
-                                  value: "4",
-                                  onTap: () => controller.filterApproveHistory(
-                                      'Pengajuan Tugas Luar'),
-                                  child: Text("Pengajuan Tugas Luar"))
-                            ],
-                          )),
-                    )
-                  ],
+                      ),
+                      Expanded(
+                        flex: 15,
+                        child: Container(
+                            height: 28,
+                            alignment: Alignment.centerRight,
+                            decoration: BoxDecoration(
+                                borderRadius: Constanst.borderStyle5,
+                                border:
+                                    Border.all(color: Constanst.colorText3)),
+                            child: PopupMenuButton(
+                              padding: EdgeInsets.all(0.0),
+                              icon: Icon(
+                                Iconsax.setting_4,
+                              ),
+                              itemBuilder: (context) => [
+                                PopupMenuItem(
+                                    value: "1",
+                                    onTap: () =>
+                                        controller.filterApproveHistory(
+                                            'Pengajuan Tidak Hadir'),
+                                    child: Text("Pengajuan Tidak Hadir")),
+                                PopupMenuItem(
+                                    value: "2",
+                                    onTap: () => controller
+                                        .filterApproveHistory('Pengajuan Cuti'),
+                                    child: Text("Pengajuan Cuti")),
+                                PopupMenuItem(
+                                    value: "3",
+                                    onTap: () =>
+                                        controller.filterApproveHistory(
+                                            'Pengajuan Lembur'),
+                                    child: Text("Pengajuan Lembur")),
+                                PopupMenuItem(
+                                    value: "4",
+                                    onTap: () =>
+                                        controller.filterApproveHistory(
+                                            'Pengajuan Tugas Luar'),
+                                    child: Text("Pengajuan Tugas Luar"))
+                              ],
+                            )),
+                      )
+                    ],
+                  ),
                 ),
                 SizedBox(
                   height: 6,

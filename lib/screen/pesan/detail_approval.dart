@@ -158,10 +158,17 @@ class _DetailApprovalState extends State<DetailApproval> {
                             SizedBox(
                               height: 10,
                             ),
-                            Text(
-                              "Delegasi Kepada",
-                              style: TextStyle(color: Constanst.colorText2),
-                            ),
+                            controller.detailData[0]['type'] == "Lembur"
+                                ? Text(
+                                    "Pemberi Tugas",
+                                    style:
+                                        TextStyle(color: Constanst.colorText2),
+                                  )
+                                : Text(
+                                    "Delegasi Kepada",
+                                    style:
+                                        TextStyle(color: Constanst.colorText2),
+                                  ),
                             SizedBox(
                               height: 5,
                             ),

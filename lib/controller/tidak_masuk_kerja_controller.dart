@@ -24,15 +24,20 @@ class TidakMasukKerjaController extends GetxController {
   var dariTanggal = TextEditingController().obs;
   var sampaiTanggal = TextEditingController().obs;
   var alasan = TextEditingController().obs;
+  var departemen = TextEditingController().obs;
 
   var filePengajuan = File("").obs;
 
   var dataTypeAjuan = [].obs;
   var AlllistHistoryAjuan = [].obs;
+  var allNameLaporanTidakhadir = [].obs;
+  var allNameLaporanTidakhadirCopy = [].obs;
+
   var listHistoryAjuan = [].obs;
   var allTipe = [].obs;
   var allEmployee = [].obs;
   var tanggalSelected = [].obs;
+  var departementAkses = [].obs;
   var tanggalSelectedEdit = <DateTime>[].obs;
 
   Rx<List<String>> allEmployeeDelegasi = Rx<List<String>>([]);
@@ -45,6 +50,8 @@ class TidakMasukKerjaController extends GetxController {
   var tanggalBikinPengajuan = "".obs;
   var idEditFormTidakMasukKerja = "".obs;
   var emDelegationEdit = "".obs;
+  var idDepartemenTerpilih = "".obs;
+  var namaDepartemenTerpilih = "".obs;
   var loadingString = "Memuat Data...".obs;
 
   var stringSelectedTanggal = "".obs;
@@ -56,28 +63,94 @@ class TidakMasukKerjaController extends GetxController {
 
   var selectedType = 0.obs;
   var durasiIzin = 0.obs;
+  var jumlahData = 0.obs;
+
   var screenTanggalSelected = true.obs;
   var uploadFile = false.obs;
   var statusCari = false.obs;
   var showTipe = false.obs;
+  var showButtonlaporan = false.obs;
+  var statusLoadingSubmitLaporan = false.obs;
 
   var dataTypeAjuanDummy = ["Semua", "Approve", "Rejected", "Pending"];
 
   @override
   void onReady() async {
-    super.onReady();
     getTimeNow();
     getTypeAjuan();
     loadAllEmployeeDelegasi();
     loadTypeSakit();
     loadDataAjuanSakit();
+    getDepartemen(1, "");
+    super.onReady();
+  }
+
+  void getDepartemen(status, tanggal) {
+    jumlahData.value = 0;
+    var connect = Api.connectionApi("get", {}, "all_department");
+    connect.then((dynamic res) {
+      if (res == false) {
+        UtilsAlert.koneksiBuruk();
+      } else {
+        if (res.statusCode == 200) {
+          var valueBody = jsonDecode(res.body);
+          var dataDepartemen = valueBody['data'];
+
+          var dataUser = AppData.informasiUser;
+          var hakAkses = dataUser![0].em_hak_akses;
+          print(hakAkses);
+          if (hakAkses != "" || hakAkses != null) {
+            if (hakAkses == '0') {
+              var data = {
+                'id': 0,
+                'name': 'SEMUA DIVISI',
+                'inisial': 'AD',
+                'parent_id': '',
+                'aktif': '',
+                'pakai': '',
+                'ip': '',
+                'created_by': '',
+                'created_on': '',
+                'modified_by': '',
+                'modified_on': ''
+              };
+              departementAkses.add(data);
+            }
+            var convert = hakAkses!.split(',');
+            for (var element in dataDepartemen) {
+              if (hakAkses == '0') {
+                departementAkses.add(element);
+              }
+              for (var element1 in convert) {
+                if ("${element['id']}" == element1) {
+                  print('sampe sini');
+                  departementAkses.add(element);
+                }
+              }
+            }
+          }
+          this.departementAkses.refresh();
+          if (departementAkses.value.isNotEmpty) {
+            if (status == 1) {
+              idDepartemenTerpilih.value = "${departementAkses[0]['id']}";
+              namaDepartemenTerpilih.value = departementAkses[0]['name'];
+              departemen.value.text = departementAkses[0]['name'];
+              showButtonlaporan.value = true;
+            }
+          }
+        }
+      }
+    });
   }
 
   void getTimeNow() {
     var dt = DateTime.now();
-    bulanSelectedSearchHistory.value = "${dt.month}";
-    tahunSelectedSearchHistory.value = "${dt.year}";
-    bulanDanTahunNow.value = "${dt.month}-${dt.year}";
+    var outputFormat1 = DateFormat('MM');
+    var outputFormat2 = DateFormat('yyyy');
+    bulanSelectedSearchHistory.value = outputFormat1.format(dt);
+    tahunSelectedSearchHistory.value = outputFormat2.format(dt);
+    bulanDanTahunNow.value =
+        "${bulanSelectedSearchHistory.value}-${tahunSelectedSearchHistory.value}";
 
     var dateString = "${dt.year}-${dt.month}-${dt.day}";
     var afterConvert = Constanst.convertDate1(dateString);
@@ -202,6 +275,7 @@ class TidakMasukKerjaController extends GetxController {
     allEmployee.value.clear();
     var dataUser = AppData.informasiUser;
     var getDepGroup = dataUser![0].dep_group;
+    var full_name = dataUser[0].full_name;
     Map<String, dynamic> body = {'val': 'dep_group_id', 'cari': getDepGroup};
     var connect = Api.connectionApi("post", body, "whereOnce-employee");
     connect.then((dynamic res) {
@@ -214,7 +288,9 @@ class TidakMasukKerjaController extends GetxController {
           for (var element in data) {
             var fullName = element['full_name'] ?? "";
             String namaUser = "$fullName";
-            allEmployeeDelegasi.value.add(namaUser);
+            if (namaUser != full_name) {
+              allEmployeeDelegasi.value.add(namaUser);
+            }
             allEmployee.value.add(element);
           }
           if (idEditFormTidakMasukKerja == "") {
@@ -564,6 +640,8 @@ class TidakMasukKerjaController extends GetxController {
           if (valueBody['status'] == true) {
             kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
                 validasiDelegasiSelected);
+            kirimNotifikasiToReportTo(
+                getFullName, convertTanggalBikinPengajuan, getEmid);
             Navigator.pop(Get.context!);
             var pesan =
                 "Pengajuan Form ${selectedDropdownFormTidakMasukKerjaTipe.value} berhasil dibuat. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah dibuat";
@@ -621,6 +699,29 @@ class TidakMasukKerjaController extends GetxController {
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         UtilsAlert.showToast("Berhasil kirim delegasi");
+      }
+    });
+  }
+
+  void kirimNotifikasiToReportTo(
+      getFullName, convertTanggalBikinPengajuan, getEmid) {
+    var dt = DateTime.now();
+    var jamSekarang = DateFormat('HH:mm:ss').format(dt);
+    Map<String, dynamic> body = {
+      'emId_pengaju': getEmid,
+      'title': 'Pengajuan Tidak Hadir',
+      'deskripsi':
+          'Anda mendapatkan pengajuan $selectedDropdownFormTidakMasukKerjaTipe dari $getFullName',
+      'url': '',
+      'atten_date': convertTanggalBikinPengajuan,
+      'jam': jamSekarang,
+      'status': '2',
+      'view': '0',
+    };
+    var connect = Api.connectionApi("post", body, "notifikasi_reportTo");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        UtilsAlert.showToast("Pengajuan berhasil di kirim");
       }
     });
   }
@@ -832,6 +933,18 @@ class TidakMasukKerjaController extends GetxController {
     });
   }
 
+  void pencarianNamaKaryawan(value) {
+    var textCari = value.toLowerCase();
+    var filter = allNameLaporanTidakhadirCopy.where((laporan) {
+      var namaEmployee = laporan['full_name'].toLowerCase();
+      return namaEmployee.contains(textCari);
+    }).toList();
+    allNameLaporanTidakhadir.value = filter;
+    statusCari.value = true;
+    this.allNameLaporanTidakhadir.refresh();
+    this.statusCari.refresh();
+  }
+
   void showDetailRiwayat(detailData) {
     var nomorAjuan = detailData['nomor_ajuan'];
     var tanggalMasukAjuan = detailData['atten_date'];
@@ -861,17 +974,99 @@ class TidakMasukKerjaController extends GetxController {
               SizedBox(
                 height: 16,
               ),
-              Center(
-                child: Text(
-                  "$namaTypeAjuan",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 60,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "$namaTypeAjuan",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: 8,
+                          ),
+                          Text(
+                              "${Constanst.convertDate("$tanggalMasukAjuan")}"),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      flex: 40,
+                      child: Center(
+                        child: Container(
+                          margin: EdgeInsets.only(right: 8),
+                          decoration: BoxDecoration(
+                            color: typeAjuan == 'Approve'
+                                ? Constanst.colorBGApprove
+                                : typeAjuan == 'Rejected'
+                                    ? Constanst.colorBGRejected
+                                    : typeAjuan == 'Pending'
+                                        ? Constanst.colorBGPending
+                                        : Colors.grey,
+                            borderRadius: Constanst.borderStyle1,
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                left: 3, right: 3, top: 5, bottom: 5),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                typeAjuan == 'Approve'
+                                    ? Icon(
+                                        Iconsax.tick_square,
+                                        color: Constanst.color5,
+                                        size: 14,
+                                      )
+                                    : typeAjuan == 'Rejected'
+                                        ? Icon(
+                                            Iconsax.close_square,
+                                            color: Constanst.color4,
+                                            size: 14,
+                                          )
+                                        : typeAjuan == 'Pending'
+                                            ? Icon(
+                                                Iconsax.timer,
+                                                color: Constanst.color3,
+                                                size: 14,
+                                              )
+                                            : SizedBox(),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 3),
+                                  child: Text(
+                                    '$typeAjuan',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: typeAjuan == 'Approve'
+                                            ? Colors.green
+                                            : typeAjuan == 'Rejected'
+                                                ? Colors.red
+                                                : typeAjuan == 'Pending'
+                                                    ? Constanst.color3
+                                                    : Colors.black),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
                 ),
               ),
               SizedBox(
-                height: 8,
+                height: 6,
               ),
-              Center(
-                child: Text("${Constanst.convertDate("$tanggalMasukAjuan")}"),
+              Divider(
+                height: 5,
+                color: Constanst.colorText2,
               ),
               SizedBox(
                 height: 16,
@@ -1043,68 +1238,6 @@ class TidakMasukKerjaController extends GetxController {
               SizedBox(
                 height: 16,
               ),
-              Center(
-                child: Container(
-                  margin: EdgeInsets.only(right: 8),
-                  decoration: BoxDecoration(
-                    color: typeAjuan == 'Approve'
-                        ? Constanst.colorBGApprove
-                        : typeAjuan == 'Rejected'
-                            ? Constanst.colorBGRejected
-                            : typeAjuan == 'Pending'
-                                ? Constanst.colorBGPending
-                                : Colors.grey,
-                    borderRadius: Constanst.borderStyle1,
-                  ),
-                  child: Padding(
-                    padding:
-                        EdgeInsets.only(left: 3, right: 3, top: 5, bottom: 5),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        typeAjuan == 'Approve'
-                            ? Icon(
-                                Iconsax.tick_square,
-                                color: Constanst.color5,
-                                size: 14,
-                              )
-                            : typeAjuan == 'Rejected'
-                                ? Icon(
-                                    Iconsax.close_square,
-                                    color: Constanst.color4,
-                                    size: 14,
-                                  )
-                                : typeAjuan == 'Pending'
-                                    ? Icon(
-                                        Iconsax.timer,
-                                        color: Constanst.color3,
-                                        size: 14,
-                                      )
-                                    : SizedBox(),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 3),
-                          child: Text(
-                            '$typeAjuan',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: typeAjuan == 'Approve'
-                                    ? Colors.green
-                                    : typeAjuan == 'Rejected'
-                                        ? Colors.red
-                                        : typeAjuan == 'Pending'
-                                            ? Constanst.color3
-                                            : Colors.black),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 16,
-              )
             ],
           ),
         );

@@ -74,6 +74,7 @@ class SettingController extends GetxController {
             style: 1,
             buttonStatus: 1,
             positiveBtnPressed: () {
+              UtilsAlert.loadingSimpanData(context, "Tunggu Sebentar...");
               aksiEditLastLogin();
             },
           ),
@@ -99,6 +100,7 @@ class SettingController extends GetxController {
         var valueBody = jsonDecode(res.body);
         print(valueBody['data']);
         AppData.informasiUser = null;
+        Navigator.pop(Get.context!);
         Get.offAll(Login());
       }
     });

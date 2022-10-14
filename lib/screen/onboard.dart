@@ -64,60 +64,64 @@ class Onboard extends StatelessWidget {
                           topRight: Radius.circular(30),
                         ),
                       ),
-                      child: Column(
-                        children: [
-                          SizedBox(
-                            height: 8,
-                          ),
-                          Text(
-                            "Selamat Datang",
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 24),
-                          ),
-                          SizedBox(
-                            height: 8,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 20),
-                            child: Text(
-                              "di SISCOM HRIS 👋  ",
+                      child: SingleChildScrollView(
+                        physics: BouncingScrollPhysics(),
+                        child: Column(
+                          children: [
+                            SizedBox(
+                              height: 8,
+                            ),
+                            Text(
+                              "Selamat Datang",
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 24),
                             ),
-                          ),
-                          SizedBox(
-                            height: 16,
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 16, right: 16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  "SISCOM HRIS memberikan solusi untuk proses HR online di Perusahaan Anda. ",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: Constanst.colorText2,
-                                      fontSize: 12),
-                                ),
-                                SizedBox(
-                                  height: 8,
-                                ),
-                                Text(
-                                  "Kini, semua kebutuhan HR dapat terintegrasi dalam satu aplikasi dengan data yang akurat dan real time.",
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                      color: Constanst.colorText2,
-                                      fontSize: 12),
-                                ),
-                              ],
+                            SizedBox(
+                              height: 8,
                             ),
-                          ),
-                          SizedBox(
-                            height: 16,
-                          ),
-                        ],
+                            Padding(
+                              padding: const EdgeInsets.only(left: 20),
+                              child: Text(
+                                "di SISCOM HRIS 👋  ",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 24),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 16,
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 16, right: 16),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "SISCOM HRIS memberikan solusi untuk proses HR online di Perusahaan Anda. ",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        color: Constanst.colorText2,
+                                        fontSize: 12),
+                                  ),
+                                  SizedBox(
+                                    height: 8,
+                                  ),
+                                  Text(
+                                    "Kini, semua kebutuhan HR dapat terintegrasi dalam satu aplikasi dengan data yang akurat dan real time.",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        color: Constanst.colorText2,
+                                        fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 16,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),

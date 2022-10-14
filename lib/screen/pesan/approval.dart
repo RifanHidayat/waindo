@@ -117,7 +117,7 @@ class _ApprovalState extends State<Approval> {
                             border: InputBorder.none, hintText: "Cari"),
                         style: TextStyle(
                             fontSize: 14.0, height: 1.0, color: Colors.black),
-                        onSubmitted: (value) {
+                        onChanged: (value) {
                           controller.cariData(value);
                         },
                       ),

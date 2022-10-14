@@ -1,17 +1,20 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:siscom_operasional/controller/init_controller.dart';
+import 'package:siscom_operasional/controller/kontrol_controller.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/local_storage.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+
 import 'utils/app_data.dart';
 
 void main() async {
@@ -20,6 +23,9 @@ void main() async {
   // AppData.clearAllData();
   runApp(const MyApp());
 }
+
+
+
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);

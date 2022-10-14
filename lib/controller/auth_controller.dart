@@ -97,6 +97,7 @@ class AuthController extends GetxController {
             posisi: element['posisi'] ?? "",
             emp_jobTitle: element['emp_jobTitle'] ?? "",
             emp_departmen: element['emp_departmen'] ?? "",
+            em_control: element['em_control'] ?? 0,
             emp_att_working: element['emp_att_working'] ?? 0,
             em_hak_akses: element['em_hak_akses'] ?? "",
           );
@@ -107,6 +108,7 @@ class AuthController extends GetxController {
         print(lastLoginUser);
         if (lastLoginUser == "" ||
             lastLoginUser == "null" ||
+            lastLoginUser == null ||
             lastLoginUser == "0000-00-00 00:00:00") {
           print("sampe sini");
           fillLastLoginUser(getEmId, getData);
@@ -146,13 +148,20 @@ class AuthController extends GetxController {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
         var data = valueBody['data'];
-        print(data[0]['signout_time']);
-        if (data[0]['signout_time'] == "00:00:00") {
-          AppData.statusAbsen = true;
-        } else {
+        if (data.isEmpty) {
           AppData.statusAbsen = false;
+          Get.offAll(InitScreen());
+        } else {
+          var tanggalTerakhirAbsen = data[0]['atten_date'];
+          if (tanggalTerakhirAbsen == convert) {
+            AppData.statusAbsen =
+                data[0]['signout_time'] == "00:00:00" ? true : false;
+            Get.offAll(InitScreen());
+          } else {
+            AppData.statusAbsen = false;
+            Get.offAll(InitScreen());
+          }
         }
-        Get.offAll(InitScreen());
       }
     });
   }

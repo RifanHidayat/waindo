@@ -12,6 +12,7 @@ import 'dart:math';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/model/absen_model.dart';
 import 'package:siscom_operasional/screen/absen/berhasil_absen.dart';
 import 'package:siscom_operasional/screen/absen/detail_absen.dart';
@@ -27,6 +28,7 @@ class AbsenController extends GetxController {
   TextEditingController deskripsiAbsen = TextEditingController();
   var tanggalLaporan = TextEditingController().obs;
   var departemen = TextEditingController().obs;
+  var cari = TextEditingController().obs;
 
   var fotoUser = File("").obs;
 
@@ -74,6 +76,7 @@ class AbsenController extends GetxController {
   var mockLocation = false.obs;
   var showButtonlaporan = false.obs;
   var statusLoadingSubmitLaporan = false.obs;
+  var statusCari = false.obs;
 
   var absenStatus = false.obs;
 
@@ -232,20 +235,20 @@ class AbsenController extends GetxController {
           filterTelat.sort((a, b) => a['full_name']
               .toUpperCase()
               .compareTo(b['full_name'].toUpperCase()));
-          if (filterTelat.isEmpty) {
-            loading.value = "Data tidak tersedia";
-          } else {
-            loading.value = "Memuat Data...";
-          }
           jumlahData.value = filterTelat.length;
           listEmployeeTelat.value = filterTelat;
           alllistEmployeeTelat.value = filterTelat;
           this.jumlahData.refresh();
           this.listEmployeeTelat.refresh();
           this.alllistEmployeeTelat.refresh();
-          this.loading.refresh();
           statusLoadingSubmitLaporan.value = false;
           this.statusLoadingSubmitLaporan.refresh();
+          if (listEmployeeTelat.isEmpty) {
+            loading.value = "Data tidak tersedia";
+          } else {
+            loading.value = "Memuat Data...";
+          }
+          this.loading.refresh();
         }
       }
     });
@@ -271,20 +274,22 @@ class AbsenController extends GetxController {
           data.sort((a, b) => a['full_name']
               .toUpperCase()
               .compareTo(b['full_name'].toUpperCase()));
-          if (data.isEmpty) {
-            loading.value = "Data tidak tersedia";
-          } else {
-            loading.value = "Memuat Data...";
-          }
+
           jumlahData.value = valueBody['jumlah'];
           listLaporanBelumAbsen.value = data;
           allListLaporanBelumAbsen.value = data;
           this.jumlahData.refresh();
           this.listLaporanBelumAbsen.refresh();
           this.allListLaporanBelumAbsen.refresh();
-          this.loading.refresh();
+
           statusLoadingSubmitLaporan.value = false;
           this.statusLoadingSubmitLaporan.refresh();
+          if (listLaporanBelumAbsen.isEmpty) {
+            loading.value = "Data tidak tersedia";
+          } else {
+            loading.value = "Memuat Data...";
+          }
+          this.loading.refresh();
         }
       }
     });
@@ -329,6 +334,8 @@ class AbsenController extends GetxController {
       this.dateNow.refresh();
       this.base64fotoUser.refresh();
       this.fotoUser.refresh();
+      var dashboardController = Get.find<DashboardController>();
+      dashboardController.checkStatusPermission();
       getPosisition();
     }
   }
@@ -525,7 +532,7 @@ class AbsenController extends GetxController {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
         if (valueBody['status'] == true) {
-          var data = valueBody['data'];
+          List data = valueBody['data'];
           loading.value =
               data.length == 0 ? "Data tidak ditemukan" : "Memuat data...";
           for (var el in data) {
@@ -553,6 +560,11 @@ class AbsenController extends GetxController {
                 signout_addr: el['signout_addr'] ?? "",
                 atttype: el['atttype'] ?? 0));
           }
+
+          historyAbsen.value.sort((a, b) {
+            return DateTime.parse(b.atten_date!)
+                .compareTo(DateTime.parse(a.atten_date!));
+          });
           this.historyAbsen.refresh();
         } else {
           loading.value = "Data tidak ditemukan";
@@ -625,7 +637,7 @@ class AbsenController extends GetxController {
     this.departementAkses.refresh();
   }
 
-  showDataDepartemenAkses() {
+  showDataDepartemenAkses(status) {
     filterDataArray();
     showModalBottomSheet(
         context: Get.context!,
@@ -689,7 +701,9 @@ class AbsenController extends GetxController {
                                   namaDepartemenTerpilih.value = dep_name;
                                   departemen.value.text =
                                       departementAkses.value[index]['name'];
+                                  this.departemen.refresh();
                                   Navigator.pop(context);
+                                  carilaporanAbsenkaryawan(status);
                                 },
                                 child: Padding(
                                   padding:
@@ -726,11 +740,19 @@ class AbsenController extends GetxController {
         });
   }
 
-  void carilaporanAbsenkaryawan() {
+  void carilaporanAbsenkaryawan(status) {
     if (departemen.value.text == "") {
       UtilsAlert.showToast("Lengkapi form");
     } else {
-      aksiCariLaporan();
+      if (status == 'semua') {
+        aksiCariLaporan();
+      } else if (status == 'telat') {
+        aksiEmployeeTerlambatAbsen(
+            "${DateFormat('yyyy-MM-dd').format(pilihTanggalTelatAbsen.value)}");
+      } else if (status == 'belum') {
+        aksiEmployeeBelumAbsen(
+            "${DateFormat('yyyy-MM-dd').format(pilihTanggalTelatAbsen.value)}");
+      }
     }
   }
 
@@ -763,5 +785,41 @@ class AbsenController extends GetxController {
         }
       }
     });
+  }
+
+  void pencarianNamaKaryawan(value) {
+    var textCari = value.toLowerCase();
+    var filter = allListLaporanFilter.where((laporan) {
+      var namaEmployee = laporan['full_name'].toLowerCase();
+      return namaEmployee.contains(textCari);
+    }).toList();
+    listLaporanFilter.value = filter;
+    statusCari.value = true;
+    this.listLaporanFilter.refresh();
+    this.statusCari.refresh();
+  }
+
+  void pencarianNamaKaryawanTelat(value) {
+    var textCari = value.toLowerCase();
+    var filter = alllistEmployeeTelat.where((laporan) {
+      var namaEmployee = laporan['full_name'].toLowerCase();
+      return namaEmployee.contains(textCari);
+    }).toList();
+    listEmployeeTelat.value = filter;
+    statusCari.value = true;
+    this.listLaporanFilter.refresh();
+    this.statusCari.refresh();
+  }
+
+  void pencarianNamaKaryawanBelumAbsen(value) {
+    var textCari = value.toLowerCase();
+    var filter = allListLaporanBelumAbsen.where((laporan) {
+      var namaEmployee = laporan['full_name'].toLowerCase();
+      return namaEmployee.contains(textCari);
+    }).toList();
+    listLaporanBelumAbsen.value = filter;
+    statusCari.value = true;
+    this.listLaporanFilter.refresh();
+    this.statusCari.refresh();
   }
 }

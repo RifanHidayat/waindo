@@ -39,9 +39,9 @@ class TabbController extends GetxController {
     print(s);
     if (s == 0) {
       // try {
-      //   // var dashboardController = Get.find<DashboardController>();
-      //   // // dashboardController.onClose();
-      //   // dashboardController.onInit();
+        // var dashboardController = Get.find<DashboardController>();
+        // // dashboardController.onClose();
+        // dashboardController.onInit();
       // } catch (e) {}
     } else if (s == 1) {
       // try {

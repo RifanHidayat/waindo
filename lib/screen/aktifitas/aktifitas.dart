@@ -11,6 +11,7 @@ import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
+import 'package:scroll_navigation/scroll_navigation.dart';
 
 class Aktifitas extends StatelessWidget {
   final controller = Get.put(AktifitasController());
@@ -22,17 +23,7 @@ class Aktifitas extends StatelessWidget {
       appBar: AppBar(
           backgroundColor: Constanst.colorPrimary,
           elevation: 2,
-          flexibleSpace: appbarSetting()
-          // AppbarMenu1(
-          //   title: "Aktivitas",
-          //   colorTitle: Colors.white,
-          //   icon: 2,
-          //   onTap: () {
-          //     controller.cari.value.text = "";
-          //     controller.cariDataAktifitas();
-          //   },
-          // )
-          ),
+          flexibleSpace: appbarSetting()),
       body: WillPopScope(
           onWillPop: () async {
             return false;
@@ -47,10 +38,17 @@ class Aktifitas extends StatelessWidget {
                     SizedBox(
                       height: 16,
                     ),
-                    dashboardAktifitas(),
-                    SizedBox(
-                      height: 16,
-                    ),
+                    AnimatedOpacity(
+                        opacity: controller.visibleWidget.value ? 0.0 : 1.0,
+                        duration: const Duration(milliseconds: 500),
+                        child: controller.visibleWidget.value
+                            ? SizedBox()
+                            : dashboardAktifitas()),
+                    !controller.visibleWidget.value
+                        ? SizedBox()
+                        : SizedBox(
+                            height: 16,
+                          ),
                     Text(
                       "Log Aktifitas",
                       style: TextStyle(
@@ -134,6 +132,7 @@ class Aktifitas extends StatelessWidget {
                                     child: ListView.builder(
                                         itemCount: controller
                                             .listAktifitas.value.length,
+                                        controller: controller.controllerScroll,
                                         itemBuilder: (context, index) {
                                           var namaMenu = controller
                                               .listAktifitas
@@ -409,10 +408,14 @@ class Aktifitas extends StatelessWidget {
                             Iconsax.calendar_1,
                             size: 16,
                           ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 8),
-                            child: Text(
-                                "${Constanst.convertDateBulanDanTahun(controller.bulanDanTahunNow.value)}"),
+                          Flexible(
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 8),
+                              child: Text(
+                                "${Constanst.convertDateBulanDanTahun(controller.bulanDanTahunNow.value)}",
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
                           )
                         ],
                       ),

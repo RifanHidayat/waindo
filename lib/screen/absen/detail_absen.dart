@@ -26,6 +26,9 @@ class DetailAbsen extends StatelessWidget {
     var tanggal = status == false
         ? absenSelected![0].atten_date ?? ""
         : absenSelected![0]['atten_date'] ?? "";
+    var longlatMasuk = status == false
+        ? absenSelected![0].signin_longlat ?? ""
+        : absenSelected![0]['signin_longlat'] ?? "";
     var longlatKeluar = status == false
         ? absenSelected![0].signout_longlat ?? ""
         : absenSelected![0]['signout_longlat'] ?? "";
@@ -64,15 +67,15 @@ class DetailAbsen extends StatelessWidget {
                   status == true
                       ? Center(
                           child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          "$namaKaryawan",
-                          style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Constanst.colorPrimary),
-                        ),
-                      ))
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            "$namaKaryawan",
+                            style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Constanst.colorPrimary),
+                          ),
+                        ))
                       : SizedBox(),
                   SizedBox(
                     height: 15,
@@ -84,7 +87,7 @@ class DetailAbsen extends StatelessWidget {
                   SizedBox(
                     height: 15,
                   ),
-                  descMasuk(),
+                  longlatMasuk == "" ? SizedBox() : descMasuk(),
                   SizedBox(
                     height: 20,
                   ),

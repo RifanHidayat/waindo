@@ -10,6 +10,7 @@ class AppbarMenu1 extends StatelessWidget {
   final Icon? rightIcon;
   final bool? iconShow;
   final Function()? onTap;
+  final Function()? onTap2;
   const AppbarMenu1({
     Key? key,
     this.title,
@@ -19,6 +20,7 @@ class AppbarMenu1 extends StatelessWidget {
     this.rightIcon,
     this.iconShow,
     this.onTap,
+    this.onTap2,
   }) : super(key: key);
 
   @override
@@ -28,7 +30,9 @@ class AppbarMenu1 extends StatelessWidget {
             ? style1()
             : icon == 2
                 ? style2()
-                : SizedBox());
+                : icon == 3
+                    ? style3()
+                    : SizedBox());
   }
 
   Widget style1() {
@@ -41,16 +45,17 @@ class AppbarMenu1 extends StatelessWidget {
               child: Container(
                 alignment: Alignment.bottomCenter,
                 padding: EdgeInsets.only(bottom: 5),
-                child: iconShow == false ? SizedBox() :
-                IconButton(
-                  onPressed: () {
-                    if (onTap != null) onTap!();
-                  },
-                  icon: Icon(
-                    Icons.arrow_back_ios_rounded,
-                    color: colorIcon == null ? Colors.black : colorIcon,
-                  ),
-                ),
+                child: iconShow == false
+                    ? SizedBox()
+                    : IconButton(
+                        onPressed: () {
+                          if (onTap != null) onTap!();
+                        },
+                        icon: Icon(
+                          Icons.arrow_back_ios_rounded,
+                          color: colorIcon == null ? Colors.black : colorIcon,
+                        ),
+                      ),
               ),
             )),
         Expanded(
@@ -96,16 +101,17 @@ class AppbarMenu1 extends StatelessWidget {
               child: Container(
                 alignment: Alignment.bottomCenter,
                 padding: EdgeInsets.only(bottom: 5),
-                child:  iconShow == false ? SizedBox() :
-                IconButton(
-                  onPressed: () {
-                    if (onTap != null) onTap!();
-                  },
-                  icon: Icon(
-                    Iconsax.search_normal_1,
-                    color: colorTitle,
-                  ),
-                ),
+                child: iconShow == false
+                    ? SizedBox()
+                    : IconButton(
+                        onPressed: () {
+                          if (onTap != null) onTap!();
+                        },
+                        icon: Icon(
+                          Iconsax.search_normal_1,
+                          color: colorTitle,
+                        ),
+                      ),
               ),
             )),
       ],
@@ -136,7 +142,7 @@ class AppbarMenu1 extends StatelessWidget {
         Expanded(
             flex: 80,
             child: Container(
-              alignment: Alignment.bottomLeft,
+              alignment: Alignment.bottomCenter,
               padding: EdgeInsets.only(bottom: 15, left: 15),
               child: Text(
                 title!,
@@ -153,11 +159,10 @@ class AppbarMenu1 extends StatelessWidget {
                 alignment: Alignment.bottomCenter,
                 padding: EdgeInsets.only(bottom: 5),
                 child: IconButton(
-                  onPressed: () {
-                    if (onTap != null) onTap!();
-                  },
-                  icon: rightIcon!
-                ),
+                    onPressed: () {
+                      if (onTap2 != null) onTap2!();
+                    },
+                    icon: rightIcon!),
               ),
             )),
       ],

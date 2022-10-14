@@ -140,6 +140,7 @@ class PesanController extends GetxController {
                   'apply_date': element['apply_date'],
                   'apply_by': element['apply_by'],
                   'alasan_reject': element['alasan_reject'],
+                  'date_selected': element['date_selected'],
                   'nama_tipe': element['nama_tipe'],
                   'type': "Tidak Hadir",
                   'file': element['leave_files']
@@ -169,6 +170,7 @@ class PesanController extends GetxController {
                   'status': element['leave_status'],
                   'apply_date': element['apply_date'],
                   'apply_by': element['apply_by'],
+                  'date_selected': element['date_selected'],
                   'alasan_reject': element['alasan_reject'],
                   'nama_tipe': element['nama_tipe'],
                   'type': 'Cuti',
@@ -195,6 +197,7 @@ class PesanController extends GetxController {
                   'status': element['status'],
                   'apply_date': element['approve_date'],
                   'apply_by': element['approve_by'],
+                  'date_selected': '',
                   'alasan_reject': element['alasan_reject'],
                   'nama_tipe': "",
                   'type': 'Lembur',
@@ -221,6 +224,7 @@ class PesanController extends GetxController {
                   'status': element['status'],
                   'apply_date': element['approve_date'],
                   'apply_by': element['approve_by'],
+                  'date_selected': '',
                   'alasan_reject': element['alasan_reject'],
                   'nama_tipe': "",
                   'type': 'Tugas Luar',
@@ -372,14 +376,18 @@ class PesanController extends GetxController {
           var tanggalDataApi = Constanst.convertDate1("${element['tanggal']}");
           var filterTanggal =
               tanggalDataApi == tanggalSekarang ? 'Hari ini' : tanggalDataApi;
+          List listNotif = element['notifikasi'];
+          listNotif.sort((a, b) {
+            return b['id'].compareTo(a['id']);
+          });
           var data = {
             'tanggal': filterTanggal,
-            'notifikasi': element['notifikasi'],
+            'notifikasi': listNotif,
           };
           listNotifikasi.value.add(data);
-          hitungNotifikasiBelumDibaca();
         }
         this.listNotifikasi.refresh();
+        hitungNotifikasiBelumDibaca();
       }
     });
   }
@@ -453,6 +461,11 @@ class PesanController extends GetxController {
   }
 
   void showDetailRiwayatApproval(dataDetail) {
+    List listDateSelected = [];
+    if (dataDetail[0]['date_selected'] != "") {
+      var data = dataDetail[0]['date_selected'].split(',');
+      listDateSelected = data;
+    }
     showModalBottomSheet(
       context: Get.context!,
       isScrollControlled: true,
@@ -539,23 +552,20 @@ class PesanController extends GetxController {
                 height: 5,
               ),
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Expanded(
-                    flex: 45,
-                    child: Text(
-                      dataDetail[0]['waktu_dari'],
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                  Text(
+                    dataDetail[0]['waktu_dari'],
+                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  Expanded(
-                    flex: 10,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 5),
                     child: Text("s.d",
                         style: TextStyle(fontWeight: FontWeight.bold)),
                   ),
-                  Expanded(
-                    flex: 45,
+                  Padding(
+                    padding: const EdgeInsets.only(left: 5),
                     child: Text(
                       dataDetail[0]['waktu_sampai'],
                       textAlign: TextAlign.center,
@@ -601,6 +611,43 @@ class PesanController extends GetxController {
                         ],
                       ),
                     ),
+              listDateSelected.isEmpty
+                  ? SizedBox()
+                  : SizedBox(
+                      height: 10,
+                    ),
+              listDateSelected.isEmpty
+                  ? SizedBox()
+                  : Text(
+                      "Tanggal terpilih",
+                      style: TextStyle(color: Constanst.colorText2),
+                    ),
+              SizedBox(
+                height: 5,
+              ),
+              listDateSelected.isEmpty
+                  ? SizedBox()
+                  : ListView.builder(
+                      itemCount: listDateSelected.length,
+                      scrollDirection: Axis.vertical,
+                      shrinkWrap: true,
+                      itemBuilder: (context, index) {
+                        var tanggalConvert =
+                            Constanst.convertDate1(listDateSelected[index]);
+                        return Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('-'),
+                            Padding(
+                              padding: EdgeInsets.only(left: 8),
+                              child: Text(
+                                tanggalConvert,
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            )
+                          ],
+                        );
+                      }),
               SizedBox(
                 height: 10,
               ),
@@ -639,10 +686,15 @@ class PesanController extends GetxController {
               SizedBox(
                 height: 5,
               ),
-              Text(
-                Constanst.convertDate2("${dataDetail[0]['apply_date']}"),
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              dataDetail[0]['apply_date'] == null ||
+                      dataDetail[0]['apply_date'] == ''
+                  ? SizedBox(
+                      child: Text('Tanggal tidak valid'),
+                    )
+                  : Text(
+                      Constanst.convertDate2("${dataDetail[0]['apply_date']}"),
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
               SizedBox(
                 height: 10,
               ),

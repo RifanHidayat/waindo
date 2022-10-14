@@ -66,16 +66,11 @@ class DashboardController extends GetxController {
     getMenuDashboard();
     loadMenuShowInMain();
     getInformasiDashboard();
-    var statusCamera = Permission.camera.status;
-    statusCamera.then((value) {
-      if (value != PermissionStatus.granted) {
-        widgetButtomSheetAktifCamera();
-      }
-    });
     timeString.value = formatDateTime(DateTime.now());
     dateNow.value = dateNoww(DateTime.now());
     Timer.periodic(Duration(seconds: 1), (Timer t) => _getTime());
     getSizeDevice();
+    checkStatusPermission();
     super.onInit();
   }
 
@@ -97,6 +92,7 @@ class DashboardController extends GetxController {
               'posisi': element.posisi,
               'emp_jobTitle': element.emp_jobTitle,
               'emp_departmen': element.emp_departmen,
+              'em_control': element.em_control,
               'emp_att_working': element.emp_att_working,
               'em_hak_akses': element.em_hak_akses
             })
@@ -104,6 +100,22 @@ class DashboardController extends GetxController {
     user.value = userTampung;
     this.user.refresh();
     refreshPagesStatus.value = false;
+  }
+
+  void checkStatusPermission() {
+    var statusCamera = Permission.camera.status;
+    statusCamera.then((value) {
+      if (value != PermissionStatus.granted) {
+        widgetButtomSheetAktifCamera();
+      } else {
+        var statusLokasi = Permission.location.status;
+        statusLokasi.then((value) {
+          if (value != PermissionStatus.granted) {
+            widgetButtomSheetAktifCamera();
+          }
+        });
+      }
+    });
   }
 
   void updateInformasiUser() {
@@ -137,6 +149,7 @@ class DashboardController extends GetxController {
             posisi: element['posisi'] ?? "",
             emp_jobTitle: element['emp_jobTitle'] ?? "",
             emp_departmen: element['emp_departmen'] ?? "",
+            em_control: element['em_control'] ?? 0,
             emp_att_working: element['emp_att_working'] ?? 0,
             em_hak_akses: element['em_hak_akses'] ?? "",
           );
@@ -311,8 +324,6 @@ class DashboardController extends GetxController {
   bool validasiAbsenMasukUser() {
     return user.value[0]['emp_att_working'] == 0 ? true : false;
   }
-
-  
 
   Future<bool> radiusNotOpen() async {
     UtilsAlert.showLoadingIndicator(Get.context!);

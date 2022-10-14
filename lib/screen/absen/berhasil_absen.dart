@@ -27,7 +27,10 @@ class BerhasilAbsensi extends StatelessWidget {
                 flex: 70,
                 child: Column(
                   children: [
-                    Image.asset("assets/verify.png"),
+                    Image.asset(
+                      "assets/berhasil_absen.png",
+                      width: 150,
+                    ),
                     SizedBox(
                       height: 10,
                     ),
@@ -92,8 +95,7 @@ class BerhasilAbsensi extends StatelessWidget {
       bottomNavigationBar: Padding(
         padding: EdgeInsets.all(10.0),
         child: RaisedButton(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           onPressed: () {
             AbsenController().removeAll();
             Get.offAll(InitScreen());

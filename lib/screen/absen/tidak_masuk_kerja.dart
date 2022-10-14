@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +9,7 @@ import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/tidak_masuk_kerja_controller.dart';
 import 'package:siscom_operasional/screen/absen/detail_absen.dart';
 import 'package:siscom_operasional/screen/absen/form/form_tidakMasukKerja.dart';
+import 'package:siscom_operasional/screen/absen/laporan/laporan_tidakMasuk.dart';
 import 'package:siscom_operasional/screen/dashboard.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
@@ -95,12 +97,13 @@ class TidakMasukKerja extends StatelessWidget {
                                 height: 8,
                               ),
                               Flexible(
-                                  child: controller
-                                          .listHistoryAjuan.value.isEmpty
-                                      ? Center(
-                                          child: Text("Tidak ada pengajuan"),
-                                        )
-                                      : listAjuanIzinTidakMasukKerja()),
+                                  child:
+                                      controller.listHistoryAjuan.value.isEmpty
+                                          ? Center(
+                                              child: Text(
+                                                  "${controller.loadingString.value}"),
+                                            )
+                                          : listAjuanIzinTidakMasukKerja()),
                             ],
                           ))
                     ],
@@ -108,22 +111,64 @@ class TidakMasukKerja extends StatelessWidget {
                 ),
         ),
       ),
-      bottomNavigationBar: Padding(
-          padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 12),
-          child: TextButtonWidget2(
-              title: "Buat Pengajuan Tidak Hadir",
-              onTap: () {
-                Get.offAll(FormTidakMasukKerja(
-                  dataForm: [[], false],
-                ));
-              },
-              colorButton: Constanst.colorPrimary,
-              colortext: Constanst.colorWhite,
-              border: BorderRadius.circular(20.0),
-              icon: Icon(
-                Iconsax.add,
-                color: Constanst.colorWhite,
-              ))),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: Obx(
+        () => controller.showButtonlaporan.value == false
+            ? SizedBox()
+            : SpeedDial(
+                icon: Iconsax.more,
+                activeIcon: Icons.close,
+                backgroundColor: Constanst.colorPrimary,
+                spacing: 3,
+                childPadding: const EdgeInsets.all(5),
+                spaceBetweenChildren: 4,
+                elevation: 8.0,
+                animationCurve: Curves.elasticInOut,
+                animationDuration: const Duration(milliseconds: 200),
+                children: [
+                  SpeedDialChild(
+                      child: Icon(Iconsax.minus_cirlce),
+                      backgroundColor: Color(0xff2F80ED),
+                      foregroundColor: Colors.white,
+                      label: 'Laporan Tidak Hadir',
+                      onTap: () {
+                        Get.to(LaporanTidakMasuk(
+                          title: 'tidak_hadir',
+                        ));
+                      }),
+                  SpeedDialChild(
+                      child: Icon(Iconsax.add_square),
+                      backgroundColor: Color(0xff14B156),
+                      foregroundColor: Colors.white,
+                      label: 'Buat Pengajuan Tidak Hadir',
+                      onTap: () {
+                        Get.offAll(FormTidakMasukKerja(
+                          dataForm: [[], false],
+                        ));
+                      }),
+                ],
+              ),
+      ),
+      bottomNavigationBar: Obx(
+        () => Padding(
+            padding: EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 12),
+            child: controller.showButtonlaporan.value == true
+                ? SizedBox()
+                : TextButtonWidget2(
+                    title: "Buat Pengajuan Tidak Hadir",
+                    onTap: () {
+                      Get.offAll(FormTidakMasukKerja(
+                        dataForm: [[], false],
+                      ));
+                    },
+                    colorButton: Constanst.colorPrimary,
+                    colortext: Constanst.colorWhite,
+                    border: BorderRadius.circular(20.0),
+                    icon: Icon(
+                      Iconsax.add,
+                      color: Constanst.colorWhite,
+                    ))),
+      ),
     );
   }
 

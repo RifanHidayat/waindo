@@ -70,7 +70,6 @@ class ApprovalController extends GetxController {
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
-        print(valueBody['data']);
         if (valueBody['data'].length == 0) {
           loadingString.value = 'Tidak ada pengajuan';
         }
@@ -98,6 +97,8 @@ class ApprovalController extends GetxController {
           listData.value.add(data);
           listDataAll.value.add(data);
         }
+        listData.value.sort(
+            (a, b) => b['waktu_pengajuan'].compareTo(a['waktu_pengajuan']));
         this.listData.refresh();
         this.listNotModif.refresh();
       }
@@ -120,7 +121,6 @@ class ApprovalController extends GetxController {
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
-        print(valueBody['data']);
         if (valueBody['data'].length == 0) {
           loadingString.value = 'Tidak ada pengajuan';
         }
@@ -142,6 +142,8 @@ class ApprovalController extends GetxController {
             'type': 'Lembur',
             'file': ""
           };
+          listData.value.sort(
+              (a, b) => b['waktu_pengajuan'].compareTo(a['waktu_pengajuan']));
           listData.value.add(data);
           listDataAll.value.add(data);
         }
@@ -167,7 +169,6 @@ class ApprovalController extends GetxController {
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
-        print(valueBody['data']);
         if (valueBody['data'].length == 0) {
           loadingString.value = 'Tidak ada pengajuan';
         }
@@ -194,6 +195,8 @@ class ApprovalController extends GetxController {
           listData.value.add(data);
           listDataAll.value.add(data);
         }
+        listData.value.sort(
+            (a, b) => b['waktu_pengajuan'].compareTo(a['waktu_pengajuan']));
         this.listData.refresh();
         this.listNotModif.refresh();
       }
@@ -216,7 +219,6 @@ class ApprovalController extends GetxController {
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
-        print(valueBody['data']);
         if (valueBody['data'].length == 0) {
           loadingString.value = 'Tidak ada pengajuan';
         }
@@ -241,6 +243,8 @@ class ApprovalController extends GetxController {
           listData.value.add(data);
           listDataAll.value.add(data);
         }
+        listData.value.sort(
+            (a, b) => b['waktu_pengajuan'].compareTo(a['waktu_pengajuan']));
         this.listData.refresh();
         this.listNotModif.refresh();
       }
@@ -248,21 +252,13 @@ class ApprovalController extends GetxController {
   }
 
   void cariData(value) {
-    print("kesini cari");
-    listData.value.clear();
-    var text = value.toLowerCase();
-    var data = [];
-    for (var element in listDataAll) {
-      var namaPengaju = element['nama_pengaju'].toLowerCase();
-      if (namaPengaju == text) {
-        data.add(element);
-      }
-    }
-    if (data.length == 0) {
-      loadingString.value = 'Tidak ada pengajuan';
-    }
+    var textCari = value.toLowerCase();
+    var filter = listDataAll.where((laporan) {
+      var namaEmployee = laporan['nama_pengaju'].toLowerCase();
+      return namaEmployee.contains(textCari);
+    }).toList();
+    listData.value = filter;
     statusCari.value = true;
-    listData.value = data;
     this.listData.refresh();
     this.statusCari.refresh();
   }
@@ -549,6 +545,9 @@ class ApprovalController extends GetxController {
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
           print('berhasil sampai sini');
+          if (pilihan == true) {
+            insertAbsensiUserAfterApprove(dataEditFinal);
+          }
           insertNotifikasi(dataEditFinal, statusPengajuan, tanggalNow, dt,
               pilihan, namaAtasanApprove, url_tujuan, alasanRejectShow);
         }
@@ -601,6 +600,24 @@ class ApprovalController extends GetxController {
     });
   }
 
+  insertAbsensiUserAfterApprove(dataEditFinal) {
+    Map<String, dynamic> body = {
+      'dataAbsen': dataEditFinal,
+    };
+    var connect =
+        Api.connectionApi("post", body, "insert_absen_approve_pengajuan");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == true) {
+          UtilsAlert.showToast('Berhasil menyetujui pengajuan employee');
+        } else {
+          print(valueBody);
+        }
+      }
+    });
+  }
+
   void cariEmployee(dataEditFinal) {
     Map<String, dynamic> body = {
       'val': 'full_name',
@@ -631,7 +648,7 @@ class ApprovalController extends GetxController {
   }
 
   void insertNotifikasi(dataEditFinal, statusPengajuan, tanggalNow, dt, pilihan,
-      namaAtasanApprove, url_tujuan,  alasanRejectShow) {
+      namaAtasanApprove, url_tujuan, alasanRejectShow) {
     var statusNotif = pilihan == true ? 1 : 0;
     var jamSekarang = DateFormat('HH:mm:ss').format(dt);
     var url_notifikasi = detailData[0]['type'] == 'Cuti'

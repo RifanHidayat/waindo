@@ -26,17 +26,24 @@ class BerhasilPengajuan extends StatelessWidget {
                 flex: 70,
                 child: Column(
                   children: [
-                    Image.asset("assets/verify.png"),
+                    Image.asset(
+                      "assets/berhasil_pengajuan.png",
+                      width: 150,
+                    ),
                     SizedBox(
                       height: 10,
                     ),
-                    Text("Berhasil", textAlign: TextAlign.center, style: Constanst.boldType1),
+                    Text("Berhasil",
+                        textAlign: TextAlign.center,
+                        style: Constanst.boldType1),
                     SizedBox(
                       height: 10,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 30, right: 30),
-                      child: Text("${dataBerhasil![0]}", textAlign: TextAlign.center, style: Constanst.boldType2),
+                      child: Text("${dataBerhasil![0]}",
+                          textAlign: TextAlign.center,
+                          style: Constanst.boldType2),
                     ),
                     SizedBox(
                       height: 10,

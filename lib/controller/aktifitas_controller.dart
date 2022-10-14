@@ -13,6 +13,7 @@ class AktifitasController extends GetxController {
   var cari = TextEditingController().obs;
 
   RefreshController refreshController = RefreshController(initialRefresh: true);
+  ScrollController controllerScroll = ScrollController();
 
   var listAktifitas = [].obs;
   var infoAktifitas = [].obs;
@@ -23,6 +24,9 @@ class AktifitasController extends GetxController {
 
   var statusPencarian = false.obs;
   var statusFormPencarian = false.obs;
+  var visibleWidget = false.obs;
+
+  var indexList = 0.0.obs;
 
   var limit = 10.obs;
 
@@ -64,7 +68,27 @@ class AktifitasController extends GetxController {
     getTimeNow();
     loadAktifitas();
     getInformasiAktivitas();
+    controllerScroll.addListener(listenScrolling);
     super.onReady();
+  }
+
+  void listenScrolling() {
+    if (listAktifitas.length >= 10) {
+      double indexScroll = controllerScroll.offset;
+      if (indexScroll > 0.0) {
+        indexList.value = indexScroll;
+        visibleWidget.value = true;
+        this.visibleWidget.refresh();
+        this.indexList.refresh();
+      } else {
+        if (indexList.value > indexScroll) {
+          indexList.value = indexScroll;
+          visibleWidget.value = false;
+          this.visibleWidget.refresh();
+          this.indexList.refresh();
+        }
+      }
+    }
   }
 
   void getTimeNow() {

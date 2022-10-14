@@ -41,6 +41,11 @@ class LaporanAbsenKaryawanController extends GetxController {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
         if (valueBody['status'] == true) {
+          List data = valueBody['data'];
+          data.sort((a, b) {
+            return DateTime.parse(b['atten_date'])
+                .compareTo(DateTime.parse(a['atten_date']));
+          });
           detailRiwayat.value = valueBody['data'];
           AlldetailRiwayat.value = valueBody['data'];
         }

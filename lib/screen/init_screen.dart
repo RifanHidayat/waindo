@@ -6,6 +6,7 @@ import 'package:siscom_operasional/controller/tab_controller.dart';
 import 'package:siscom_operasional/screen/aktifitas/aktifitas.dart';
 import 'package:siscom_operasional/screen/akun/setting.dart';
 import 'package:siscom_operasional/screen/dashboard.dart';
+import 'package:siscom_operasional/screen/kontrol/kontrol_list.dart';
 import 'package:siscom_operasional/screen/pesan/pesan.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 
@@ -20,6 +21,7 @@ class _InitScreenState extends State<InitScreen> {
   List<Widget> _buildScreens() {
     return [
       Dashboard(),
+      KontrolList(),
       Aktifitas(),
       Pesan(
         status: false,
@@ -34,6 +36,13 @@ class _InitScreenState extends State<InitScreen> {
         icon: ImageIcon(AssetImage("assets/beranda_fill.png")),
         inactiveIcon: ImageIcon(AssetImage("assets/beranda.png")),
         title: "Beranda",
+        activeColorPrimary: Constanst.colorButton1,
+        inactiveColorPrimary: Constanst.color1,
+      ),
+      PersistentBottomNavBarItem(
+        icon: ImageIcon(AssetImage("assets/kontrol_fill.png")),
+        inactiveIcon: ImageIcon(AssetImage("assets/kontrol.png")),
+        title: "Kontrol",
         activeColorPrimary: Constanst.colorButton1,
         inactiveColorPrimary: Constanst.color1,
       ),
