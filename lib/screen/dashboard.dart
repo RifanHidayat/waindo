@@ -140,7 +140,7 @@ class _DashboardState extends State<Dashboard> {
                               SizedBox(
                                 height: 16,
                               ),
-                              listInformasi(),
+                              // listInformasi(),
                               SizedBox(
                                 height: 20,
                               )
@@ -860,8 +860,8 @@ class _DashboardState extends State<Dashboard> {
                     Expanded(
                       flex: 30,
                       child: Text(
-                        Constanst.convertDate3(
-                            controller.informasiDashboard.value[index]['date']),
+                        Constanst.convertDate(
+                            "${controller.informasiDashboard.value[index]['date']}"),
                         textAlign: TextAlign.right,
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
