@@ -470,15 +470,18 @@ class EditPersonalInfo extends StatelessWidget {
       ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.all(16.0),
-        child: RaisedButton(
-          shape: RoundedRectangleBorder(
-            borderRadius: new BorderRadius.circular(10.0),
-          ),
+        child: ElevatedButton(
+          style: ButtonStyle(
+              backgroundColor:
+                  MaterialStateProperty.all<Color>(Constanst.colorPrimary),
+              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                      side: BorderSide(color: Colors.white)))),
           onPressed: () {
             controller.editDataPersonalInfo();
           },
-          color: Constanst.colorPrimary,
-          textColor: Colors.white,
           child: Padding(
             padding: const EdgeInsets.only(top: 14, bottom: 14),
             child: Text('Simpan Data'),

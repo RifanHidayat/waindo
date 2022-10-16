@@ -79,7 +79,6 @@ dependencies:
   flutter_local_notifications: ^9.6.0
   timezone: ^0.8.0
   rxdart: ^0.26.0
-  device_info_plus: ^6.0.0
   location: ^4.2.0
 
 

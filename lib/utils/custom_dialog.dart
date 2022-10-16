@@ -63,11 +63,11 @@ class CustomDialog extends StatelessWidget {
                       buttonMinWidth: 100,
                       alignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        FlatButton(
+                        TextButton(
                           child: Text(negativeBtnText!),
                           onPressed: () => Navigator.of(context).pop(),
                         ),
-                        FlatButton(
+                        TextButton(
                           child: Text(positiveBtnText!),
                           onPressed: positiveBtnPressed,
                         ),
@@ -77,7 +77,7 @@ class CustomDialog extends StatelessWidget {
                       buttonMinWidth: 100,
                       alignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
-                        FlatButton(
+                        TextButton(
                           child: Text(negativeBtnText!),
                           onPressed: () => Navigator.of(context).pop(),
                         ),

@@ -90,14 +90,22 @@ class AbsenMasukKeluar extends StatelessWidget {
                     : Expanded(
                         child: Padding(
                           padding: const EdgeInsets.only(right: 6),
-                          child: RaisedButton(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                side:
-                                    BorderSide(color: Constanst.colorPrimary)),
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Constanst.colorPrimary),
+                                foregroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                        Colors.white),
+                                shape: MaterialStateProperty.all<
+                                        RoundedRectangleBorder>(
+                                    RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                        side:
+                                            BorderSide(color: Colors.white)))),
                             onPressed: () => controller.ulangiFoto(),
-                            textColor: Colors.white,
-                            color: Colors.white,
                             child: Padding(
                               padding:
                                   const EdgeInsets.only(top: 12, bottom: 12),
@@ -125,12 +133,18 @@ class AbsenMasukKeluar extends StatelessWidget {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.only(left: 6),
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8)),
+                    child: ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Constanst.colorPrimary),
+                          foregroundColor:
+                              MaterialStateProperty.all<Color>(Colors.white),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      side: BorderSide(color: Colors.white)))),
                       onPressed: () => controller.kirimDataAbsensi(),
-                      color: Constanst.colorButton1,
-                      textColor: Colors.white,
                       child: Padding(
                         padding: const EdgeInsets.only(top: 12, bottom: 12),
                         child: Text('OK, Absen sekarang'),

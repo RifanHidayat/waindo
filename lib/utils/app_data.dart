@@ -13,6 +13,8 @@ class AppData {
   static set dateLastAbsen(String value) =>
       LocalStorage.saveToDisk('dateLastAbsen', value);
 
+  static set latLon(String value) => LocalStorage.saveToDisk('latLon', value);
+
   static set emailUser(String value) =>
       LocalStorage.saveToDisk('emailUser', value);
 
@@ -49,6 +51,13 @@ class AppData {
   static String get dateLastAbsen {
     if (LocalStorage.getFromDisk('dateLastAbsen') != null) {
       return LocalStorage.getFromDisk('dateLastAbsen');
+    }
+    return "";
+  }
+
+  static String get latLon {
+    if (LocalStorage.getFromDisk('latLon') != null) {
+      return LocalStorage.getFromDisk('latLon');
     }
     return "";
   }

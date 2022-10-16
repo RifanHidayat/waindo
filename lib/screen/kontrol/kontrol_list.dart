@@ -4,8 +4,6 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -23,11 +21,10 @@ import 'dart:isolate';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
 import 'dart:io';
-
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:location/location.dart';
 
 // The callback function should always be a top-level function.
 @pragma('vm:entry-point')
@@ -103,8 +100,7 @@ class _KontrolListState extends State<KontrolList> {
   Timer? time;
   late final LocalNotificationService service;
 
-  late LocationSettings locationSettings;
-  late Position position;
+  // late LocationSettings locationSettings;
 
   @override
   void initState() {
@@ -131,6 +127,9 @@ class _KontrolListState extends State<KontrolList> {
   }
 
   ReceivePort? _receivePort;
+  late bool _serviceEnabled;
+  late PermissionStatus _permissionGranted;
+  LocationData? _userLocation;
 
   void _initForegroundTask() {
     FlutterForegroundTask.init(
@@ -157,7 +156,7 @@ class _KontrolListState extends State<KontrolList> {
         playSound: false,
       ),
       foregroundTaskOptions: const ForegroundTaskOptions(
-        interval: 5000,
+        interval: 15000,
         isOnceEvent: false,
         autoRunOnBoot: true,
         allowWakeLock: true,
@@ -216,13 +215,15 @@ class _KontrolListState extends State<KontrolList> {
     if (receivePort != null) {
       _receivePort = receivePort;
       _receivePort?.listen((message) async {
-        // position = await Geolocator.getCurrentPosition(
-        //     desiredAccuracy: LocationAccuracy.high);
-        // print('lat ${position.latitude} lon ${position.longitude}');
         var now = DateTime.now();
         var getJam = DateFormat('HH:mm:ss').format(now);
         print("$getJam");
         print("${AppData.informasiUser![0].em_id}");
+        Location location = new Location();
+        location.enableBackgroundMode(enable: true);
+        _userLocation = await location.getLocation();
+        print(
+            'lat ${_userLocation!.latitude} long ${_userLocation!.longitude}');
         if (message is int) {
           print('eventCount: $message');
         } else if (message is String) {
@@ -269,31 +270,31 @@ class _KontrolListState extends State<KontrolList> {
   //   super.didChangeAppLifecycleState(state);
   // }
 
-  void getPosisition() async {
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    try {
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(position.latitude, position.longitude);
-      Placemark place = placemarks[0];
-      var latUser = position.latitude;
-      var langUser = position.longitude;
-      var alamatUser =
-          "${placemarks[0].street} ${placemarks[0].name}, ${placemarks[0].subLocality}, ${placemarks[0].locality}, ${placemarks[0].subAdministrativeArea}, ${placemarks[0].administrativeArea}, ${placemarks[0].postalCode}";
-      controller.jumlahKontrol.value = controller.jumlahKontrol.value + 1;
-      this.controller.jumlahKontrol.refresh();
-      var now = DateTime.now();
-      var getJam = DateFormat('HH:mm').format(now);
-      var tanggal = DateFormat('yyyy-MM-dd').format(now);
-      print(latUser);
-      print(langUser);
-      var dataUser = AppData.informasiUser;
-      var getEmid = dataUser![0].em_id;
-      print("hitung kontrol ${controller.jumlahKontrol.value}");
-      controller.kirimDataKontrol(
-          latUser, langUser, alamatUser, getJam, tanggal, getEmid);
-    } on Exception catch (e) {}
-  }
+  // void getPosisition() async {
+  //   Position position = await Geolocator.getCurrentPosition(
+  //       desiredAccuracy: LocationAccuracy.high);
+  //   try {
+  //     List<Placemark> placemarks =
+  //         await placemarkFromCoordinates(position.latitude, position.longitude);
+  //     Placemark place = placemarks[0];
+  //     var latUser = position.latitude;
+  //     var langUser = position.longitude;
+  //     var alamatUser =
+  //         "${placemarks[0].street} ${placemarks[0].name}, ${placemarks[0].subLocality}, ${placemarks[0].locality}, ${placemarks[0].subAdministrativeArea}, ${placemarks[0].administrativeArea}, ${placemarks[0].postalCode}";
+  //     controller.jumlahKontrol.value = controller.jumlahKontrol.value + 1;
+  //     this.controller.jumlahKontrol.refresh();
+  //     var now = DateTime.now();
+  //     var getJam = DateFormat('HH:mm').format(now);
+  //     var tanggal = DateFormat('yyyy-MM-dd').format(now);
+  //     print(latUser);
+  //     print(langUser);
+  //     var dataUser = AppData.informasiUser;
+  //     var getEmid = dataUser![0].em_id;
+  //     print("hitung kontrol ${controller.jumlahKontrol.value}");
+  //     controller.kirimDataKontrol(
+  //         latUser, langUser, alamatUser, getJam, tanggal, getEmid);
+  //   } on Exception catch (e) {}
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -387,9 +388,12 @@ class _KontrolListState extends State<KontrolList> {
                           ElevatedButton(
                             onPressed: () async {
                               _stopForegroundTask();
+                              Location location = new Location();
+                              location.enableBackgroundMode(enable: false);
                             },
                             child: const Text('berhenti'),
                           ),
+
                           // InkWell(
                           //     onTap: () => ForegroundService().stop(),
                           //     child: Text("Test kontrol"))

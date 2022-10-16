@@ -94,14 +94,19 @@ class BerhasilAbsensi extends StatelessWidget {
       ),
       bottomNavigationBar: Padding(
         padding: EdgeInsets.all(10.0),
-        child: RaisedButton(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        child: ElevatedButton(
+          style: ButtonStyle(
+              backgroundColor:
+                  MaterialStateProperty.all<Color>(Constanst.colorPrimary),
+              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8.0),
+                      side: BorderSide(color: Colors.white)))),
           onPressed: () {
             AbsenController().removeAll();
             Get.offAll(InitScreen());
           },
-          color: Constanst.colorPrimary,
-          textColor: Colors.white,
           child: Padding(
             padding: const EdgeInsets.only(top: 16, bottom: 16),
             child: Text('Kembali ke beranda'),
