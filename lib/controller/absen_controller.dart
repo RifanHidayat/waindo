@@ -22,9 +22,11 @@ import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/custom_dialog.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 import 'package:google_maps_utils/google_maps_utils.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:trust_location/trust_location.dart';
 
 class AbsenController extends GetxController {
+
   TextEditingController deskripsiAbsen = TextEditingController();
   var tanggalLaporan = TextEditingController().obs;
   var departemen = TextEditingController().obs;
@@ -46,6 +48,9 @@ class AbsenController extends GetxController {
   var allListLaporanBelumAbsen = [].obs;
   var listEmployeeTelat = [].obs;
   var alllistEmployeeTelat = [].obs;
+  var sysData = [].obs;
+
+
   var absenSelected;
 
   var loading = "Memuat data...".obs;
@@ -70,6 +75,7 @@ class AbsenController extends GetxController {
   var langUser = 0.0.obs;
 
   var typeAbsen = 0.obs;
+  var intervalControl = 18000.obs;
 
   var imageStatus = false.obs;
   var detailAlamat = false.obs;
@@ -80,12 +86,32 @@ class AbsenController extends GetxController {
 
   var absenStatus = false.obs;
 
+  
   @override
   void onReady() async {
     getTimeNow();
+    getLoadsysData();
     loadHistoryAbsenUser();
     getDepartemen(1, "");
     super.onReady();
+  }
+
+ 
+  void getLoadsysData() {
+    var connect = Api.connectionApi("get", "", "sysdata");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == false) {
+          statusLoadingSubmitLaporan.value = false;
+          UtilsAlert.showToast(
+              "Data periode $bulanSelectedSearchHistory belum tersedia, harap hubungi HRD");
+        } else {
+          sysData.value = valueBody['data'];
+          this.sysData.refresh();
+        }
+      }
+    });
   }
 
   void getTimeNow() {
@@ -334,8 +360,6 @@ class AbsenController extends GetxController {
       this.dateNow.refresh();
       this.base64fotoUser.refresh();
       this.fotoUser.refresh();
-      var dashboardController = Get.find<DashboardController>();
-      dashboardController.checkStatusPermission();
       getPosisition();
     }
   }
@@ -426,6 +450,13 @@ class AbsenController extends GetxController {
             if (res.statusCode == 200) {
               var valueBody = jsonDecode(res.body);
               print(res.body);
+              for (var element in sysData.value) {
+                if (element['kode'] == '006') {
+                  intervalControl.value = int.parse(element['name']);
+                }
+              }
+              this.intervalControl.refresh();
+              print("dapat interval ${intervalControl.value}");
               Navigator.pop(Get.context!);
               Get.offAll(BerhasilAbsensi(
                 dataBerhasil: [
@@ -822,4 +853,6 @@ class AbsenController extends GetxController {
     this.listLaporanFilter.refresh();
     this.statusCari.refresh();
   }
+
+  
 }

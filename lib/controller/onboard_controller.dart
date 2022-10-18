@@ -11,6 +11,8 @@ import 'package:siscom_operasional/utils/widget_utils.dart';
 class OnboardController extends GetxController {
   var deviceStatus = false.obs;
 
+  var loading = false.obs;
+
   @override
   void onClose() {
     super.onClose();
@@ -35,11 +37,12 @@ class OnboardController extends GetxController {
   }
 
   void validasiToNextRoute() async {
+    loading.value = true;
     var dataInformasiUser = AppData.informasiUser;
     if (dataInformasiUser != null) {
-      UtilsAlert.loadingSimpanData(Get.context!, "Memuat Data...");
       validasiUser();
     } else {
+      loading.value = false;
       Get.offAll(Login());
     }
   }
@@ -57,7 +60,6 @@ class OnboardController extends GetxController {
         checkAbsenUser(convert, getEmid);
       } else {
         AppData.informasiUser = null;
-        Navigator.pop(Get.context!);
         Get.offAll(Login());
       }
     });
@@ -71,19 +73,22 @@ class OnboardController extends GetxController {
         var valueBody = jsonDecode(res.body);
         List data = valueBody['data'];
         if (data.isEmpty) {
+          loading.value = false;
           AppData.statusAbsen = false;
-          Navigator.pop(Get.context!);
+
           Get.offAll(InitScreen());
         } else {
           var tanggalTerakhirAbsen = data[0]['atten_date'];
           if (tanggalTerakhirAbsen == convert) {
+            loading.value = false;
             AppData.statusAbsen =
                 data[0]['signout_time'] == "00:00:00" ? true : false;
-            Navigator.pop(Get.context!);
+
             Get.offAll(InitScreen());
           } else {
+            loading.value = false;
             AppData.statusAbsen = false;
-            Navigator.pop(Get.context!);
+
             Get.offAll(InitScreen());
           }
         }

@@ -6,6 +6,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/setting_controller.dart';
 import 'package:siscom_operasional/screen/akun/edit_password.dart';
+import 'package:siscom_operasional/screen/akun/info_karyawan.dart';
 import 'package:siscom_operasional/screen/akun/personal_info.dart';
 import 'package:siscom_operasional/screen/akun/pusat_bantuan.dart';
 import 'package:siscom_operasional/utils/api.dart';
@@ -69,13 +70,22 @@ class _SettingState extends State<Setting> {
                           height: 30,
                         ),
                         Text(
-                          "Pengaturan",
+                          "Perusahaan",
                           style: TextStyle(
                               fontSize: 14, color: Constanst.colorText1),
                         ),
                         Padding(
                           padding: EdgeInsets.only(left: 8, right: 5, top: 15),
                           child: lineInfoPengguna(),
+                        ),
+                        Text(
+                          "Keamanan",
+                          style: TextStyle(
+                              fontSize: 14, color: Constanst.colorText1),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 8, right: 5, top: 15),
+                          child: lineKeamananAkun(),
                         ),
                         Text(
                           "Lainnya",
@@ -248,6 +258,57 @@ class _SettingState extends State<Setting> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         InkWell(
+          onTap: () => Get.to(InfoKaryawan()),
+          highlightColor: Colors.white,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                  flex: 90,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Iconsax.people,
+                        color: Constanst.colorPrimary,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 10),
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 5),
+                          child: Text(
+                            "Info Karyawan",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 12),
+                          ),
+                        ),
+                      )
+                    ],
+                  )),
+              Expanded(
+                flex: 10,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 5),
+                  child: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 16,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Divider(
+          height: 10,
+          color: Constanst.colorNonAktif,
+        ),
+        SizedBox(
+          height: 15,
+        ),
+        InkWell(
           onTap: () => Get.to(PersonalInfo()),
           highlightColor: Colors.white,
           child: Row(
@@ -298,6 +359,14 @@ class _SettingState extends State<Setting> {
         SizedBox(
           height: 15,
         ),
+      ],
+    );
+  }
+
+  Widget lineKeamananAkun() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
         InkWell(
           onTap: () => Get.to(EditPassword()),
           highlightColor: Colors.white,
@@ -338,108 +407,6 @@ class _SettingState extends State<Setting> {
               )
             ],
           ),
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Divider(
-          height: 10,
-          color: Constanst.colorNonAktif,
-        ),
-        SizedBox(
-          height: 15,
-        ),
-      ],
-    );
-  }
-
-  Widget lineKeamananAkun() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-                flex: 90,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Iconsax.password_check,
-                      color: Constanst.colorPrimary,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 10),
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 5),
-                        child: Text(
-                          "Ubah Nomor PIN",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 12),
-                        ),
-                      ),
-                    )
-                  ],
-                )),
-            Expanded(
-              flex: 10,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 5),
-                child: Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 16,
-                ),
-              ),
-            )
-          ],
-        ),
-        SizedBox(
-          height: 10,
-        ),
-        Divider(
-          height: 10,
-          color: Constanst.colorNonAktif,
-        ),
-        SizedBox(
-          height: 15,
-        ),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-                flex: 90,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Iconsax.unlock,
-                      color: Constanst.colorPrimary,
-                    ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 10),
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 5),
-                        child: Text(
-                          "Ubah Kata Sandi",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 12),
-                        ),
-                      ),
-                    )
-                  ],
-                )),
-            Expanded(
-              flex: 10,
-              child: Padding(
-                padding: const EdgeInsets.only(top: 5),
-                child: Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 16,
-                ),
-              ),
-            )
-          ],
         ),
         SizedBox(
           height: 10,

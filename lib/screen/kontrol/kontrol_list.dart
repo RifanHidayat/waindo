@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -10,82 +11,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:siscom_operasional/controller/auth_controller.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:siscom_operasional/controller/kontrol_controller.dart';
+import 'package:siscom_operasional/screen/kontrol/detail_kontrol.dart';
 import 'package:siscom_operasional/screen/register.dart';
 import 'package:siscom_operasional/services/local_notification_service.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
-
-import 'dart:isolate';
-import 'package:flutter_foreground_task/flutter_foreground_task.dart';
-
-import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:location/location.dart';
-
-// The callback function should always be a top-level function.
-@pragma('vm:entry-point')
-void startCallback() {
-  // The setTaskHandler function must be called to handle the task in the background.
-  FlutterForegroundTask.setTaskHandler(MyTaskHandler());
-}
-
-class MyTaskHandler extends TaskHandler {
-  SendPort? _sendPort;
-  int _eventCount = 0;
-
-  @override
-  Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
-    _sendPort = sendPort;
-
-    // You can use the getData function to get the stored data.
-    final customData =
-        await FlutterForegroundTask.getData<String>(key: 'customData');
-    print('customData: $customData');
-  }
-
-  @override
-  Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
-    FlutterForegroundTask.updateService(
-      notificationTitle: 'MyTaskHandler',
-      notificationText: 'eventCount: $_eventCount',
-    );
-
-    // Send data to the main isolate.
-    sendPort?.send(_eventCount);
-
-    _eventCount++;
-  }
-
-  @override
-  Future<void> onDestroy(DateTime timestamp, SendPort? sendPort) async {
-    // You can use the clearAllData function to clear all the stored data.
-    await FlutterForegroundTask.clearAllData();
-  }
-
-  @override
-  void onButtonPressed(String id) {
-    // Called when the notification button on the Android platform is pressed.
-    print('onButtonPressed >> $id');
-  }
-
-  @override
-  void onNotificationPressed() {
-    // Called when the notification itself on the Android platform is pressed.
-    //
-    // "android.permission.SYSTEM_ALERT_WINDOW" permission must be granted for
-    // this function to be called.
-
-    // Note that the app will only route to "/resume-route" when it is exited so
-    // it will usually be necessary to send a message through the send port to
-    // signal it to restore state when the app is already started.
-    FlutterForegroundTask.launchApp("/resume-route");
-    _sendPort?.send('onNotificationPressed');
-  }
-}
 
 class KontrolList extends StatefulWidget {
   var dataForm;
@@ -94,207 +26,8 @@ class KontrolList extends StatefulWidget {
   _KontrolListState createState() => _KontrolListState();
 }
 
-// class _KontrolListState extends State<KontrolList> with WidgetsBindingObserver {
 class _KontrolListState extends State<KontrolList> {
   var controller = Get.put(KontrolController());
-  Timer? time;
-  late final LocalNotificationService service;
-
-  // late LocationSettings locationSettings;
-
-  @override
-  void initState() {
-    controller.onReady();
-    // _initForegroundTask();
-    // startForegroundService();
-    // WidgetsBinding.instance.addObserver(this);
-    // time = Timer.periodic(Duration(seconds: 5), (tm) {
-    //   getPosisition();
-    // });
-    // startLokasiKontrol();
-    // service = LocalNotificationService();
-    // service.intialize();
-    // listenToNotification();
-    _initForegroundTask();
-    _ambiguate(WidgetsBinding.instance)?.addPostFrameCallback((_) async {
-      // You can get the previous ReceivePort without restarting the service.
-      if (await FlutterForegroundTask.isRunningService) {
-        final newReceivePort = await FlutterForegroundTask.receivePort;
-        _registerReceivePort(newReceivePort);
-      }
-    });
-    super.initState();
-  }
-
-  ReceivePort? _receivePort;
-  late bool _serviceEnabled;
-  late PermissionStatus _permissionGranted;
-  LocationData? _userLocation;
-
-  void _initForegroundTask() {
-    FlutterForegroundTask.init(
-      androidNotificationOptions: AndroidNotificationOptions(
-        channelId: 'notification_channel_id',
-        channelName: 'Foreground Notification',
-        channelDescription:
-            'This notification appears when the foreground service is running.',
-        channelImportance: NotificationChannelImportance.LOW,
-        priority: NotificationPriority.LOW,
-        iconData: const NotificationIconData(
-          resType: ResourceType.mipmap,
-          resPrefix: ResourcePrefix.ic,
-          name: 'launcher',
-          backgroundColor: Colors.orange,
-        ),
-        buttons: [
-          const NotificationButton(id: 'sendButton', text: 'Send'),
-          const NotificationButton(id: 'testButton', text: 'Test'),
-        ],
-      ),
-      iosNotificationOptions: const IOSNotificationOptions(
-        showNotification: true,
-        playSound: false,
-      ),
-      foregroundTaskOptions: const ForegroundTaskOptions(
-        interval: 15000,
-        isOnceEvent: false,
-        autoRunOnBoot: true,
-        allowWakeLock: true,
-        allowWifiLock: true,
-      ),
-    );
-  }
-
-  Future<bool> _startForegroundTask() async {
-    // "android.permission.SYSTEM_ALERT_WINDOW" permission must be granted for
-    // onNotificationPressed function to be called.
-    //
-    // When the notification is pressed while permission is denied,
-    // the onNotificationPressed function is not called and the app opens.
-    //
-    // If you do not use the onNotificationPressed or launchApp function,
-    // you do not need to write this code.
-    if (!await FlutterForegroundTask.canDrawOverlays) {
-      final isGranted =
-          await FlutterForegroundTask.openSystemAlertWindowSettings();
-      if (!isGranted) {
-        print('SYSTEM_ALERT_WINDOW permission denied!');
-        return false;
-      }
-    }
-
-    // You can save data using the saveData function.
-    await FlutterForegroundTask.saveData(key: 'customData', value: 'hello');
-
-    bool reqResult;
-    if (await FlutterForegroundTask.isRunningService) {
-      reqResult = await FlutterForegroundTask.restartService();
-    } else {
-      reqResult = await FlutterForegroundTask.startService(
-        notificationTitle: 'Foreground Service is running',
-        notificationText: 'Tap to return to the app',
-        callback: startCallback,
-      );
-    }
-
-    ReceivePort? receivePort;
-    if (reqResult) {
-      receivePort = await FlutterForegroundTask.receivePort;
-    }
-
-    return _registerReceivePort(receivePort);
-  }
-
-  Future<bool> _stopForegroundTask() async {
-    return await FlutterForegroundTask.stopService();
-  }
-
-  bool _registerReceivePort(ReceivePort? receivePort) {
-    _closeReceivePort();
-
-    if (receivePort != null) {
-      _receivePort = receivePort;
-      _receivePort?.listen((message) async {
-        var now = DateTime.now();
-        var getJam = DateFormat('HH:mm:ss').format(now);
-        print("$getJam");
-        print("${AppData.informasiUser![0].em_id}");
-        Location location = new Location();
-        location.enableBackgroundMode(enable: true);
-        _userLocation = await location.getLocation();
-        print(
-            'lat ${_userLocation!.latitude} long ${_userLocation!.longitude}');
-        if (message is int) {
-          print('eventCount: $message');
-        } else if (message is String) {
-          if (message == 'onNotificationPressed') {
-            Navigator.of(context).pushNamed('/resume-route');
-          }
-        } else if (message is DateTime) {
-          print('timestamp: ${message.toString()}');
-        }
-      });
-
-      return true;
-    }
-
-    return false;
-  }
-
-  void _closeReceivePort() {
-    _receivePort?.close();
-    _receivePort = null;
-  }
-
-  T? _ambiguate<T>(T? value) => value;
-
-  void listenToNotification() =>
-      service.onNotificationClick.stream.listen(onNoticationListener);
-
-  void onNoticationListener(String? payload) {
-    if (payload != null && payload.isNotEmpty) {
-      print('qwer $payload');
-      // controller.getPosisition();
-    }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    // ForegroundService().stop();
-    // WidgetsBinding.instance.removeObserver(this);
-  }
-
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   super.didChangeAppLifecycleState(state);
-  // }
-
-  // void getPosisition() async {
-  //   Position position = await Geolocator.getCurrentPosition(
-  //       desiredAccuracy: LocationAccuracy.high);
-  //   try {
-  //     List<Placemark> placemarks =
-  //         await placemarkFromCoordinates(position.latitude, position.longitude);
-  //     Placemark place = placemarks[0];
-  //     var latUser = position.latitude;
-  //     var langUser = position.longitude;
-  //     var alamatUser =
-  //         "${placemarks[0].street} ${placemarks[0].name}, ${placemarks[0].subLocality}, ${placemarks[0].locality}, ${placemarks[0].subAdministrativeArea}, ${placemarks[0].administrativeArea}, ${placemarks[0].postalCode}";
-  //     controller.jumlahKontrol.value = controller.jumlahKontrol.value + 1;
-  //     this.controller.jumlahKontrol.refresh();
-  //     var now = DateTime.now();
-  //     var getJam = DateFormat('HH:mm').format(now);
-  //     var tanggal = DateFormat('yyyy-MM-dd').format(now);
-  //     print(latUser);
-  //     print(langUser);
-  //     var dataUser = AppData.informasiUser;
-  //     var getEmid = dataUser![0].em_id;
-  //     print("hitung kontrol ${controller.jumlahKontrol.value}");
-  //     controller.kirimDataKontrol(
-  //         latUser, langUser, alamatUser, getJam, tanggal, getEmid);
-  //   } on Exception catch (e) {}
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -365,46 +98,28 @@ class _KontrolListState extends State<KontrolList> {
                           SizedBox(
                             height: 5,
                           ),
-                          // InkWell(
-                          //     onTap: () => controller.loadControlUser(),
-                          //     child: Text("Test kontrol"))
-
-                          ElevatedButton(
-                            onPressed: () async {
-                              await service.showNotification(
-                                  id: 0,
-                                  title: 'Notification Title',
-                                  body: 'Some body');
-                            },
-                            child: const Text('Show Local Notification'),
-                          ),
-
-                          ElevatedButton(
-                            onPressed: () async {
-                              _startForegroundTask();
-                            },
-                            child: const Text('jalan'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              _stopForegroundTask();
-                              Location location = new Location();
-                              location.enableBackgroundMode(enable: false);
-                            },
-                            child: const Text('berhenti'),
-                          ),
-
-                          // InkWell(
-                          //     onTap: () => ForegroundService().stop(),
-                          //     child: Text("Test kontrol"))
-
-                          // Flexible(
-                          //   flex: 3,
-                          //   child: Padding(
-                          //     padding: const EdgeInsets.only(left: 16, right: 16),
-                          //     child: pageViewPesan(),
-                          //   ),
-                          // )
+                          // ElevatedButton(
+                          //   onPressed: () async {
+                          //     _stopForegroundTask();
+                          //     Location location = new Location();
+                          //     location.enableBackgroundMode(enable: false);
+                          //   },
+                          //   child: const Text('berhenti'),
+                          // ),
+                          Flexible(
+                            flex: 3,
+                            child: controller.statusLoadingSubmitLaporan.value
+                                ? Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 3,
+                                      color: Constanst.colorPrimary,
+                                    ),
+                                  )
+                                : controller.employeeKontrol.value.isEmpty
+                                    ? Center(
+                                        child: Text(controller.loading.value))
+                                    : listEmployeeControl(),
+                          )
                         ],
                       ),
               ),
@@ -557,7 +272,7 @@ class _KontrolListState extends State<KontrolList> {
     return Container(
       decoration: BoxDecoration(
           borderRadius: Constanst.borderStyle5,
-          border: Border.all(color: Constanst.colorText2)),
+          border: Border.all(color: Color.fromARGB(255, 211, 205, 205))),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -617,5 +332,74 @@ class _KontrolListState extends State<KontrolList> {
         ],
       ),
     );
+  }
+
+  Widget listEmployeeControl() {
+    return ListView.builder(
+        physics: controller.employeeKontrol.value.length <= 15
+            ? AlwaysScrollableScrollPhysics()
+            : BouncingScrollPhysics(),
+        itemCount: controller.employeeKontrol.value.length,
+        itemBuilder: (context, index) {
+          var fullName =
+              controller.employeeKontrol.value[index]['full_name'] ?? "";
+          var namaKaryawan = "$fullName";
+          var jobTitle = controller.employeeKontrol.value[index]['job_title'];
+          var emId = controller.employeeKontrol.value[index]['em_id'];
+          return InkWell(
+            onTap: () {
+              UtilsAlert.loadingSimpanData(context, "Sedang Memuat");
+              controller.getEmployeeTerpilih(emId);
+              controller.getHistoryControl(emId);
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 10,
+                ),
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 90,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              namaKaryawan,
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            Text(
+                              jobTitle,
+                              style: TextStyle(fontSize: 12),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 10,
+                        child: Center(
+                          child: Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 8,
+                ),
+                Divider(
+                  height: 3,
+                  color: Colors.grey,
+                ),
+              ],
+            ),
+          );
+        });
   }
 }

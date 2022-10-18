@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:siscom_operasional/model/setting_app_model.dart';
 import 'package:siscom_operasional/screen/dashboard.dart';
+import 'package:siscom_operasional/screen/kontrol/detail_kontrol.dart';
 import 'package:siscom_operasional/screen/login.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/screen/onboard.dart';
@@ -28,6 +29,7 @@ class KontrolController extends GetxController {
   var bulanDanTahunNow = "".obs;
   var idDepartemenTerpilih = "".obs;
   var namaDepartemenTerpilih = "".obs;
+  var loading = "Memuat data...".obs;
 
   var jumlahData = 0.obs;
   var selectedType = 0.obs;
@@ -35,8 +37,14 @@ class KontrolController extends GetxController {
 
   var showViewKontrol = false.obs;
   var statusCari = false.obs;
+  var statusLoadingSubmitLaporan = false.obs;
+  var showViewDetail = false.obs;
 
   var departementAkses = [].obs;
+  var employeeKontrol = [].obs;
+  var employeeKontrolAll = [].obs;
+  var userTerpilih = [].obs;
+  var kontrolHistory = [].obs;
 
   @override
   void onReady() async {
@@ -108,7 +116,7 @@ class KontrolController extends GetxController {
               namaDepartemenTerpilih.value = departementAkses[0]['name'];
               departemen.value.text = departementAkses[0]['name'];
               showViewKontrol.value = true;
-              // aksiCariLaporan();
+              getEmployeeKontrol();
             }
           }
         }
@@ -116,70 +124,95 @@ class KontrolController extends GetxController {
     });
   }
 
-  // void callbackDispatcher() {
-  //   Workmanager.executeTask((task, inputData) async {
-  //     switch (task) {
-  //       case fetchBackground:
-  //         Position userLocation = await Geolocator()
-  //             .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-  //         notif.Notification notification = new notif.Notification();
-  //         notification.showNotificationWithoutSound(userLocation);
-  //         break;
-  //     }
-  //     return Future.value(true);
-  //   });
-  // }
-
-  void loadControlUser() {
-    print("mulai di kontrol");
-    print(jumlahKontrol.value);
-    // Workmanager().registerPeriodicTask(
-    //   "periodic-task-identifier",
-    //   "simplePeriodicTask",
-    //   // When no frequency is provided the default 15 minutes is set.
-    //   // Minimum frequency is 15 min. Android will automatically change your frequency to 15 min if you have configured a lower frequency.
-    //   frequency: Duration(seconds: 5),
-    // );
-    Future.delayed(Duration(seconds: 10), () {
-      // getPosisition(getEmid);
+  void getEmployeeKontrol() {
+    statusLoadingSubmitLaporan.value = true;
+    employeeKontrol.value.clear();
+    Map<String, dynamic> body = {'val': 'em_control', 'cari': '1'};
+    var connect = Api.connectionApi("post", body, "whereOnce-employee");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == false) {
+          statusLoadingSubmitLaporan.value = false;
+          UtilsAlert.showToast(
+              "Data periode $bulanSelectedSearchHistory belum tersedia, harap hubungi HRD");
+        } else {
+          List data = valueBody['data'];
+          if (idDepartemenTerpilih.value != '0') {
+            List filterData = [];
+            for (var element in data) {
+              if ("${element['dep_id']}" == idDepartemenTerpilih.value) {
+                filterData.add(element);
+              }
+            }
+            List removeDuplicate = filterData.toSet().toList();
+            employeeKontrol.value = removeDuplicate;
+            employeeKontrolAll.value = removeDuplicate;
+          } else {
+            employeeKontrol.value = data;
+            employeeKontrolAll.value = data;
+          }
+          this.employeeKontrol.refresh();
+          this.employeeKontrolAll.refresh();
+          employeeKontrol.value.sort((a, b) => a['full_name']
+              .toUpperCase()
+              .compareTo(b['full_name'].toUpperCase()));
+          loading.value = employeeKontrol.value.length == 0
+              ? "Data tidak tersedia"
+              : "Memuat data...";
+          jumlahData.value = employeeKontrol.value.length;
+          statusLoadingSubmitLaporan.value = false;
+          this.jumlahData.refresh();
+          this.statusLoadingSubmitLaporan.refresh();
+        }
+      }
     });
   }
 
-  void getPosisition(getEmid) async {
-    Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high);
-    try {
-      List<Placemark> placemarks =
-          await placemarkFromCoordinates(position.latitude, position.longitude);
-      Placemark place = placemarks[0];
-      var latUser = position.latitude;
-      var langUser = position.longitude;
-      var alamatUser =
-          "${placemarks[0].street} ${placemarks[0].name}, ${placemarks[0].subLocality}, ${placemarks[0].locality}, ${placemarks[0].subAdministrativeArea}, ${placemarks[0].administrativeArea}, ${placemarks[0].postalCode}";
-      jumlahKontrol.value = jumlahKontrol.value + 1;
-      this.jumlahKontrol.refresh();
-      var now = DateTime.now();
-      var getJam = DateFormat('HH:mm:ss').format(now);
-      var tanggal = DateFormat('yyyy-MM-dd').format(now);
-      kirimDataKontrol(latUser, langUser, alamatUser, getJam, tanggal, getEmid);
-    } on Exception catch (e) {}
+  void getEmployeeTerpilih(emId) {
+    Map<String, dynamic> body = {'val': 'em_id', 'cari': emId};
+    var connect = Api.connectionApi("post", body, "whereOnce-employee");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == false) {
+          statusLoadingSubmitLaporan.value = false;
+          UtilsAlert.showToast(
+              "Data periode $bulanSelectedSearchHistory belum tersedia, harap hubungi HRD");
+        } else {
+          List data = valueBody['data'];
+          userTerpilih.value = data;
+          this.userTerpilih.refresh();
+        }
+      }
+    });
   }
 
-  void kirimDataKontrol(latUser, langUser, alamatUser, jam, tanggal, getEmid) {
-    var latLangUserKontrol = "$latUser,$langUser";
-    Map<String, dynamic> body = {
-      'em_id': getEmid,
-      'atten_date': tanggal,
-      'jam': jam,
-      'latLangKontrol': latLangUserKontrol,
-      'alamat': alamatUser,
-    };
-    var connect =
-        Api.connectionApi("post", body, "insert_emp_control_employee");
+  void getHistoryControl(emId) {
+    var tanggalTerpilih = DateFormat('yyyy-MM-dd').format(initialDate.value);
+    Map<String, dynamic> body = {'em_id': emId, 'atten_date': tanggalTerpilih};
+    var connect = Api.connectionApi("post", body, "load_history_kontrol");
     connect.then((dynamic res) {
-      var valueBody = jsonDecode(res.body);
-      print(valueBody);
-      // loadControlUser();
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == false) {
+          UtilsAlert.showToast(
+              "Data periode $bulanSelectedSearchHistory belum tersedia, harap hubungi HRD");
+        } else {
+          List data = valueBody['data'];
+          kontrolHistory.value = data;
+
+          loading.value = kontrolHistory.value.length == 0
+              ? "Data tidak tersedia"
+              : "Memuat data...";
+          this.kontrolHistory.refresh();
+          this.loading.refresh();
+          Navigator.pop(Get.context!);
+          Get.to(DetailKontrol(
+            emId: emId,
+          ));
+        }
+      }
     });
   }
 
@@ -252,9 +285,11 @@ class KontrolController extends GetxController {
                                   namaDepartemenTerpilih.value = dep_name;
                                   departemen.value.text =
                                       departementAkses.value[index]['name'];
+                                  this.idDepartemenTerpilih.refresh();
+                                  this.namaDepartemenTerpilih.refresh();
                                   this.departemen.refresh();
                                   Navigator.pop(context);
-                                  // aksiCariLaporan();
+                                  getEmployeeKontrol();
                                 },
                                 child: Padding(
                                   padding:

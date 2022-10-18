@@ -1,8 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
-import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:month_year_picker/month_year_picker.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/screen/absen/detail_absen.dart';
@@ -14,6 +15,7 @@ import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class HistoryAbsen extends StatefulWidget {
   var dataForm;
@@ -161,13 +163,15 @@ class _HistoryAbsenState extends State<HistoryAbsen> {
 
   Widget pickDate() {
     return InkWell(
-      onTap: () {
-        showMonthPicker(
-          context: Get.context!,
-          firstDate: DateTime(DateTime.now().year - 1, 5),
-          lastDate: DateTime(DateTime.now().year + 1, 9),
+      onTap: () async {
+        print("kesini");
+        showMonthYearPicker(
+          context: context,
           initialDate: DateTime.now(),
-          locale: Locale("en"),
+          // firstDate: DateTime(DateTime.now().year - 1, 5),
+          // lastDate: DateTime(DateTime.now().year + 1, 9),
+          firstDate: DateTime(2010),
+          lastDate: DateTime(2100),
         ).then((date) {
           if (date != null) {
             print(date);

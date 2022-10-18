@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:siscom_operasional/controller/api_controller.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/model/user_model.dart';
 import 'package:siscom_operasional/screen/akun/edit_personal_data.dart';
@@ -29,6 +30,7 @@ class SettingController extends GetxController {
   var email = TextEditingController().obs;
   var telepon = TextEditingController().obs;
   var cari = TextEditingController().obs;
+  var departemen = TextEditingController().obs;
 
   var passwordLama = TextEditingController().obs;
   var passwordBaru = TextEditingController().obs;
@@ -42,14 +44,18 @@ class SettingController extends GetxController {
   var refreshPageStatus = false.obs;
 
   var listPusatBantuan = [].obs;
+  var listDepartement = [].obs;
 
   var dataJenisKelamin = ["PRIA", "WANITA"];
   var dataGolonganDarah = ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'OB+'];
+
+  var apiController = Get.put(ApiController());
 
   @override
   void onReady() async {
     toRouteSimpanData();
     getPusatBantuan();
+    allDepartement();
     super.onReady();
   }
 
@@ -168,6 +174,12 @@ class SettingController extends GetxController {
         Get.offAll(InitScreen());
       }
     });
+  }
+
+  void allDepartement() async {
+    final data = await apiController.getDepartemen();
+    listDepartement.value = data;
+    this.listDepartement.refresh();
   }
 
   void ubahPassword() {

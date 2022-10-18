@@ -94,7 +94,7 @@ class AbsenMasukKeluar extends StatelessWidget {
                             style: ButtonStyle(
                                 backgroundColor:
                                     MaterialStateProperty.all<Color>(
-                                        Constanst.colorPrimary),
+                                        Colors.white),
                                 foregroundColor:
                                     MaterialStateProperty.all<Color>(
                                         Colors.white),
@@ -103,8 +103,8 @@ class AbsenMasukKeluar extends StatelessWidget {
                                     RoundedRectangleBorder(
                                         borderRadius:
                                             BorderRadius.circular(8.0),
-                                        side:
-                                            BorderSide(color: Colors.white)))),
+                                        side: BorderSide(
+                                            color: Constanst.colorPrimary)))),
                             onPressed: () => controller.ulangiFoto(),
                             child: Padding(
                               padding:
@@ -115,6 +115,7 @@ class AbsenMasukKeluar extends StatelessWidget {
                                   Icon(
                                     Iconsax.refresh,
                                     color: Constanst.colorPrimary,
+                                    size: 18,
                                   ),
                                   Padding(
                                     padding: const EdgeInsets.only(left: 8),

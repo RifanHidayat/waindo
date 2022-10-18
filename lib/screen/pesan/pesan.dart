@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
-import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:month_year_picker/month_year_picker.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/pesan_controller.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
@@ -502,12 +502,13 @@ class _PesanState extends State<Pesan> {
         padding: EdgeInsets.only(top: 15, bottom: 10),
         child: InkWell(
           onTap: () {
-            showMonthPicker(
+            showMonthYearPicker(
               context: Get.context!,
-              firstDate: DateTime(DateTime.now().year - 1, 5),
-              lastDate: DateTime(DateTime.now().year + 1, 9),
               initialDate: DateTime.now(),
-              locale: Locale("en"),
+              // firstDate: DateTime(DateTime.now().year - 1, 5),
+              // lastDate: DateTime(DateTime.now().year + 1, 9),
+              firstDate: DateTime(2010),
+              lastDate: DateTime(2100),
             ).then((date) {
               if (date != null) {
                 print(date);

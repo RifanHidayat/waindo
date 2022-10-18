@@ -3,7 +3,7 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
-import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:month_year_picker/month_year_picker.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/tidak_masuk_kerja_controller.dart';
@@ -177,12 +177,13 @@ class TidakMasukKerja extends StatelessWidget {
       decoration: Constanst.styleBoxDecoration1,
       child: InkWell(
         onTap: () {
-          showMonthPicker(
+          showMonthYearPicker(
             context: Get.context!,
-            firstDate: DateTime(DateTime.now().year - 1, 5),
-            lastDate: DateTime(DateTime.now().year + 1, 9),
             initialDate: DateTime.now(),
-            locale: Locale("en"),
+            // firstDate: DateTime(DateTime.now().year - 1, 5),
+            // lastDate: DateTime(DateTime.now().year + 1, 9),
+            firstDate: DateTime(2010),
+            lastDate: DateTime(2100),
           ).then((date) {
             if (date != null) {
               print(date);
