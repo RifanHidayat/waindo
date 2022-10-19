@@ -115,8 +115,8 @@ class _BerhasilAbsensiState extends State<BerhasilAbsensi> {
         channelName: 'Foreground Notification',
         channelDescription:
             'This notification appears when the foreground service is running.',
-        channelImportance: NotificationChannelImportance.LOW,
-        priority: NotificationPriority.LOW,
+        channelImportance: NotificationChannelImportance.HIGH,
+        priority: NotificationPriority.HIGH,
         iconData: const NotificationIconData(
           resType: ResourceType.mipmap,
           resPrefix: ResourcePrefix.ic,
@@ -132,9 +132,9 @@ class _BerhasilAbsensiState extends State<BerhasilAbsensi> {
         showNotification: true,
         playSound: true,
       ),
-      foregroundTaskOptions: const ForegroundTaskOptions(
+      foregroundTaskOptions: ForegroundTaskOptions(
         // interval: 1800000,
-        interval: 600000,
+        interval: widget.dataBerhasil![3],
         isOnceEvent: false,
         autoRunOnBoot: true,
         allowWakeLock: true,

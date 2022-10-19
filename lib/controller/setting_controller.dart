@@ -38,13 +38,21 @@ class SettingController extends GetxController {
   var jenisKelamin = "".obs;
   var golonganDarah = "".obs;
   var base64fotoUser = "".obs;
+  var namaDepartemenTerpilih = "".obs;
+  var loading = "Memuat data...".obs;
 
   var showpasswordLama = false.obs;
   var showpasswordBaru = false.obs;
   var refreshPageStatus = false.obs;
+  var statusLoadingSubmitLaporan = false.obs;
+
+  var idDepartemenTerpilih = 0.obs;
+  var jumlahData = 0.obs;
 
   var listPusatBantuan = [].obs;
   var listDepartement = [].obs;
+  var infoEmployee = [].obs;
+  var infoEmployeeAll = [].obs;
 
   var dataJenisKelamin = ["PRIA", "WANITA"];
   var dataGolonganDarah = ['O+', 'O-', 'A+', 'A-', 'B+', 'B-', 'AB+', 'OB+'];
@@ -56,6 +64,7 @@ class SettingController extends GetxController {
     toRouteSimpanData();
     getPusatBantuan();
     allDepartement();
+    getUserInfo();
     super.onReady();
   }
 
@@ -177,9 +186,56 @@ class SettingController extends GetxController {
   }
 
   void allDepartement() async {
-    final data = await apiController.getDepartemen();
+    var data = await apiController.getDepartemen();
     listDepartement.value = data;
     this.listDepartement.refresh();
+    var addDummy = {
+      'id': 0,
+      'name': 'SEMUA DIVISI',
+      'inisial': 'AD',
+    };
+    listDepartement.value.insert(0, addDummy);
+    idDepartemenTerpilih.value = 0;
+    namaDepartemenTerpilih.value = 'SEMUA DIVISI';
+    this.idDepartemenTerpilih.refresh();
+    this.listDepartement.refresh();
+  }
+
+  void getUserInfo() async {
+    statusLoadingSubmitLaporan.value = true;
+    var depId = idDepartemenTerpilih.value;
+
+    Map<String, dynamic> body = {'dep_id': depId};
+    var connect = Api.connectionApi("post", body, "cari_informasi_employee");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        infoEmployee.value = valueBody['data'];
+        infoEmployeeAll.value = valueBody['data'];
+        loading.value = infoEmployee.value.length == 0
+            ? "Data tidak tersedia"
+            : "Memuat data...";
+        jumlahData.value = infoEmployee.value.length;
+        statusLoadingSubmitLaporan.value = false;
+        infoEmployee.value.sort((a, b) => a['full_name']
+            .toUpperCase()
+            .compareTo(b['full_name'].toUpperCase()));
+        this.jumlahData.refresh();
+        this.loading.refresh();
+        this.statusLoadingSubmitLaporan.refresh();
+        this.infoEmployee.refresh();
+      }
+    });
+  }
+
+  void pencarianNamaKaryawan(value) {
+    var textCari = value.toLowerCase();
+    var filter = infoEmployeeAll.where((laporan) {
+      var namaEmployee = laporan['full_name'].toLowerCase();
+      return namaEmployee.contains(textCari);
+    }).toList();
+    infoEmployee.value = filter;
+    this.infoEmployee.refresh();
   }
 
   void ubahPassword() {
@@ -535,5 +591,120 @@ class SettingController extends GetxController {
         UtilsAlert.showToast("Foto profile berhasil diubah");
       }
     });
+  }
+
+  void filterDataArray() {
+    var data = listDepartement.value;
+    var seen = Set<String>();
+    List filter = data.where((divisi) => seen.add(divisi['name'])).toList();
+    listDepartement.value = filter;
+    this.listDepartement.refresh();
+  }
+
+  showDataDepartemenAkses(status) {
+    filterDataArray();
+    showModalBottomSheet(
+        context: Get.context!,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(20.0),
+          ),
+        ),
+        builder: (context) {
+          return Padding(
+            padding:
+                EdgeInsets.fromLTRB(0, AppBar().preferredSize.height, 0, 0),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 90,
+                        child: Text(
+                          "Pilih Divisi",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 14),
+                        ),
+                      ),
+                      Expanded(
+                          flex: 10,
+                          child: InkWell(
+                              onTap: () => Navigator.pop(Get.context!),
+                              child: Icon(Iconsax.close_circle)))
+                    ],
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Flexible(
+                    flex: 3,
+                    child: Padding(
+                        padding: EdgeInsets.only(left: 8, right: 8),
+                        child: ListView.builder(
+                            shrinkWrap: true,
+                            scrollDirection: Axis.vertical,
+                            physics: BouncingScrollPhysics(),
+                            itemCount: listDepartement.value.length,
+                            itemBuilder: (context, index) {
+                              var id = listDepartement.value[index]['id'];
+                              var dep_name =
+                                  listDepartement.value[index]['name'];
+                              return InkWell(
+                                onTap: () {
+                                  idDepartemenTerpilih.value = id;
+                                  namaDepartemenTerpilih.value = dep_name;
+                                  departemen.value.text =
+                                      listDepartement.value[index]['name'];
+                                  this.departemen.refresh();
+                                  Navigator.pop(context);
+                                  getUserInfo();
+                                },
+                                child: Padding(
+                                  padding:
+                                      const EdgeInsets.only(top: 5, bottom: 5),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        color: id == idDepartemenTerpilih.value
+                                            ? Constanst.colorPrimary
+                                            : Colors.transparent,
+                                        borderRadius: Constanst
+                                            .styleBoxDecoration1.borderRadius,
+                                        border: Border.all(
+                                            color: Constanst.colorText2)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 10, bottom: 10),
+                                      child: Center(
+                                        child: Text(
+                                          dep_name,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: id ==
+                                                      idDepartemenTerpilih.value
+                                                  ? Colors.white
+                                                  : Colors.black),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            })),
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
   }
 }

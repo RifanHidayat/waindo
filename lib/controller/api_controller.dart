@@ -21,18 +21,21 @@ class ApiController extends GetxController {
     return dataFinal;
   }
 
-  // Future<List> getPosisi() async {
-  //   List dataFinal = [];
-  //   var connect = Api.connectionApi("get", "", "all_department");
-  //   connect.then((dynamic res) {
-  //     if (res.statusCode == 200) {
-  //       var valueBody = jsonDecode(res.body);
-  //       for (var element in valueBody['data']) {
-  //         dataFinal.add(element);
-  //       }
-  //     }
-  //   });
+  // METHOD POST
 
-  //   return dataFinal;
-  // }
+  Future<List> employeeInfo(depId) async {
+    List dataFinal = [];
+    Map<String, dynamic> body = {'dep_id': depId};
+    var connect = Api.connectionApi("post", body, "cari_informasi_employee");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        for (var element in valueBody['data']) {
+          dataFinal.add(element);
+        }
+      }
+    });
+
+    return dataFinal;
+  }
 }

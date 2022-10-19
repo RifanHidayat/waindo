@@ -11,6 +11,7 @@ import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
+import 'package:bottom_picker/bottom_picker.dart';
 
 class LaporanAbsen extends StatefulWidget {
   var dataForm;
@@ -86,6 +87,7 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
+                              flex: 80,
                               child: Container(
                                 alignment: Alignment.centerLeft,
                                 child: Column(
@@ -110,6 +112,26 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                                 ),
                               ),
                             ),
+                            Expanded(
+                              flex: 20,
+                              child: IconButton(
+                                onPressed: () {
+                                  BottomPicker.date(
+                                    title: "Pilih tanggal Laporan",
+                                    titleStyle: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15,
+                                        color: Constanst.colorPrimary),
+                                    onChange: (index) {
+                                    },
+                                    onSubmit: (index) {
+                                      controller.cariLaporanAbsenTanggal(index);
+                                    },
+                                  ).show(context);
+                                },
+                                icon: Icon(Iconsax.calendar_2),
+                              ),
+                            )
                           ],
                         ),
                       ),

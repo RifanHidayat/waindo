@@ -219,6 +219,12 @@ class _DashboardState extends State<Dashboard> {
                                   child: CircularProgressIndicator(
                                       value: downloadProgress.progress),
                                 ),
+                                errorWidget: (context, url, error) =>
+                                    Image.asset(
+                                  'assets/avatar_default.png',
+                                  width: 40,
+                                  height: 40,
+                                ),
                                 fit: BoxFit.cover,
                                 width: 50,
                                 height: 50,

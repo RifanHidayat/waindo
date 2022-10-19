@@ -26,7 +26,6 @@ import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:trust_location/trust_location.dart';
 
 class AbsenController extends GetxController {
-
   TextEditingController deskripsiAbsen = TextEditingController();
   var tanggalLaporan = TextEditingController().obs;
   var departemen = TextEditingController().obs;
@@ -49,7 +48,6 @@ class AbsenController extends GetxController {
   var listEmployeeTelat = [].obs;
   var alllistEmployeeTelat = [].obs;
   var sysData = [].obs;
-
 
   var absenSelected;
 
@@ -75,7 +73,7 @@ class AbsenController extends GetxController {
   var langUser = 0.0.obs;
 
   var typeAbsen = 0.obs;
-  var intervalControl = 18000.obs;
+  var intervalControl = 60000.obs;
 
   var imageStatus = false.obs;
   var detailAlamat = false.obs;
@@ -83,10 +81,10 @@ class AbsenController extends GetxController {
   var showButtonlaporan = false.obs;
   var statusLoadingSubmitLaporan = false.obs;
   var statusCari = false.obs;
+  var filterLaporanAbsenTanggal = false.obs;
 
   var absenStatus = false.obs;
 
-  
   @override
   void onReady() async {
     getTimeNow();
@@ -96,7 +94,6 @@ class AbsenController extends GetxController {
     super.onReady();
   }
 
- 
   void getLoadsysData() {
     var connect = Api.connectionApi("get", "", "sysdata");
     connect.then((dynamic res) {
@@ -462,7 +459,8 @@ class AbsenController extends GetxController {
                 dataBerhasil: [
                   titleAbsen.value,
                   timeString.value,
-                  typeAbsen.value
+                  typeAbsen.value,
+                  intervalControl.value
                 ],
               ));
             }
@@ -818,6 +816,40 @@ class AbsenController extends GetxController {
     });
   }
 
+  void cariLaporanAbsenTanggal(tanggal) {
+    var tanggalSubmit = "${DateFormat('yyyy-MM-dd').format(tanggal)}";
+    statusLoadingSubmitLaporan.value = true;
+    listLaporanFilter.value.clear();
+    Map<String, dynamic> body = {
+      'atten_date': tanggalSubmit,
+      'status': idDepartemenTerpilih.value
+    };
+    var connect =
+        Api.connectionApi("post", body, "load_laporan_absensi_tanggal");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == false) {
+          statusLoadingSubmitLaporan.value = false;
+          UtilsAlert.showToast(
+              "Data periode $bulanSelectedSearchHistory belum tersedia, harap hubungi HRD");
+        } else {
+          var data = valueBody['data'];
+          loading.value =
+              data.length == 0 ? "Data tidak tersedia" : "Memuat data...";
+          listLaporanFilter.value = data;
+          allListLaporanFilter.value = data;
+          this.listLaporanFilter.refresh();
+          this.allListLaporanFilter.refresh();
+          statusLoadingSubmitLaporan.value = false;
+          filterLaporanAbsenTanggal.value = true;
+          this.filterLaporanAbsenTanggal.refresh();
+          this.statusLoadingSubmitLaporan.refresh();
+        }
+      }
+    });
+  }
+
   void pencarianNamaKaryawan(value) {
     var textCari = value.toLowerCase();
     var filter = allListLaporanFilter.where((laporan) {
@@ -853,6 +885,4 @@ class AbsenController extends GetxController {
     this.listLaporanFilter.refresh();
     this.statusCari.refresh();
   }
-
-  
 }

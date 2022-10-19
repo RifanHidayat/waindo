@@ -68,6 +68,7 @@ dependencies:
   datetime_picker_formfield: ^2.0.1
   # month_picker_dialog: ^0.4.0
   month_year_picker: ^0.2.0+2
+  bottom_picker: ^2.0.0
   file_picker: ^5.0.1
   percent_indicator: ^4.0.1
   animated_text_kit: ^4.2.2
