@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -20,12 +21,15 @@ import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/custom_dialog.dart';
+import 'package:siscom_operasional/utils/month_year_picker.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 import 'package:google_maps_utils/google_maps_utils.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:trust_location/trust_location.dart';
 
 class AbsenController extends GetxController {
+  PageController? pageViewFilterAbsen;
+
   TextEditingController deskripsiAbsen = TextEditingController();
   var tanggalLaporan = TextEditingController().obs;
   var departemen = TextEditingController().obs;
@@ -65,7 +69,10 @@ class AbsenController extends GetxController {
   var namaDepartemenTerpilih = "".obs;
   var idDepartemenTerpilih = "".obs;
   var testingg = "".obs;
+  var filterLokasiKoordinate = "Lokasi".obs;
+
   var jumlahData = 0.obs;
+  var selectedViewFilterAbsen = 0.obs;
 
   Rx<DateTime> pilihTanggalTelatAbsen = DateTime.now().obs;
 
@@ -91,6 +98,9 @@ class AbsenController extends GetxController {
     getLoadsysData();
     loadHistoryAbsenUser();
     getDepartemen(1, "");
+    filterLokasiKoordinate.value = "Lokasi";
+    selectedViewFilterAbsen.value = 0;
+    pilihTanggalTelatAbsen.value = DateTime.now();
     super.onReady();
   }
 
@@ -202,10 +212,17 @@ class AbsenController extends GetxController {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
           selectedType.value = valueBody['data'][0]['place'];
-          placeCoordinate.value = valueBody['data'];
           for (var element in valueBody['data']) {
             placeCoordinateDropdown.value.add(element['place']);
           }
+          List filter = [];
+          for (var element in valueBody['data']) {
+            if (element['isFilterView'] == 1) {
+              filter.add(element);
+            }
+          }
+          placeCoordinate.value = filter;
+          this.placeCoordinate.refresh();
           this.placeCoordinate.refresh();
         }
       }
@@ -678,95 +695,271 @@ class AbsenController extends GetxController {
         ),
         builder: (context) {
           return Padding(
-            padding:
-                EdgeInsets.fromLTRB(0, AppBar().preferredSize.height, 0, 0),
-            child: Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SizedBox(
-                    height: 16,
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        flex: 90,
-                        child: Text(
-                          "Pilih Divisi",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 14),
-                        ),
+            padding: const EdgeInsets.only(left: 16, right: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 30,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 90,
+                      child: Text(
+                        "Pilih Divisi",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 14),
                       ),
-                      Expanded(
-                          flex: 10,
-                          child: InkWell(
-                              onTap: () => Navigator.pop(Get.context!),
-                              child: Icon(Iconsax.close_circle)))
-                    ],
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                  Flexible(
-                    flex: 3,
-                    child: Padding(
-                        padding: EdgeInsets.only(left: 8, right: 8),
-                        child: ListView.builder(
-                            shrinkWrap: true,
-                            scrollDirection: Axis.vertical,
-                            physics: BouncingScrollPhysics(),
-                            itemCount: departementAkses.value.length,
-                            itemBuilder: (context, index) {
-                              var id = departementAkses.value[index]['id'];
-                              var dep_name =
-                                  departementAkses.value[index]['name'];
-                              return InkWell(
-                                onTap: () {
-                                  idDepartemenTerpilih.value = "$id";
-                                  namaDepartemenTerpilih.value = dep_name;
-                                  departemen.value.text =
-                                      departementAkses.value[index]['name'];
-                                  this.departemen.refresh();
-                                  Navigator.pop(context);
-                                  carilaporanAbsenkaryawan(status);
-                                },
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.only(top: 5, bottom: 5),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                        borderRadius: Constanst
-                                            .styleBoxDecoration1.borderRadius,
-                                        border: Border.all(
-                                            color: Constanst.colorText2)),
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: 10, bottom: 10),
-                                      child: Center(
-                                        child: Text(
-                                          dep_name,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold),
-                                        ),
+                    ),
+                    Expanded(
+                        flex: 10,
+                        child: InkWell(
+                            onTap: () => Navigator.pop(Get.context!),
+                            child: Icon(Iconsax.close_circle)))
+                  ],
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+                Flexible(
+                  flex: 3,
+                  child: Padding(
+                      padding: EdgeInsets.only(left: 8, right: 8),
+                      child: ListView.builder(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.vertical,
+                          physics: BouncingScrollPhysics(),
+                          itemCount: departementAkses.value.length,
+                          itemBuilder: (context, index) {
+                            var id = departementAkses.value[index]['id'];
+                            var dep_name =
+                                departementAkses.value[index]['name'];
+                            return InkWell(
+                              onTap: () {
+                                idDepartemenTerpilih.value = "$id";
+                                namaDepartemenTerpilih.value = dep_name;
+                                departemen.value.text =
+                                    departementAkses.value[index]['name'];
+                                this.departemen.refresh();
+                                Navigator.pop(context);
+                                carilaporanAbsenkaryawan(status);
+                              },
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 5, bottom: 5),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: "$id" == idDepartemenTerpilih.value
+                                          ? Constanst.colorPrimary
+                                          : Colors.transparent,
+                                      borderRadius: Constanst
+                                          .styleBoxDecoration1.borderRadius,
+                                      border: Border.all(
+                                          color: Constanst.colorText2)),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 10, bottom: 10),
+                                    child: Center(
+                                      child: Text(
+                                        dep_name,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: "$id" ==
+                                                    idDepartemenTerpilih.value
+                                                ? Colors.white
+                                                : Colors.black),
                                       ),
                                     ),
                                   ),
                                 ),
-                              );
-                            })),
-                  ),
-                  SizedBox(
-                    height: 16,
-                  ),
-                ],
-              ),
+                              ),
+                            );
+                          })),
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+              ],
             ),
           );
         });
+  }
+
+  showDataLokasiKoordinate() {
+    showModalBottomSheet(
+        context: Get.context!,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(20.0),
+          ),
+        ),
+        builder: (context) {
+          return Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 30,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 90,
+                      child: Text(
+                        "Pilih Lokasi",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                    ),
+                    Expanded(
+                        flex: 10,
+                        child: InkWell(
+                            onTap: () => Navigator.pop(Get.context!),
+                            child: Icon(Iconsax.close_circle)))
+                  ],
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+                Flexible(
+                  flex: 3,
+                  child: Padding(
+                      padding: EdgeInsets.only(left: 8, right: 8),
+                      child: ListView.builder(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.vertical,
+                          physics: BouncingScrollPhysics(),
+                          itemCount: placeCoordinate.value.length,
+                          itemBuilder: (context, index) {
+                            var id = placeCoordinate.value[index]['id'];
+                            var place = placeCoordinate.value[index]['place'];
+                            return InkWell(
+                              onTap: () {
+                                if (selectedViewFilterAbsen.value == 0) {
+                                  filterLokasiAbsenBulan(place);
+                                } else {
+                                  filterLokasiAbsen(place);
+                                }
+                              },
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 5, bottom: 5),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: "$id" == idDepartemenTerpilih.value
+                                          ? Constanst.colorPrimary
+                                          : Colors.transparent,
+                                      borderRadius: Constanst
+                                          .styleBoxDecoration1.borderRadius,
+                                      border: Border.all(
+                                          color: Constanst.colorText2)),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 10, bottom: 10),
+                                    child: Center(
+                                      child: Text(
+                                        place,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: "$id" ==
+                                                    idDepartemenTerpilih.value
+                                                ? Colors.white
+                                                : Colors.black),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          })),
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+  void filterLokasiAbsenBulan(place) {
+    Navigator.pop(Get.context!);
+    statusLoadingSubmitLaporan.value = true;
+    listLaporanFilter.value.clear();
+    Map<String, dynamic> body = {
+      'bulan': bulanSelectedSearchHistory.value,
+      'tahun': tahunSelectedSearchHistory.value,
+      'status': idDepartemenTerpilih.value
+    };
+    var connect =
+        Api.connectionApi("post", body, "load_laporan_absensi_filter_lokasi");
+    connect.then((dynamic res) {
+      var valueBody = jsonDecode(res.body);
+      if (valueBody['status'] == false) {
+        statusLoadingSubmitLaporan.value = false;
+        UtilsAlert.showToast(
+            "Data periode $bulanSelectedSearchHistory belum tersedia, harap hubungi HRD");
+      } else {
+        var data = valueBody['data'];
+        List listFilterLokasi = [];
+        for (var element in data) {
+          if (element['place_in'] == place) {
+            listFilterLokasi.add(element);
+          }
+        }
+        listLaporanFilter.value = listFilterLokasi;
+        allListLaporanFilter.value = listFilterLokasi;
+        filterLokasiKoordinate.value = place;
+        this.listLaporanFilter.refresh();
+        this.filterLokasiKoordinate.refresh();
+        loading.value = listLaporanFilter.value.length == 0
+            ? "Data tidak tersedia"
+            : "Memuat data...";
+
+        statusLoadingSubmitLaporan.value = false;
+        this.statusLoadingSubmitLaporan.refresh();
+      }
+    });
+  }
+
+  void filterLokasiAbsen(place) {
+    List listFilterLokasi = [];
+    for (var element in allListLaporanFilter.value) {
+      if (element['place_in'] == place) {
+        listFilterLokasi.add(element);
+      }
+    }
+    listLaporanFilter.value = listFilterLokasi;
+    filterLokasiKoordinate.value = place;
+    this.listLaporanFilter.refresh();
+    this.filterLokasiKoordinate.refresh();
+    loading.value = listLaporanFilter.value.length == 0
+        ? "Data tidak tersedia"
+        : "Memuat data...";
+    Navigator.pop(Get.context!);
+  }
+
+  void refreshFilterKoordinate() {
+    if (selectedViewFilterAbsen.value == 0) {
+      onReady();
+    } else {
+      listLaporanFilter.value = allListLaporanFilter.value;
+      filterLokasiKoordinate.value = "Lokasi";
+      this.listLaporanFilter.refresh();
+      this.filterLokasiKoordinate.refresh();
+      loading.value = listLaporanFilter.value.length == 0
+          ? "Data tidak tersedia"
+          : "Memuat data...";
+    }
   }
 
   void carilaporanAbsenkaryawan(status) {
@@ -774,7 +967,13 @@ class AbsenController extends GetxController {
       UtilsAlert.showToast("Lengkapi form");
     } else {
       if (status == 'semua') {
-        aksiCariLaporan();
+        if (selectedViewFilterAbsen.value == 0) {
+          // filter bulan
+          aksiCariLaporan();
+        } else if (selectedViewFilterAbsen.value == 1) {
+          // filter tanggal
+          cariLaporanAbsenTanggal(pilihTanggalTelatAbsen.value);
+        }
       } else if (status == 'telat') {
         aksiEmployeeTerlambatAbsen(
             "${DateFormat('yyyy-MM-dd').format(pilihTanggalTelatAbsen.value)}");
@@ -885,4 +1084,288 @@ class AbsenController extends GetxController {
     this.listLaporanFilter.refresh();
     this.statusCari.refresh();
   }
+
+  void widgetButtomSheetFilterData() {
+    showModalBottomSheet(
+      context: Get.context!,
+      isDismissible: false,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20.0),
+        ),
+      ),
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 8,
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 16.0, right: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 90,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: Text(
+                            "Filter",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 10,
+                        child: IconButton(
+                          onPressed: () => Navigator.pop(Get.context!),
+                          icon: Icon(Iconsax.close_circle),
+                        ),
+                      )
+                    ],
+                  ),
+                  Divider(
+                    height: 5,
+                    color: Constanst.colorText2,
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  lineTitleKategori(),
+                  SizedBox(
+                    height: 25,
+                  ),
+                  SizedBox(
+                      height: 50,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                        child: pageViewKategoriFilter(),
+                      )),
+                  SizedBox(
+                    height: 30,
+                  )
+                ],
+              ),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  Widget lineTitleKategori() {
+    return Obx(
+      () => Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: () {
+                selectedViewFilterAbsen.value = 0;
+                pageViewFilterAbsen!.jumpToPage(0);
+                this.selectedViewFilterAbsen.refresh();
+              },
+              child: Container(
+                margin: EdgeInsets.only(left: 6, right: 6),
+                decoration: BoxDecoration(
+                    color: selectedViewFilterAbsen.value == 0
+                        ? Constanst.colorPrimary
+                        : Colors.transparent,
+                    borderRadius: Constanst.borderStyle1),
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Bulan',
+                      style: TextStyle(
+                        color: selectedViewFilterAbsen.value == 0
+                            ? Colors.white
+                            : Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: InkWell(
+              onTap: () {
+                selectedViewFilterAbsen.value = 1;
+                pageViewFilterAbsen!.jumpToPage(1);
+                this.selectedViewFilterAbsen.refresh();
+              },
+              child: Container(
+                margin: EdgeInsets.only(left: 6, right: 6),
+                decoration: BoxDecoration(
+                    color: selectedViewFilterAbsen.value == 1
+                        ? Constanst.colorPrimary
+                        : Colors.transparent,
+                    borderRadius: Constanst.borderStyle1),
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      'Tanggal',
+                      style: TextStyle(
+                        color: selectedViewFilterAbsen.value == 1
+                            ? Colors.white
+                            : Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget pageViewKategoriFilter() {
+    return PageView.builder(
+        physics: BouncingScrollPhysics(),
+        controller: pageViewFilterAbsen,
+        onPageChanged: (index) {
+          selectedViewFilterAbsen.value = index;
+        },
+        itemCount: 2,
+        itemBuilder: (context, index) {
+          return Padding(
+              padding: EdgeInsets.all(0),
+              child: index == 0
+                  ? filterBulan()
+                  : index == 1
+                      ? filterTanggal()
+                      : SizedBox());
+        });
+  }
+
+  Widget filterBulan() {
+    return Padding(
+        padding: const EdgeInsets.only(right: 5),
+        child: InkWell(
+          onTap: () {
+            DatePicker.showPicker(
+              Get.context!,
+              pickerModel: CustomMonthPicker(
+                minTime: DateTime(2000, 1, 1),
+                maxTime: DateTime(2100, 1, 1),
+                currentTime: DateTime.now(),
+              ),
+              onConfirm: (time) {
+                if (time != null) {
+                  print("$time");
+                  var filter = DateFormat('yyyy-MM').format(time);
+                  var array = filter.split('-');
+                  var bulan = array[1];
+                  var tahun = array[0];
+                  bulanSelectedSearchHistory.value = bulan;
+                  tahunSelectedSearchHistory.value = tahun;
+                  bulanDanTahunNow.value = "$bulan-$tahun";
+                  this.bulanSelectedSearchHistory.refresh();
+                  this.tahunSelectedSearchHistory.refresh();
+                  this.bulanDanTahunNow.refresh();
+                  Navigator.pop(Get.context!);
+                  aksiCariLaporan();
+                }
+              },
+            );
+          },
+          child: Container(
+            height: 40,
+            decoration: BoxDecoration(
+                borderRadius: Constanst.borderStyle1,
+                border: Border.all(color: Constanst.colorText2)),
+            child: Padding(
+              padding: EdgeInsets.only(top: 10, bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 6),
+                          child: Icon(Iconsax.calendar_2),
+                        ),
+                        Flexible(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 3),
+                            child: Text(
+                              "${Constanst.convertDateBulanDanTahun(bulanDanTahunNow.value)}",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ));
+  }
+
+  Widget filterTanggal() {
+    return Padding(
+        padding: const EdgeInsets.only(right: 5),
+        child: InkWell(
+          onTap: () {
+            DatePicker.showDatePicker(Get.context!,
+                showTitleActions: true,
+                minTime: DateTime(2000, 1, 1),
+                maxTime: DateTime(2100, 1, 1), onConfirm: (date) {
+              Navigator.pop(Get.context!);
+              pilihTanggalTelatAbsen.value = date;
+              this.pilihTanggalTelatAbsen.refresh();
+              cariLaporanAbsenTanggal(pilihTanggalTelatAbsen.value);
+            }, currentTime: DateTime.now(), locale: LocaleType.en);
+          },
+          child: Container(
+            height: 40,
+            decoration: BoxDecoration(
+                borderRadius: Constanst.borderStyle1,
+                border: Border.all(color: Constanst.colorText2)),
+            child: Padding(
+              padding: EdgeInsets.only(top: 10, bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(left: 6),
+                          child: Icon(Iconsax.calendar_2),
+                        ),
+                        Flexible(
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 6),
+                            child: Text(
+                              "${Constanst.convertDate('${DateFormat('yyyy-MM-dd').format(pilihTanggalTelatAbsen.value)}')}",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ));
+  }
+
 }

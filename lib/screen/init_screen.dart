@@ -30,6 +30,17 @@ class _InitScreenState extends State<InitScreen> {
     ];
   }
 
+  List<Widget> _buildScreens1() {
+    return [
+      Dashboard(),
+      Aktifitas(),
+      Pesan(
+        status: false,
+      ),
+      Setting(),
+    ];
+  }
+
   List<PersistentBottomNavBarItem> _navBarsItems() {
     return [
       PersistentBottomNavBarItem(
@@ -70,6 +81,39 @@ class _InitScreenState extends State<InitScreen> {
     ];
   }
 
+  List<PersistentBottomNavBarItem> _navBarsItems1() {
+    return [
+      PersistentBottomNavBarItem(
+        icon: ImageIcon(AssetImage("assets/beranda_fill.png")),
+        inactiveIcon: ImageIcon(AssetImage("assets/beranda.png")),
+        title: "Beranda",
+        activeColorPrimary: Constanst.colorButton1,
+        inactiveColorPrimary: Constanst.color1,
+      ),
+      PersistentBottomNavBarItem(
+        icon: ImageIcon(AssetImage("assets/aktifitas_fill.png")),
+        inactiveIcon: ImageIcon(AssetImage("assets/aktifitas.png")),
+        title: "Aktivitas",
+        activeColorPrimary: Constanst.colorButton1,
+        inactiveColorPrimary: Constanst.color1,
+      ),
+      PersistentBottomNavBarItem(
+        icon: ImageIcon(AssetImage("assets/pesan_fill.png")),
+        inactiveIcon: ImageIcon(AssetImage("assets/pesan.png")),
+        title: "Pesan",
+        activeColorPrimary: Constanst.colorButton1,
+        inactiveColorPrimary: Constanst.color1,
+      ),
+      PersistentBottomNavBarItem(
+        icon: ImageIcon(AssetImage("assets/akun_fill.png")),
+        inactiveIcon: ImageIcon(AssetImage("assets/akun.png")),
+        title: "Akun",
+        activeColorPrimary: Constanst.colorButton1,
+        inactiveColorPrimary: Constanst.color1,
+      ),
+    ];
+  }
+
   @override
   void initState() {
     super.initState();
@@ -77,45 +121,51 @@ class _InitScreenState extends State<InitScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PersistentTabView(
-      context,
-      controller: controller.tabPersistantController.value,
-      screens: _buildScreens(),
-      items: _navBarsItems(),
-      confineInSafeArea: true,
-      onWillPop: (s) async => await controller.onWillPop(),
-      onItemSelected: (s) => controller.onClickItem(s),
-      backgroundColor: Colors.white, // Default is Colors.white.
-      handleAndroidBackButtonPress: true, // Default is true.
-      resizeToAvoidBottomInset:
-          true, // This needs to be true if you want to move up the screen when keyboard appears. Default is true.
-      stateManagement: true, // Default is true.
-      hideNavigationBarWhenKeyboardShows:
-          true, // Recommended to set 'resizeToAvoidBottomInset' as true while using this argument. Default is true.
-      decoration: const NavBarDecoration(
-        borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(12), topRight: Radius.circular(12)),
-        boxShadow: [
-          BoxShadow(
-              color: Color(0xffE9F5FE), blurRadius: 0.5, spreadRadius: 0.1)
-        ],
-        colorBehindNavBar: Colors.red,
+    return Obx(
+      () => PersistentTabView(
+        context,
+        controller: controller.tabPersistantController.value,
+        screens: controller.kontrolAkses.value == true
+            ? _buildScreens()
+            : _buildScreens1(),
+        items: controller.kontrolAkses.value == true
+            ? _navBarsItems()
+            : _navBarsItems1(),
+        confineInSafeArea: true,
+        onWillPop: (s) async => await controller.onWillPop(),
+        onItemSelected: (s) => controller.onClickItem(s),
+        backgroundColor: Colors.white, // Default is Colors.white.
+        handleAndroidBackButtonPress: true, // Default is true.
+        resizeToAvoidBottomInset:
+            true, // This needs to be true if you want to move up the screen when keyboard appears. Default is true.
+        stateManagement: true, // Default is true.
+        hideNavigationBarWhenKeyboardShows:
+            true, // Recommended to set 'resizeToAvoidBottomInset' as true while using this argument. Default is true.
+        decoration: const NavBarDecoration(
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(12), topRight: Radius.circular(12)),
+          boxShadow: [
+            BoxShadow(
+                color: Color(0xffE9F5FE), blurRadius: 0.5, spreadRadius: 0.1)
+          ],
+          colorBehindNavBar: Colors.red,
+        ),
+        popAllScreensOnTapOfSelectedTab: true,
+        popActionScreens: PopActionScreensType.all,
+        itemAnimationProperties: const ItemAnimationProperties(
+          // Navigation Bar's items animation properties.
+          duration: Duration(milliseconds: 200),
+          curve: Curves.ease,
+        ),
+        screenTransitionAnimation: const ScreenTransitionAnimation(
+          // Screen transition animation on change of selected tab.
+          animateTabTransition: true,
+          curve: Curves.ease,
+          duration: Duration(milliseconds: 100),
+        ),
+        navBarStyle:
+            NavBarStyle.style9, // Choose the nav bar style with this property.
       ),
-      popAllScreensOnTapOfSelectedTab: true,
-      popActionScreens: PopActionScreensType.all,
-      itemAnimationProperties: const ItemAnimationProperties(
-        // Navigation Bar's items animation properties.
-        duration: Duration(milliseconds: 200),
-        curve: Curves.ease,
-      ),
-      screenTransitionAnimation: const ScreenTransitionAnimation(
-        // Screen transition animation on change of selected tab.
-        animateTabTransition: true,
-        curve: Curves.ease,
-        duration: Duration(milliseconds: 100),
-      ),
-      navBarStyle:
-          NavBarStyle.style9, // Choose the nav bar style with this property.
     );
   }
 }

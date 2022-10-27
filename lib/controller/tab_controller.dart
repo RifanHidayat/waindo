@@ -24,6 +24,26 @@ class TabbController extends GetxController {
       PersistentTabController().obs;
   DateTime? _currentBackPressTime;
 
+  var kontrolAkses = false.obs;
+
+  @override
+  void onReady() {
+    checkuserinfo();
+    super.onReady();
+  }
+
+  void checkuserinfo() {
+    var dataUser = AppData.informasiUser;
+    var getKontrolAkses = "${dataUser![0].em_control_acess}";
+    print("dapatttt $getKontrolAkses");
+    if (getKontrolAkses == "0") {
+      kontrolAkses.value = false;
+    } else {
+      kontrolAkses.value = true;
+    }
+    this.kontrolAkses.refresh();
+  }
+
   Future<bool> onWillPop() {
     DateTime now = DateTime.now();
     if (_currentBackPressTime == null ||
@@ -39,9 +59,9 @@ class TabbController extends GetxController {
     print(s);
     if (s == 0) {
       // try {
-        // var dashboardController = Get.find<DashboardController>();
-        // // dashboardController.onClose();
-        // dashboardController.onInit();
+      // var dashboardController = Get.find<DashboardController>();
+      // // dashboardController.onClose();
+      // dashboardController.onInit();
       // } catch (e) {}
     } else if (s == 1) {
       // try {

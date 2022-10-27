@@ -49,6 +49,7 @@ class KontrolController extends GetxController {
   @override
   void onReady() async {
     super.onReady();
+    print("jalan kontroller kontrol");
     getTimeNow();
     getDepartemen(1, "");
   }

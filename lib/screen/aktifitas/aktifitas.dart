@@ -1,14 +1,15 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
-import 'package:month_year_picker/month_year_picker.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:siscom_operasional/controller/aktifitas_controller.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
+import 'package:siscom_operasional/utils/month_year_picker.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 import 'package:scroll_navigation/scroll_navigation.dart';
@@ -372,29 +373,30 @@ class Aktifitas extends StatelessWidget {
                 flex: 40,
                 child: InkWell(
                   onTap: () {
-                    showMonthYearPicker(
-                      context: Get.context!,
-                      initialDate: DateTime.now(),
-                      // firstDate: DateTime(DateTime.now().year - 1, 5),
-                      // lastDate: DateTime(DateTime.now().year + 1, 9),
-                      firstDate: DateTime(2010),
-                      lastDate: DateTime(2100),
-                    ).then((date) {
-                      if (date != null) {
-                        print(date);
-                        var outputFormat1 = DateFormat('MM');
-                        var outputFormat2 = DateFormat('yyyy');
-                        var bulan = outputFormat1.format(date);
-                        var tahun = outputFormat2.format(date);
-                        controller.bulanSelectedSearchHistory.value = bulan;
-                        controller.tahunSelectedSearchHistory.value = tahun;
-                        controller.bulanDanTahunNow.value = "$bulan-$tahun";
-                        this.controller.bulanSelectedSearchHistory.refresh();
-                        this.controller.tahunSelectedSearchHistory.refresh();
-                        this.controller.bulanDanTahunNow.refresh();
-                        // controller.loadDataTugasLuar();
-                      }
-                    });
+                    DatePicker.showPicker(
+                      Get.context!,
+                      pickerModel: CustomMonthPicker(
+                        minTime: DateTime(2020, 1, 1),
+                        maxTime: DateTime(2050, 1, 1),
+                        currentTime: DateTime.now(),
+                      ),
+                      onConfirm: (time) {
+                        if (time != null) {
+                          print("$time");
+                          var filter = DateFormat('yyyy-MM').format(time);
+                          var array = filter.split('-');
+                          var bulan = array[1];
+                          var tahun = array[0];
+                          controller.bulanSelectedSearchHistory.value = bulan;
+                          controller.tahunSelectedSearchHistory.value = tahun;
+                          controller.bulanDanTahunNow.value = "$bulan-$tahun";
+                          this.controller.bulanSelectedSearchHistory.refresh();
+                          this.controller.tahunSelectedSearchHistory.refresh();
+                          this.controller.bulanDanTahunNow.refresh();
+                          // controller.loadDataTugasLuar();
+                        }
+                      },
+                    );
                   },
                   child: Container(
                     decoration: BoxDecoration(

@@ -20,8 +20,9 @@ import 'package:siscom_operasional/screen/absen/history_absen.dart';
 import 'package:siscom_operasional/screen/absen/lembur.dart';
 import 'package:siscom_operasional/screen/absen/tidak_masuk_kerja.dart';
 import 'package:siscom_operasional/screen/absen/tugas_luar.dart';
-import 'package:siscom_operasional/screen/cuti/form_pengajuan_cuti.dart';
-import 'package:siscom_operasional/screen/cuti/riwayat_cuti.dart';
+import 'package:siscom_operasional/screen/absen/form/form_pengajuan_cuti.dart';
+import 'package:siscom_operasional/screen/absen/riwayat_cuti.dart';
+import 'package:siscom_operasional/screen/absen/izin.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
@@ -150,6 +151,7 @@ class DashboardController extends GetxController {
             emp_jobTitle: element['emp_jobTitle'] ?? "",
             emp_departmen: element['emp_departmen'] ?? "",
             em_control: element['em_control'] ?? 0,
+            em_control_acess: element['em_control_access'] ?? 0,
             emp_att_working: element['emp_att_working'] ?? 0,
             em_hak_akses: element['em_hak_akses'] ?? "",
           );
@@ -216,12 +218,12 @@ class DashboardController extends GetxController {
     if (width <= 395.0 || width <= 425.0) {
       print("kesini mobile kecil");
       deviceStatus.value = false;
-      heightbanner.value = 150.0;
+      heightbanner.value = 120.0;
       heightPageView.value = 155.0;
       ratioDevice.value = 2.5;
     } else if (width >= 425.0) {
       print("kesini mobile besar");
-      heightbanner.value = 250.0;
+      heightbanner.value = 200.0;
       heightPageView.value = 180.0;
       ratioDevice.value = 3.0;
       deviceStatus.value = true;
@@ -444,6 +446,8 @@ class DashboardController extends GetxController {
       Get.offAll(FormPengajuanCuti());
     } else if (url == "RiwayatCuti") {
       Get.offAll(RiwayatCuti());
+    } else if (url == "Izin") {
+      Get.offAll(Izin());
     } else if (url == "TugasLuar") {
       Get.offAll(TugasLuar());
     } else if (url == "lainnya") {

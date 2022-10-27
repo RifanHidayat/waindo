@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/screen/absen/form/berhasil_pengajuan.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
@@ -16,6 +17,7 @@ import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/custom_dialog.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class CutiController extends GetxController {
   var nomorAjuan = TextEditingController().obs;
@@ -60,6 +62,8 @@ class CutiController extends GetxController {
   var emDelegationEdit = "".obs;
   var idDepartemenTerpilih = "".obs;
   var namaDepartemenTerpilih = "".obs;
+  var valuePolaPersetujuan = "".obs;
+
   var stringLoading = "Sedang memuat...".obs;
 
   var statusForm = false.obs;
@@ -70,13 +74,20 @@ class CutiController extends GetxController {
   var showButtonlaporan = false.obs;
   var statusLoadingSubmitLaporan = false.obs;
 
-  var dataTypeAjuanDummy = ["Semua", "Approve", "Rejected", "Pending"];
+  var dataTypeAjuanDummy1 = ["Semua", "Approve", "Rejected", "Pending"];
+  var dataTypeAjuanDummy2 = [
+    "Semua",
+    "Approve 1",
+    "Approve 2",
+    "Rejected",
+    "Pending"
+  ];
 
   @override
   void onReady() async {
     getTimeNow();
     loadCutiUser();
-    getTypeAjuan();
+    getLoadsysData();
     loadAllEmployeeDelegasi();
     loadDataTypeCuti();
     loadDataAjuanCuti();
@@ -156,15 +167,42 @@ class CutiController extends GetxController {
     }
   }
 
+  void getLoadsysData() {
+    var connect = Api.connectionApi("get", "", "sysdata");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        for (var element in valueBody['data']) {
+          if (element['kode'] == "013") {
+            valuePolaPersetujuan.value = "${element['name']}";
+            this.valuePolaPersetujuan.refresh();
+            getTypeAjuan();
+          }
+        }
+      }
+    });
+  }
+
   void getTypeAjuan() {
-    dataTypeAjuan.value.clear();
-    for (var element in dataTypeAjuanDummy) {
-      var data = {'nama': element, 'status': false};
-      dataTypeAjuan.value.add(data);
+    if (valuePolaPersetujuan.value == "1") {
+      dataTypeAjuan.value.clear();
+      for (var element in dataTypeAjuanDummy1) {
+        var data = {'nama': element, 'status': false};
+        dataTypeAjuan.value.add(data);
+      }
+      dataTypeAjuan.value
+          .firstWhere((element) => element['nama'] == 'Semua')['status'] = true;
+      this.dataTypeAjuan.refresh();
+    } else {
+      dataTypeAjuan.value.clear();
+      for (var element in dataTypeAjuanDummy2) {
+        var data = {'nama': element, 'status': false};
+        dataTypeAjuan.value.add(data);
+      }
+      dataTypeAjuan.value
+          .firstWhere((element) => element['nama'] == 'Semua')['status'] = true;
+      this.dataTypeAjuan.refresh();
     }
-    dataTypeAjuan.value
-        .firstWhere((element) => element['nama'] == 'Semua')['status'] = true;
-    this.dataTypeAjuan.refresh();
   }
 
   void loadDataTypeCuti() {
@@ -259,7 +297,15 @@ class CutiController extends GetxController {
   }
 
   void changeTypeAjuan(name) {
-    print(name);
+    var filter = name == "Approve 1"
+        ? "Approve"
+        : name == "Approve 2"
+            ? "Approve2"
+            : name == "Rejected"
+                ? "Rejected"
+                : name == "Pending"
+                    ? "Pending"
+                    : "Approve";
     for (var element in dataTypeAjuan.value) {
       if (element['nama'] == name) {
         element['status'] = true;
@@ -273,7 +319,7 @@ class CutiController extends GetxController {
       if (name == "Semua") {
         dataFilter.add(element);
       } else {
-        if (element['leave_status'] == name) {
+        if (element['leave_status'] == filter) {
           dataFilter.add(element);
         }
       }
@@ -401,31 +447,37 @@ class CutiController extends GetxController {
     if (selectedTypeCuti == "" || alasan.value.text == "") {
       UtilsAlert.showToast("Form * harus di isi");
     } else {
-      if (uploadFile.value == true) {
-        UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan File");
-        var connectUpload = await Api.connectionApiUploadFile(
-            "upload_form_cuti", filePengajuan.value);
-        var valueBody = jsonDecode(connectUpload);
-        if (valueBody['status'] == true) {
-          UtilsAlert.showToast("Berhasil upload file");
-          Navigator.pop(Get.context!);
-          checkNomorAjuan();
-        } else {
-          Navigator.pop(Get.context!);
-          UtilsAlert.showToast("Gagal kirim file");
-        }
+      int hitung = jumlahCuti.value - cutiTerpakai.value;
+      if (hitung <= 0 || hitung == 0) {
+        UtilsAlert.showToast("Cuti anda sudah habis");
       } else {
-        if (statusForm.value == false) {
-          if (tanggalSelected.value.isEmpty) {
-            UtilsAlert.showToast("Harap isi tanggal ajuan");
-          } else {
-            UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan Data");
+        if (uploadFile.value == true) {
+          UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan File");
+          var connectUpload = await Api.connectionApiUploadFile(
+              "upload_form_cuti", filePengajuan.value);
+          var valueBody = jsonDecode(connectUpload);
+          if (valueBody['status'] == true) {
+            UtilsAlert.showToast("Berhasil upload file");
+            Navigator.pop(Get.context!);
             checkNomorAjuan();
+          } else {
+            Navigator.pop(Get.context!);
+            UtilsAlert.showToast("Gagal kirim file");
           }
         } else {
-          UtilsAlert.loadingSimpanData(Get.context!, "Proses edit data");
-          urutkanTanggalSelected();
-          kirimFormAjuanCuti(nomorAjuan.value.text);
+          if (statusForm.value == false) {
+            if (tanggalSelected.value.isEmpty) {
+              UtilsAlert.showToast("Harap isi tanggal ajuan");
+            } else {
+              UtilsAlert.loadingSimpanData(
+                  Get.context!, "Sedang Menyimpan Data");
+              checkNomorAjuan();
+            }
+          } else {
+            UtilsAlert.loadingSimpanData(Get.context!, "Proses edit data");
+            urutkanTanggalSelected();
+            kirimFormAjuanCuti(nomorAjuan.value.text);
+          }
         }
       }
     }
@@ -573,10 +625,18 @@ class CutiController extends GetxController {
             kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
                 validasiDelegasiSelected);
             Navigator.pop(Get.context!);
-            var pesan =
-                "Pengajuan Form ${selectedTypeCuti.value} berhasil dibuat. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah dibuat";
+
+            var pesan1 = "Pengajuan ${selectedTypeCuti.value} berhasil di buat";
+            var pesan2 =
+                "Selanjutnya silahkan menunggu atasan kamu untuk menyetujui pengajuan yang telah dibuat atau langsung";
+            var pesan3 = "konfirmasi via WhatsApp";
+            var dataPengajuan = {
+              'nameType': '${selectedTypeCuti.value}',
+              'nomor_ajuan': '${getNomorAjuanTerakhir}',
+            };
+
             Get.offAll(BerhasilPengajuan(
-              dataBerhasil: [pesan],
+              dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
             ));
           } else {
             if (valueBody['message'] == "ulang") {
@@ -599,10 +659,18 @@ class CutiController extends GetxController {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
           Navigator.pop(Get.context!);
-          var pesan =
-              "Pengajuan Form Cuti berhasil diedit. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah diedit";
+
+          var pesan1 = "Pengajuan ${selectedTypeCuti.value} berhasil di edit";
+          var pesan2 =
+              "Selanjutnya silahkan menunggu atasan kamu untuk menyetujui pengajuan yang telah dibuat atau langsung";
+          var pesan3 = "konfirmasi via WhatsApp";
+          var dataPengajuan = {
+            'nameType': '${selectedTypeCuti.value}',
+            'nomor_ajuan': '${getNomorAjuanTerakhir}',
+          };
+
           Get.offAll(BerhasilPengajuan(
-            dataBerhasil: [pesan],
+            dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
           ));
         }
       });
@@ -871,6 +939,7 @@ class CutiController extends GetxController {
     var alasan = detailData['reason'];
     var durasi = detailData['leave_duration'];
     var typeAjuan = detailData['leave_status'];
+    var leave_files = detailData['leave_files'];
     var listTanggalTerpilih = detailData['date_selected'].split(',');
     showModalBottomSheet(
       context: Get.context!,
@@ -1129,6 +1198,40 @@ class CutiController extends GetxController {
               SizedBox(
                 height: 8,
               ),
+              leave_files == "" || leave_files == "NULL" || leave_files == null
+                  ? SizedBox()
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 30,
+                          child: Text("File Ajuan"),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(":"),
+                        ),
+                        Expanded(
+                          flex: 68,
+                          child: InkWell(
+                              onTap: () {
+                                viewLampiranAjuan(leave_files);
+                              },
+                              child: Text(
+                                "$leave_files",
+                                style: TextStyle(
+                                  color: Constanst.colorPrimary,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              )),
+                        )
+                      ],
+                    ),
+              leave_files == "" || leave_files == "NULL" || leave_files == null
+                  ? SizedBox()
+                  : SizedBox(
+                      height: 8,
+                    ),
               Text("Tanggal Terpilih"),
               SizedBox(
                 height: 8,
@@ -1162,4 +1265,10 @@ class CutiController extends GetxController {
     );
   }
 
+  void viewLampiranAjuan(value) {
+    _launchURL() async => await canLaunch(Api.UrlfileCuti + value)
+        ? await launch(Api.UrlfileCuti + value)
+        : throw UtilsAlert.showToast('Tidak dapat membuka');
+    _launchURL();
+  }
 }

@@ -613,6 +613,8 @@ class AbsenMasukKeluar extends StatelessWidget {
                                                             "Tambahkan Catatan"),
                                                     keyboardType:
                                                         TextInputType.multiline,
+                                                    textInputAction:
+                                                        TextInputAction.done,
                                                     style: TextStyle(
                                                         fontSize: 12.0,
                                                         height: 2.0,

@@ -1,11 +1,14 @@
 // ignore_for_file: deprecated_member_use
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:siscom_operasional/controller/Izin_controller.dart';
 import 'package:siscom_operasional/controller/lembur_controller.dart';
 import 'package:siscom_operasional/controller/pesan_controller.dart';
+import 'package:siscom_operasional/screen/absen/izin.dart';
 import 'package:siscom_operasional/screen/absen/lembur.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
@@ -13,31 +16,30 @@ import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 
-class FormLembur extends StatefulWidget {
+class Formizin extends StatefulWidget {
   List? dataForm;
-  FormLembur({Key? key, this.dataForm}) : super(key: key);
+  Formizin({Key? key, this.dataForm}) : super(key: key);
   @override
-  _FormLemburState createState() => _FormLemburState();
+  _FormizinState createState() => _FormizinState();
 }
 
-class _FormLemburState extends State<FormLembur> {
-  var controller = Get.put(LemburController());
+class _FormizinState extends State<Formizin> {
+  var controller = Get.put(IzinController());
 
   @override
   void initState() {
-    print(widget.dataForm![0]);
+    controller.startData();
     if (widget.dataForm![1] == true) {
-      controller.tanggalLembur.value.text =
-          Constanst.convertDate("${widget.dataForm![0]['atten_date']}");
+      controller.tanggalAjuan.value.text =
+          Constanst.convertDate("${widget.dataForm![0]['tgl_ajuan']}");
+      controller.initialDate.value =
+          DateTime.parse("${widget.dataForm![0]['atten_date']}");
       var convertDariJam = widget.dataForm![0]['dari_jam'].split(":");
-      var convertSampaiJam = widget.dataForm![0]['sampai_jam'].split(":");
       var hasilDarijam = "${convertDariJam[0]}:${convertDariJam[1]}";
-      var hasilSampaijam = "${convertSampaiJam[0]}:${convertSampaiJam[1]}";
-      controller.dariJam.value.text = hasilDarijam;
-      controller.sampaiJam.value.text = hasilSampaijam;
+      controller.jamAjuan.value.text = hasilDarijam;
       controller.catatan.value.text = widget.dataForm![0]['uraian'];
       controller.statusForm.value = true;
-      controller.idpengajuanLembur.value = "${widget.dataForm![0]['id']}";
+      controller.idpengajuanIzin.value = "${widget.dataForm![0]['id']}";
       controller.emIdDelegasi.value = "${widget.dataForm![0]['em_delegation']}";
       controller.nomorAjuan.value.text =
           "${widget.dataForm![0]['nomor_ajuan']}";
@@ -54,16 +56,16 @@ class _FormLemburState extends State<FormLembur> {
           automaticallyImplyLeading: false,
           elevation: 2,
           flexibleSpace: AppbarMenu1(
-            title: "Form Lembur",
+            title: "Pengajuan Izin",
             colorTitle: Colors.black,
             icon: 1,
             onTap: () {
-              Get.offAll(Lembur());
+              Get.offAll(Izin());
             },
           )),
       body: WillPopScope(
           onWillPop: () async {
-            Get.offAll(Lembur());
+            Get.offAll(Izin());
             return true;
           },
           child: SafeArea(
@@ -78,11 +80,11 @@ class _FormLemburState extends State<FormLembur> {
                         SizedBox(
                           height: 20,
                         ),
-                        formHariDanTanggal(),
+                        formTipeIzin(),
                         SizedBox(
                           height: 20,
                         ),
-                        formJam(),
+                        formWaktuDanTanggal(),
                         SizedBox(
                           height: 20,
                         ),
@@ -108,12 +110,12 @@ class _FormLemburState extends State<FormLembur> {
     );
   }
 
-  Widget formHariDanTanggal() {
+  Widget formTipeIzin() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Hari & Tanggal *",
+          "Tipe*",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         SizedBox(
@@ -126,86 +128,49 @@ class _FormLemburState extends State<FormLembur> {
               borderRadius: Constanst.borderStyle1,
               border: Border.all(
                   width: 0.5, color: Color.fromARGB(255, 211, 205, 205))),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 90,
-                child: InkWell(
-                  onTap: () async {
-                    var dateSelect = await showDatePicker(
-                      context: Get.context!,
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2100),
-                      initialDate: controller.initialDate.value,
-                    );
-                    if (dateSelect == null) {
-                      UtilsAlert.showToast("Tanggal tidak terpilih");
-                    } else {
-                      controller.initialDate.value = dateSelect;
-                      controller.tanggalLembur.value.text =
-                          Constanst.convertDate("$dateSelect");
-                      this.controller.tanggalLembur.refresh();
-                    }
-                  },
-                  child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        controller.tanggalLembur.value.text,
-                        style: TextStyle(
-                            fontSize: 14.0, height: 2.0, color: Colors.black),
-                      )),
-                ),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                isDense: true,
+                autofocus: true,
+                focusColor: Colors.grey,
+                items: controller.allTypeIzin.value
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(
+                      value,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  );
+                }).toList(),
+                value: controller.selectedDropdownFormIzinType.value,
+                onChanged: (selectedValue) {
+                  controller.selectedDropdownFormIzinType.value =
+                      selectedValue!;
+                },
+                isExpanded: true,
               ),
-              Expanded(
-                flex: 10,
-                child: IconButton(
-                  onPressed: () async {
-                    // DateTime now = DateTime.now();
-                    // DateTime firstDateOfMonth =
-                    //     DateTime(now.year, now.month + 0, 1);
-                    // DateTime lastDayOfMonth =
-                    //     DateTime(now.year, now.month + 1, 0);
-                    var dateSelect = await showDatePicker(
-                      context: Get.context!,
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2100),
-                      initialDate: controller.initialDate.value,
-                    );
-                    if (dateSelect == null) {
-                      UtilsAlert.showToast("Tanggal tidak terpilih");
-                    } else {
-                      controller.initialDate.value = dateSelect;
-                      controller.tanggalLembur.value.text =
-                          Constanst.convertDate("$dateSelect");
-                      this.controller.tanggalLembur.refresh();
-                      // DateTime now = DateTime.now();
-                      // if (now.month == dateSelect.month) {
-                      //   controller.initialDate.value = dateSelect;
-                      //   controller.tanggalLembur.value.text =
-                      //       Constanst.convertDate("$dateSelect");
-                      //   this.controller.tanggalLembur.refresh();
-                      // } else {
-                      //   UtilsAlert.showToast(
-                      //       "Tidak bisa memilih tanggal di luar bulan ini");
-                      // }
-                    }
-                  },
-                  icon: Icon(
-                    Iconsax.arrow_down_14,
-                    size: 20,
-                  ),
-                ),
-              )
-            ],
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget formJam() {
+  Widget formWaktuDanTanggal() {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      SizedBox(
+        height: 8,
+      ),
+      Text(
+        "Waktu & Tanggal *",
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      SizedBox(
+        height: 6,
+      ),
       Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
@@ -216,15 +181,8 @@ class _FormLemburState extends State<FormLembur> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Dari Jam *",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
                   Container(
-                    height: 50,
+                    height: 45,
                     width: MediaQuery.of(Get.context!).size.width,
                     decoration: BoxDecoration(
                         color: Colors.white,
@@ -233,7 +191,7 @@ class _FormLemburState extends State<FormLembur> {
                             width: 0.5,
                             color: Color.fromARGB(255, 211, 205, 205))),
                     child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(6.0),
                         child: InkWell(
                             onTap: () {
                               showTimePicker(
@@ -250,16 +208,16 @@ class _FormLemburState extends State<FormLembur> {
                                   var convertMenit = value.minute <= 9
                                       ? "0${value.minute}"
                                       : "${value.minute}";
-                                  controller.dariJam.value.text =
+                                  controller.jamAjuan.value.text =
                                       "$convertJam:$convertMenit";
-                                  this.controller.dariJam.refresh();
+                                  this.controller.jamAjuan.refresh();
                                 }
                               });
                             },
                             child: Padding(
                               padding: const EdgeInsets.only(left: 8, top: 5),
                               child: Text(
-                                controller.dariJam.value.text,
+                                controller.jamAjuan.value.text,
                                 style: TextStyle(fontSize: 16),
                               ),
                             ))),
@@ -274,15 +232,8 @@ class _FormLemburState extends State<FormLembur> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    "Sampai Jam *",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(
-                    height: 5,
-                  ),
                   Container(
-                    height: 50,
+                    height: 45,
                     width: MediaQuery.of(Get.context!).size.width,
                     decoration: BoxDecoration(
                         color: Colors.white,
@@ -291,33 +242,25 @@ class _FormLemburState extends State<FormLembur> {
                             width: 0.5,
                             color: Color.fromARGB(255, 211, 205, 205))),
                     child: Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(6.0),
                         child: InkWell(
                             onTap: () {
-                              showTimePicker(
-                                context: Get.context!,
-                                initialTime: TimeOfDay.now(),
-                                initialEntryMode: TimePickerEntryMode.dial,
-                              ).then((value) {
-                                if (value == null) {
-                                  UtilsAlert.showToast('gagal pilih jam');
-                                } else {
-                                  var convertJam = value.hour <= 9
-                                      ? "0${value.hour}"
-                                      : "${value.hour}";
-                                  var convertMenit = value.minute <= 9
-                                      ? "0${value.minute}"
-                                      : "${value.minute}";
-                                  controller.sampaiJam.value.text =
-                                      "$convertJam:$convertMenit";
-                                  this.controller.sampaiJam.refresh();
-                                }
-                              });
+                              DatePicker.showDatePicker(Get.context!,
+                                  showTitleActions: true,
+                                  minTime: DateTime(2000, 1, 1),
+                                  maxTime: DateTime(2100, 1, 1),
+                                  onConfirm: (date) {
+                                controller.tanggalAjuan.value.text =
+                                    Constanst.convertDate("$date");
+                                this.controller.tanggalAjuan.refresh();
+                              },
+                                  currentTime: DateTime.now(),
+                                  locale: LocaleType.en);
                             },
                             child: Padding(
                               padding: const EdgeInsets.only(left: 8, top: 5),
                               child: Text(
-                                controller.sampaiJam.value.text,
+                                "${controller.tanggalAjuan.value.text}",
                                 style: TextStyle(fontSize: 16),
                               ),
                             ))),
@@ -337,7 +280,7 @@ class _FormLemburState extends State<FormLembur> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Text(
-          "Pemberi Tugas",
+          "Delegasikan kepada",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         SizedBox(
@@ -355,7 +298,7 @@ class _FormLemburState extends State<FormLembur> {
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
                 isDense: true,
-                items: controller.allEmployeeDelegasi.value
+                items: controller.allDelegasiIzin.value
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
@@ -365,9 +308,10 @@ class _FormLemburState extends State<FormLembur> {
                     ),
                   );
                 }).toList(),
-                value: controller.selectedDropdownDelegasi.value,
+                value: controller.selectedDropdownFormIzinDelegasi.value,
                 onChanged: (selectedValue) {
-                  controller.selectedDropdownDelegasi.value = selectedValue!;
+                  controller.selectedDropdownFormIzinDelegasi.value =
+                      selectedValue!;
                 },
                 isExpanded: true,
               ),
@@ -384,7 +328,7 @@ class _FormLemburState extends State<FormLembur> {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Text(
-          "Catatan Tugas Lembur *",
+          "Alasan *",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         SizedBox(
@@ -404,11 +348,11 @@ class _FormLemburState extends State<FormLembur> {
               maxLines: null,
               maxLength: 225,
               decoration: new InputDecoration(
-                  border: InputBorder.none, hintText: "Tambahkan Uraian"),
+                  border: InputBorder.none, hintText: "Tambahkan Alasan"),
               keyboardType: TextInputType.multiline,
               textInputAction: TextInputAction.done,
               style:
-                  TextStyle(fontSize: 12.0, height: 2.0, color: Colors.black),
+                  TextStyle(fontSize: 14.0, height: 2.0, color: Colors.black),
             ),
           ),
         ),

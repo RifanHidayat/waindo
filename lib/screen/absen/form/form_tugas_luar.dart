@@ -14,6 +14,7 @@ import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 
 class FormTugasLuar extends StatefulWidget {
   List? dataForm;
@@ -39,6 +40,7 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
       controller.sampaiJam.value.text = hasilSampaijam;
       controller.catatan.value.text = widget.dataForm![0]['uraian'];
       controller.statusForm.value = true;
+      controller.screenTanggalSelected.value = false;
       controller.idpengajuanTugasLuar.value = "${widget.dataForm![0]['id']}";
       controller.emDelegation.value = "${widget.dataForm![0]['em_delegation']}";
       controller.nomorAjuan.value.text =
@@ -60,12 +62,12 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
             colorTitle: Colors.black,
             icon: 1,
             onTap: () {
-              Get.offAll(TugasLuar());
+              Get.back();
             },
           )),
       body: WillPopScope(
           onWillPop: () async {
-            Get.offAll(TugasLuar());
+            Get.back();
             return true;
           },
           child: SafeArea(
@@ -80,11 +82,21 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
                         SizedBox(
                           height: 20,
                         ),
-                        formHariDanTanggal(),
+                        formTipe(),
                         SizedBox(
                           height: 20,
                         ),
-                        formJam(),
+                        !controller.viewTugasLuar.value
+                            ? formPilihTanggal()
+                            : formHariDanTanggal(),
+                        !controller.viewTugasLuar.value
+                            ? SizedBox()
+                            : SizedBox(
+                                height: 20,
+                              ),
+                        !controller.viewTugasLuar.value
+                            ? SizedBox()
+                            : formJam(),
                         SizedBox(
                           height: 20,
                         ),
@@ -107,6 +119,150 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
             colortext: Constanst.colorWhite,
             border: BorderRadius.circular(20.0),
           )),
+    );
+  }
+
+  Widget formPilihTanggal() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Tanggal*", style: TextStyle(fontWeight: FontWeight.bold)),
+        SizedBox(
+          height: 5,
+        ),
+        widget.dataForm![1] == true
+            ? customTanggalDariSampaiDari()
+            : SizedBox(),
+        controller.screenTanggalSelected.value == true
+            ? Card(
+                margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+                child: SfDateRangePicker(
+                  selectionMode: DateRangePickerSelectionMode.multiple,
+                  initialSelectedDates: controller.tanggalSelectedEdit.value,
+                  monthCellStyle: DateRangePickerMonthCellStyle(
+                    weekendTextStyle: TextStyle(color: Colors.red),
+                    blackoutDateTextStyle: TextStyle(
+                        color: Colors.red,
+                        decoration: TextDecoration.lineThrough),
+                  ),
+                  onSelectionChanged:
+                      (DateRangePickerSelectionChangedArgs args) {
+                    if (controller.idEditFormTugasLuar.value != "") {
+                      controller.tanggalSelectedEdit.value = args.value;
+                      this.controller.tanggalSelectedEdit.refresh();
+                    } else {
+                      controller.tanggalSelected.value = args.value;
+                      this.controller.tanggalSelected.refresh();
+                    }
+                  },
+                ))
+            : SizedBox(),
+      ],
+    );
+  }
+
+  Widget customTanggalDariSampaiDari() {
+    return Container(
+        height: 50,
+        width: MediaQuery.of(Get.context!).size.width,
+        decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: Constanst.borderStyle1,
+            border: Border.all(
+                width: 0.5, color: Color.fromARGB(255, 211, 205, 205))),
+        child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 90,
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(Constanst.convertDate1(
+                            "${controller.dariTanggal.value.text}")),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Text("sd"),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Text(Constanst.convertDate1(
+                              "${controller.sampaiTanggal.value.text}")),
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 10,
+                  child: IconButton(
+                    onPressed: () {
+                      controller.screenTanggalSelected.value =
+                          !controller.screenTanggalSelected.value;
+                    },
+                    icon: Icon(
+                      Iconsax.edit,
+                      size: 18,
+                    ),
+                  ),
+                )
+              ],
+            )));
+  }
+
+  Widget formTipe() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Tipe*",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        SizedBox(
+          height: 5,
+        ),
+        Container(
+          height: 50,
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: Constanst.borderStyle1,
+              border: Border.all(
+                  width: 0.5, color: Color.fromARGB(255, 211, 205, 205))),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                isDense: true,
+                autofocus: true,
+                focusColor: Colors.grey,
+                items: controller.allTipeFormTugasLuar.value
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(
+                      value,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  );
+                }).toList(),
+                value: controller.selectedDropdownFormTugasLuarTipe.value,
+                onChanged: (selectedValue) {
+                  controller.gantiTypeAjuan(selectedValue);
+                },
+                isExpanded: true,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -375,10 +531,15 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
-        Text(
-          "Tujuan Tugas Luar *",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        controller.viewTugasLuar.value
+            ? Text(
+                "Tujuan Tugas Luar *",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              )
+            : Text(
+                "Tujuan Dinas Luar *",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
         SizedBox(
           height: 5,
         ),
@@ -398,6 +559,7 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
               decoration: new InputDecoration(
                   border: InputBorder.none, hintText: "Uraian Tujuan"),
               keyboardType: TextInputType.multiline,
+              textInputAction: TextInputAction.done,
               style:
                   TextStyle(fontSize: 12.0, height: 2.0, color: Colors.black),
             ),

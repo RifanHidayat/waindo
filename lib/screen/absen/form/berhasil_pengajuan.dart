@@ -3,13 +3,21 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
+import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/screen/dashboard.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 
-class BerhasilPengajuan extends StatelessWidget {
-  final List? dataBerhasil;
-  BerhasilPengajuan({Key? key, this.dataBerhasil}) : super(key: key);
+class BerhasilPengajuan extends StatefulWidget {
+  List dataBerhasil;
+  BerhasilPengajuan({Key? key, required this.dataBerhasil}) : super(key: key);
+  @override
+  _BerhasilPengajuanState createState() => _BerhasilPengajuanState();
+}
+
+class _BerhasilPengajuanState extends State<BerhasilPengajuan> {
+  var controllerGlobal = Get.put(GlobalController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +41,7 @@ class BerhasilPengajuan extends StatelessWidget {
                     SizedBox(
                       height: 10,
                     ),
-                    Text("Berhasil",
+                    Text("${widget.dataBerhasil[0]}",
                         textAlign: TextAlign.center,
                         style: Constanst.boldType1),
                     SizedBox(
@@ -41,7 +49,17 @@ class BerhasilPengajuan extends StatelessWidget {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 30, right: 30),
-                      child: Text("${dataBerhasil![0]}",
+                      child: Text("${widget.dataBerhasil[1]}",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              color: Constanst.colorText2, fontSize: 14)),
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 30, right: 30),
+                      child: Text("${widget.dataBerhasil[2]}",
                           textAlign: TextAlign.center,
                           style: Constanst.boldType2),
                     ),
@@ -53,25 +71,61 @@ class BerhasilPengajuan extends StatelessWidget {
           ],
         )),
       ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.all(10.0),
-        child: ElevatedButton(
-          style: ButtonStyle(
-              backgroundColor:
-                  MaterialStateProperty.all<Color>(Constanst.colorPrimary),
-              foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                  RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0),
-                      side: BorderSide(color: Colors.white)))),
-          onPressed: () {
-            Get.offAll(InitScreen());
-          },
-          child: Padding(
-            padding: const EdgeInsets.only(top: 16, bottom: 16),
-            child: Text('Kembali ke beranda'),
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: MediaQuery.of(Get.context!).size.width,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 6.0, left: 8, right: 8),
+              child: ElevatedButton(
+                style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all<Color>(
+                        Constanst.colorPrimary),
+                    foregroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            side: BorderSide(color: Colors.white)))),
+                onPressed: () {
+                  Get.offAll(InitScreen());
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 12, bottom: 12),
+                  child: Text('Kembali ke beranda'),
+                ),
+              ),
+            ),
           ),
-        ),
+          SizedBox(
+            width: MediaQuery.of(Get.context!).size.width,
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 6.0, left: 8, right: 8),
+              child: ElevatedButton(
+                style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white),
+                    foregroundColor:
+                        MaterialStateProperty.all<Color>(Colors.white),
+                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                            side: BorderSide(color: Constanst.colorPrimary)))),
+                onPressed: () {
+                  controllerGlobal.showDataPilihAtasan(widget.dataBerhasil[3]);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 12, bottom: 12),
+                  child: Text(
+                    'Konfirmasi via WA',
+                    style: TextStyle(color: Constanst.colorPrimary),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

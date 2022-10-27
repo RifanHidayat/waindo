@@ -1,10 +1,11 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
-import 'package:month_year_picker/month_year_picker.dart';
+import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/controller/tugas_luar_controller.dart';
 import 'package:siscom_operasional/screen/absen/form/form_lembur.dart';
 import 'package:siscom_operasional/screen/absen/form/form_tugas_luar.dart';
@@ -12,11 +13,28 @@ import 'package:siscom_operasional/screen/absen/laporan/laporan_tidakMasuk.dart'
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
+import 'package:siscom_operasional/utils/month_year_picker.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 
-class TugasLuar extends StatelessWidget {
+class TugasLuar extends StatefulWidget {
+  @override
+  _TugasLuarState createState() => _TugasLuarState();
+}
+
+class _TugasLuarState extends State<TugasLuar> {
   final controller = Get.put(TugasLuarController());
+  var controllerGlobal = Get.put(GlobalController());
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> refreshData() async {
+    await Future.delayed(Duration(seconds: 2));
+    controller.loadDataTugasLuar();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +73,19 @@ class TugasLuar extends StatelessWidget {
                 SizedBox(
                   height: 16,
                 ),
+                listTypeTugasLuar(),
+                Divider(
+                  height: 5,
+                  color: Constanst.colorText2,
+                ),
+                SizedBox(
+                  height: 16,
+                ),
                 listStatusAjuan(),
+                SizedBox(
+                  height: 16,
+                ),
+                pencarianData(),
                 SizedBox(
                   height: 16,
                 ),
@@ -70,11 +100,14 @@ class TugasLuar extends StatelessWidget {
                   height: 8,
                 ),
                 Flexible(
-                    child: controller.listTugasLuar.value.isEmpty
-                        ? Center(
-                            child: Text(controller.loadingString.value),
-                          )
-                        : riwayatTugasLuar())
+                    child: RefreshIndicator(
+                        color: Constanst.colorPrimary,
+                        onRefresh: refreshData,
+                        child: controller.listTugasLuar.value.isEmpty
+                            ? Center(
+                                child: Text(controller.loadingString.value),
+                              )
+                            : riwayatTugasLuar()))
               ],
             ),
           ),
@@ -111,7 +144,7 @@ class TugasLuar extends StatelessWidget {
                       foregroundColor: Colors.white,
                       label: 'Buat Pengajuan Tugas Luar',
                       onTap: () {
-                        Get.offAll(FormTugasLuar(
+                        Get.to(FormTugasLuar(
                           dataForm: [[], false],
                         ));
                       }),
@@ -126,7 +159,7 @@ class TugasLuar extends StatelessWidget {
                 : TextButtonWidget2(
                     title: "Buat Pengajuan Tugas Luar",
                     onTap: () {
-                      Get.offAll(FormTugasLuar(
+                      Get.to(FormTugasLuar(
                         dataForm: [[], false],
                       ));
                     },
@@ -141,6 +174,49 @@ class TugasLuar extends StatelessWidget {
     );
   }
 
+  Widget listTypeTugasLuar() {
+    return SizedBox(
+      width: MediaQuery.of(Get.context!).size.width,
+      height: 50,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: InkWell(
+              onTap: () => controller.changeTypeSelected(0),
+              child: Center(
+                  child: Text(
+                "Tugas Luar",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: controller.selectedType.value == 0
+                        ? Constanst.colorPrimary
+                        : Constanst.colorText2),
+              )),
+            ),
+          ),
+          Expanded(
+            child: InkWell(
+              onTap: () => controller.changeTypeSelected(1),
+              child: Center(
+                  child: Text(
+                "Dinas Luar",
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: controller.selectedType.value == 1
+                        ? Constanst.colorPrimary
+                        : Constanst.colorText2),
+              )),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget pickDate() {
     return Container(
       decoration: Constanst.styleBoxDecoration1,
@@ -148,29 +224,30 @@ class TugasLuar extends StatelessWidget {
         padding: EdgeInsets.only(top: 15, bottom: 10),
         child: InkWell(
           onTap: () {
-            showMonthYearPicker(
-              context: Get.context!,
-              initialDate: DateTime.now(),
-              // firstDate: DateTime(DateTime.now().year - 1, 5),
-              // lastDate: DateTime(DateTime.now().year + 1, 9),
-              firstDate: DateTime(2010),
-              lastDate: DateTime(2100),
-            ).then((date) {
-              if (date != null) {
-                print(date);
-                var outputFormat1 = DateFormat('MM');
-                var outputFormat2 = DateFormat('yyyy');
-                var bulan = outputFormat1.format(date);
-                var tahun = outputFormat2.format(date);
-                controller.bulanSelectedSearchHistory.value = bulan;
-                controller.tahunSelectedSearchHistory.value = tahun;
-                controller.bulanDanTahunNow.value = "$bulan-$tahun";
-                this.controller.bulanSelectedSearchHistory.refresh();
-                this.controller.tahunSelectedSearchHistory.refresh();
-                this.controller.bulanDanTahunNow.refresh();
-                controller.loadDataTugasLuar();
-              }
-            });
+            DatePicker.showPicker(
+              Get.context!,
+              pickerModel: CustomMonthPicker(
+                minTime: DateTime(2020, 1, 1),
+                maxTime: DateTime(2050, 1, 1),
+                currentTime: DateTime.now(),
+              ),
+              onConfirm: (time) {
+                if (time != null) {
+                  print("$time");
+                  var filter = DateFormat('yyyy-MM').format(time);
+                  var array = filter.split('-');
+                  var bulan = array[1];
+                  var tahun = array[0];
+                  controller.bulanSelectedSearchHistory.value = bulan;
+                  controller.tahunSelectedSearchHistory.value = tahun;
+                  controller.bulanDanTahunNow.value = "$bulan-$tahun";
+                  this.controller.bulanSelectedSearchHistory.refresh();
+                  this.controller.tahunSelectedSearchHistory.refresh();
+                  this.controller.bulanDanTahunNow.refresh();
+                  controller.loadDataTugasLuar();
+                }
+              },
+            );
           },
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -249,23 +326,39 @@ class TugasLuar extends StatelessWidget {
                                   ? Constanst.colorPrimary
                                   : Constanst.colorText2,
                             )
-                          : namaType == "Rejected"
+                          : namaType == "Approve 1"
                               ? Icon(
-                                  Iconsax.close_square,
+                                  Iconsax.tick_square,
                                   size: 14,
                                   color: status == true
                                       ? Constanst.colorPrimary
                                       : Constanst.colorText2,
                                 )
-                              : namaType == "Pending"
+                              : namaType == "Approve 2"
                                   ? Icon(
-                                      Iconsax.timer,
+                                      Iconsax.tick_square,
                                       size: 14,
                                       color: status == true
                                           ? Constanst.colorPrimary
                                           : Constanst.colorText2,
                                     )
-                                  : SizedBox(),
+                                  : namaType == "Rejected"
+                                      ? Icon(
+                                          Iconsax.close_square,
+                                          size: 14,
+                                          color: status == true
+                                              ? Constanst.colorPrimary
+                                              : Constanst.colorText2,
+                                        )
+                                      : namaType == "Pending"
+                                          ? Icon(
+                                              Iconsax.timer,
+                                              size: 14,
+                                              color: status == true
+                                                  ? Constanst.colorPrimary
+                                                  : Constanst.colorText2,
+                                            )
+                                          : SizedBox(),
                       Padding(
                         padding: const EdgeInsets.only(left: 6, right: 6),
                         child: Text(
@@ -287,9 +380,75 @@ class TugasLuar extends StatelessWidget {
     );
   }
 
+  Widget pencarianData() {
+    return Container(
+      decoration: BoxDecoration(
+          borderRadius: Constanst.borderStyle5,
+          border: Border.all(color: Constanst.colorNonAktif)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 15,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 7, left: 10),
+              child: Icon(Iconsax.search_normal_1),
+            ),
+          ),
+          Expanded(
+            flex: 85,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: SizedBox(
+                height: 40,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 85,
+                      child: TextField(
+                        controller: controller.cari.value,
+                        decoration: InputDecoration(
+                            border: InputBorder.none, hintText: "Cari"),
+                        style: TextStyle(
+                            fontSize: 14.0, height: 1.0, color: Colors.black),
+                        onChanged: (value) {
+                          controller.cariData(value);
+                        },
+                      ),
+                    ),
+                    !controller.statusCari.value
+                        ? SizedBox()
+                        : Expanded(
+                            flex: 15,
+                            child: IconButton(
+                              icon: Icon(
+                                Iconsax.close_circle,
+                                color: Colors.red,
+                              ),
+                              onPressed: () {
+                                controller.statusCari.value = false;
+                                controller.cari.value.text = "";
+                                controller.onReady();
+                              },
+                            ),
+                          )
+                  ],
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   Widget riwayatTugasLuar() {
     return ListView.builder(
-        physics: BouncingScrollPhysics(),
+        physics: controller.listTugasLuar.value.length <= 8
+            ? AlwaysScrollableScrollPhysics()
+            : BouncingScrollPhysics(),
         itemCount: controller.listTugasLuar.value.length,
         itemBuilder: (context, index) {
           var nomorAjuan = controller.listTugasLuar.value[index]['nomor_ajuan'];
@@ -507,7 +666,47 @@ class TugasLuar extends StatelessWidget {
                                             SizedBox(
                                               height: 5,
                                             ),
-                                            Text("")
+                                            Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Image.asset(
+                                                  'assets/whatsapp.png',
+                                                  width: 25,
+                                                  height: 25,
+                                                ),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          left: 6),
+                                                  child: Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            top: 3),
+                                                    child: InkWell(
+                                                        onTap: () {
+                                                          var dataEmployee = {
+                                                            'nameType':
+                                                                'TUGAS LUAR',
+                                                            'nomor_ajuan':
+                                                                '$nomorAjuan',
+                                                          };
+                                                          controllerGlobal
+                                                              .showDataPilihAtasan(
+                                                                  dataEmployee);
+                                                        },
+                                                        child: Text(
+                                                          "Konfirmasi via WA",
+                                                          style: TextStyle(
+                                                            decoration:
+                                                                TextDecoration
+                                                                    .underline,
+                                                          ),
+                                                        )),
+                                                  ),
+                                                ),
+                                              ],
+                                            )
                                           ],
                                         ),
                                 ),

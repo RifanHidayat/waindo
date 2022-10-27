@@ -159,6 +159,8 @@ class _ApprovalState extends State<Approval> {
           var emIdPengaju = controller.listData.value[index]['emId_pengaju'];
           var delegasi = controller.listData.value[index]['delegasi'];
           var typeAjuan = controller.listData.value[index]['type'];
+          var namaApprove1 = controller.listData.value[index]['nama_approve1'];
+          var leave_status = controller.listData.value[index]['leave_status'];
           var tanggalPengajuan =
               controller.listData.value[index]['waktu_pengajuan'];
           return Column(
@@ -221,15 +223,17 @@ class _ApprovalState extends State<Approval> {
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(
-                                      Iconsax.timer,
-                                      color: Constanst.color3,
-                                      size: 14,
-                                    ),
+                                    leave_status != "Pending"
+                                        ? SizedBox()
+                                        : Icon(
+                                            Iconsax.timer,
+                                            color: Constanst.color3,
+                                            size: 14,
+                                          ),
                                     Padding(
                                       padding: const EdgeInsets.only(left: 3),
                                       child: Text(
-                                        'Pending',
+                                        '$leave_status',
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
@@ -247,9 +251,22 @@ class _ApprovalState extends State<Approval> {
                         height: 10,
                       ),
                       Text(
-                        typeAjuan,
+                        "$typeAjuan",
                         style: TextStyle(fontSize: 14),
                       ),
+                      namaApprove1 == "" || leave_status == "Pending"
+                          ? SizedBox()
+                          : SizedBox(
+                              height: 10,
+                            ),
+                      namaApprove1 == "" || leave_status == "Pending"
+                          ? SizedBox()
+                          : Center(
+                              child: Text(
+                                "Approve 1 by - $namaApprove1",
+                                style: TextStyle(fontSize: 14),
+                              ),
+                            ),
                       SizedBox(
                         height: 10,
                       ),

@@ -18,6 +18,7 @@ class UserModel {
   String? emp_jobTitle;
   String? emp_departmen;
   int? em_control;
+  int? em_control_acess;
   int? emp_att_working;
   String? em_hak_akses;
 
@@ -39,6 +40,7 @@ class UserModel {
       this.emp_jobTitle,
       this.emp_departmen,
       this.em_control,
+      this.em_control_acess,
       this.emp_att_working,
       this.em_hak_akses});
 
@@ -61,6 +63,7 @@ class UserModel {
       'emp_jobTitle': emp_jobTitle,
       'emp_departmen': emp_departmen,
       'em_control': em_control,
+      'em_control_acess': em_control_acess,
       'emp_att_working': emp_att_working,
       'em_hak_akses': em_hak_akses
     };
@@ -85,6 +88,7 @@ class UserModel {
         emp_jobTitle: map['emp_jobTitle'],
         emp_departmen: map['emp_departmen'],
         em_control: map['em_control'],
+        em_control_acess: map['em_control_acess'],
         emp_att_working: map['emp_att_working'],
         em_hak_akses: map['em_hak_akses']);
   }

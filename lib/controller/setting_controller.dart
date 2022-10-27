@@ -197,7 +197,9 @@ class SettingController extends GetxController {
     listDepartement.value.insert(0, addDummy);
     idDepartemenTerpilih.value = 0;
     namaDepartemenTerpilih.value = 'SEMUA DIVISI';
+    departemen.value.text = 'SEMUA DIVISI';
     this.idDepartemenTerpilih.refresh();
+    this.namaDepartemenTerpilih.refresh();
     this.listDepartement.refresh();
   }
 

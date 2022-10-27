@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/screen/absen/form/berhasil_pengajuan.dart';
 import 'package:siscom_operasional/screen/absen/form/form_lembur.dart';
 import 'package:siscom_operasional/utils/api.dart';
@@ -19,6 +20,7 @@ class LemburController extends GetxController {
   var sampaiJam = TextEditingController().obs;
   var durasi = TextEditingController().obs;
   var catatan = TextEditingController().obs;
+  var cari = TextEditingController().obs;
 
   Rx<List<String>> allEmployeeDelegasi = Rx<List<String>>([]);
 
@@ -28,11 +30,13 @@ class LemburController extends GetxController {
   var selectedDropdownDelegasi = "".obs;
   var idpengajuanLembur = "".obs;
   var emIdDelegasi = "".obs;
+  var valuePolaPersetujuan = "".obs;
   var loadingString = "Sedang Memuat...".obs;
 
   var statusForm = false.obs;
   var directStatus = false.obs;
   var showButtonlaporan = false.obs;
+  var statusCari = false.obs;
 
   var listLembur = [].obs;
   var listLemburAll = [].obs;
@@ -42,13 +46,20 @@ class LemburController extends GetxController {
 
   Rx<DateTime> initialDate = DateTime.now().obs;
 
-  var dataTypeAjuanDummy = ["Semua", "Approve", "Rejected", "Pending"];
+  var dataTypeAjuanDummy1 = ["Semua", "Approve", "Rejected", "Pending"];
+  var dataTypeAjuanDummy2 = [
+    "Semua",
+    "Approve 1",
+    "Approve 2",
+    "Rejected",
+    "Pending"
+  ];
 
   @override
   void onReady() async {
     super.onReady();
     getTimeNow();
-    getTypeAjuan();
+    getLoadsysData();
     loadDataLembur();
     loadAllEmployeeDelegasi();
     getDepartemen(1, "");
@@ -115,15 +126,42 @@ class LemburController extends GetxController {
     });
   }
 
+  void getLoadsysData() {
+    var connect = Api.connectionApi("get", "", "sysdata");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        for (var element in valueBody['data']) {
+          if (element['kode'] == "013") {
+            valuePolaPersetujuan.value = "${element['name']}";
+            this.valuePolaPersetujuan.refresh();
+            getTypeAjuan();
+          }
+        }
+      }
+    });
+  }
+
   void getTypeAjuan() {
-    dataTypeAjuan.value.clear();
-    for (var element in dataTypeAjuanDummy) {
-      var data = {'nama': element, 'status': false};
-      dataTypeAjuan.value.add(data);
+    if (valuePolaPersetujuan.value == "1") {
+      dataTypeAjuan.value.clear();
+      for (var element in dataTypeAjuanDummy1) {
+        var data = {'nama': element, 'status': false};
+        dataTypeAjuan.value.add(data);
+      }
+      dataTypeAjuan.value
+          .firstWhere((element) => element['nama'] == 'Semua')['status'] = true;
+      this.dataTypeAjuan.refresh();
+    } else {
+      dataTypeAjuan.value.clear();
+      for (var element in dataTypeAjuanDummy2) {
+        var data = {'nama': element, 'status': false};
+        dataTypeAjuan.value.add(data);
+      }
+      dataTypeAjuan.value
+          .firstWhere((element) => element['nama'] == 'Semua')['status'] = true;
+      this.dataTypeAjuan.refresh();
     }
-    dataTypeAjuan.value
-        .firstWhere((element) => element['nama'] == 'Semua')['status'] = true;
-    this.dataTypeAjuan.refresh();
   }
 
   void getTimeNow() {
@@ -323,10 +361,16 @@ class LemburController extends GetxController {
             kirimNotifikasiToDelegasi(
                 getFullName, finalTanggalPengajuan, validasiDelegasiSelected);
             Navigator.pop(Get.context!);
-            var pesan =
-                "Pengajuan Form lembur berhasil dibuat. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah dibuat";
+            var pesan1 = "Pengajuan lembur berhasil dibuat";
+            var pesan2 =
+                "Selanjutnya silahkan menunggu atasan kamu untuk menyetujui pengajuan yang telah dibuat atau langsung";
+            var pesan3 = "konfirmasi via WhatsApp";
+            var dataPengajuan = {
+              'nameType': 'LEMBUR',
+              'nomor_ajuan': '${getNomorAjuanTerakhir}',
+            };
             Get.offAll(BerhasilPengajuan(
-              dataBerhasil: [pesan],
+              dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
             ));
           } else {
             print("sampe sini ulang");
@@ -349,10 +393,16 @@ class LemburController extends GetxController {
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
           Navigator.pop(Get.context!);
-          var pesan =
-              "Pengajuan Form lembur berhasil diedit. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah diedit";
+          var pesan1 = "Pengajuan lembur berhasil di edit";
+          var pesan2 =
+              "Selanjutnya silahkan menunggu atasan kamu untuk menyetujui pengajuan yang telah dibuat atau langsung";
+          var pesan3 = "konfirmasi via WhatsApp";
+          var dataPengajuan = {
+            'nameType': 'LEMBUR',
+            'nomor_ajuan': '${getNomorAjuanTerakhir}',
+          };
           Get.offAll(BerhasilPengajuan(
-            dataBerhasil: [pesan],
+            dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
           ));
         }
       });
@@ -360,7 +410,15 @@ class LemburController extends GetxController {
   }
 
   void changeTypeAjuan(name) {
-    print(name);
+    var filter = name == "Approve 1"
+        ? "Approve"
+        : name == "Approve 2"
+            ? "Approve2"
+            : name == "Rejected"
+                ? "Rejected"
+                : name == "Pending"
+                    ? "Pending"
+                    : "Approve";
     for (var element in dataTypeAjuan.value) {
       if (element['nama'] == name) {
         element['status'] = true;
@@ -374,7 +432,7 @@ class LemburController extends GetxController {
       if (name == "Semua") {
         dataFilter.add(element);
       } else {
-        if (element['status'] == name) {
+        if (element['status'] == filter) {
           dataFilter.add(element);
         }
       }
@@ -386,6 +444,25 @@ class LemburController extends GetxController {
     } else {
       loadingString.value = "Sedang memuat...";
     }
+  }
+
+  void cariData(value) {
+    var textCari = value.toLowerCase();
+    var filter = listLemburAll.where((ajuan) {
+      var getAjuan = ajuan['nomor_ajuan'].toLowerCase();
+      return getAjuan.contains(textCari);
+    }).toList();
+    listLembur.value = filter;
+    statusCari.value = true;
+    this.listLembur.refresh();
+    this.statusCari.refresh();
+
+    if (listLembur.value.isEmpty) {
+      loadingString.value = "Tidak ada pengajuan";
+    } else {
+      loadingString.value = "Memuat data...";
+    }
+    this.loadingString.refresh();
   }
 
   void kirimNotifikasiToDelegasi(

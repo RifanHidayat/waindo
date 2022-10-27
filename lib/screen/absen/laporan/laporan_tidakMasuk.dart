@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
-import 'package:month_year_picker/month_year_picker.dart';
 import 'package:siscom_operasional/controller/laporan_tidakHadir_controller.dart';
 import 'package:siscom_operasional/controller/tidak_masuk_kerja_controller.dart';
 import 'package:siscom_operasional/screen/absen/laporan/laporan_detail_tidakMasuk.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
+import 'package:siscom_operasional/utils/month_year_picker.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 
 class LaporanTidakMasuk extends StatefulWidget {
@@ -52,14 +53,14 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
                               ? "Laporan Tugas Luar"
                               : "",
               colorTitle: Colors.black,
-              icon: 3,
+              icon: 1,
               rightIcon: Icon(Iconsax.document_download),
               onTap: () {
                 Get.back();
               },
-              onTap2: () {
-                UtilsAlert.showToast("Comming Soon");
-              },
+              // onTap2: () {
+              //   UtilsAlert.showToast("Comming Soon");
+              // },
             )),
         body: WillPopScope(
             onWillPop: () async {
@@ -78,14 +79,11 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
                       ),
                       controller.bulanDanTahunNow.value == ""
                           ? SizedBox()
-                          : cariData(),
+                          : pencarianData(),
                       SizedBox(
                         height: 8,
                       ),
-                      Divider(
-                        height: 5,
-                        color: Constanst.colorNonAktif,
-                      ),
+                      cariData(),
                       SizedBox(
                         height: 8,
                       ),
@@ -94,47 +92,29 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
+                              flex: 75,
                               child: Container(
                                 alignment: Alignment.centerLeft,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    widget.title == 'tidak_hadir'
+                                    controller.selectedViewFilterPengajuan
+                                                .value ==
+                                            0
                                         ? Text(
-                                            "List Laporan Tidak Hadir",
+                                            "${controller.namaDepartemenTerpilih.value}  (${Constanst.convertDateBulanDanTahun('${controller.bulanDanTahunNow}')})",
                                             style: TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 14),
                                           )
-                                        : widget.title == 'cuti'
-                                            ? Text(
-                                                "List Laporan Cuti",
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14),
-                                              )
-                                            : widget.title == 'lembur'
-                                                ? Text(
-                                                    "List Laporan Lembur",
-                                                    style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 14),
-                                                  )
-                                                : widget.title == 'tugas_luar'
-                                                    ? Text(
-                                                        "List Laporan Tugas Luar",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight.bold,
-                                                            fontSize: 14),
-                                                      )
-                                                    : SizedBox(),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
+                                        : Text(
+                                            "${controller.namaDepartemenTerpilih.value}  (${Constanst.convertDate('${DateFormat('yyyy-MM-dd').format(controller.pilihTanggalFilterAjuan.value)}')})",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14),
+                                          ),
                                     Text(
-                                      controller.namaDepartemenTerpilih.value,
+                                      "${controller.allNameLaporanTidakhadir.value.length} Data",
                                       style: TextStyle(
                                           color: Constanst.colorText2,
                                           fontSize: 12),
@@ -143,6 +123,44 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
                                 ),
                               ),
                             ),
+                            Expanded(
+                                flex: 25,
+                                child: InkWell(
+                                  onTap: () {
+                                    controller.pageViewFilterWaktu =
+                                        PageController(
+                                            initialPage: controller
+                                                .selectedViewFilterPengajuan
+                                                .value);
+                                    controller.widgetButtomSheetFilterData();
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: Constanst.borderStyle5,
+                                        border: Border.all(
+                                            color: Constanst.colorText2)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 8.0,
+                                          bottom: 8.0,
+                                          left: 6.0,
+                                          right: 6.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text("Filter"),
+                                          Padding(
+                                            padding: EdgeInsets.only(left: 6),
+                                            child: Icon(Iconsax.setting_4),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ))
                           ],
                         ),
                       ),
@@ -185,74 +203,98 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
             children: [
               Expanded(
                 flex: 50,
-                child: Padding(
-                    padding: const EdgeInsets.only(right: 5),
-                    child: InkWell(
-                      onTap: () {
-                        showMonthYearPicker(
-                          context: Get.context!,
-                          initialDate: DateTime.now(),
-                          // firstDate: DateTime(DateTime.now().year - 1, 5),
-                          // lastDate: DateTime(DateTime.now().year + 1, 9),
-                          firstDate: DateTime(2010),
-                          lastDate: DateTime(2100),
-                        ).then((date) {
-                          if (date != null) {
-                            print(date);
-                            var outputFormat1 = DateFormat('MM');
-                            var outputFormat2 = DateFormat('yyyy');
-                            var bulan = outputFormat1.format(date);
-                            var tahun = outputFormat2.format(date);
-                            controller.bulanSelectedSearchHistory.value = bulan;
-                            controller.tahunSelectedSearchHistory.value = tahun;
-                            controller.bulanDanTahunNow.value = "$bulan-$tahun";
-                            this
-                                .controller
-                                .bulanSelectedSearchHistory
-                                .refresh();
-                            this
-                                .controller
-                                .tahunSelectedSearchHistory
-                                .refresh();
-                            this.controller.bulanDanTahunNow.refresh();
-                          }
-                        });
-                      },
-                      child: Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                            borderRadius: Constanst.borderStyle1,
-                            border: Border.all(color: Constanst.colorText2)),
+                child: InkWell(
+                  onTap: () {
+                    controller.showDataDepartemenAkses('semua');
+                  },
+                  child: Container(
+                    height: 42,
+                    width: MediaQuery.of(Get.context!).size.width,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: Constanst.borderStyle5,
+                        border: Border.all(color: Constanst.colorText2)),
+                    child: Padding(
+                        padding: const EdgeInsets.only(top: 10, bottom: 8),
                         child: Padding(
-                          padding: EdgeInsets.only(top: 15, bottom: 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 6),
-                                      child: Icon(Iconsax.calendar_2),
-                                    ),
-                                    Flexible(
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(left: 3),
-                                        child: Text(
-                                          "${Constanst.convertDateBulanDanTahun(controller.bulanDanTahunNow.value)}",
-                                          style: TextStyle(fontSize: 16),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    )),
+                          padding: const EdgeInsets.only(left: 8),
+                          child: Text(controller.departemen.value.text),
+                        )),
+                  ),
+                ),
+
+                // Padding(
+                //     padding: const EdgeInsets.only(right: 5),
+                //     child: InkWell(
+                //       onTap: () {
+                //         DatePicker.showPicker(
+                //           Get.context!,
+                //           pickerModel: CustomMonthPicker(
+                //             minTime: DateTime(2020, 1, 1),
+                //             maxTime: DateTime(2050, 1, 1),
+                //             currentTime: DateTime.now(),
+                //           ),
+                //           onConfirm: (time) {
+                //             if (time != null) {
+                //               print("$time");
+                //               var filter = DateFormat('yyyy-MM').format(time);
+                //               var array = filter.split('-');
+                //               var bulan = array[1];
+                //               var tahun = array[0];
+                //               controller.bulanSelectedSearchHistory.value =
+                //                   bulan;
+                //               controller.tahunSelectedSearchHistory.value =
+                //                   tahun;
+                //               controller.bulanDanTahunNow.value =
+                //                   "$bulan-$tahun";
+                //               this
+                //                   .controller
+                //                   .bulanSelectedSearchHistory
+                //                   .refresh();
+                //               this
+                //                   .controller
+                //                   .tahunSelectedSearchHistory
+                //                   .refresh();
+                //               this.controller.bulanDanTahunNow.refresh();
+                //             }
+                //           },
+                //         );
+                //       },
+                //       child: Container(
+                //         height: 50,
+                //         decoration: BoxDecoration(
+                //             borderRadius: Constanst.borderStyle1,
+                //             border: Border.all(color: Constanst.colorText2)),
+                //         child: Padding(
+                //           padding: EdgeInsets.only(top: 15, bottom: 8),
+                //           child: Row(
+                //             crossAxisAlignment: CrossAxisAlignment.start,
+                //             children: [
+                //               Expanded(
+                //                 child: Row(
+                //                   crossAxisAlignment: CrossAxisAlignment.start,
+                //                   children: [
+                //                     Padding(
+                //                       padding: const EdgeInsets.only(left: 6),
+                //                       child: Icon(Iconsax.calendar_2),
+                //                     ),
+                //                     Flexible(
+                //                       child: Padding(
+                //                         padding: const EdgeInsets.only(left: 3),
+                //                         child: Text(
+                //                           "${Constanst.convertDateBulanDanTahun(controller.bulanDanTahunNow.value)}",
+                //                           style: TextStyle(fontSize: 16),
+                //                         ),
+                //                       ),
+                //                     ),
+                //                   ],
+                //                 ),
+                //               ),
+                //             ],
+                //           ),
+                //         ),
+                //       ),
+                //     )),
               ),
               Expanded(
                 flex: 50,
@@ -260,20 +302,23 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
                   padding: const EdgeInsets.only(left: 5),
                   child: InkWell(
                     onTap: () {
-                      controller.showDataDepartemenAkses('semua');
+                      if (controller.selectedViewFilterPengajuan.value == 1) {
+                        controller.showDataStatusAjuan();
+                      }
                     },
                     child: Container(
-                      height: 50,
+                      height: 42,
                       width: MediaQuery.of(Get.context!).size.width,
                       decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: Constanst.borderStyle1,
+                          borderRadius: Constanst.borderStyle5,
                           border: Border.all(color: Constanst.colorText2)),
                       child: Padding(
-                          padding: const EdgeInsets.only(top: 15, bottom: 15),
+                          padding: const EdgeInsets.only(top: 10, bottom: 8),
                           child: Padding(
                             padding: const EdgeInsets.only(left: 8),
-                            child: Text(controller.departemen.value.text),
+                            child: Text(
+                                controller.filterStatusAjuanTerpilih.value),
                           )),
                     ),
                   ),
@@ -281,17 +326,6 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
               ),
             ],
           ),
-          SizedBox(
-            height: 8,
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: pencarianData(),
-              )
-            ],
-          )
         ],
       ),
     );
@@ -300,7 +334,7 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
   Widget pencarianData() {
     return Container(
       decoration: BoxDecoration(
-          borderRadius: Constanst.borderStyle2,
+          borderRadius: Constanst.borderStyle5,
           border: Border.all(color: Constanst.colorText2)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -377,6 +411,11 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
           var jobTitle =
               controller.allNameLaporanTidakhadir.value[index]['job_title'];
           var emId = controller.allNameLaporanTidakhadir.value[index]['em_id'];
+          var statusAjuan =
+              widget.title == "lembur" || widget.title == "tugas_luar"
+                  ? controller.allNameLaporanTidakhadir.value[index]['status']
+                  : controller.allNameLaporanTidakhadir.value[index]
+                      ['leave_status'];
           var jumlahPengajuan = controller.allNameLaporanTidakhadir.value[index]
               ['jumlah_pengajuan'];
 
@@ -421,21 +460,68 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
                       Expanded(
                         flex: 40,
                         child: Center(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "$jumlahPengajuan Pengajuan",
-                                style: TextStyle(
-                                    fontSize: 12, color: Constanst.colorText2),
-                              ),
-                              Text(
-                                "${Constanst.convertDateBulanDanTahun('${controller.bulanDanTahunNow.value}')}",
-                                style: TextStyle(
-                                    fontSize: 12, color: Constanst.colorText2),
-                              ),
-                            ],
-                          ),
+                          child: controller.statusFilterWaktu.value == 0
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "$jumlahPengajuan Pengajuan",
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Constanst.colorText2),
+                                    ),
+                                    Text(
+                                      "${Constanst.convertDateBulanDanTahun('${controller.bulanDanTahunNow.value}')}",
+                                      style: TextStyle(
+                                          fontSize: 12,
+                                          color: Constanst.colorText2),
+                                    ),
+                                  ],
+                                )
+                              : Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 3, right: 3, top: 5, bottom: 5),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      statusAjuan == 'Approve'
+                                          ? Icon(
+                                              Iconsax.tick_square,
+                                              color: Constanst.color5,
+                                              size: 14,
+                                            )
+                                          : statusAjuan == 'Rejected'
+                                              ? Icon(
+                                                  Iconsax.close_square,
+                                                  color: Constanst.color4,
+                                                  size: 14,
+                                                )
+                                              : statusAjuan == 'Pending'
+                                                  ? Icon(
+                                                      Iconsax.timer,
+                                                      color: Constanst.color3,
+                                                      size: 14,
+                                                    )
+                                                  : SizedBox(),
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 3),
+                                        child: Text(
+                                          '$statusAjuan',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: statusAjuan == 'Approve'
+                                                  ? Colors.green
+                                                  : statusAjuan == 'Rejected'
+                                                      ? Colors.red
+                                                      : statusAjuan == 'Pending'
+                                                          ? Constanst.color3
+                                                          : Colors.black),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                         ),
                       ),
                       Expanded(

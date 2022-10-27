@@ -1,24 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
-import 'package:month_year_picker/month_year_picker.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/cuti_controller.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
+import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/screen/absen/detail_absen.dart';
 import 'package:siscom_operasional/screen/absen/form/form_tidakMasukKerja.dart';
 import 'package:siscom_operasional/screen/absen/laporan/laporan_tidakMasuk.dart';
-import 'package:siscom_operasional/screen/cuti/form_pengajuan_cuti.dart';
+import 'package:siscom_operasional/screen/absen/form/form_pengajuan_cuti.dart';
 import 'package:siscom_operasional/screen/dashboard.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
+import 'package:siscom_operasional/utils/month_year_picker.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 
-class RiwayatCuti extends StatelessWidget {
+class RiwayatCuti extends StatefulWidget {
+  @override
+  _RiwayatCutiState createState() => _RiwayatCutiState();
+}
+
+class _RiwayatCutiState extends State<RiwayatCuti> {
   final controller = Get.put(CutiController());
+  var controllerGlobal = Get.put(GlobalController());
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> refreshData() async {
+    await Future.delayed(Duration(seconds: 2));
+    controller.loadDataAjuanCuti();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,13 +107,17 @@ class RiwayatCuti extends StatelessWidget {
                                 height: 8,
                               ),
                               Flexible(
-                                  child: controller
-                                          .listHistoryAjuan.value.isEmpty
-                                      ? Center(
-                                          child: Obx(() => Text(
-                                              controller.stringLoading.value)),
-                                        )
-                                      : listAjuanCuti()),
+                                child: RefreshIndicator(
+                                    color: Constanst.colorPrimary,
+                                    onRefresh: refreshData,
+                                    child: controller
+                                            .listHistoryAjuan.value.isEmpty
+                                        ? Center(
+                                            child: Obx(() => Text(controller
+                                                .stringLoading.value)),
+                                          )
+                                        : listAjuanCuti()),
+                              )
                             ],
                           ))
                     ],
@@ -169,29 +191,30 @@ class RiwayatCuti extends StatelessWidget {
       decoration: Constanst.styleBoxDecoration1,
       child: InkWell(
         onTap: () {
-          showMonthYearPicker(
-            context: Get.context!,
-            initialDate: DateTime.now(),
-            // firstDate: DateTime(DateTime.now().year - 1, 5),
-            // lastDate: DateTime(DateTime.now().year + 1, 9),
-            firstDate: DateTime(2010),
-            lastDate: DateTime(2100),
-          ).then((date) {
-            if (date != null) {
-              print(date);
-              var outputFormat1 = DateFormat('MM');
-              var outputFormat2 = DateFormat('yyyy');
-              var bulan = outputFormat1.format(date);
-              var tahun = outputFormat2.format(date);
-              controller.bulanSelectedSearchHistory.value = bulan;
-              controller.tahunSelectedSearchHistory.value = tahun;
-              controller.bulanDanTahunNow.value = "$bulan-$tahun";
-              controller.loadDataAjuanCuti();
-              this.controller.bulanSelectedSearchHistory.refresh();
-              this.controller.tahunSelectedSearchHistory.refresh();
-              this.controller.bulanDanTahunNow.refresh();
-            }
-          });
+          DatePicker.showPicker(
+            Get.context!,
+            pickerModel: CustomMonthPicker(
+              minTime: DateTime(2020, 1, 1),
+              maxTime: DateTime(2050, 1, 1),
+              currentTime: DateTime.now(),
+            ),
+            onConfirm: (time) {
+              if (time != null) {
+                print("$time");
+                var filter = DateFormat('yyyy-MM').format(time);
+                var array = filter.split('-');
+                var bulan = array[1];
+                var tahun = array[0];
+                controller.bulanSelectedSearchHistory.value = bulan;
+                controller.tahunSelectedSearchHistory.value = tahun;
+                controller.bulanDanTahunNow.value = "$bulan-$tahun";
+                controller.loadDataAjuanCuti();
+                this.controller.bulanSelectedSearchHistory.refresh();
+                this.controller.tahunSelectedSearchHistory.refresh();
+                this.controller.bulanDanTahunNow.refresh();
+              }
+            },
+          );
         },
         child: Padding(
           padding: EdgeInsets.only(top: 15, bottom: 10),
@@ -271,23 +294,39 @@ class RiwayatCuti extends StatelessWidget {
                                   ? Constanst.colorPrimary
                                   : Constanst.colorText2,
                             )
-                          : namaType == "Rejected"
+                          : namaType == "Approve 1"
                               ? Icon(
-                                  Iconsax.close_square,
+                                  Iconsax.tick_square,
                                   size: 14,
                                   color: status == true
                                       ? Constanst.colorPrimary
                                       : Constanst.colorText2,
                                 )
-                              : namaType == "Pending"
+                              : namaType == "Approve 2"
                                   ? Icon(
-                                      Iconsax.timer,
+                                      Iconsax.tick_square,
                                       size: 14,
                                       color: status == true
                                           ? Constanst.colorPrimary
                                           : Constanst.colorText2,
                                     )
-                                  : SizedBox(),
+                                  : namaType == "Rejected"
+                                      ? Icon(
+                                          Iconsax.close_square,
+                                          size: 14,
+                                          color: status == true
+                                              ? Constanst.colorPrimary
+                                              : Constanst.colorText2,
+                                        )
+                                      : namaType == "Pending"
+                                          ? Icon(
+                                              Iconsax.timer,
+                                              size: 14,
+                                              color: status == true
+                                                  ? Constanst.colorPrimary
+                                                  : Constanst.colorText2,
+                                            )
+                                          : SizedBox(),
                       Padding(
                         padding: const EdgeInsets.only(left: 6, right: 6),
                         child: Text(
@@ -312,7 +351,7 @@ class RiwayatCuti extends StatelessWidget {
   Widget pencarianData() {
     return Container(
       decoration: BoxDecoration(
-          borderRadius: Constanst.borderStyle1,
+          borderRadius: Constanst.borderStyle5,
           border: Border.all(color: Constanst.colorNonAktif)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -375,7 +414,9 @@ class RiwayatCuti extends StatelessWidget {
 
   Widget listAjuanCuti() {
     return ListView.builder(
-        physics: BouncingScrollPhysics(),
+        physics: controller.listHistoryAjuan.value.length <= 8
+            ? AlwaysScrollableScrollPhysics()
+            : BouncingScrollPhysics(),
         itemCount: controller.listHistoryAjuan.value.length,
         itemBuilder: (context, index) {
           var nomorAjuan =
@@ -430,7 +471,7 @@ class RiwayatCuti extends StatelessWidget {
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 5),
                                 child: Text(
-                                  namaTypeAjuan,
+                                  "$namaTypeAjuan",
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16),
@@ -510,24 +551,6 @@ class RiwayatCuti extends StatelessWidget {
                               color: Constanst.colorText1,
                               fontWeight: FontWeight.bold),
                         ),
-                        // SizedBox(
-                        //   height: 5,
-                        // ),
-                        // Text(
-                        //     "${Constanst.convertDate("$tanggalAjuanDari")}  --  ${Constanst.convertDate("$tanggalAjuanSampai")} (${durasi} Hari)"),
-                        // SizedBox(
-                        //   height: 5,
-                        // ),
-                        // // Text("$tanggalTerpilih ($durasi Hari)"),
-                        // // SizedBox(
-                        // //   height: 5,
-                        // // ),
-                        // Text(
-                        //   alasan,
-                        //   textAlign: TextAlign.justify,
-                        //   style: TextStyle(
-                        //       fontSize: 12, color: Constanst.colorText2),
-                        // ),
                         SizedBox(
                           height: 5,
                         ),
@@ -596,7 +619,47 @@ class RiwayatCuti extends StatelessWidget {
                                               SizedBox(
                                                 height: 5,
                                               ),
-                                              Text("")
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Image.asset(
+                                                    'assets/whatsapp.png',
+                                                    width: 25,
+                                                    height: 25,
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 6),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 3),
+                                                      child: InkWell(
+                                                          onTap: () {
+                                                            var dataEmployee = {
+                                                              'nameType':
+                                                                  '$namaTypeAjuan',
+                                                              'nomor_ajuan':
+                                                                  '$nomorAjuan',
+                                                            };
+                                                            controllerGlobal
+                                                                .showDataPilihAtasan(
+                                                                    dataEmployee);
+                                                          },
+                                                          child: Text(
+                                                            "Konfirmasi via WA",
+                                                            style: TextStyle(
+                                                              decoration:
+                                                                  TextDecoration
+                                                                      .underline,
+                                                            ),
+                                                          )),
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
                                             ],
                                           ),
                                   ),

@@ -5,10 +5,11 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:siscom_operasional/controller/Izin_controller.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
-import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/controller/lembur_controller.dart';
 import 'package:siscom_operasional/controller/pesan_controller.dart';
+import 'package:siscom_operasional/screen/absen/form/form_izin.dart';
 import 'package:siscom_operasional/screen/absen/form/form_lembur.dart';
 import 'package:siscom_operasional/screen/absen/laporan/laporan_tidakMasuk.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
@@ -18,23 +19,23 @@ import 'package:siscom_operasional/utils/month_year_picker.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 
-class Lembur extends StatefulWidget {
+class Izin extends StatefulWidget {
   @override
-  _LemburState createState() => _LemburState();
+  _IzinState createState() => _IzinState();
 }
 
-class _LemburState extends State<Lembur> {
-  final controller = Get.put(LemburController());
-  var controllerGlobal = Get.put(GlobalController());
+class _IzinState extends State<Izin> {
+  final controller = Get.put(IzinController());
 
   @override
   void initState() {
+    controller.startData();
     super.initState();
   }
 
   Future<void> refreshData() async {
     await Future.delayed(Duration(seconds: 2));
-    controller.loadDataLembur();
+    controller.startData();
   }
 
   @override
@@ -46,7 +47,7 @@ class _LemburState extends State<Lembur> {
           automaticallyImplyLeading: false,
           elevation: 2,
           flexibleSpace: AppbarMenu1(
-            title: "Lembur",
+            title: "Izin",
             colorTitle: Constanst.colorText3,
             colorIcon: Constanst.colorText3,
             icon: 1,
@@ -86,7 +87,7 @@ class _LemburState extends State<Lembur> {
                   height: 16,
                 ),
                 Text(
-                  "Riwayat Pengajuan Lembur",
+                  "Riwayat Pengajuan Izin",
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: Constanst.sizeTitle,
@@ -97,13 +98,14 @@ class _LemburState extends State<Lembur> {
                 ),
                 Flexible(
                     child: RefreshIndicator(
-                        color: Constanst.colorPrimary,
-                        onRefresh: refreshData,
-                        child: controller.listLembur.value.isEmpty
-                            ? Center(
-                                child: Text(controller.loadingString.value),
-                              )
-                            : riwayatLembur()))
+                  color: Constanst.colorPrimary,
+                  onRefresh: refreshData,
+                  child: controller.listRiwayatIzin.value.isEmpty
+                      ? Center(
+                          child: Text(controller.loadingString.value),
+                        )
+                      : riwayatLembur(),
+                ))
               ],
             ),
           ),
@@ -128,21 +130,21 @@ class _LemburState extends State<Lembur> {
                       child: Icon(Iconsax.minus_cirlce),
                       backgroundColor: Color(0xff2F80ED),
                       foregroundColor: Colors.white,
-                      label: 'Laporan Lembur',
+                      label: 'Laporan Izin',
                       onTap: () {
-                        Get.to(LaporanTidakMasuk(
-                          title: 'lembur',
-                        ));
+                        // Get.to(LaporanTidakMasuk(
+                        //   title: 'izin',
+                        // ));
                       }),
                   SpeedDialChild(
                       child: Icon(Iconsax.add_square),
                       backgroundColor: Color(0xff14B156),
                       foregroundColor: Colors.white,
-                      label: 'Buat Pengajuan Lembur',
+                      label: 'Buat Pengajuan Izin',
                       onTap: () {
-                        Get.to(FormLembur(
-                          dataForm: [[], false],
-                        ));
+                        // Get.offAll(FormLembur(
+                        //   dataForm: [[], false],
+                        // ));
                       }),
                 ],
               ),
@@ -153,9 +155,9 @@ class _LemburState extends State<Lembur> {
             child: controller.showButtonlaporan.value == true
                 ? SizedBox()
                 : TextButtonWidget2(
-                    title: "Buat Pengajuan Lembur",
+                    title: "Buat Pengajuan Izin",
                     onTap: () {
-                      Get.to(FormLembur(
+                      Get.to(Formizin(
                         dataForm: [[], false],
                       ));
                     },
@@ -180,8 +182,8 @@ class _LemburState extends State<Lembur> {
             DatePicker.showPicker(
               Get.context!,
               pickerModel: CustomMonthPicker(
-                minTime: DateTime(2020, 1, 1),
-                maxTime: DateTime(2050, 1, 1),
+                minTime: DateTime(2000, 1, 1),
+                maxTime: DateTime(2100, 1, 1),
                 currentTime: DateTime.now(),
               ),
               onConfirm: (time) {
@@ -197,7 +199,7 @@ class _LemburState extends State<Lembur> {
                   this.controller.bulanSelectedSearchHistory.refresh();
                   this.controller.tahunSelectedSearchHistory.refresh();
                   this.controller.bulanDanTahunNow.refresh();
-                  controller.loadDataLembur();
+                  // controller.loadDataLembur();
                 }
               },
             );
@@ -279,39 +281,23 @@ class _LemburState extends State<Lembur> {
                                   ? Constanst.colorPrimary
                                   : Constanst.colorText2,
                             )
-                          : namaType == "Approve 1"
+                          : namaType == "Rejected"
                               ? Icon(
-                                  Iconsax.tick_square,
+                                  Iconsax.close_square,
                                   size: 14,
                                   color: status == true
                                       ? Constanst.colorPrimary
                                       : Constanst.colorText2,
                                 )
-                              : namaType == "Approve 2"
+                              : namaType == "Pending"
                                   ? Icon(
-                                      Iconsax.tick_square,
+                                      Iconsax.timer,
                                       size: 14,
                                       color: status == true
                                           ? Constanst.colorPrimary
                                           : Constanst.colorText2,
                                     )
-                                  : namaType == "Rejected"
-                                      ? Icon(
-                                          Iconsax.close_square,
-                                          size: 14,
-                                          color: status == true
-                                              ? Constanst.colorPrimary
-                                              : Constanst.colorText2,
-                                        )
-                                      : namaType == "Pending"
-                                          ? Icon(
-                                              Iconsax.timer,
-                                              size: 14,
-                                              color: status == true
-                                                  ? Constanst.colorPrimary
-                                                  : Constanst.colorText2,
-                                            )
-                                          : SizedBox(),
+                                  : SizedBox(),
                       Padding(
                         padding: const EdgeInsets.only(left: 6, right: 6),
                         child: Text(
@@ -383,7 +369,7 @@ class _LemburState extends State<Lembur> {
                               onPressed: () {
                                 controller.statusCari.value = false;
                                 controller.cari.value.text = "";
-                                controller.onReady();
+                                controller.startData();
                               },
                             ),
                           )
@@ -399,26 +385,37 @@ class _LemburState extends State<Lembur> {
 
   Widget riwayatLembur() {
     return ListView.builder(
-        physics: controller.listLembur.value.length <= 8
+        physics: controller.listRiwayatIzin.value.length <= 20
             ? AlwaysScrollableScrollPhysics()
             : BouncingScrollPhysics(),
-        itemCount: controller.listLembur.value.length,
+        itemCount: controller.listRiwayatIzin.value.length,
         itemBuilder: (context, index) {
-          var nomorAjuan = controller.listLembur.value[index]['nomor_ajuan'];
-          var dariJam = controller.listLembur.value[index]['dari_jam'];
-          var sampaiJam = controller.listLembur.value[index]['sampai_jam'];
+          var nomorAjuan =
+              controller.listRiwayatIzin.value[index]['nomor_ajuan'];
+          var dariJam = controller.listRiwayatIzin.value[index]['dari_jam'];
+          var nameType = controller.listRiwayatIzin.value[index]['nameType'];
           var tanggalPengajuan =
-              controller.listLembur.value[index]['atten_date'];
-          var status = controller.listLembur.value[index]['status'];
+              controller.listRiwayatIzin.value[index]['tgl_ajuan'];
+          var tanggalBuatPengajuan =
+              controller.listRiwayatIzin.value[index]['atten_date'];
+          var status = controller.listRiwayatIzin.value[index]['status'];
           var alasanReject =
-              controller.listLembur.value[index]['alasan_reject'];
-          var approveDate = controller.listLembur.value[index]['approve_date'];
-          var uraian = controller.listLembur.value[index]['uraian'];
-          var approve = controller.listLembur.value[index]['approve_by'];
+              controller.listRiwayatIzin.value[index]['alasan_reject'];
+          var approveDate =
+              controller.listRiwayatIzin.value[index]['approve_date'];
+          var uraian = controller.listRiwayatIzin.value[index]['uraian'];
+          var approve = controller.listRiwayatIzin.value[index]['approve_by'];
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                "${Constanst.convertDate('$tanggalBuatPengajuan')}",
+                style: TextStyle(color: Constanst.colorText2),
+              ),
               SizedBox(
                 height: 10,
               ),
@@ -451,7 +448,7 @@ class _LemburState extends State<Lembur> {
                             child: Padding(
                               padding: const EdgeInsets.only(top: 5),
                               child: Text(
-                                Constanst.convertDate('$tanggalPengajuan'),
+                                nameType,
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 16),
                               ),
@@ -534,7 +531,7 @@ class _LemburState extends State<Lembur> {
                         height: 5,
                       ),
                       Text(
-                        '${dariJam} sd ${sampaiJam}',
+                        '${Constanst.convertDate("$tanggalPengajuan")}  ( ${dariJam} )',
                         textAlign: TextAlign.justify,
                         style: TextStyle(
                             fontSize: 14, color: Constanst.colorText2),
@@ -618,9 +615,6 @@ class _LemburState extends State<Lembur> {
                                             SizedBox(
                                               height: 5,
                                             ),
-                                            SizedBox(
-                                              height: 5,
-                                            ),
                                             Row(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
@@ -640,15 +634,10 @@ class _LemburState extends State<Lembur> {
                                                             top: 3),
                                                     child: InkWell(
                                                         onTap: () {
-                                                          var dataEmployee = {
-                                                            'nameType':
-                                                                'LEMBUR',
-                                                            'nomor_ajuan':
-                                                                '$nomorAjuan',
-                                                          };
-                                                          controllerGlobal
-                                                              .showDataPilihAtasan(
-                                                                  dataEmployee);
+                                                          controller.showDataPilihAtasan(
+                                                              controller
+                                                                  .listRiwayatIzin
+                                                                  .value[index]);
                                                         },
                                                         child: Text(
                                                           "Konfirmasi via WA",
@@ -681,7 +670,8 @@ class _LemburState extends State<Lembur> {
                                               onTap: () {
                                                 controller
                                                     .showModalBatalPengajuan(
-                                                        controller.listLembur
+                                                        controller
+                                                            .listRiwayatIzin
                                                             .value[index]);
                                               },
                                               child: Text(
@@ -698,15 +688,15 @@ class _LemburState extends State<Lembur> {
                                             child: Container(
                                               decoration: BoxDecoration(
                                                   borderRadius:
-                                                      Constanst.borderStyle1,
+                                                      Constanst.borderStyle5,
                                                   border: Border.all(
                                                       color: Constanst
                                                           .colorPrimary)),
                                               child: InkWell(
                                                 onTap: () {
-                                                  Get.offAll(FormLembur(
+                                                  Get.offAll(Formizin(
                                                     dataForm: [
-                                                      controller.listLembur
+                                                      controller.listRiwayatIzin
                                                           .value[index],
                                                       true
                                                     ],

@@ -1,14 +1,15 @@
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
-import 'package:month_year_picker/month_year_picker.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/screen/absen/history_absen.dart';
 import 'package:siscom_operasional/screen/absen/laporan/laporan_absen_karyawan.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
+import 'package:siscom_operasional/utils/month_year_picker.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 import 'package:bottom_picker/bottom_picker.dart';
@@ -26,12 +27,13 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
   @override
   void initState() {
     controller.onReady();
+    controller.getPlaceCoordinate();
     super.initState();
   }
 
   Future<void> refreshData() async {
     await Future.delayed(Duration(seconds: 2));
-    controller.carilaporanAbsenkaryawan('semua');
+    controller.onReady();
   }
 
   @override
@@ -45,13 +47,10 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
             flexibleSpace: AppbarMenu1(
               title: "Laporan Absensi",
               colorTitle: Colors.black,
-              icon: 3,
+              icon: 1,
               rightIcon: Icon(Iconsax.document_download),
               onTap: () {
                 Get.back();
-              },
-              onTap2: () {
-                UtilsAlert.showToast("Comming Soon");
               },
             )),
         body: WillPopScope(
@@ -71,14 +70,11 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                       ),
                       controller.bulanDanTahunNow.value == ""
                           ? SizedBox()
-                          : cariData(),
+                          : pencarianData(),
                       SizedBox(
                         height: 8,
                       ),
-                      Divider(
-                        height: 5,
-                        color: Constanst.colorNonAktif,
-                      ),
+                      cariData(),
                       SizedBox(
                         height: 8,
                       ),
@@ -87,23 +83,29 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              flex: 80,
+                              flex: 75,
                               child: Container(
+                                margin: EdgeInsets.only(top: 6),
                                 alignment: Alignment.centerLeft,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    controller.selectedViewFilterAbsen.value ==
+                                            0
+                                        ? Text(
+                                            "${controller.namaDepartemenTerpilih.value}  (${Constanst.convertDateBulanDanTahun('${controller.bulanDanTahunNow}')})",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14),
+                                          )
+                                        : Text(
+                                            "${controller.namaDepartemenTerpilih.value}  (${Constanst.convertDate('${DateFormat('yyyy-MM-dd').format(controller.pilihTanggalTelatAbsen.value)}')})",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14),
+                                          ),
                                     Text(
-                                      "List Laporan Absensi Karyawan",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14),
-                                    ),
-                                    SizedBox(
-                                      height: 5,
-                                    ),
-                                    Text(
-                                      controller.namaDepartemenTerpilih.value,
+                                      "${controller.listLaporanFilter.value.length} Data",
                                       style: TextStyle(
                                           color: Constanst.colorText2,
                                           fontSize: 12),
@@ -113,25 +115,42 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                               ),
                             ),
                             Expanded(
-                              flex: 20,
-                              child: IconButton(
-                                onPressed: () {
-                                  BottomPicker.date(
-                                    title: "Pilih tanggal Laporan",
-                                    titleStyle: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 15,
-                                        color: Constanst.colorPrimary),
-                                    onChange: (index) {
-                                    },
-                                    onSubmit: (index) {
-                                      controller.cariLaporanAbsenTanggal(index);
-                                    },
-                                  ).show(context);
-                                },
-                                icon: Icon(Iconsax.calendar_2),
-                              ),
-                            )
+                                flex: 25,
+                                child: InkWell(
+                                  onTap: () {
+                                    controller.pageViewFilterAbsen =
+                                        PageController(
+                                            initialPage: controller
+                                                .selectedViewFilterAbsen.value);
+                                    controller.widgetButtomSheetFilterData();
+                                  },
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: Constanst.borderStyle5,
+                                        border: Border.all(
+                                            color: Constanst.colorText2)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          top: 8.0,
+                                          bottom: 8.0,
+                                          left: 6.0,
+                                          right: 6.0),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text("Filter"),
+                                          Padding(
+                                            padding: EdgeInsets.only(left: 6),
+                                            child: Icon(Iconsax.setting_4),
+                                          )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ))
                           ],
                         ),
                       ),
@@ -163,131 +182,88 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
   }
 
   Widget cariData() {
-    return SizedBox(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                flex: 50,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+            flex: 50,
+            child: InkWell(
+              onTap: () {
+                controller.showDataDepartemenAkses('semua');
+              },
+              child: Container(
+                height: 42,
+                width: MediaQuery.of(Get.context!).size.width,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: Constanst.borderStyle5,
+                    border: Border.all(color: Constanst.colorText2)),
                 child: Padding(
-                    padding: const EdgeInsets.only(right: 5),
-                    child: InkWell(
-                      onTap: () {
-                        showMonthYearPicker(
-                          context: Get.context!,
-                          initialDate: DateTime.now(),
-                          // firstDate: DateTime(DateTime.now().year - 1, 5),
-                          // lastDate: DateTime(DateTime.now().year + 1, 9),
-                          firstDate: DateTime(2010),
-                          lastDate: DateTime(2100),
-                        ).then((date) {
-                          if (date != null) {
-                            print(date);
-                            var outputFormat1 = DateFormat('MM');
-                            var outputFormat2 = DateFormat('yyyy');
-                            var bulan = outputFormat1.format(date);
-                            var tahun = outputFormat2.format(date);
-                            controller.bulanSelectedSearchHistory.value = bulan;
-                            controller.tahunSelectedSearchHistory.value = tahun;
-                            controller.bulanDanTahunNow.value = "$bulan-$tahun";
-                            this
-                                .controller
-                                .bulanSelectedSearchHistory
-                                .refresh();
-                            this
-                                .controller
-                                .tahunSelectedSearchHistory
-                                .refresh();
-                            this.controller.bulanDanTahunNow.refresh();
-                          }
-                        });
-                      },
-                      child: Container(
-                        height: 50,
-                        decoration: BoxDecoration(
-                            borderRadius: Constanst.borderStyle1,
-                            border: Border.all(color: Constanst.colorText2)),
-                        child: Padding(
-                          padding: EdgeInsets.only(top: 15, bottom: 8),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Padding(
-                                      padding: const EdgeInsets.only(left: 6),
-                                      child: Icon(Iconsax.calendar_2),
+                    padding: const EdgeInsets.only(top: 10, bottom: 8),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Text(controller.departemen.value.text),
+                    )),
+              ),
+            )),
+        Expanded(
+          flex: 50,
+          child: Padding(
+            padding: const EdgeInsets.only(left: 5),
+            child: InkWell(
+              onTap: () {
+                controller.showDataLokasiKoordinate();
+              },
+              child: Container(
+                height: 42,
+                width: MediaQuery.of(Get.context!).size.width,
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: Constanst.borderStyle5,
+                    border: Border.all(color: Constanst.colorText2)),
+                child: Padding(
+                    padding: const EdgeInsets.only(top: 10, bottom: 8),
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                              flex: 80,
+                              child: Obx(
+                                () => Text(
+                                    controller.filterLokasiKoordinate.value),
+                              )),
+                          controller.filterLokasiKoordinate.value == "Lokasi"
+                              ? SizedBox()
+                              : Expanded(
+                                  flex: 20,
+                                  child: InkWell(
+                                    onTap: () {
+                                      controller.refreshFilterKoordinate();
+                                    },
+                                    child: Icon(
+                                      Iconsax.close_circle,
+                                      size: 20,
+                                      color: Colors.red,
                                     ),
-                                    Flexible(
-                                      child: Padding(
-                                        padding: const EdgeInsets.only(left: 3),
-                                        child: Text(
-                                          "${Constanst.convertDateBulanDanTahun(controller.bulanDanTahunNow.value)}",
-                                          style: TextStyle(fontSize: 16),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                                  ),
+                                )
+                        ],
                       ),
                     )),
               ),
-              Expanded(
-                flex: 50,
-                child: Padding(
-                  padding: const EdgeInsets.only(left: 5),
-                  child: InkWell(
-                    onTap: () {
-                      controller.showDataDepartemenAkses('semua');
-                    },
-                    child: Container(
-                      height: 50,
-                      width: MediaQuery.of(Get.context!).size.width,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: Constanst.borderStyle1,
-                          border: Border.all(color: Constanst.colorText2)),
-                      child: Padding(
-                          padding: const EdgeInsets.only(top: 15, bottom: 15),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: Text(controller.departemen.value.text),
-                          )),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
-          SizedBox(
-            height: 8,
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: pencarianData(),
-              )
-            ],
-          )
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   Widget pencarianData() {
     return Container(
       decoration: BoxDecoration(
-          borderRadius: Constanst.borderStyle2,
+          borderRadius: Constanst.borderStyle5,
           border: Border.all(color: Constanst.colorText2)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -335,7 +311,9 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                               onPressed: () {
                                 controller.statusCari.value = false;
                                 controller.cari.value.text = "";
-                                controller.onReady();
+                                controller.listLaporanFilter.value =
+                                    controller.allListLaporanFilter.value;
+                                this.controller.listLaporanFilter.refresh();
                               },
                             ),
                           )

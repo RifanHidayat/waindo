@@ -7,6 +7,7 @@ import 'package:siscom_operasional/screen/dashboard.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
+import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 
 class AuthController extends GetxController {
@@ -79,6 +80,7 @@ class AuthController extends GetxController {
         List<UserModel> getData = AppData.informasiUser ?? [];
         var lastLoginUser = "";
         var getEmId = "";
+        var getAktif = "";
         for (var element in valueBody['data']) {
           var data = UserModel(
             em_id: element['em_id'] ?? "",
@@ -98,22 +100,37 @@ class AuthController extends GetxController {
             emp_jobTitle: element['emp_jobTitle'] ?? "",
             emp_departmen: element['emp_departmen'] ?? "",
             em_control: element['em_control'] ?? 0,
+            em_control_acess: element['em_control_access'] ?? 0,
             emp_att_working: element['emp_att_working'] ?? 0,
             em_hak_akses: element['em_hak_akses'] ?? "",
           );
           getData.add(data);
           lastLoginUser = "${element['last_login']}";
           getEmId = "${element['em_id']}";
+          getAktif = "${element['status_aktif']}";
         }
         print(lastLoginUser);
-        if (lastLoginUser == "" ||
-            lastLoginUser == "null" ||
-            lastLoginUser == null ||
-            lastLoginUser == "0000-00-00 00:00:00") {
-          print("sampe sini");
-          fillLastLoginUser(getEmId, getData);
+        if (getAktif == "ACTIVE") {
+          if (lastLoginUser == "" ||
+              lastLoginUser == "null" ||
+              lastLoginUser == null ||
+              lastLoginUser == "0000-00-00 00:00:00") {
+            print("sampe sini");
+            fillLastLoginUser(getEmId, getData);
+          } else {
+            var filterLastLogin = Constanst.convertDate1("$lastLoginUser");
+            var dateNow = DateTime.now();
+            var convert = DateFormat('dd-MM-yyyy').format(dateNow);
+            if (convert != filterLastLogin) {
+              print("sampe sini 2");
+              fillLastLoginUser(getEmId, getData);
+            } else {
+              UtilsAlert.showToast("Anda telah masuk di perangkat lain");
+              Navigator.pop(Get.context!);
+            }
+          }
         } else {
-          UtilsAlert.showToast("Anda telah masuk di perangkat lain");
+          UtilsAlert.showToast("Maaf status anda sudah tidak aktif");
           Navigator.pop(Get.context!);
         }
       }

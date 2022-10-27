@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
-import 'package:month_year_picker/month_year_picker.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/screen/absen/detail_absen.dart';
@@ -14,8 +13,10 @@ import 'package:siscom_operasional/screen/absen/laporan/laporan_belum_absen.dart
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
+import 'package:siscom_operasional/utils/month_year_picker.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class HistoryAbsen extends StatefulWidget {
   var dataForm;
@@ -165,29 +166,30 @@ class _HistoryAbsenState extends State<HistoryAbsen> {
     return InkWell(
       onTap: () async {
         print("kesini");
-        showMonthYearPicker(
-          context: context,
-          initialDate: DateTime.now(),
-          // firstDate: DateTime(DateTime.now().year - 1, 5),
-          // lastDate: DateTime(DateTime.now().year + 1, 9),
-          firstDate: DateTime(2010),
-          lastDate: DateTime(2100),
-        ).then((date) {
-          if (date != null) {
-            print(date);
-            var outputFormat1 = DateFormat('MM');
-            var outputFormat2 = DateFormat('yyyy');
-            var bulan = outputFormat1.format(date);
-            var tahun = outputFormat2.format(date);
-            controller.bulanSelectedSearchHistory.value = bulan;
-            controller.tahunSelectedSearchHistory.value = tahun;
-            controller.bulanDanTahunNow.value = "$bulan-$tahun";
-            this.controller.bulanSelectedSearchHistory.refresh();
-            this.controller.tahunSelectedSearchHistory.refresh();
-            this.controller.bulanDanTahunNow.refresh();
-            controller.loadHistoryAbsenUser();
-          }
-        });
+        DatePicker.showPicker(
+          context,
+          pickerModel: CustomMonthPicker(
+            minTime: DateTime(2020, 1, 1),
+            maxTime: DateTime(2050, 1, 1),
+            currentTime: DateTime.now(),
+          ),
+          onConfirm: (time) {
+            if (time != null) {
+              print("$time");
+              var filter = DateFormat('yyyy-MM').format(time);
+              var array = filter.split('-');
+              var bulan = array[1];
+              var tahun = array[0];
+              controller.bulanSelectedSearchHistory.value = bulan;
+              controller.tahunSelectedSearchHistory.value = tahun;
+              controller.bulanDanTahunNow.value = "$bulan-$tahun";
+              this.controller.bulanSelectedSearchHistory.refresh();
+              this.controller.tahunSelectedSearchHistory.refresh();
+              this.controller.bulanDanTahunNow.refresh();
+              controller.loadHistoryAbsenUser();
+            }
+          },
+        );
       },
       child: Container(
         decoration: Constanst.styleBoxDecoration1,

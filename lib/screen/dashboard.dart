@@ -789,6 +789,8 @@ class _DashboardState extends State<Dashboard> {
                                           child: CircularProgressIndicator(
                                               value: downloadProgress.progress),
                                         ),
+                                        errorWidget: (context, url, error) =>
+                                            SizedBox(),
                                         fit: BoxFit.cover,
                                         width: 32,
                                         height: 32,

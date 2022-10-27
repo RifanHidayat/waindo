@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
+import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/screen/pesan/approval.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
@@ -35,6 +36,7 @@ class PesanController extends GetxController {
   var bulanSelectedSearchHistory = "".obs;
   var tahunSelectedSearchHistory = "".obs;
   var bulanDanTahunNow = "".obs;
+  var valuePolaPersetujuan = "".obs;
 
   var statusScreenInfoApproval = false.obs;
   var statusFilteriwayat = false.obs;
@@ -60,11 +62,30 @@ class PesanController extends GetxController {
     this.bulanSelectedSearchHistory.refresh();
     this.tahunSelectedSearchHistory.refresh();
     this.bulanDanTahunNow.refresh();
-    loadApproveInfo();
-    loadApproveHistory();
+    getLoadsysData();
+  }
+
+  void getLoadsysData() {
+    var connect = Api.connectionApi("get", "", "sysdata");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        for (var element in valueBody['data']) {
+          if (element['kode'] == "013") {
+            valuePolaPersetujuan.value = "${element['name']}";
+            this.valuePolaPersetujuan.refresh();
+            loadApproveInfo();
+            loadApproveHistory();
+          }
+        }
+      }
+    });
   }
 
   void loadApproveInfo() {
+    var urlLoad = valuePolaPersetujuan.value == "1"
+        ? "load_approve_info"
+        : "load_approve_info_multi";
     statusScreenInfoApproval.value = true;
     var dataUser = AppData.informasiUser;
     var getEmid = dataUser![0].em_id;
@@ -73,7 +94,7 @@ class PesanController extends GetxController {
       'bulan': bulanSelectedSearchHistory.value,
       'tahun': tahunSelectedSearchHistory.value,
     };
-    var connect = Api.connectionApi("post", body, "load_approve_info");
+    var connect = Api.connectionApi("post", body, urlLoad);
     connect.then((dynamic res) async {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
@@ -102,6 +123,9 @@ class PesanController extends GetxController {
   }
 
   void loadApproveHistory() {
+    var url = valuePolaPersetujuan.value == "1"
+        ? "load_approve_history"
+        : "load_approve_history_multi";
     riwayatPersetujuan.value.clear();
     allRiwayatPersetujuan.value.clear();
     var dataUser = AppData.informasiUser;
@@ -111,7 +135,7 @@ class PesanController extends GetxController {
       'bulan': bulanSelectedSearchHistory.value,
       'tahun': tahunSelectedSearchHistory.value,
     };
-    var connect = Api.connectionApi("post", body, "load_approve_history");
+    var connect = Api.connectionApi("post", body, url);
     connect.then((dynamic res) async {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
@@ -126,7 +150,13 @@ class PesanController extends GetxController {
                     Constanst.convertDate1("${element['start_date']}");
                 var tanggalSampai =
                     Constanst.convertDate1("${element['end_date']}");
-                var tipe = element['typeid'] == 12 ? 'Izin' : 'Sakit';
+                var nama_approve = valuePolaPersetujuan.value == "1"
+                    ? element['apply_by']
+                    : element['apply2_by'] == "" ||
+                            element['apply2_by'] == null ||
+                            element['apply2_by'] == "null"
+                        ? element['apply_by']
+                        : element['apply2_by'];
                 var data = {
                   'id': element['id'],
                   'nama_pengaju': convertNama,
@@ -138,7 +168,7 @@ class PesanController extends GetxController {
                   'catatan': element['reason'],
                   'status': element['leave_status'],
                   'apply_date': element['apply_date'],
-                  'apply_by': element['apply_by'],
+                  'apply_by': nama_approve,
                   'alasan_reject': element['alasan_reject'],
                   'date_selected': element['date_selected'],
                   'nama_tipe': element['nama_tipe'],
@@ -158,6 +188,13 @@ class PesanController extends GetxController {
                     Constanst.convertDate1("${element['start_date']}");
                 var tanggalSampai =
                     Constanst.convertDate1("${element['end_date']}");
+                var nama_approve = valuePolaPersetujuan.value == "1"
+                    ? element['apply_by']
+                    : element['apply2_by'] == "" ||
+                            element['apply2_by'] == null ||
+                            element['apply2_by'] == "null"
+                        ? element['apply_by']
+                        : element['apply2_by'];
                 var data = {
                   'id': element['id'],
                   'nama_pengaju': convertNama,
@@ -169,7 +206,7 @@ class PesanController extends GetxController {
                   'catatan': element['reason'],
                   'status': element['leave_status'],
                   'apply_date': element['apply_date'],
-                  'apply_by': element['apply_by'],
+                  'apply_by': nama_approve,
                   'date_selected': element['date_selected'],
                   'alasan_reject': element['alasan_reject'],
                   'nama_tipe': element['nama_tipe'],
@@ -185,6 +222,13 @@ class PesanController extends GetxController {
               if (element['status'] != 'Pending') {
                 var fullName = element['full_name'] ?? "";
                 var convertNama = "$fullName";
+                var nama_approve = valuePolaPersetujuan.value == "1"
+                    ? element['approve_by']
+                    : element['approve2_by'] == "" ||
+                            element['approve2_by'] == null ||
+                            element['approve2_by'] == "null"
+                        ? element['approve_by']
+                        : element['approve2_by'];
                 var data = {
                   'id': element['id'],
                   'nama_pengaju': convertNama,
@@ -196,7 +240,7 @@ class PesanController extends GetxController {
                   'catatan': element['uraian'],
                   'status': element['status'],
                   'apply_date': element['approve_date'],
-                  'apply_by': element['approve_by'],
+                  'apply_by': nama_approve,
                   'date_selected': '',
                   'alasan_reject': element['alasan_reject'],
                   'nama_tipe': "",
@@ -212,6 +256,13 @@ class PesanController extends GetxController {
               if (element['status'] != 'Pending') {
                 var fullName = element['full_name'] ?? "";
                 var convertNama = "$fullName";
+                var nama_approve = valuePolaPersetujuan.value == "1"
+                    ? element['approve_by']
+                    : element['approve2_by'] == "" ||
+                            element['approve2_by'] == null ||
+                            element['approve2_by'] == "null"
+                        ? element['approve_by']
+                        : element['approve2_by'];
                 var data = {
                   'id': element['id'],
                   'nama_pengaju': convertNama,
@@ -223,7 +274,7 @@ class PesanController extends GetxController {
                   'catatan': element['uraian'],
                   'status': element['status'],
                   'apply_date': element['approve_date'],
-                  'apply_by': element['approve_by'],
+                  'apply_by': nama_approve,
                   'date_selected': '',
                   'alasan_reject': element['alasan_reject'],
                   'nama_tipe': "",
@@ -421,8 +472,10 @@ class PesanController extends GetxController {
   }
 
   void redirectToPage(url) {
-    var dashboardController = Get.find<DashboardController>();
-    dashboardController.routePageDashboard(url);
+    if (url != "") {
+      var dashboardController = Get.find<DashboardController>();
+      dashboardController.routePageDashboard(url);
+    }
   }
 
   void updateDataNotif(data) {
@@ -711,7 +764,9 @@ class PesanController extends GetxController {
                     fontWeight: FontWeight.bold,
                     color: dataDetail[0]['status'] == 'Approve'
                         ? Constanst.color5
-                        : Constanst.color4),
+                        : dataDetail[0]['status'] == 'Approve2'
+                            ? Constanst.color5
+                            : Constanst.color4),
               ),
               SizedBox(
                 height: 10,

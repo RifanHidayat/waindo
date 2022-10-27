@@ -62,7 +62,7 @@ class Constanst {
   static TextStyle style1 =
       TextStyle(color: Colors.grey, fontWeight: FontWeight.bold);
   static TextStyle boldType1 =
-      TextStyle(fontWeight: FontWeight.bold, fontSize: 16);
+      TextStyle(fontWeight: FontWeight.bold, fontSize: 18);
   static TextStyle boldType2 =
       TextStyle(fontWeight: FontWeight.bold, fontSize: 14);
   static TextStyle colorGreenBold =

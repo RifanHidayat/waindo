@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:siscom_operasional/controller/cuti_controller.dart';
-import 'package:siscom_operasional/screen/cuti/riwayat_cuti.dart';
+import 'package:siscom_operasional/screen/absen/riwayat_cuti.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
@@ -598,6 +598,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
               decoration: new InputDecoration(
                   border: InputBorder.none, hintText: "Tambahkan Alasan"),
               keyboardType: TextInputType.multiline,
+              textInputAction: TextInputAction.done,
               style:
                   TextStyle(fontSize: 12.0, height: 2.0, color: Colors.black),
             ),

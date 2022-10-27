@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
-import 'package:month_year_picker/month_year_picker.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/pesan_controller.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
@@ -10,6 +10,8 @@ import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'dart:io';
 import 'dart:math';
+
+import 'package:siscom_operasional/utils/month_year_picker.dart';
 
 class Pesan extends StatefulWidget {
   final bool status;
@@ -502,30 +504,31 @@ class _PesanState extends State<Pesan> {
         padding: EdgeInsets.only(top: 15, bottom: 10),
         child: InkWell(
           onTap: () {
-            showMonthYearPicker(
-              context: Get.context!,
-              initialDate: DateTime.now(),
-              // firstDate: DateTime(DateTime.now().year - 1, 5),
-              // lastDate: DateTime(DateTime.now().year + 1, 9),
-              firstDate: DateTime(2010),
-              lastDate: DateTime(2100),
-            ).then((date) {
-              if (date != null) {
-                print(date);
-                var outputFormat1 = DateFormat('MM');
-                var outputFormat2 = DateFormat('yyyy');
-                var bulan = outputFormat1.format(date);
-                var tahun = outputFormat2.format(date);
-                controller.bulanSelectedSearchHistory.value = bulan;
-                controller.tahunSelectedSearchHistory.value = tahun;
-                controller.bulanDanTahunNow.value = "$bulan-$tahun";
-                this.controller.bulanSelectedSearchHistory.refresh();
-                this.controller.tahunSelectedSearchHistory.refresh();
-                this.controller.bulanDanTahunNow.refresh();
-                controller.loadApproveInfo();
-                controller.loadApproveHistory();
-              }
-            });
+            DatePicker.showPicker(
+              Get.context!,
+              pickerModel: CustomMonthPicker(
+                minTime: DateTime(2020, 1, 1),
+                maxTime: DateTime(2050, 1, 1),
+                currentTime: DateTime.now(),
+              ),
+              onConfirm: (time) {
+                if (time != null) {
+                  print("$time");
+                  var filter = DateFormat('yyyy-MM').format(time);
+                  var array = filter.split('-');
+                  var bulan = array[1];
+                  var tahun = array[0];
+                  controller.bulanSelectedSearchHistory.value = bulan;
+                  controller.tahunSelectedSearchHistory.value = tahun;
+                  controller.bulanDanTahunNow.value = "$bulan-$tahun";
+                  this.controller.bulanSelectedSearchHistory.refresh();
+                  this.controller.tahunSelectedSearchHistory.refresh();
+                  this.controller.bulanDanTahunNow.refresh();
+                  controller.loadApproveInfo();
+                  controller.loadApproveHistory();
+                }
+              },
+            );
           },
           child: Obx(
             () => Row(
@@ -777,7 +780,7 @@ class _PesanState extends State<Pesan> {
                         flex: 15,
                         child: Container(
                             height: 28,
-                            alignment: Alignment.centerRight,
+                            alignment: Alignment.center,
                             decoration: BoxDecoration(
                                 borderRadius: Constanst.borderStyle5,
                                 border:
@@ -843,7 +846,12 @@ class _PesanState extends State<Pesan> {
         itemCount: controller.riwayatPersetujuan.value.length,
         itemBuilder: (context, ixx) {
           var idx = controller.riwayatPersetujuan.value[ixx]['id'];
-          var status = controller.riwayatPersetujuan.value[ixx]['status'];
+          var status = controller.riwayatPersetujuan.value[ixx]['status'] ==
+                  "Approve"
+              ? "Approve 1"
+              : controller.riwayatPersetujuan.value[ixx]['status'] == "Approve2"
+                  ? "Approve 2"
+                  : controller.riwayatPersetujuan.value[ixx]['status'];
           var namaPengaju =
               controller.riwayatPersetujuan.value[ixx]['nama_pengaju'];
           var typeAjuan = controller.riwayatPersetujuan.value[ixx]['type'];
@@ -881,7 +889,7 @@ class _PesanState extends State<Pesan> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Expanded(
-                            flex: 70,
+                            flex: 60,
                             child: Padding(
                               padding: const EdgeInsets.only(top: 5),
                               child: Text(
@@ -892,17 +900,21 @@ class _PesanState extends State<Pesan> {
                             ),
                           ),
                           Expanded(
-                            flex: 30,
+                            flex: 40,
                             child: Container(
                               margin: EdgeInsets.only(right: 8),
                               decoration: BoxDecoration(
                                 color: status == 'Approve'
                                     ? Constanst.colorBGApprove
-                                    : status == 'Rejected'
-                                        ? Constanst.colorBGRejected
-                                        : status == 'Pending'
-                                            ? Constanst.colorBGPending
-                                            : Colors.grey,
+                                    : status == 'Approve 1'
+                                        ? Constanst.colorBGApprove
+                                        : status == 'Approve 2'
+                                            ? Constanst.colorBGApprove
+                                            : status == 'Rejected'
+                                                ? Constanst.colorBGRejected
+                                                : status == 'Pending'
+                                                    ? Constanst.colorBGPending
+                                                    : Colors.grey,
                                 borderRadius: Constanst.borderStyle1,
                               ),
                               child: Padding(
@@ -917,19 +929,32 @@ class _PesanState extends State<Pesan> {
                                             color: Constanst.color5,
                                             size: 14,
                                           )
-                                        : status == 'Rejected'
+                                        : status == 'Approve 1'
                                             ? Icon(
-                                                Iconsax.close_square,
-                                                color: Constanst.color4,
+                                                Iconsax.tick_square,
+                                                color: Constanst.color5,
                                                 size: 14,
                                               )
-                                            : status == 'Pending'
+                                            : status == 'Approve 2'
                                                 ? Icon(
-                                                    Iconsax.timer,
-                                                    color: Constanst.color3,
+                                                    Iconsax.tick_square,
+                                                    color: Constanst.color5,
                                                     size: 14,
                                                   )
-                                                : SizedBox(),
+                                                : status == 'Rejected'
+                                                    ? Icon(
+                                                        Iconsax.close_square,
+                                                        color: Constanst.color4,
+                                                        size: 14,
+                                                      )
+                                                    : status == 'Pending'
+                                                        ? Icon(
+                                                            Iconsax.timer,
+                                                            color: Constanst
+                                                                .color3,
+                                                            size: 14,
+                                                          )
+                                                        : SizedBox(),
                                     Padding(
                                       padding: const EdgeInsets.only(left: 3),
                                       child: Text(
@@ -939,11 +964,17 @@ class _PesanState extends State<Pesan> {
                                             fontWeight: FontWeight.bold,
                                             color: status == 'Approve'
                                                 ? Colors.green
-                                                : status == 'Rejected'
-                                                    ? Colors.red
-                                                    : status == 'Pending'
-                                                        ? Constanst.color3
-                                                        : Colors.black),
+                                                : status == 'Approve 1'
+                                                    ? Colors.green
+                                                    : status == 'Approve 2'
+                                                        ? Colors.green
+                                                        : status == 'Rejected'
+                                                            ? Colors.red
+                                                            : status ==
+                                                                    'Pending'
+                                                                ? Constanst
+                                                                    .color3
+                                                                : Colors.black),
                                       ),
                                     ),
                                   ],
@@ -1030,8 +1061,20 @@ class _PesanState extends State<Pesan> {
                         itemBuilder: (context, ixx) {
                           var idx = controller.riwayatPersetujuan.value[index]
                               ['turunan'][ixx]['id'];
-                          var status = controller.riwayatPersetujuan
-                              .value[index]['turunan'][ixx]['status'];
+                          var status = controller.valuePolaPersetujuan.value ==
+                                  "1"
+                              ? "Approve"
+                              : controller.riwayatPersetujuan.value[index]
+                                          ['turunan'][ixx]['status'] ==
+                                      "Approve"
+                                  ? "Approve 1"
+                                  : controller.riwayatPersetujuan.value[index]
+                                              ['turunan'][ixx]['status'] ==
+                                          "Approve2"
+                                      ? "Approve 2"
+                                      : controller
+                                              .riwayatPersetujuan.value[index]
+                                          ['turunan'][ixx]['status'];
                           var namaPengaju = controller.riwayatPersetujuan
                               .value[index]['turunan'][ixx]['nama_pengaju'];
                           var typeAjuan = controller.riwayatPersetujuan
@@ -1074,7 +1117,7 @@ class _PesanState extends State<Pesan> {
                                             MainAxisAlignment.start,
                                         children: [
                                           Expanded(
-                                            flex: 70,
+                                            flex: 60,
                                             child: Padding(
                                               padding:
                                                   const EdgeInsets.only(top: 5),
@@ -1087,19 +1130,28 @@ class _PesanState extends State<Pesan> {
                                             ),
                                           ),
                                           Expanded(
-                                            flex: 30,
+                                            flex: 40,
                                             child: Container(
                                               margin: EdgeInsets.only(right: 8),
                                               decoration: BoxDecoration(
                                                 color: status == 'Approve'
                                                     ? Constanst.colorBGApprove
-                                                    : status == 'Rejected'
+                                                    : status == 'Approve 1'
                                                         ? Constanst
-                                                            .colorBGRejected
-                                                        : status == 'Pending'
+                                                            .colorBGApprove
+                                                        : status == 'Approve 2'
                                                             ? Constanst
-                                                                .colorBGPending
-                                                            : Colors.grey,
+                                                                .colorBGApprove
+                                                            : status ==
+                                                                    'Rejected'
+                                                                ? Constanst
+                                                                    .colorBGRejected
+                                                                : status ==
+                                                                        'Pending'
+                                                                    ? Constanst
+                                                                        .colorBGPending
+                                                                    : Colors
+                                                                        .grey,
                                                 borderRadius:
                                                     Constanst.borderStyle1,
                                               ),
@@ -1120,24 +1172,43 @@ class _PesanState extends State<Pesan> {
                                                                 .color5,
                                                             size: 14,
                                                           )
-                                                        : status == 'Rejected'
+                                                        : status == 'Approve 1'
                                                             ? Icon(
                                                                 Iconsax
-                                                                    .close_square,
+                                                                    .tick_square,
                                                                 color: Constanst
-                                                                    .color4,
+                                                                    .color5,
                                                                 size: 14,
                                                               )
                                                             : status ==
-                                                                    'Pending'
+                                                                    'Approve 2'
                                                                 ? Icon(
                                                                     Iconsax
-                                                                        .timer,
+                                                                        .tick_square,
                                                                     color: Constanst
-                                                                        .color3,
+                                                                        .color5,
                                                                     size: 14,
                                                                   )
-                                                                : SizedBox(),
+                                                                : status ==
+                                                                        'Rejected'
+                                                                    ? Icon(
+                                                                        Iconsax
+                                                                            .close_square,
+                                                                        color: Constanst
+                                                                            .color4,
+                                                                        size:
+                                                                            14,
+                                                                      )
+                                                                    : status ==
+                                                                            'Pending'
+                                                                        ? Icon(
+                                                                            Iconsax.timer,
+                                                                            color:
+                                                                                Constanst.color3,
+                                                                            size:
+                                                                                14,
+                                                                          )
+                                                                        : SizedBox(),
                                                     Padding(
                                                       padding:
                                                           const EdgeInsets.only(
@@ -1153,14 +1224,19 @@ class _PesanState extends State<Pesan> {
                                                                     'Approve'
                                                                 ? Colors.green
                                                                 : status ==
-                                                                        'Rejected'
-                                                                    ? Colors.red
+                                                                        'Approve 1'
+                                                                    ? Colors
+                                                                        .green
                                                                     : status ==
-                                                                            'Pending'
-                                                                        ? Constanst
-                                                                            .color3
-                                                                        : Colors
-                                                                            .black),
+                                                                            'Approve 2'
+                                                                        ? Colors
+                                                                            .green
+                                                                        : status ==
+                                                                                'Rejected'
+                                                                            ? Colors.red
+                                                                            : status == 'Pending'
+                                                                                ? Constanst.color3
+                                                                                : Colors.black),
                                                       ),
                                                     ),
                                                   ],

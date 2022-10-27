@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:siscom_operasional/controller/approval_controller.dart';
+import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
@@ -19,6 +20,7 @@ class DetailApproval extends StatefulWidget {
 
 class _DetailApprovalState extends State<DetailApproval> {
   var controller = Get.put(ApprovalController());
+  var controllerGlobal = Get.put(GlobalController());
 
   @override
   void initState() {
@@ -95,7 +97,7 @@ class _DetailApprovalState extends State<DetailApproval> {
                             ),
                             Center(
                               child: Text(
-                                controller.detailData[0]['title_ajuan'],
+                                "${controller.detailData[0]['title_ajuan']}",
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ),
@@ -113,7 +115,7 @@ class _DetailApprovalState extends State<DetailApproval> {
                               height: 16,
                             ),
                             Text(
-                              controller.detailData[0]['nama_pengaju'],
+                              "${controller.detailData[0]['nama_pengaju']}",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             SizedBox(
@@ -133,7 +135,7 @@ class _DetailApprovalState extends State<DetailApproval> {
                                 Expanded(
                                   flex: 45,
                                   child: Text(
-                                    controller.detailData[0]['waktu_dari'],
+                                    "${controller.detailData[0]['waktu_dari']}",
                                     style:
                                         TextStyle(fontWeight: FontWeight.bold),
                                   ),
@@ -147,7 +149,7 @@ class _DetailApprovalState extends State<DetailApproval> {
                                 Expanded(
                                   flex: 45,
                                   child: Text(
-                                    controller.detailData[0]['waktu_sampai'],
+                                    "${controller.detailData[0]['waktu_sampai']}",
                                     textAlign: TextAlign.center,
                                     style:
                                         TextStyle(fontWeight: FontWeight.bold),
@@ -187,7 +189,7 @@ class _DetailApprovalState extends State<DetailApproval> {
                               height: 5,
                             ),
                             Text(
-                              controller.detailData[0]['catatan'],
+                              "${controller.detailData[0]['catatan']}",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             SizedBox(
@@ -207,7 +209,7 @@ class _DetailApprovalState extends State<DetailApproval> {
                               height: 5,
                             ),
                             Text(
-                              controller.detailData[0]['type'],
+                              "${controller.detailData[0]['type']}",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             controller.detailData[0]['file'] == ""
@@ -216,6 +218,12 @@ class _DetailApprovalState extends State<DetailApproval> {
                             SizedBox(
                               height: 10,
                             ),
+                            controllerGlobal.valuePolaPersetujuan.value ==
+                                        "1" ||
+                                    controller.detailData[0]['nama_approve1'] ==
+                                        ""
+                                ? SizedBox()
+                                : infoApprove1(),
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -298,7 +306,7 @@ class _DetailApprovalState extends State<DetailApproval> {
               Expanded(
                 flex: 60,
                 child: Text(
-                  controller.detailData[0]['file'],
+                  "${controller.detailData[0]['file']}",
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
@@ -360,6 +368,30 @@ class _DetailApprovalState extends State<DetailApproval> {
           Text(
             "${controller.detailData[0]['durasi']} Hari",
             style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget infoApprove1() {
+    return SizedBox(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Approve 1 by",
+            style: TextStyle(color: Constanst.colorText2),
+          ),
+          SizedBox(
+            height: 5,
+          ),
+          Text(
+            "${controller.detailData[0]['nama_approve1']}",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          SizedBox(
+            height: 10,
           ),
         ],
       ),

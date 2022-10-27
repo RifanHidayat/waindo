@@ -3,11 +3,13 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/screen/absen/form/berhasil_pengajuan.dart';
 import 'package:siscom_operasional/screen/absen/form/form_tidakMasukKerja.dart';
 import 'package:siscom_operasional/utils/api.dart';
@@ -17,12 +19,14 @@ import 'package:siscom_operasional/utils/custom_dialog.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class TidakMasukKerjaController extends GetxController {
   var cari = TextEditingController().obs;
   var nomorAjuan = TextEditingController().obs;
   var dariTanggal = TextEditingController().obs;
   var sampaiTanggal = TextEditingController().obs;
+  var jamAjuan = TextEditingController().obs;
   var alasan = TextEditingController().obs;
   var departemen = TextEditingController().obs;
 
@@ -38,6 +42,7 @@ class TidakMasukKerjaController extends GetxController {
   var allEmployee = [].obs;
   var tanggalSelected = [].obs;
   var departementAkses = [].obs;
+  var konfirmasiAtasan = [].obs;
   var tanggalSelectedEdit = <DateTime>[].obs;
 
   Rx<List<String>> allEmployeeDelegasi = Rx<List<String>>([]);
@@ -55,6 +60,7 @@ class TidakMasukKerjaController extends GetxController {
   var loadingString = "Memuat Data...".obs;
 
   var stringSelectedTanggal = "".obs;
+  var valuePolaPersetujuan = "".obs;
 
   var selectedTypeAjuan = "Semua".obs;
 
@@ -71,17 +77,26 @@ class TidakMasukKerjaController extends GetxController {
   var showTipe = false.obs;
   var showButtonlaporan = false.obs;
   var statusLoadingSubmitLaporan = false.obs;
+  var viewFormWaktu = false.obs;
 
-  var dataTypeAjuanDummy = ["Semua", "Approve", "Rejected", "Pending"];
+  var dataTypeAjuanDummy1 = ["Semua", "Approve", "Rejected", "Pending"];
+  var dataTypeAjuanDummy2 = [
+    "Semua",
+    "Approve 1",
+    "Approve 2",
+    "Rejected",
+    "Pending"
+  ];
 
   @override
   void onReady() async {
     getTimeNow();
-    getTypeAjuan();
+    getLoadsysData();
     loadAllEmployeeDelegasi();
     loadTypeSakit();
-    loadDataAjuanSakit();
+    loadDataAjuanIzin();
     getDepartemen(1, "");
+
     super.onReady();
   }
 
@@ -161,18 +176,45 @@ class TidakMasukKerjaController extends GetxController {
     }
   }
 
-  void getTypeAjuan() {
-    dataTypeAjuan.value.clear();
-    for (var element in dataTypeAjuanDummy) {
-      var data = {'nama': element, 'status': false};
-      dataTypeAjuan.value.add(data);
-    }
-    dataTypeAjuan.value
-        .firstWhere((element) => element['nama'] == 'Semua')['status'] = true;
-    this.dataTypeAjuan.refresh();
+  void getLoadsysData() {
+    var connect = Api.connectionApi("get", "", "sysdata");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        for (var element in valueBody['data']) {
+          if (element['kode'] == "013") {
+            valuePolaPersetujuan.value = "${element['name']}";
+            this.valuePolaPersetujuan.refresh();
+            getTypeAjuan();
+          }
+        }
+      }
+    });
   }
 
-  void loadDataAjuanSakit() {
+  void getTypeAjuan() {
+    if (valuePolaPersetujuan.value == "1") {
+      dataTypeAjuan.value.clear();
+      for (var element in dataTypeAjuanDummy1) {
+        var data = {'nama': element, 'status': false};
+        dataTypeAjuan.value.add(data);
+      }
+      dataTypeAjuan.value
+          .firstWhere((element) => element['nama'] == 'Semua')['status'] = true;
+      this.dataTypeAjuan.refresh();
+    } else {
+      dataTypeAjuan.value.clear();
+      for (var element in dataTypeAjuanDummy2) {
+        var data = {'nama': element, 'status': false};
+        dataTypeAjuan.value.add(data);
+      }
+      dataTypeAjuan.value
+          .firstWhere((element) => element['nama'] == 'Semua')['status'] = true;
+      this.dataTypeAjuan.refresh();
+    }
+  }
+
+  void loadDataAjuanIzin() {
     AlllistHistoryAjuan.value.clear();
     listHistoryAjuan.value.clear();
     var dataUser = AppData.informasiUser;
@@ -181,9 +223,8 @@ class TidakMasukKerjaController extends GetxController {
       'em_id': getEmid,
       'bulan': bulanSelectedSearchHistory.value,
       'tahun': tahunSelectedSearchHistory.value,
-      'ajuan': '2',
     };
-    var connect = Api.connectionApi("post", body, "history-emp_leave");
+    var connect = Api.connectionApi("post", body, "emp_leave_load_izin");
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
@@ -196,57 +237,18 @@ class TidakMasukKerjaController extends GetxController {
           } else {
             loadingString.value = "Sedang memuat data...";
           }
+          AlllistHistoryAjuan.value = valueBody['data'];
           for (var element in valueBody['data']) {
-            AlllistHistoryAjuan.value.add(element);
+            if (element['category'] == 'FULLDAY') {
+              listHistoryAjuan.value.add(element);
+            }
           }
+          this.listHistoryAjuan.refresh();
           this.AlllistHistoryAjuan.refresh();
           this.loadingString.refresh();
-          loadDataAjuanIzin();
         }
       }
     });
-  }
-
-  void loadDataAjuanIzin() {
-    var dataUser = AppData.informasiUser;
-    var getEmid = dataUser![0].em_id;
-    Map<String, dynamic> body = {
-      'em_id': getEmid,
-      'bulan': bulanSelectedSearchHistory.value,
-      'tahun': tahunSelectedSearchHistory.value,
-      'ajuan': '3',
-    };
-    var connect = Api.connectionApi("post", body, "history-emp_leave");
-    connect.then((dynamic res) {
-      if (res.statusCode == 200) {
-        var valueBody = jsonDecode(res.body);
-        if (valueBody['status'] == false) {
-          loadingString.value = "Tidak ada pengajuan";
-          this.loadingString.refresh();
-        } else {
-          if (valueBody['data'].length == 0) {
-            loadingString.value = "Tidak ada pengajuan";
-          } else {
-            loadingString.value = "Sedang memuat data...";
-          }
-          for (var element in valueBody['data']) {
-            AlllistHistoryAjuan.value.add(element);
-          }
-          this.AlllistHistoryAjuan.refresh();
-          this.loadingString.refresh();
-          filterAjuanSakit();
-        }
-      }
-    });
-  }
-
-  void filterAjuanSakit() {
-    AlllistHistoryAjuan.value.forEach((element) {
-      if (element['ajuan'] == 2) {
-        listHistoryAjuan.value.add(element);
-      }
-    });
-    this.listHistoryAjuan.refresh();
   }
 
   void cariData(value) {
@@ -321,11 +323,13 @@ class TidakMasukKerjaController extends GetxController {
         var valueBody = jsonDecode(res.body);
         var data = valueBody['data'];
         for (var element in data) {
-          allTipeFormTidakMasukKerja.value.add(element['name']);
+          allTipeFormTidakMasukKerja.value
+              .add("${element['name']} - ${element['category']}");
           var data = {
             'type_id': element['id'],
             'name': element['name'],
             'status': element['status'],
+            'category': element['category'],
             'ajuan': 2,
             'active': false,
           };
@@ -348,11 +352,13 @@ class TidakMasukKerjaController extends GetxController {
         var valueBody = jsonDecode(res.body);
         var data = valueBody['data'];
         for (var element in data) {
-          allTipeFormTidakMasukKerja.value.add(element['name']);
+          allTipeFormTidakMasukKerja.value
+              .add("${element['name']} - ${element['category']}");
           var data = {
             'type_id': element['id'],
             'name': element['name'],
             'status': element['status'],
+            'category': element['category'],
             'ajuan': 3,
             'active': false,
           };
@@ -366,18 +372,31 @@ class TidakMasukKerjaController extends GetxController {
     });
   }
 
+  void gantiTypeAjuan(value) {
+    var listData = value.split('-');
+    var kategori = listData[1].replaceAll(' ', '');
+    selectedDropdownFormTidakMasukKerjaTipe.value = value;
+    if (kategori == "FULLDAY") {
+      viewFormWaktu.value = false;
+    } else if (kategori == "HALFDAY") {
+      viewFormWaktu.value = true;
+    }
+    this.viewFormWaktu.refresh();
+    this.selectedDropdownFormTidakMasukKerjaTipe.refresh();
+  }
+
   void changeTypeSelected(index) {
     print(index);
     listHistoryAjuan.value.clear();
     if (index == 0) {
       AlllistHistoryAjuan.value.forEach((element) {
-        if (element['ajuan'] == 2) {
+        if (element['category'] == "FULLDAY") {
           listHistoryAjuan.value.add(element);
         }
       });
     } else {
       AlllistHistoryAjuan.value.forEach((element) {
-        if (element['ajuan'] == 3) {
+        if (element['category'] == "HALFDAY") {
           listHistoryAjuan.value.add(element);
         }
       });
@@ -389,7 +408,11 @@ class TidakMasukKerjaController extends GetxController {
       selectedDropdownFormTidakMasukKerjaTipe.value = listFirst;
       this.selectedDropdownFormTidakMasukKerjaTipe.refresh();
     }
+    loadingString.value = listHistoryAjuan.value.length == 0
+        ? "Tidak ada pengajuan"
+        : "Memuat data...";
     selectedType.value = index;
+    this.loadingString.refresh();
     this.listHistoryAjuan.refresh();
     this.selectedType.refresh();
     typeAjuanRefresh("Semua");
@@ -406,8 +429,29 @@ class TidakMasukKerjaController extends GetxController {
     this.dataTypeAjuan.refresh();
   }
 
+  void validasiTypeWhenEdit(value) {
+    var selected = [];
+    for (var element in allTipe.value) {
+      if (element['name'] == value) {
+        selected.add(element);
+      }
+    }
+    print('yang select $selected');
+    selectedDropdownFormTidakMasukKerjaTipe.value =
+        "${selected[0]['name']} - ${selected[0]['category']}";
+    this.selectedDropdownFormTidakMasukKerjaTipe.refresh();
+  }
+
   void changeTypeAjuan(name) {
-    print(name);
+    var filter = name == "Approve 1"
+        ? "Approve"
+        : name == "Approve 2"
+            ? "Approve2"
+            : name == "Rejected"
+                ? "Rejected"
+                : name == "Pending"
+                    ? "Pending"
+                    : "Approve";
     for (var element in dataTypeAjuan.value) {
       if (element['nama'] == name) {
         element['status'] = true;
@@ -416,21 +460,21 @@ class TidakMasukKerjaController extends GetxController {
       }
     }
     if (name == "Semua") {
-      var type = selectedType.value == 0 ? 2 : 3;
+      var type = selectedType.value == 0 ? "FULLDAY" : "HALFDAY";
       listHistoryAjuan.value.clear();
       for (var element in AlllistHistoryAjuan) {
-        if (element['ajuan'] == type) {
+        if (element['category'] == type) {
           listHistoryAjuan.value.add(element);
         }
       }
       this.listHistoryAjuan.refresh();
       this.selectedType.refresh();
     } else {
-      var type = selectedType.value == 0 ? 2 : 3;
+      var type = selectedType.value == 0 ? "FULLDAY" : "HALFDAY";
       listHistoryAjuan.value.clear();
       for (var element in AlllistHistoryAjuan.value) {
-        if (element['leave_status'] == name) {
-          if (element['ajuan'] == type) {
+        if (element['leave_status'] == filter) {
+          if (element['category'] == type) {
             listHistoryAjuan.value.add(element);
           }
         }
@@ -438,6 +482,10 @@ class TidakMasukKerjaController extends GetxController {
       this.listHistoryAjuan.refresh();
       this.selectedType.refresh();
     }
+    loadingString.value = listHistoryAjuan.value.length != 0
+        ? "Memuat data..."
+        : "Tidak ada pengajuan";
+    this.loadingString.refresh();
   }
 
   void takeFile() async {
@@ -606,6 +654,8 @@ class TidakMasukKerjaController extends GetxController {
     var validasiTipeSelected = validasiSelectedType();
     var getAjuanType = validasiTypeAjuan();
     var validasiDelegasiSelected = validasiSelectedDelegasi();
+    var timeValue =
+        viewFormWaktu.value == false ? "00:00:00" : "${jamAjuan.value.text}:00";
 
     var convertTanggalBikinPengajuan = status == false
         ? Constanst.convertDateSimpan(tanggalBikinPengajuan.value)
@@ -620,6 +670,7 @@ class TidakMasukKerjaController extends GetxController {
       'end_date': sampaiTanggal.value.text,
       'leave_duration': durasiIzin.value,
       'date_selected': stringSelectedTanggal.value,
+      'time_plan': timeValue,
       'apply_date': '',
       'reason': alasan.value.text,
       'leave_status': 'Pending',
@@ -643,10 +694,19 @@ class TidakMasukKerjaController extends GetxController {
             kirimNotifikasiToReportTo(
                 getFullName, convertTanggalBikinPengajuan, getEmid);
             Navigator.pop(Get.context!);
-            var pesan =
-                "Pengajuan Form ${selectedDropdownFormTidakMasukKerjaTipe.value} berhasil dibuat. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah dibuat";
+
+            var pesan1 =
+                "Pengajuan ${selectedDropdownFormTidakMasukKerjaTipe.value} berhasil di buat";
+            var pesan2 =
+                "Selanjutnya silahkan menunggu atasan kamu untuk menyetujui pengajuan yang telah dibuat atau langsung";
+            var pesan3 = "konfirmasi via WhatsApp";
+            var dataPengajuan = {
+              'nameType': '${selectedDropdownFormTidakMasukKerjaTipe.value}',
+              'nomor_ajuan': '${getNomorAjuanTerakhir}',
+            };
+
             Get.offAll(BerhasilPengajuan(
-              dataBerhasil: [pesan],
+              dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
             ));
           } else {
             if (valueBody['message'] == "ulang") {
@@ -670,10 +730,19 @@ class TidakMasukKerjaController extends GetxController {
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
           Navigator.pop(Get.context!);
-          var pesan =
-              "Pengajuan Form ${selectedDropdownFormTidakMasukKerjaTipe.value} berhasil diedit. Selanjutnya silakan menunggu Atasan kamu untuk menyetujui pengajuan yang telah diedit";
+
+          var pesan1 =
+              "Pengajuan ${selectedDropdownFormTidakMasukKerjaTipe.value} berhasil di edit";
+          var pesan2 =
+              "Selanjutnya silahkan menunggu atasan kamu untuk menyetujui pengajuan yang telah dibuat atau langsung";
+          var pesan3 = "konfirmasi via WhatsApp";
+          var dataPengajuan = {
+            'nameType': '${selectedDropdownFormTidakMasukKerjaTipe.value}',
+            'nomor_ajuan': '${getNomorAjuanTerakhir}',
+          };
+
           Get.offAll(BerhasilPengajuan(
-            dataBerhasil: [pesan],
+            dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
           ));
         }
       });
@@ -728,8 +797,11 @@ class TidakMasukKerjaController extends GetxController {
 
   String validasiSelectedType() {
     var result = [];
+    var getDataType = selectedDropdownFormTidakMasukKerjaTipe.value.split('-');
+    var kategoriTerpilih = getDataType[0].replaceAll(' ', '');
     for (var element in allTipe.value) {
-      if (element['name'] == selectedDropdownFormTidakMasukKerjaTipe.value) {
+      var namaType = element['name'].replaceAll(' ', '');
+      if (namaType == kategoriTerpilih) {
         result.add(element);
       }
     }
@@ -738,8 +810,11 @@ class TidakMasukKerjaController extends GetxController {
 
   int validasiTypeAjuan() {
     var result = [];
+    var getDataType = selectedDropdownFormTidakMasukKerjaTipe.value.split('-');
+    var kategoriTerpilih = getDataType[0].replaceAll(' ', '');
     for (var element in allTipe.value) {
-      if (element['name'] == selectedDropdownFormTidakMasukKerjaTipe.value) {
+      var namaType = element['name'].replaceAll(' ', '');
+      if (namaType == kategoriTerpilih) {
         result.add(element);
       }
     }
@@ -953,7 +1028,14 @@ class TidakMasukKerjaController extends GetxController {
     var tanggalAjuanSampai = detailData['end_date'];
     var alasan = detailData['reason'];
     var durasi = detailData['leave_duration'];
-    var typeAjuan = detailData['leave_status'];
+    // var typeAjuan = detailData['leave_status'];
+    var typeAjuan = detailData['leave_status'] == "Approve"
+        ? "Approve 1"
+        : detailData['leave_status'] == "Approve2"
+            ? "Approve 2"
+            : detailData['leave_status'];
+    var jamAjuan = detailData['time_plan'];
+    var leave_files = detailData['leave_files'];
     var listTanggalTerpilih = detailData['date_selected'].split(',');
     showModalBottomSheet(
       context: Get.context!,
@@ -1004,11 +1086,15 @@ class TidakMasukKerjaController extends GetxController {
                           decoration: BoxDecoration(
                             color: typeAjuan == 'Approve'
                                 ? Constanst.colorBGApprove
-                                : typeAjuan == 'Rejected'
-                                    ? Constanst.colorBGRejected
-                                    : typeAjuan == 'Pending'
-                                        ? Constanst.colorBGPending
-                                        : Colors.grey,
+                                : typeAjuan == 'Approve 1'
+                                    ? Constanst.colorBGApprove
+                                    : typeAjuan == 'Approve 2'
+                                        ? Constanst.colorBGApprove
+                                        : typeAjuan == 'Rejected'
+                                            ? Constanst.colorBGRejected
+                                            : typeAjuan == 'Pending'
+                                                ? Constanst.colorBGPending
+                                                : Colors.grey,
                             borderRadius: Constanst.borderStyle1,
                           ),
                           child: Padding(
@@ -1023,19 +1109,31 @@ class TidakMasukKerjaController extends GetxController {
                                         color: Constanst.color5,
                                         size: 14,
                                       )
-                                    : typeAjuan == 'Rejected'
+                                    : typeAjuan == 'Approve 1'
                                         ? Icon(
-                                            Iconsax.close_square,
-                                            color: Constanst.color4,
+                                            Iconsax.tick_square,
+                                            color: Constanst.color5,
                                             size: 14,
                                           )
-                                        : typeAjuan == 'Pending'
+                                        : typeAjuan == 'Approve 2'
                                             ? Icon(
-                                                Iconsax.timer,
-                                                color: Constanst.color3,
+                                                Iconsax.tick_square,
+                                                color: Constanst.color5,
                                                 size: 14,
                                               )
-                                            : SizedBox(),
+                                            : typeAjuan == 'Rejected'
+                                                ? Icon(
+                                                    Iconsax.close_square,
+                                                    color: Constanst.color4,
+                                                    size: 14,
+                                                  )
+                                                : typeAjuan == 'Pending'
+                                                    ? Icon(
+                                                        Iconsax.timer,
+                                                        color: Constanst.color3,
+                                                        size: 14,
+                                                      )
+                                                    : SizedBox(),
                                 Padding(
                                   padding: const EdgeInsets.only(left: 3),
                                   child: Text(
@@ -1045,11 +1143,15 @@ class TidakMasukKerjaController extends GetxController {
                                         fontWeight: FontWeight.bold,
                                         color: typeAjuan == 'Approve'
                                             ? Colors.green
-                                            : typeAjuan == 'Rejected'
-                                                ? Colors.red
-                                                : typeAjuan == 'Pending'
-                                                    ? Constanst.color3
-                                                    : Colors.black),
+                                            : typeAjuan == 'Approve 1'
+                                                ? Colors.green
+                                                : typeAjuan == 'Approve 2'
+                                                    ? Colors.green
+                                                    : typeAjuan == 'Rejected'
+                                                        ? Colors.red
+                                                        : typeAjuan == 'Pending'
+                                                            ? Constanst.color3
+                                                            : Colors.black),
                                   ),
                                 ),
                               ],
@@ -1076,30 +1178,15 @@ class TidakMasukKerjaController extends GetxController {
                 children: [
                   Expanded(
                     flex: 30,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Nomor Ajuan"),
-                      ],
-                    ),
+                    child: Text("Nomor Ajuan"),
                   ),
                   Expanded(
                     flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(":"),
-                      ],
-                    ),
+                    child: Text(":"),
                   ),
                   Expanded(
                     flex: 68,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("$nomorAjuan"),
-                      ],
-                    ),
+                    child: Text("$nomorAjuan"),
                   )
                 ],
               ),
@@ -1111,31 +1198,16 @@ class TidakMasukKerjaController extends GetxController {
                 children: [
                   Expanded(
                     flex: 30,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Tanggal izin"),
-                      ],
-                    ),
+                    child: Text("Tanggal izin"),
                   ),
                   Expanded(
                     flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(":"),
-                      ],
-                    ),
+                    child: Text(":"),
                   ),
                   Expanded(
                     flex: 68,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                            "${Constanst.convertDate("$tanggalAjuanDari")}  SD  ${Constanst.convertDate("$tanggalAjuanSampai")}"),
-                      ],
-                    ),
+                    child: Text(
+                        "${Constanst.convertDate("$tanggalAjuanDari")}  SD  ${Constanst.convertDate("$tanggalAjuanSampai")}"),
                   )
                 ],
               ),
@@ -1147,30 +1219,15 @@ class TidakMasukKerjaController extends GetxController {
                 children: [
                   Expanded(
                     flex: 30,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Durasi Izin"),
-                      ],
-                    ),
+                    child: Text("Durasi Izin"),
                   ),
                   Expanded(
                     flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(":"),
-                      ],
-                    ),
+                    child: Text(":"),
                   ),
                   Expanded(
                     flex: 68,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("$durasi Hari"),
-                      ],
-                    ),
+                    child: Text("$durasi Hari"),
                   )
                 ],
               ),
@@ -1182,36 +1239,85 @@ class TidakMasukKerjaController extends GetxController {
                 children: [
                   Expanded(
                     flex: 30,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Alasan"),
-                      ],
-                    ),
+                    child: Text("Alasan"),
                   ),
                   Expanded(
                     flex: 2,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(":"),
-                      ],
-                    ),
+                    child: Text(":"),
                   ),
                   Expanded(
                     flex: 68,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("$alasan"),
-                      ],
-                    ),
+                    child: Text("$alasan"),
                   )
                 ],
               ),
               SizedBox(
                 height: 8,
               ),
+              jamAjuan == "" ||
+                      jamAjuan == "NULL" ||
+                      jamAjuan == null ||
+                      jamAjuan == "00:00:00"
+                  ? SizedBox()
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 30,
+                          child: Text("Jam"),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(":"),
+                        ),
+                        Expanded(
+                          flex: 68,
+                          child: Text("$jamAjuan"),
+                        )
+                      ],
+                    ),
+              jamAjuan == "" ||
+                      jamAjuan == "NULL" ||
+                      jamAjuan == null ||
+                      jamAjuan == "00:00:00"
+                  ? SizedBox()
+                  : SizedBox(
+                      height: 8,
+                    ),
+              leave_files == "" || leave_files == "NULL" || leave_files == null
+                  ? SizedBox()
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 30,
+                          child: Text("File Ajuan"),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(":"),
+                        ),
+                        Expanded(
+                          flex: 68,
+                          child: InkWell(
+                              onTap: () {
+                                viewLampiranAjuan(leave_files);
+                              },
+                              child: Text(
+                                "$leave_files",
+                                style: TextStyle(
+                                  color: Constanst.colorPrimary,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              )),
+                        )
+                      ],
+                    ),
+              leave_files == "" || leave_files == "NULL" || leave_files == null
+                  ? SizedBox()
+                  : SizedBox(
+                      height: 8,
+                    ),
               Text("Tanggal Terpilih"),
               SizedBox(
                 height: 8,
@@ -1243,5 +1349,12 @@ class TidakMasukKerjaController extends GetxController {
         );
       },
     );
+  }
+
+  void viewLampiranAjuan(value) {
+    _launchURL() async => await canLaunch(Api.UrlfileTidakhadir + value)
+        ? await launch(Api.UrlfileTidakhadir + value)
+        : throw UtilsAlert.showToast('Tidak dapat membuka');
+    _launchURL();
   }
 }

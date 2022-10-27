@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:siscom_operasional/utils/api.dart';
+import 'package:siscom_operasional/utils/widget_utils.dart';
 
 class ApiController extends GetxController {
   // METHOD GET
@@ -37,5 +39,28 @@ class ApiController extends GetxController {
     });
 
     return dataFinal;
+  }
+
+  void kirimNotifikasiToDelegasi(
+      getFullName, convertTanggalBikinPengajuan, validasiDelegasiSelected) {
+    var dt = DateTime.now();
+    var jamSekarang = DateFormat('HH:mm:ss').format(dt);
+    Map<String, dynamic> body = {
+      'em_id': validasiDelegasiSelected,
+      'title': 'Delegasi Pengajuan Lembur',
+      'deskripsi':
+          'Anda mendapatkan delegasi pekerjaan dari $getFullName untuk Pengajuan Lembur',
+      'url': '',
+      'atten_date': convertTanggalBikinPengajuan,
+      'jam': jamSekarang,
+      'status': '2',
+      'view': '0',
+    };
+    var connect = Api.connectionApi("post", body, "insert-notifikasi");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        UtilsAlert.showToast("Berhasil kirim delegasi");
+      }
+    });
   }
 }

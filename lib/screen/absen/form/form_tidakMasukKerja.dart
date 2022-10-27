@@ -35,8 +35,7 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
       controller.sampaiTanggal.value.text = "$convertSampaiTanggal";
       controller.alasan.value.text = "${widget.dataForm![0]['reason']}";
       controller.namaFileUpload.value = "${widget.dataForm![0]['leave_files']}";
-      controller.selectedDropdownFormTidakMasukKerjaTipe.value =
-          "${widget.dataForm![0]['name']}";
+      controller.validasiTypeWhenEdit("${widget.dataForm![0]['name']}");
       controller.tanggalBikinPengajuan.value =
           "${widget.dataForm![0]['atten_date']}";
       controller.idEditFormTidakMasukKerja.value =
@@ -76,12 +75,12 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
             icon: 1,
             iconShow: true,
             onTap: () {
-              Get.offAll(TidakMasukKerja());
+              Get.back();
             },
           )),
       body: WillPopScope(
           onWillPop: () async {
-            Get.offAll(TidakMasukKerja());
+            Get.back();
             return true;
           },
           child: SafeArea(
@@ -92,11 +91,11 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
                   physics: BouncingScrollPhysics(),
                   child: !controller.showTipe.value
                       ? Center(
-                        child: LinearProgressIndicator(
-                          valueColor: AlwaysStoppedAnimation(Colors.blue),
-                          minHeight: 3,
-                        ),
-                      )
+                          child: LinearProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation(Colors.blue),
+                            minHeight: 3,
+                          ),
+                        )
                       : Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -111,6 +110,14 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
                             SizedBox(
                               height: 20,
                             ),
+                            controller.viewFormWaktu.value == false
+                                ? SizedBox()
+                                : formAjuanWaktu(),
+                            controller.viewFormWaktu.value == false
+                                ? SizedBox()
+                                : SizedBox(
+                                    height: 20,
+                                  ),
                             formDelegasiKepada(),
                             SizedBox(
                               height: 20,
@@ -180,8 +187,7 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
                 }).toList(),
                 value: controller.selectedDropdownFormTidakMasukKerjaTipe.value,
                 onChanged: (selectedValue) {
-                  controller.selectedDropdownFormTidakMasukKerjaTipe.value =
-                      selectedValue!;
+                  controller.gantiTypeAjuan(selectedValue);
                 },
                 isExpanded: true,
               ),
@@ -286,6 +292,69 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
                 )
               ],
             )));
+  }
+
+  Widget formAjuanWaktu() {
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      SizedBox(
+        height: 8,
+      ),
+      Text(
+        "Waktu *",
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      SizedBox(
+        height: 6,
+      ),
+      Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 45,
+              width: MediaQuery.of(Get.context!).size.width,
+              decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: Constanst.borderStyle1,
+                  border: Border.all(
+                      width: 0.5, color: Color.fromARGB(255, 211, 205, 205))),
+              child: Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: InkWell(
+                      onTap: () {
+                        showTimePicker(
+                          context: Get.context!,
+                          initialTime: TimeOfDay.now(),
+                          initialEntryMode: TimePickerEntryMode.dial,
+                        ).then((value) {
+                          if (value == null) {
+                            UtilsAlert.showToast('gagal pilih jam');
+                          } else {
+                            var convertJam = value.hour <= 9
+                                ? "0${value.hour}"
+                                : "${value.hour}";
+                            var convertMenit = value.minute <= 9
+                                ? "0${value.minute}"
+                                : "${value.minute}";
+                            controller.jamAjuan.value.text =
+                                "$convertJam:$convertMenit";
+                            this.controller.jamAjuan.refresh();
+                          }
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8, top: 5),
+                        child: Text(
+                          "${controller.jamAjuan.value.text}",
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ))),
+            ),
+          ],
+        ),
+      ),
+    ]);
   }
 
   Widget formDelegasiKepada() {
@@ -422,6 +491,7 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
               decoration: new InputDecoration(
                   border: InputBorder.none, hintText: "Tambahkan Alasan"),
               keyboardType: TextInputType.multiline,
+              textInputAction: TextInputAction.done,
               style:
                   TextStyle(fontSize: 12.0, height: 2.0, color: Colors.black),
             ),

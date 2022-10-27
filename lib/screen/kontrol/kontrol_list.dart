@@ -30,6 +30,12 @@ class _KontrolListState extends State<KontrolList> {
   var controller = Get.put(KontrolController());
 
   @override
+  void initState() {
+    controller.onReady();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,

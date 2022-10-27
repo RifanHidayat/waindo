@@ -166,40 +166,39 @@ class _SettingState extends State<Setting> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                  child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  controllerDashboard.user.value[0]['em_image'] == null ||
-                          controllerDashboard.user.value[0]['em_image'] == ""
-                      ? Image.asset(
-                          'assets/avatar_default.png',
-                        )
-                      : CircleAvatar(
-                          radius: 35, // Image radius
+                flex: 20,
+                child: controllerDashboard.user.value[0]['em_image'] == null ||
+                        controllerDashboard.user.value[0]['em_image'] == ""
+                    ? Image.asset(
+                        'assets/avatar_default.png',
+                      )
+                    : CircleAvatar(
+                        radius: 35, // Image radius
+                        child: ClipOval(
                           child: ClipOval(
-                            child: ClipOval(
-                              child: CachedNetworkImage(
-                                imageUrl: Api.UrlfotoProfile +
-                                    "${controllerDashboard.user.value[0]['em_image']}",
-                                progressIndicatorBuilder:
-                                    (context, url, downloadProgress) =>
-                                        Container(
-                                  alignment: Alignment.center,
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.5,
-                                  width: MediaQuery.of(context).size.width,
-                                  child: CircularProgressIndicator(
-                                      value: downloadProgress.progress),
-                                ),
-                                fit: BoxFit.cover,
-                                width: 70,
-                                height: 70,
+                            child: CachedNetworkImage(
+                              imageUrl: Api.UrlfotoProfile +
+                                  "${controllerDashboard.user.value[0]['em_image']}",
+                              progressIndicatorBuilder:
+                                  (context, url, downloadProgress) => Container(
+                                alignment: Alignment.center,
+                                height:
+                                    MediaQuery.of(context).size.height * 0.5,
+                                width: MediaQuery.of(context).size.width,
+                                child: CircularProgressIndicator(
+                                    value: downloadProgress.progress),
                               ),
+                              fit: BoxFit.cover,
+                              width: 70,
+                              height: 70,
                             ),
                           ),
                         ),
-                  Padding(
+                      ),
+              ),
+              Expanded(
+                  flex: 80,
+                  child: Padding(
                     padding: EdgeInsets.only(left: 10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -214,19 +213,18 @@ class _SettingState extends State<Setting> {
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              "${controllerDashboard.user.value[0]['emp_jobTitle']}",
-                              style: TextStyle(color: Colors.white),
+                            Expanded(
+                              child: Text(
+                                "${controllerDashboard.user.value[0]['emp_jobTitle']}",
+                                style: TextStyle(color: Colors.white),
+                              ),
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                  color: Constanst.colorButton2,
-                                  borderRadius: Constanst.borderStyle1),
-                              margin: EdgeInsets.only(left: 15),
-                              child: Padding(
-                                padding: EdgeInsets.only(left: 15, right: 15),
-                                child: InkWell(
-                                  onTap: () {},
+                            Expanded(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                    color: Constanst.colorButton2,
+                                    borderRadius: Constanst.borderStyle1),
+                                child: Center(
                                   child: Text(
                                     "${controllerDashboard.user.value[0]['em_status']}",
                                     style:
@@ -246,9 +244,7 @@ class _SettingState extends State<Setting> {
                         ),
                       ],
                     ),
-                  )
-                ],
-              )),
+                  ))
             ],
           );
   }

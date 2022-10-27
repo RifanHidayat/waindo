@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
-import 'package:month_year_picker/month_year_picker.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
+import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/controller/tidak_masuk_kerja_controller.dart';
 import 'package:siscom_operasional/screen/absen/detail_absen.dart';
 import 'package:siscom_operasional/screen/absen/form/form_tidakMasukKerja.dart';
@@ -14,10 +15,29 @@ import 'package:siscom_operasional/screen/dashboard.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
+import 'package:siscom_operasional/utils/month_year_picker.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 
-class TidakMasukKerja extends StatelessWidget {
+class TidakMasukKerja extends StatefulWidget {
+  @override
+  _TidakMasukKerjaState createState() => _TidakMasukKerjaState();
+}
+
+class _TidakMasukKerjaState extends State<TidakMasukKerja> {
   var controller = Get.put(TidakMasukKerjaController());
+  var controllerGlobal = Get.put(GlobalController());
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> refreshData() async {
+    await Future.delayed(Duration(seconds: 2));
+    controller.loadDataAjuanIzin();
+    controller.selectedType.value = 0;
+    this.controller.selectedType.refresh();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,18 +48,16 @@ class TidakMasukKerja extends StatelessWidget {
           automaticallyImplyLeading: false,
           elevation: 2,
           flexibleSpace: AppbarMenu1(
-            title: "Tidak Hadir",
+            title: "izin",
             icon: 1,
             colorTitle: Constanst.colorText3,
             colorIcon: Constanst.colorText3,
             onTap: () {
-              controller.onClose();
               Get.offAll(InitScreen());
             },
           )),
       body: WillPopScope(
         onWillPop: () async {
-          controller.onClose();
           Get.offAll(InitScreen());
           return true;
         },
@@ -89,7 +107,7 @@ class TidakMasukKerja extends StatelessWidget {
                                 height: 16,
                               ),
                               Text(
-                                "Riwayat Pengajuan Tidak Hadir",
+                                "Riwayat Pengajuan izin",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 14),
                               ),
@@ -97,13 +115,17 @@ class TidakMasukKerja extends StatelessWidget {
                                 height: 8,
                               ),
                               Flexible(
-                                  child:
-                                      controller.listHistoryAjuan.value.isEmpty
-                                          ? Center(
-                                              child: Text(
-                                                  "${controller.loadingString.value}"),
-                                            )
-                                          : listAjuanIzinTidakMasukKerja()),
+                                child: RefreshIndicator(
+                                    color: Constanst.colorPrimary,
+                                    onRefresh: refreshData,
+                                    child: controller
+                                            .listHistoryAjuan.value.isEmpty
+                                        ? Center(
+                                            child: Text(
+                                                "${controller.loadingString.value}"),
+                                          )
+                                        : listAjuanIzinTidakMasukKerja()),
+                              )
                             ],
                           ))
                     ],
@@ -142,7 +164,7 @@ class TidakMasukKerja extends StatelessWidget {
                       foregroundColor: Colors.white,
                       label: 'Buat Pengajuan Tidak Hadir',
                       onTap: () {
-                        Get.offAll(FormTidakMasukKerja(
+                        Get.to(FormTidakMasukKerja(
                           dataForm: [[], false],
                         ));
                       }),
@@ -157,7 +179,7 @@ class TidakMasukKerja extends StatelessWidget {
                 : TextButtonWidget2(
                     title: "Buat Pengajuan Tidak Hadir",
                     onTap: () {
-                      Get.offAll(FormTidakMasukKerja(
+                      Get.to(FormTidakMasukKerja(
                         dataForm: [[], false],
                       ));
                     },
@@ -177,29 +199,30 @@ class TidakMasukKerja extends StatelessWidget {
       decoration: Constanst.styleBoxDecoration1,
       child: InkWell(
         onTap: () {
-          showMonthYearPicker(
-            context: Get.context!,
-            initialDate: DateTime.now(),
-            // firstDate: DateTime(DateTime.now().year - 1, 5),
-            // lastDate: DateTime(DateTime.now().year + 1, 9),
-            firstDate: DateTime(2010),
-            lastDate: DateTime(2100),
-          ).then((date) {
-            if (date != null) {
-              print(date);
-              var outputFormat1 = DateFormat('MM');
-              var outputFormat2 = DateFormat('yyyy');
-              var bulan = outputFormat1.format(date);
-              var tahun = outputFormat2.format(date);
-              controller.bulanSelectedSearchHistory.value = bulan;
-              controller.tahunSelectedSearchHistory.value = tahun;
-              controller.bulanDanTahunNow.value = "$bulan-$tahun";
-              controller.loadDataAjuanSakit();
-              this.controller.bulanSelectedSearchHistory.refresh();
-              this.controller.tahunSelectedSearchHistory.refresh();
-              this.controller.bulanDanTahunNow.refresh();
-            }
-          });
+          DatePicker.showPicker(
+            Get.context!,
+            pickerModel: CustomMonthPicker(
+              minTime: DateTime(2020, 1, 1),
+              maxTime: DateTime(2050, 1, 1),
+              currentTime: DateTime.now(),
+            ),
+            onConfirm: (time) {
+              if (time != null) {
+                print("$time");
+                var filter = DateFormat('yyyy-MM').format(time);
+                var array = filter.split('-');
+                var bulan = array[1];
+                var tahun = array[0];
+                controller.bulanSelectedSearchHistory.value = bulan;
+                controller.tahunSelectedSearchHistory.value = tahun;
+                controller.bulanDanTahunNow.value = "$bulan-$tahun";
+                controller.loadDataAjuanIzin();
+                this.controller.bulanSelectedSearchHistory.refresh();
+                this.controller.tahunSelectedSearchHistory.refresh();
+                this.controller.bulanDanTahunNow.refresh();
+              }
+            },
+          );
         },
         child: Padding(
           padding: EdgeInsets.only(top: 15, bottom: 10),
@@ -258,7 +281,7 @@ class TidakMasukKerja extends StatelessWidget {
               onTap: () => controller.changeTypeSelected(0),
               child: Center(
                   child: Text(
-                "Sakit",
+                "SEHARI PENUH",
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -273,7 +296,7 @@ class TidakMasukKerja extends StatelessWidget {
               onTap: () => controller.changeTypeSelected(1),
               child: Center(
                   child: Text(
-                "Izin",
+                "SETENGAH HARI",
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -283,35 +306,6 @@ class TidakMasukKerja extends StatelessWidget {
               )),
             ),
           ),
-
-          // ListView.builder(
-          //     itemCount: controller.allTipe.value.length,
-          //     scrollDirection: Axis.horizontal,
-          //     shrinkWrap: true,
-          //     padding: const EdgeInsets.all(10.0),
-          //     itemBuilder: (context, index) {
-          //       return InkWell(
-          //         onTap: () => controller.changeTypeSelected(
-          //             controller.allTipe.value[index]['type_id']),
-          //         child: SizedBox(
-          //           child: Center(
-          //             child: Padding(
-          //               padding: const EdgeInsets.only(left: 16, right: 16),
-          //               child: Text(
-          //                 controller.allTipe.value[index]['name'],
-          //                 style: TextStyle(
-          //                   fontWeight: FontWeight.bold,
-          //                   color:
-          //                       controller.allTipe.value[index]['active'] == true
-          //                           ? Constanst.colorPrimary
-          //                           : Constanst.colorText2,
-          //                 ),
-          //               ),
-          //             ),
-          //           ),
-          //         ),
-          //       );
-          //     }),
         ],
       ),
     );
@@ -351,23 +345,39 @@ class TidakMasukKerja extends StatelessWidget {
                                   ? Constanst.colorPrimary
                                   : Constanst.colorText2,
                             )
-                          : namaType == "Rejected"
+                          : namaType == "Approve 1"
                               ? Icon(
-                                  Iconsax.close_square,
+                                  Iconsax.tick_square,
                                   size: 14,
                                   color: status == true
                                       ? Constanst.colorPrimary
                                       : Constanst.colorText2,
                                 )
-                              : namaType == "Pending"
+                              : namaType == "Approve 2"
                                   ? Icon(
-                                      Iconsax.timer,
+                                      Iconsax.tick_square,
                                       size: 14,
                                       color: status == true
                                           ? Constanst.colorPrimary
                                           : Constanst.colorText2,
                                     )
-                                  : SizedBox(),
+                                  : namaType == "Rejected"
+                                      ? Icon(
+                                          Iconsax.close_square,
+                                          size: 14,
+                                          color: status == true
+                                              ? Constanst.colorPrimary
+                                              : Constanst.colorText2,
+                                        )
+                                      : namaType == "Pending"
+                                          ? Icon(
+                                              Iconsax.timer,
+                                              size: 14,
+                                              color: status == true
+                                                  ? Constanst.colorPrimary
+                                                  : Constanst.colorText2,
+                                            )
+                                          : SizedBox(),
                       Padding(
                         padding: const EdgeInsets.only(left: 6, right: 6),
                         child: Text(
@@ -392,7 +402,7 @@ class TidakMasukKerja extends StatelessWidget {
   Widget pencarianData() {
     return Container(
       decoration: BoxDecoration(
-          borderRadius: Constanst.borderStyle2,
+          borderRadius: Constanst.borderStyle5,
           border: Border.all(color: Constanst.colorNonAktif)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -455,7 +465,9 @@ class TidakMasukKerja extends StatelessWidget {
 
   Widget listAjuanIzinTidakMasukKerja() {
     return ListView.builder(
-        physics: BouncingScrollPhysics(),
+        physics: controller.listHistoryAjuan.value.length <= 5
+            ? AlwaysScrollableScrollPhysics()
+            : BouncingScrollPhysics(),
         itemCount: controller.listHistoryAjuan.value.length,
         itemBuilder: (context, index) {
           var nomorAjuan =
@@ -465,9 +477,21 @@ class TidakMasukKerja extends StatelessWidget {
           var namaTypeAjuan = controller.listHistoryAjuan.value[index]['name'];
           var alasanReject =
               controller.listHistoryAjuan.value[index]['alasan_reject'];
-          var typeAjuan =
-              controller.listHistoryAjuan.value[index]['leave_status'];
-          var approve_by = controller.listHistoryAjuan.value[index]['apply_by'];
+          var typeAjuan = controller.valuePolaPersetujuan.value == "1"
+              ? "Approve"
+              : controller.listHistoryAjuan.value[index]['leave_status'] ==
+                      "Approve"
+                  ? "Approve 1"
+                  : controller.listHistoryAjuan.value[index]['leave_status'] ==
+                          "Approve2"
+                      ? "Approve 2"
+                      : controller.listHistoryAjuan.value[index]
+                          ['leave_status'];
+          var approve_by = controllerGlobal.valuePolaPersetujuan.value == "1"
+              ? controller.listHistoryAjuan.value[index]['apply_by']
+              : controller.listHistoryAjuan.value[index]['apply2_by'] == ""
+                  ? controller.listHistoryAjuan.value[index]['apply_by']
+                  : controller.listHistoryAjuan.value[index]['apply2_by'];
 
           return InkWell(
             onTap: () => controller
@@ -498,8 +522,7 @@ class TidakMasukKerja extends StatelessWidget {
                     ],
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.only(
-                        left: 16, top: 8, bottom: 8, right: 8),
+                    padding: const EdgeInsets.all(8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -508,7 +531,7 @@ class TidakMasukKerja extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Expanded(
-                              flex: 70,
+                              flex: 60,
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 5),
                                 child: Text(
@@ -520,17 +543,21 @@ class TidakMasukKerja extends StatelessWidget {
                               ),
                             ),
                             Expanded(
-                              flex: 30,
+                              flex: 40,
                               child: Container(
-                                margin: EdgeInsets.only(right: 8),
+                                margin: EdgeInsets.only(right: 6),
                                 decoration: BoxDecoration(
                                   color: typeAjuan == 'Approve'
                                       ? Constanst.colorBGApprove
-                                      : typeAjuan == 'Rejected'
-                                          ? Constanst.colorBGRejected
-                                          : typeAjuan == 'Pending'
-                                              ? Constanst.colorBGPending
-                                              : Colors.grey,
+                                      : typeAjuan == 'Approve 1'
+                                          ? Constanst.colorBGApprove
+                                          : typeAjuan == 'Approve 2'
+                                              ? Constanst.colorBGApprove
+                                              : typeAjuan == 'Rejected'
+                                                  ? Constanst.colorBGRejected
+                                                  : typeAjuan == 'Pending'
+                                                      ? Constanst.colorBGPending
+                                                      : Colors.grey,
                                   borderRadius: Constanst.borderStyle1,
                                 ),
                                 child: Padding(
@@ -545,19 +572,33 @@ class TidakMasukKerja extends StatelessWidget {
                                               color: Constanst.color5,
                                               size: 14,
                                             )
-                                          : typeAjuan == 'Rejected'
+                                          : typeAjuan == 'Approve 1'
                                               ? Icon(
-                                                  Iconsax.close_square,
-                                                  color: Constanst.color4,
+                                                  Iconsax.tick_square,
+                                                  color: Constanst.color5,
                                                   size: 14,
                                                 )
-                                              : typeAjuan == 'Pending'
+                                              : typeAjuan == 'Approve 2'
                                                   ? Icon(
-                                                      Iconsax.timer,
-                                                      color: Constanst.color3,
+                                                      Iconsax.tick_square,
+                                                      color: Constanst.color5,
                                                       size: 14,
                                                     )
-                                                  : SizedBox(),
+                                                  : typeAjuan == 'Rejected'
+                                                      ? Icon(
+                                                          Iconsax.close_square,
+                                                          color:
+                                                              Constanst.color4,
+                                                          size: 14,
+                                                        )
+                                                      : typeAjuan == 'Pending'
+                                                          ? Icon(
+                                                              Iconsax.timer,
+                                                              color: Constanst
+                                                                  .color3,
+                                                              size: 14,
+                                                            )
+                                                          : SizedBox(),
                                       Padding(
                                         padding: const EdgeInsets.only(left: 3),
                                         child: Text(
@@ -567,11 +608,19 @@ class TidakMasukKerja extends StatelessWidget {
                                               fontWeight: FontWeight.bold,
                                               color: typeAjuan == 'Approve'
                                                   ? Colors.green
-                                                  : typeAjuan == 'Rejected'
-                                                      ? Colors.red
-                                                      : typeAjuan == 'Pending'
-                                                          ? Constanst.color3
-                                                          : Colors.black),
+                                                  : typeAjuan == 'Approve 1'
+                                                      ? Colors.green
+                                                      : typeAjuan == 'Approve 2'
+                                                          ? Colors.green
+                                                          : typeAjuan ==
+                                                                  'Rejected'
+                                                              ? Colors.red
+                                                              : typeAjuan ==
+                                                                      'Pending'
+                                                                  ? Constanst
+                                                                      .color3
+                                                                  : Colors
+                                                                      .black),
                                         ),
                                       ),
                                     ],
@@ -605,7 +654,7 @@ class TidakMasukKerja extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      "Alasan Reject",
+                                      "Alasan Reject by $approve_by",
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold),
                                     ),
@@ -625,7 +674,8 @@ class TidakMasukKerja extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Expanded(
-                                    child: typeAjuan == "Approve"
+                                    child: typeAjuan == "Approve 1" ||
+                                            typeAjuan == "Approve 2"
                                         ? Row(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
@@ -660,11 +710,48 @@ class TidakMasukKerja extends StatelessWidget {
                                               SizedBox(
                                                 height: 5,
                                               ),
-                                              Text("")
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Image.asset(
+                                                    'assets/whatsapp.png',
+                                                    width: 25,
+                                                    height: 25,
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 6),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 3),
+                                                      child: InkWell(
+                                                          onTap: () {
+                                                            controllerGlobal
+                                                                .showDataPilihAtasan(
+                                                                    controller
+                                                                        .listHistoryAjuan
+                                                                        .value[index]);
+                                                          },
+                                                          child: Text(
+                                                            "Konfirmasi via WA",
+                                                            style: TextStyle(
+                                                              decoration:
+                                                                  TextDecoration
+                                                                      .underline,
+                                                            ),
+                                                          )),
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
                                             ],
                                           ),
                                   ),
-                                  typeAjuan == "Approve"
+                                  typeAjuan == "Approve 1" ||
+                                          typeAjuan == "Approve 2"
                                       ? SizedBox()
                                       : Expanded(
                                           child: Row(
@@ -706,8 +793,7 @@ class TidakMasukKerja extends StatelessWidget {
                                                             .colorPrimary)),
                                                 child: InkWell(
                                                   onTap: () {
-                                                    Get.offAll(
-                                                        FormTidakMasukKerja(
+                                                    Get.to(FormTidakMasukKerja(
                                                       dataForm: [
                                                         controller
                                                             .listHistoryAjuan
