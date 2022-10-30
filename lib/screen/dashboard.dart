@@ -8,18 +8,18 @@ import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/pesan_controller.dart';
-import 'package:siscom_operasional/controller/tab_controller.dart';
 import 'package:siscom_operasional/screen/absen/absen_masuk_keluar.dart';
 import 'package:siscom_operasional/screen/akun/personal_info.dart';
 import 'package:siscom_operasional/screen/informasi.dart';
 import 'package:siscom_operasional/screen/pesan/pesan.dart';
 import 'package:siscom_operasional/utils/api.dart';
-import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({Key? key}) : super(key: key);
@@ -127,12 +127,16 @@ class _DashboardState extends State<Dashboard> {
                                       flex: 30,
                                       child: InkWell(
                                         onTap: () => Get.offAll(Informasi()),
-                                        child: Text(
-                                          "Lihat semua",
-                                          textAlign: TextAlign.end,
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: Constanst.colorPrimary),
+                                        child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(top: 6.0),
+                                          child: Text(
+                                            "Lihat semua",
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(
+                                                fontSize: 12,
+                                                color: Constanst.colorPrimary),
+                                          ),
                                         ),
                                       ))
                                 ],
@@ -140,10 +144,58 @@ class _DashboardState extends State<Dashboard> {
                               SizedBox(
                                 height: 16,
                               ),
-                              // listInformasi(),
+                              listInformasi(),
                               SizedBox(
-                                height: 20,
-                              )
+                                height: 8,
+                              ),
+                              controller.employeeUltah.isEmpty
+                                  ? SizedBox()
+                                  : Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                            flex: 70,
+                                            child: Text(
+                                              "Ulang tahun hari ini",
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Constanst.colorText3),
+                                            )),
+                                        Expanded(
+                                            flex: 30,
+                                            child: InkWell(
+                                              onTap: () =>
+                                                  Get.offAll(Informasi()),
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 4.0),
+                                                child: Text(
+                                                  "Lihat semua",
+                                                  textAlign: TextAlign.end,
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Constanst
+                                                          .colorPrimary),
+                                                ),
+                                              ),
+                                            ))
+                                      ],
+                                    ),
+                              controller.employeeUltah.isEmpty
+                                  ? SizedBox()
+                                  : SizedBox(
+                                      height: 8,
+                                    ),
+                              controller.employeeUltah.isEmpty
+                                  ? SizedBox()
+                                  : listEmployeeUltah(),
+                              controller.employeeUltah.isEmpty
+                                  ? SizedBox()
+                                  : SizedBox(
+                                      height: 20,
+                                    ),
                             ],
                           ),
                         ),
@@ -649,24 +701,34 @@ class _DashboardState extends State<Dashboard> {
               itemBuilder:
                   (BuildContext context, int itemIndex, int pageViewIndex) {
                 return Obx(
-                  () => SizedBox(
-                      width: MediaQuery.of(context).size.width,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: Constanst.borderStyle2,
-                        ),
-                        child: Image.network(
-                          Api.UrlgambarDashboard +
-                              controller.bannerDashboard.value[itemIndex]
-                                  ['gambar'],
-                          fit: BoxFit.fill,
-                          loadingBuilder: (context, child, loadingProgress) {
-                            if (loadingProgress == null) return child;
-                            return UtilsAlert.shimmerBannerDashboard(
-                                Get.context!);
-                          },
-                        ),
-                      )),
+                  () => InkWell(
+                    onTap: () {
+                      _launchURL() async => await canLaunch(controller
+                              .bannerDashboard.value[itemIndex]['url'])
+                          ? await launch(controller
+                              .bannerDashboard.value[itemIndex]['url'])
+                          : throw UtilsAlert.showToast('Tidak dapat membuka');
+                      _launchURL();
+                    },
+                    child: SizedBox(
+                        width: MediaQuery.of(context).size.width,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: Constanst.borderStyle2,
+                          ),
+                          child: Image.network(
+                            Api.urlGambarDariFinance +
+                                controller.bannerDashboard.value[itemIndex]
+                                    ['img'],
+                            fit: BoxFit.fill,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return UtilsAlert.shimmerBannerDashboard(
+                                  Get.context!);
+                            },
+                          ),
+                        )),
+                  ),
                 );
               }),
           DotsIndicator(
@@ -845,6 +907,9 @@ class _DashboardState extends State<Dashboard> {
         scrollDirection: Axis.vertical,
         shrinkWrap: true,
         itemBuilder: (context, index) {
+          var title = controller.informasiDashboard.value[index]['title'];
+          var desc = controller.informasiDashboard.value[index]['description'];
+          var create = controller.informasiDashboard.value[index]['created_on'];
           return Padding(
             padding: EdgeInsets.only(left: 8, right: 8, top: 0),
             child: Column(
@@ -856,9 +921,9 @@ class _DashboardState extends State<Dashboard> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Expanded(
-                      flex: 70,
+                      flex: 50,
                       child: Text(
-                        controller.informasiDashboard.value[index]['title'],
+                        "$title",
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
@@ -866,10 +931,9 @@ class _DashboardState extends State<Dashboard> {
                       ),
                     ),
                     Expanded(
-                      flex: 30,
+                      flex: 50,
                       child: Text(
-                        Constanst.convertDate(
-                            "${controller.informasiDashboard.value[index]['date']}"),
+                        Constanst.convertDate("$create"),
                         textAlign: TextAlign.right,
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -882,9 +946,14 @@ class _DashboardState extends State<Dashboard> {
                 SizedBox(
                   height: 8,
                 ),
-                Text(
-                  controller.informasiDashboard.value[index]['desc'],
-                  style: TextStyle(color: Constanst.colorText2),
+                Html(
+                  data: desc,
+                  style: {
+                    "body": Style(
+                      fontSize: FontSize(14),
+                      color: Constanst.colorText2,
+                    ),
+                  },
                 ),
                 SizedBox(
                   height: 8,
@@ -900,5 +969,84 @@ class _DashboardState extends State<Dashboard> {
             ),
           );
         });
+  }
+
+  Widget listEmployeeUltah() {
+    return SizedBox(
+        width: MediaQuery.of(Get.context!).size.width,
+        height: 110,
+        child: ListView.builder(
+            padding: EdgeInsets.all(0),
+            itemCount: controller.employeeUltah.length,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              var fullname = controller.employeeUltah.value[index]['full_name'];
+              var image = controller.employeeUltah.value[index]['em_image'];
+              var jobtitle = controller.employeeUltah.value[index]['job_title'];
+              return Padding(
+                padding: EdgeInsets.only(left: 6, right: 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    image == ""
+                        ? Image.asset(
+                            'assets/avatar_default.png',
+                            width: 50,
+                            height: 50,
+                          )
+                        : Center(
+                            child: CircleAvatar(
+                              radius: 25, // Image radius
+                              child: ClipOval(
+                                child: ClipOval(
+                                  child: CachedNetworkImage(
+                                    imageUrl: Api.UrlfotoProfile + "${image}",
+                                    progressIndicatorBuilder:
+                                        (context, url, downloadProgress) =>
+                                            Container(
+                                      alignment: Alignment.center,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.5,
+                                      width: MediaQuery.of(context).size.width,
+                                      child: CircularProgressIndicator(
+                                          value: downloadProgress.progress),
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        Image.asset(
+                                      'assets/avatar_default.png',
+                                      width: 50,
+                                      height: 50,
+                                    ),
+                                    fit: BoxFit.cover,
+                                    width: 50,
+                                    height: 50,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Center(
+                      child: Text(
+                        "$fullname",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 10),
+                      ),
+                    ),
+                    Center(
+                      child: Text(
+                        "$jobtitle",
+                        style: TextStyle(
+                            color: Constanst.colorText2, fontSize: 10),
+                      ),
+                    )
+                  ],
+                ),
+              );
+            }));
   }
 }

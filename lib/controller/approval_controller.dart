@@ -65,6 +65,8 @@ class ApprovalController extends GetxController {
               loadDataTidakHadir();
             } else if (title == "Tugas Luar") {
               loadDataTugasLuar();
+            } else if (title == "Dinas Luar") {
+              loadDataDinasLuar();
             }
           }
         }
@@ -286,6 +288,64 @@ class ApprovalController extends GetxController {
             'catatan': element['uraian'],
             'type': 'Tugas Luar',
             'file': ''
+          };
+          listData.value.add(data);
+          listDataAll.value.add(data);
+        }
+        listData.value.sort(
+            (a, b) => b['waktu_pengajuan'].compareTo(a['waktu_pengajuan']));
+        this.listData.refresh();
+        this.listNotModif.refresh();
+      }
+    });
+  }
+
+  void loadDataDinasLuar() {
+    var urlLoad = valuePolaPersetujuan.value == "1"
+        ? "spesifik_approval"
+        : "spesifik_approval_multi";
+    listNotModif.value.clear();
+    listData.value.clear();
+    listDataAll.value.clear();
+    var dataUser = AppData.informasiUser;
+    var getEmCode = dataUser![0].em_id;
+    Map<String, dynamic> body = {
+      'em_id': getEmCode,
+      'name_data': 'dinas_luar',
+      'bulan': bulanSelected.value,
+      'tahun': tahunSelected.value,
+    };
+    var connect = Api.connectionApi("post", body, urlLoad);
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['data'].length == 0) {
+          loadingString.value = 'Tidak ada pengajuan';
+        }
+        ;
+        listNotModif.value = valueBody['data'];
+        for (var element in valueBody['data']) {
+          var fullName = element['full_name'] ?? "";
+          var convertNama = "$fullName";
+          var tanggalDari = Constanst.convertDate1("${element['start_date']}");
+          var tanggalSampai = Constanst.convertDate1("${element['end_date']}");
+          var filterStatus = element['leave_status'] == "Approve"
+              ? "Approve 1"
+              : element['leave_status'];
+          var data = {
+            'id': element['id'],
+            'nama_pengaju': convertNama,
+            'title_ajuan': 'Pengajuan Dinas Luar',
+            'waktu_dari': tanggalDari,
+            'waktu_sampai': tanggalSampai,
+            'durasi': element['leave_duration'],
+            'leave_status': filterStatus,
+            'delegasi': element['em_delegation'],
+            'nama_approve1': element['apply_by'],
+            'waktu_pengajuan': element['atten_date'],
+            'catatan': element['reason'],
+            'type': "Dinas Luar",
+            'file': element['leave_files']
           };
           listData.value.add(data);
           listDataAll.value.add(data);

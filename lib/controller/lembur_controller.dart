@@ -358,8 +358,12 @@ class LemburController extends GetxController {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
           if (valueBody['status'] == true) {
-            kirimNotifikasiToDelegasi(
-                getFullName, finalTanggalPengajuan, validasiDelegasiSelected);
+            var stringWaktu =
+                "${dariJam.value.text} sd ${sampaiJam.value.text}";
+            kirimNotifikasiToDelegasi(getFullName, finalTanggalPengajuan,
+                validasiDelegasiSelected, stringWaktu);
+            kirimNotifikasiToReportTo(getFullName, finalTanggalPengajuan,
+                getEmid, "Lembur", stringWaktu);
             Navigator.pop(Get.context!);
             var pesan1 = "Pengajuan lembur berhasil dibuat";
             var pesan2 =
@@ -465,15 +469,15 @@ class LemburController extends GetxController {
     this.loadingString.refresh();
   }
 
-  void kirimNotifikasiToDelegasi(
-      getFullName, convertTanggalBikinPengajuan, validasiDelegasiSelected) {
+  void kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
+      validasiDelegasiSelected, stringWaktu) {
     var dt = DateTime.now();
     var jamSekarang = DateFormat('HH:mm:ss').format(dt);
     Map<String, dynamic> body = {
       'em_id': validasiDelegasiSelected,
       'title': 'Delegasi Pengajuan Lembur',
       'deskripsi':
-          'Anda mendapatkan delegasi pekerjaan dari $getFullName untuk Pengajuan Lembur',
+          'Anda mendapatkan delegasi pekerjaan dari $getFullName untuk Pengajuan Lembur, waktu pengajuan $stringWaktu',
       'url': '',
       'atten_date': convertTanggalBikinPengajuan,
       'jam': jamSekarang,
@@ -484,6 +488,29 @@ class LemburController extends GetxController {
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         UtilsAlert.showToast("Berhasil kirim delegasi");
+      }
+    });
+  }
+
+  void kirimNotifikasiToReportTo(
+      getFullName, convertTanggalBikinPengajuan, getEmid, type, stringWaktu) {
+    var dt = DateTime.now();
+    var jamSekarang = DateFormat('HH:mm:ss').format(dt);
+    Map<String, dynamic> body = {
+      'emId_pengaju': getEmid,
+      'title': 'Pengajuan Lembur',
+      'deskripsi':
+          'Anda mendapatkan pengajuan $type dari $getFullName, waktu pengajuan $stringWaktu',
+      'url': '',
+      'atten_date': convertTanggalBikinPengajuan,
+      'jam': jamSekarang,
+      'status': '2',
+      'view': '0',
+    };
+    var connect = Api.connectionApi("post", body, "notifikasi_reportTo");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        UtilsAlert.showToast("Pengajuan berhasil di kirim");
       }
     });
   }

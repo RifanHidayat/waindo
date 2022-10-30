@@ -477,16 +477,20 @@ class _TidakMasukKerjaState extends State<TidakMasukKerja> {
           var namaTypeAjuan = controller.listHistoryAjuan.value[index]['name'];
           var alasanReject =
               controller.listHistoryAjuan.value[index]['alasan_reject'];
-          var typeAjuan = controller.valuePolaPersetujuan.value == "1"
-              ? "Approve"
-              : controller.listHistoryAjuan.value[index]['leave_status'] ==
-                      "Approve"
-                  ? "Approve 1"
-                  : controller.listHistoryAjuan.value[index]['leave_status'] ==
-                          "Approve2"
-                      ? "Approve 2"
-                      : controller.listHistoryAjuan.value[index]
-                          ['leave_status'];
+          var typeAjuan;
+          if (controller.valuePolaPersetujuan.value == "1") {
+            typeAjuan =
+                controller.listHistoryAjuan.value[index]['leave_status'];
+          } else {
+            typeAjuan = controller.listHistoryAjuan.value[index]
+                        ['leave_status'] ==
+                    "Approve"
+                ? "Approve 1"
+                : controller.listHistoryAjuan.value[index]['leave_status'] ==
+                        "Approve2"
+                    ? "Approve 2"
+                    : controller.listHistoryAjuan.value[index]['leave_status'];
+          }
           var approve_by = controllerGlobal.valuePolaPersetujuan.value == "1"
               ? controller.listHistoryAjuan.value[index]['apply_by']
               : controller.listHistoryAjuan.value[index]['apply2_by'] == ""
@@ -675,6 +679,7 @@ class _TidakMasukKerjaState extends State<TidakMasukKerja> {
                                 children: [
                                   Expanded(
                                     child: typeAjuan == "Approve 1" ||
+                                            typeAjuan == "Approve" ||
                                             typeAjuan == "Approve 2"
                                         ? Row(
                                             crossAxisAlignment:
@@ -729,11 +734,15 @@ class _TidakMasukKerjaState extends State<TidakMasukKerja> {
                                                               top: 3),
                                                       child: InkWell(
                                                           onTap: () {
+                                                            var dataEmployee = {
+                                                              'nameType':
+                                                                  '$namaTypeAjuan',
+                                                              'nomor_ajuan':
+                                                                  '$nomorAjuan',
+                                                            };
                                                             controllerGlobal
                                                                 .showDataPilihAtasan(
-                                                                    controller
-                                                                        .listHistoryAjuan
-                                                                        .value[index]);
+                                                                    dataEmployee);
                                                           },
                                                           child: Text(
                                                             "Konfirmasi via WA",
@@ -751,6 +760,7 @@ class _TidakMasukKerjaState extends State<TidakMasukKerja> {
                                           ),
                                   ),
                                   typeAjuan == "Approve 1" ||
+                                          typeAjuan == "Approve" ||
                                           typeAjuan == "Approve 2"
                                       ? SizedBox()
                                       : Expanded(

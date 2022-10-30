@@ -34,6 +34,7 @@ class _TugasLuarState extends State<TugasLuar> {
   Future<void> refreshData() async {
     await Future.delayed(Duration(seconds: 2));
     controller.loadDataTugasLuar();
+    controller.loadDataDinasLuar();
   }
 
   @override
@@ -44,14 +45,17 @@ class _TugasLuarState extends State<TugasLuar> {
           backgroundColor: Colors.white,
           automaticallyImplyLeading: false,
           elevation: 2,
-          flexibleSpace: AppbarMenu1(
-            title: "Tugas Luar",
-            colorTitle: Constanst.colorText3,
-            colorIcon: Constanst.colorText3,
-            icon: 1,
-            onTap: () {
-              Get.offAll(InitScreen());
-            },
+          flexibleSpace: Obx(
+            () => AppbarMenu1(
+              title:
+                  controller.viewTugasLuar.value ? "Tugas Luar" : "Dinas Luar",
+              colorTitle: Constanst.colorText3,
+              colorIcon: Constanst.colorText3,
+              icon: 1,
+              onTap: () {
+                Get.offAll(InitScreen());
+              },
+            ),
           )),
       body: WillPopScope(
         onWillPop: () async {
@@ -89,13 +93,21 @@ class _TugasLuarState extends State<TugasLuar> {
                 SizedBox(
                   height: 16,
                 ),
-                Text(
-                  "Riwayat Pengajuan Tugas Luar",
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: Constanst.sizeTitle,
-                      color: Constanst.colorText3),
-                ),
+                controller.viewTugasLuar.value
+                    ? Text(
+                        "Riwayat Pengajuan Tugas Luar",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: Constanst.sizeTitle,
+                            color: Constanst.colorText3),
+                      )
+                    : Text(
+                        "Riwayat Pengajuan Dinas Luar",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: Constanst.sizeTitle,
+                            color: Constanst.colorText3),
+                      ),
                 SizedBox(
                   height: 8,
                 ),
@@ -107,7 +119,9 @@ class _TugasLuarState extends State<TugasLuar> {
                             ? Center(
                                 child: Text(controller.loadingString.value),
                               )
-                            : riwayatTugasLuar()))
+                            : controller.viewTugasLuar.value
+                                ? riwayatTugasLuar()
+                                : riwayatDinasLuar()))
               ],
             ),
           ),
@@ -139,11 +153,22 @@ class _TugasLuarState extends State<TugasLuar> {
                         ));
                       }),
                   SpeedDialChild(
+                      child: Icon(Iconsax.minus_cirlce),
+                      backgroundColor: Color(0xff2F80ED),
+                      foregroundColor: Colors.white,
+                      label: 'Laporan Dinas Luar',
+                      onTap: () {
+                        Get.to(LaporanTidakMasuk(
+                          title: 'dinas_luar',
+                        ));
+                      }),
+                  SpeedDialChild(
                       child: Icon(Iconsax.add_square),
                       backgroundColor: Color(0xff14B156),
                       foregroundColor: Colors.white,
                       label: 'Buat Pengajuan Tugas Luar',
                       onTap: () {
+                        controller.viewTugasLuar.value = true;
                         Get.to(FormTugasLuar(
                           dataForm: [[], false],
                         ));
@@ -159,6 +184,7 @@ class _TugasLuarState extends State<TugasLuar> {
                 : TextButtonWidget2(
                     title: "Buat Pengajuan Tugas Luar",
                     onTap: () {
+                      controller.viewTugasLuar.value = true;
                       Get.to(FormTugasLuar(
                         dataForm: [[], false],
                       ));
@@ -245,6 +271,7 @@ class _TugasLuarState extends State<TugasLuar> {
                   this.controller.tahunSelectedSearchHistory.refresh();
                   this.controller.bulanDanTahunNow.refresh();
                   controller.loadDataTugasLuar();
+                  controller.loadDataDinasLuar();
                 }
               },
             );
@@ -456,7 +483,18 @@ class _TugasLuarState extends State<TugasLuar> {
           var sampaiJam = controller.listTugasLuar.value[index]['sampai_jam'];
           var tanggalPengajuan =
               controller.listTugasLuar.value[index]['atten_date'];
-          var status = controller.listTugasLuar.value[index]['status'];
+
+          var status;
+          if (controller.valuePolaPersetujuan.value == "1") {
+            status = controller.listTugasLuar.value[index]['status'];
+          } else {
+            status = controller.listTugasLuar.value[index]['status'] ==
+                    "Approve"
+                ? "Approve 1"
+                : controller.listTugasLuar.value[index]['status'] == "Approve2"
+                    ? "Approve 2"
+                    : controller.listTugasLuar.value[index]['status'];
+          }
           var alasanReject =
               controller.listTugasLuar.value[index]['alasan_reject'];
           var approveDate =
@@ -512,11 +550,15 @@ class _TugasLuarState extends State<TugasLuar> {
                               decoration: BoxDecoration(
                                 color: status == 'Approve'
                                     ? Constanst.colorBGApprove
-                                    : status == 'Rejected'
-                                        ? Constanst.colorBGRejected
-                                        : status == 'Pending'
-                                            ? Constanst.colorBGPending
-                                            : Colors.grey,
+                                    : status == 'Approve 1'
+                                        ? Constanst.colorBGApprove
+                                        : status == 'Approve 2'
+                                            ? Constanst.colorBGApprove
+                                            : status == 'Rejected'
+                                                ? Constanst.colorBGRejected
+                                                : status == 'Pending'
+                                                    ? Constanst.colorBGPending
+                                                    : Colors.grey,
                                 borderRadius: Constanst.borderStyle1,
                               ),
                               child: Padding(
@@ -531,19 +573,32 @@ class _TugasLuarState extends State<TugasLuar> {
                                             color: Constanst.color5,
                                             size: 14,
                                           )
-                                        : status == 'Rejected'
+                                        : status == 'Approve 1'
                                             ? Icon(
-                                                Iconsax.close_square,
-                                                color: Constanst.color4,
+                                                Iconsax.tick_square,
+                                                color: Constanst.color5,
                                                 size: 14,
                                               )
-                                            : status == 'Pending'
+                                            : status == 'Approve 2'
                                                 ? Icon(
-                                                    Iconsax.timer,
-                                                    color: Constanst.color3,
+                                                    Iconsax.tick_square,
+                                                    color: Constanst.color5,
                                                     size: 14,
                                                   )
-                                                : SizedBox(),
+                                                : status == 'Rejected'
+                                                    ? Icon(
+                                                        Iconsax.close_square,
+                                                        color: Constanst.color4,
+                                                        size: 14,
+                                                      )
+                                                    : status == 'Pending'
+                                                        ? Icon(
+                                                            Iconsax.timer,
+                                                            color: Constanst
+                                                                .color3,
+                                                            size: 14,
+                                                          )
+                                                        : SizedBox(),
                                     Padding(
                                       padding: const EdgeInsets.only(left: 3),
                                       child: Text(
@@ -553,11 +608,17 @@ class _TugasLuarState extends State<TugasLuar> {
                                             fontWeight: FontWeight.bold,
                                             color: status == 'Approve'
                                                 ? Colors.green
-                                                : status == 'Rejected'
-                                                    ? Colors.red
-                                                    : status == 'Pending'
-                                                        ? Constanst.color3
-                                                        : Colors.black),
+                                                : status == 'Approve 1'
+                                                    ? Colors.green
+                                                    : status == 'Approve 2'
+                                                        ? Colors.green
+                                                        : status == 'Rejected'
+                                                            ? Colors.red
+                                                            : status ==
+                                                                    'Pending'
+                                                                ? Constanst
+                                                                    .color3
+                                                                : Colors.black),
                                       ),
                                     ),
                                   ],
@@ -632,7 +693,9 @@ class _TugasLuarState extends State<TugasLuar> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Expanded(
-                                  child: status == "Approve"
+                                  child: status == "Approve" ||
+                                          status == "Approve 1" ||
+                                          status == "Approve 2"
                                       ? Row(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -710,7 +773,9 @@ class _TugasLuarState extends State<TugasLuar> {
                                           ],
                                         ),
                                 ),
-                                status == "Approve"
+                                status == "Approve" ||
+                                        status == "Approve 1" ||
+                                        status == "Approve 2"
                                     ? SizedBox()
                                     : Expanded(
                                         child: Row(
@@ -749,7 +814,9 @@ class _TugasLuarState extends State<TugasLuar> {
                                                           .colorPrimary)),
                                               child: InkWell(
                                                 onTap: () {
-                                                  Get.offAll(FormTugasLuar(
+                                                  controller.viewTugasLuar
+                                                      .value = true;
+                                                  Get.to(FormTugasLuar(
                                                     dataForm: [
                                                       controller.listTugasLuar
                                                           .value[index],
@@ -776,6 +843,377 @@ class _TugasLuarState extends State<TugasLuar> {
                 ),
               )
             ],
+          );
+        });
+  }
+
+  Widget riwayatDinasLuar() {
+    return ListView.builder(
+        physics: controller.listDinasLuar.value.length <= 5
+            ? AlwaysScrollableScrollPhysics()
+            : BouncingScrollPhysics(),
+        itemCount: controller.listDinasLuar.value.length,
+        itemBuilder: (context, index) {
+          var nomorAjuan = controller.listDinasLuar.value[index]['nomor_ajuan'];
+          var tanggalMasukAjuan =
+              controller.listDinasLuar.value[index]['atten_date'];
+          var namaTypeAjuan = "Dinas Luar";
+          var alasanReject =
+              controller.listDinasLuar.value[index]['alasan_reject'] ?? "";
+          var typeAjuan;
+          if (controller.valuePolaPersetujuan.value == "1") {
+            typeAjuan = controller.listDinasLuar.value[index]['leave_status'];
+          } else {
+            typeAjuan = controller.listDinasLuar.value[index]['leave_status'] ==
+                    "Approve"
+                ? "Approve 1"
+                : controller.listDinasLuar.value[index]['leave_status'] ==
+                        "Approve2"
+                    ? "Approve 2"
+                    : controller.listDinasLuar.value[index]['leave_status'];
+          }
+          var approve_by = controllerGlobal.valuePolaPersetujuan.value == "1"
+              ? controller.listDinasLuar.value[index]['apply_by']
+              : controller.listDinasLuar.value[index]['apply2_by'] == ""
+                  ? controller.listDinasLuar.value[index]['apply_by']
+                  : controller.listDinasLuar.value[index]['apply2_by'];
+
+          return InkWell(
+            onTap: () => controller
+                .showDetailRiwayat(controller.listDinasLuar.value[index]),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 10,
+                ),
+                Text("${Constanst.convertDate("$tanggalMasukAjuan")}"),
+                SizedBox(
+                  height: 8,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: Constanst.borderStyle1,
+                    boxShadow: [
+                      BoxShadow(
+                        color:
+                            Color.fromARGB(255, 170, 170, 170).withOpacity(0.4),
+                        spreadRadius: 1,
+                        blurRadius: 1,
+                        offset: Offset(1, 1), // changes position of shadow
+                      ),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 60,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 5),
+                                child: Text(
+                                  namaTypeAjuan,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 40,
+                              child: Container(
+                                margin: EdgeInsets.only(right: 6),
+                                decoration: BoxDecoration(
+                                  color: typeAjuan == 'Approve'
+                                      ? Constanst.colorBGApprove
+                                      : typeAjuan == 'Approve 1'
+                                          ? Constanst.colorBGApprove
+                                          : typeAjuan == 'Approve 2'
+                                              ? Constanst.colorBGApprove
+                                              : typeAjuan == 'Rejected'
+                                                  ? Constanst.colorBGRejected
+                                                  : typeAjuan == 'Pending'
+                                                      ? Constanst.colorBGPending
+                                                      : Colors.grey,
+                                  borderRadius: Constanst.borderStyle1,
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 3, right: 3, top: 5, bottom: 5),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      typeAjuan == 'Approve'
+                                          ? Icon(
+                                              Iconsax.tick_square,
+                                              color: Constanst.color5,
+                                              size: 14,
+                                            )
+                                          : typeAjuan == 'Approve 1'
+                                              ? Icon(
+                                                  Iconsax.tick_square,
+                                                  color: Constanst.color5,
+                                                  size: 14,
+                                                )
+                                              : typeAjuan == 'Approve 2'
+                                                  ? Icon(
+                                                      Iconsax.tick_square,
+                                                      color: Constanst.color5,
+                                                      size: 14,
+                                                    )
+                                                  : typeAjuan == 'Rejected'
+                                                      ? Icon(
+                                                          Iconsax.close_square,
+                                                          color:
+                                                              Constanst.color4,
+                                                          size: 14,
+                                                        )
+                                                      : typeAjuan == 'Pending'
+                                                          ? Icon(
+                                                              Iconsax.timer,
+                                                              color: Constanst
+                                                                  .color3,
+                                                              size: 14,
+                                                            )
+                                                          : SizedBox(),
+                                      Padding(
+                                        padding: const EdgeInsets.only(left: 3),
+                                        child: Text(
+                                          '$typeAjuan',
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: typeAjuan == 'Approve'
+                                                  ? Colors.green
+                                                  : typeAjuan == 'Approve 1'
+                                                      ? Colors.green
+                                                      : typeAjuan == 'Approve 2'
+                                                          ? Colors.green
+                                                          : typeAjuan ==
+                                                                  'Rejected'
+                                                              ? Colors.red
+                                                              : typeAjuan ==
+                                                                      'Pending'
+                                                                  ? Constanst
+                                                                      .color3
+                                                                  : Colors
+                                                                      .black),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          "NO.$nomorAjuan",
+                          textAlign: TextAlign.justify,
+                          style: TextStyle(
+                              fontSize: 14,
+                              color: Constanst.colorText1,
+                              fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        Divider(height: 5, color: Constanst.colorText2),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        typeAjuan == 'Rejected'
+                            ? SizedBox(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Alasan Reject by $approve_by",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    SizedBox(
+                                      height: 6,
+                                    ),
+                                    Text(
+                                      alasanReject,
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: Constanst.colorText2),
+                                    )
+                                  ],
+                                ),
+                              )
+                            : Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: typeAjuan == "Approve 1" ||
+                                            typeAjuan == "Approve" ||
+                                            typeAjuan == "Approve 2"
+                                        ? Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Icon(
+                                                Iconsax.tick_circle,
+                                                color: Colors.green,
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsets.only(
+                                                    left: 5, top: 3),
+                                                child: Text(
+                                                    "Approved by $approve_by"),
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsets.only(
+                                                    left: 5, top: 3),
+                                                child: Text(""),
+                                              )
+                                            ],
+                                          )
+                                        : Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Pending Approval",
+                                                style: TextStyle(
+                                                    color:
+                                                        Constanst.colorText2),
+                                              ),
+                                              SizedBox(
+                                                height: 5,
+                                              ),
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Image.asset(
+                                                    'assets/whatsapp.png',
+                                                    width: 25,
+                                                    height: 25,
+                                                  ),
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.only(
+                                                            left: 6),
+                                                    child: Padding(
+                                                      padding:
+                                                          const EdgeInsets.only(
+                                                              top: 3),
+                                                      child: InkWell(
+                                                          onTap: () {
+                                                            var dataEmployee = {
+                                                              'nameType':
+                                                                  '$namaTypeAjuan',
+                                                              'nomor_ajuan':
+                                                                  '$nomorAjuan',
+                                                            };
+                                                            controllerGlobal
+                                                                .showDataPilihAtasan(
+                                                                    dataEmployee);
+                                                          },
+                                                          child: Text(
+                                                            "Konfirmasi via WA",
+                                                            style: TextStyle(
+                                                              decoration:
+                                                                  TextDecoration
+                                                                      .underline,
+                                                            ),
+                                                          )),
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                  ),
+                                  typeAjuan == "Approve 1" ||
+                                          typeAjuan == "Approve" ||
+                                          typeAjuan == "Approve 2"
+                                      ? SizedBox()
+                                      : Expanded(
+                                          child: Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Expanded(
+                                                child: Padding(
+                                              padding:
+                                                  EdgeInsets.only(right: 10),
+                                              child: InkWell(
+                                                onTap: () {
+                                                  controller
+                                                      .showModalBatalPengajuan(
+                                                          controller
+                                                              .listDinasLuar
+                                                              .value[index]);
+                                                },
+                                                child: Text(
+                                                  "Batalkan",
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                      color: Colors.red),
+                                                ),
+                                              ),
+                                            )),
+                                            Expanded(
+                                                child: Padding(
+                                              padding:
+                                                  EdgeInsets.only(right: 10),
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                    borderRadius:
+                                                        Constanst.borderStyle1,
+                                                    border: Border.all(
+                                                        color: Constanst
+                                                            .colorPrimary)),
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    controller.viewTugasLuar
+                                                        .value = false;
+                                                    Get.to(FormTugasLuar(
+                                                      dataForm: [
+                                                        controller.listDinasLuar
+                                                            .value[index],
+                                                        true
+                                                      ],
+                                                    ));
+                                                  },
+                                                  child: Text(
+                                                    "Edit",
+                                                    textAlign: TextAlign.center,
+                                                    style: TextStyle(
+                                                        color: Constanst
+                                                            .colorPrimary),
+                                                  ),
+                                                ),
+                                              ),
+                                            )),
+                                          ],
+                                        )),
+                                ],
+                              )
+                      ],
+                    ),
+                  ),
+                )
+              ],
+            ),
           );
         });
   }

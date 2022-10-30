@@ -271,4 +271,40 @@ class GlobalController extends GetxController {
       }
     }
   }
+
+  void kirimUcapanWa(message, nomorUltah) async {
+    if (nomorUltah == "" || nomorUltah == null || nomorUltah == "null") {
+      UtilsAlert.showToast("Nomor wa atasan tidak valid");
+    } else {
+      var dataUser = AppData.informasiUser;
+      var getEmid = dataUser![0].em_id;
+      var getFullName = dataUser[0].full_name;
+      var gabunganPesan = message;
+      var notujuan = nomorUltah;
+      var filternohp = notujuan.substring(1);
+      var kodeNegara = 62;
+      var gabungNohp = "$kodeNegara$filternohp";
+
+      var whatsappURl_android =
+          "whatsapp://send?phone=" + gabungNohp + "&text=" + gabunganPesan;
+      var whatappURL_ios =
+          "https://wa.me/$gabungNohp?text=${Uri.parse(gabunganPesan)}";
+
+      if (Platform.isIOS) {
+        // for iOS phone only
+        if (await canLaunch(whatappURL_ios)) {
+          await launch(whatappURL_ios, forceSafariVC: false);
+        } else {
+          UtilsAlert.showToast("Whatsapp tidak terinstall");
+        }
+      } else {
+        // android , web
+        if (await canLaunch(whatsappURl_android)) {
+          await launch(whatsappURl_android);
+        } else {
+          UtilsAlert.showToast("Whatsapp tidak terinstall");
+        }
+      }
+    }
+  }
 }

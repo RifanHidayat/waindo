@@ -51,7 +51,9 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
                           ? "Laporan Lembur"
                           : widget.title == "tugas_luar"
                               ? "Laporan Tugas Luar"
-                              : "",
+                              : widget.title == "dinas_luar"
+                                  ? "Laporan Dinas Luar"
+                                  : "",
               colorTitle: Colors.black,
               icon: 1,
               rightIcon: Icon(Iconsax.document_download),

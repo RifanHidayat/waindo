@@ -303,7 +303,9 @@ class LaporanTidakHadirController extends GetxController {
     } else {
       List data = [];
       for (var element in alllistDetailLaporanEmployee.value) {
-        if (title == "tidak_hadir" || title == "cuti") {
+        if (title == "tidak_hadir" ||
+            title == "cuti" ||
+            title == "dinas_luar") {
           if (element['leave_status'] == name) {
             data.add(element);
           }
@@ -875,13 +877,23 @@ class LaporanTidakHadirController extends GetxController {
 
   void showDetailRiwayat(detailData) {
     var nomorAjuan = detailData['nomor_ajuan'];
+    var get2StringNomor = '${nomorAjuan[0]}${nomorAjuan[1]}';
     var tanggalMasukAjuan = detailData['atten_date'];
     var namaTypeAjuan = detailData['name'];
     var tanggalAjuanDari = detailData['start_date'];
     var tanggalAjuanSampai = detailData['end_date'];
     var alasan = detailData['reason'];
     var durasi = detailData['leave_duration'];
-    var typeAjuan = detailData['leave_status'];
+    var typeAjuan;
+    if (valuePolaPersetujuan.value == "1") {
+      typeAjuan = detailData['leave_status'];
+    } else {
+      typeAjuan = detailData['leave_status'] == "Approve"
+          ? "Approve 1"
+          : detailData['leave_status'] == "Approve2"
+              ? "Approve 2"
+              : detailData['leave_status'];
+    }
     var listTanggalTerpilih = detailData['date_selected'].split(',');
     showModalBottomSheet(
       context: Get.context!,
@@ -911,11 +923,19 @@ class LaporanTidakHadirController extends GetxController {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            "$namaTypeAjuan",
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
-                          ),
+                          get2StringNomor == "DL"
+                              ? Text(
+                                  "DINAS LUAR",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                )
+                              : Text(
+                                  "$namaTypeAjuan",
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                ),
                           SizedBox(
                             height: 8,
                           ),
@@ -932,11 +952,15 @@ class LaporanTidakHadirController extends GetxController {
                           decoration: BoxDecoration(
                             color: typeAjuan == 'Approve'
                                 ? Constanst.colorBGApprove
-                                : typeAjuan == 'Rejected'
-                                    ? Constanst.colorBGRejected
-                                    : typeAjuan == 'Pending'
-                                        ? Constanst.colorBGPending
-                                        : Colors.grey,
+                                : typeAjuan == 'Approve 1'
+                                    ? Constanst.colorBGApprove
+                                    : typeAjuan == 'Approve 2'
+                                        ? Constanst.colorBGApprove
+                                        : typeAjuan == 'Rejected'
+                                            ? Constanst.colorBGRejected
+                                            : typeAjuan == 'Pending'
+                                                ? Constanst.colorBGPending
+                                                : Colors.grey,
                             borderRadius: Constanst.borderStyle1,
                           ),
                           child: Padding(
@@ -951,19 +975,31 @@ class LaporanTidakHadirController extends GetxController {
                                         color: Constanst.color5,
                                         size: 14,
                                       )
-                                    : typeAjuan == 'Rejected'
+                                    : typeAjuan == 'Approve 1'
                                         ? Icon(
-                                            Iconsax.close_square,
-                                            color: Constanst.color4,
+                                            Iconsax.tick_square,
+                                            color: Constanst.color5,
                                             size: 14,
                                           )
-                                        : typeAjuan == 'Pending'
+                                        : typeAjuan == 'Approve 2'
                                             ? Icon(
-                                                Iconsax.timer,
-                                                color: Constanst.color3,
+                                                Iconsax.tick_square,
+                                                color: Constanst.color5,
                                                 size: 14,
                                               )
-                                            : SizedBox(),
+                                            : typeAjuan == 'Rejected'
+                                                ? Icon(
+                                                    Iconsax.close_square,
+                                                    color: Constanst.color4,
+                                                    size: 14,
+                                                  )
+                                                : typeAjuan == 'Pending'
+                                                    ? Icon(
+                                                        Iconsax.timer,
+                                                        color: Constanst.color3,
+                                                        size: 14,
+                                                      )
+                                                    : SizedBox(),
                                 Padding(
                                   padding: const EdgeInsets.only(left: 3),
                                   child: Text(
@@ -973,11 +1009,15 @@ class LaporanTidakHadirController extends GetxController {
                                         fontWeight: FontWeight.bold,
                                         color: typeAjuan == 'Approve'
                                             ? Colors.green
-                                            : typeAjuan == 'Rejected'
-                                                ? Colors.red
-                                                : typeAjuan == 'Pending'
-                                                    ? Constanst.color3
-                                                    : Colors.black),
+                                            : typeAjuan == 'Approve 1'
+                                                ? Colors.green
+                                                : typeAjuan == 'Approve 2'
+                                                    ? Colors.green
+                                                    : typeAjuan == 'Rejected'
+                                                        ? Colors.red
+                                                        : typeAjuan == 'Pending'
+                                                            ? Constanst.color3
+                                                            : Colors.black),
                                   ),
                                 ),
                               ],

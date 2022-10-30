@@ -651,7 +651,13 @@ class _PesanState extends State<Pesan> {
                                                           color: Constanst
                                                               .colorPrimary,
                                                         )
-                                                      : SizedBox(),
+                                                      : title == 'Dinas Luar'
+                                                          ? Icon(
+                                                              Iconsax.airplane,
+                                                              color: Constanst
+                                                                  .colorPrimary,
+                                                            )
+                                                          : SizedBox(),
                                     ),
                                     Expanded(
                                       flex: 60,
@@ -751,71 +757,86 @@ class _PesanState extends State<Pesan> {
                       Expanded(
                         flex: 85,
                         child: controller.statusFilteriwayat.value == false
-                            ? SizedBox()
-                            : Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 2),
-                                    child: Text(
-                                      "Filter ${controller.stringFilterSelected.value}",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Constanst.colorText1),
+                            ? Padding(
+                                padding: const EdgeInsets.only(right: 8),
+                                child: pencarianData(),
+                              )
+                            : Padding(
+                                padding: const EdgeInsets.only(top: 8.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2),
+                                      child: Text(
+                                        "Filter ${controller.stringFilterSelected.value}",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Constanst.colorText1),
+                                      ),
                                     ),
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      controller.clearFilter();
-                                    },
-                                    child: Padding(
-                                        padding: EdgeInsets.only(left: 8),
-                                        child: Icon(Iconsax.close_circle,
-                                            color: Colors.red)),
-                                  ),
-                                ],
+                                    InkWell(
+                                      onTap: () {
+                                        controller.clearFilter();
+                                      },
+                                      child: Padding(
+                                          padding: EdgeInsets.only(left: 8),
+                                          child: Icon(Iconsax.close_circle,
+                                              color: Colors.red)),
+                                    ),
+                                  ],
+                                ),
                               ),
                       ),
                       Expanded(
                         flex: 15,
-                        child: Container(
-                            height: 28,
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                borderRadius: Constanst.borderStyle5,
-                                border:
-                                    Border.all(color: Constanst.colorText3)),
-                            child: PopupMenuButton(
-                              padding: EdgeInsets.all(0.0),
-                              icon: Icon(
-                                Iconsax.setting_4,
-                              ),
-                              itemBuilder: (context) => [
-                                PopupMenuItem(
-                                    value: "1",
-                                    onTap: () =>
-                                        controller.filterApproveHistory(
-                                            'Pengajuan Tidak Hadir'),
-                                    child: Text("Pengajuan Tidak Hadir")),
-                                PopupMenuItem(
-                                    value: "2",
-                                    onTap: () => controller
-                                        .filterApproveHistory('Pengajuan Cuti'),
-                                    child: Text("Pengajuan Cuti")),
-                                PopupMenuItem(
-                                    value: "3",
-                                    onTap: () =>
-                                        controller.filterApproveHistory(
-                                            'Pengajuan Lembur'),
-                                    child: Text("Pengajuan Lembur")),
-                                PopupMenuItem(
-                                    value: "4",
-                                    onTap: () =>
-                                        controller.filterApproveHistory(
-                                            'Pengajuan Tugas Luar'),
-                                    child: Text("Pengajuan Tugas Luar"))
-                              ],
-                            )),
+                        child: controller.statusCari.value == true
+                            ? SizedBox()
+                            : Container(
+                                height: 40,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                    borderRadius: Constanst.borderStyle5,
+                                    border: Border.all(
+                                        color: Constanst.colorText3)),
+                                child: PopupMenuButton(
+                                  padding: EdgeInsets.all(0.0),
+                                  icon: Icon(
+                                    Iconsax.setting_4,
+                                  ),
+                                  itemBuilder: (context) => [
+                                    PopupMenuItem(
+                                        value: "1",
+                                        onTap: () =>
+                                            controller.filterApproveHistory(
+                                                'Pengajuan Tidak Hadir'),
+                                        child: Text("Pengajuan Tidak Hadir")),
+                                    PopupMenuItem(
+                                        value: "2",
+                                        onTap: () =>
+                                            controller.filterApproveHistory(
+                                                'Pengajuan Cuti'),
+                                        child: Text("Pengajuan Cuti")),
+                                    PopupMenuItem(
+                                        value: "3",
+                                        onTap: () =>
+                                            controller.filterApproveHistory(
+                                                'Pengajuan Lembur'),
+                                        child: Text("Pengajuan Lembur")),
+                                    PopupMenuItem(
+                                        value: "4",
+                                        onTap: () =>
+                                            controller.filterApproveHistory(
+                                                'Pengajuan Tugas Luar'),
+                                        child: Text("Pengajuan Tugas Luar")),
+                                    PopupMenuItem(
+                                        value: "5",
+                                        onTap: () =>
+                                            controller.filterApproveHistory(
+                                                'Pengajuan Dinas Luar'),
+                                        child: Text("Pengajuan Dinas Luar")),
+                                  ],
+                                )),
                       )
                     ],
                   ),
@@ -826,32 +847,313 @@ class _PesanState extends State<Pesan> {
                 Obx(
                   () => Flexible(
                       flex: 3,
-                      child: controller.riwayatPersetujuan.value.isEmpty
-                          ? Center(
-                              child: CircularProgressIndicator(strokeWidth: 3),
-                            )
-                          : controller.statusFilteriwayat.value == false
-                              ? listFilterRiwayatNonAktif()
-                              : listFilterRiwayatAktif()),
+                      child: RefreshIndicator(
+                        onRefresh: refreshData,
+                        child: controller.riwayatPersetujuan.value.isEmpty
+                            ? Center(
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 3),
+                              )
+                            : controller.statusCari.value == true
+                                ? listPencarian()
+                                : controller.statusFilteriwayat.value == false
+                                    ? listFilterRiwayatNonAktif()
+                                    : listFilterRiwayatAktif(),
+                      )),
                 ),
               ],
             ),
           );
   }
 
-  Widget listFilterRiwayatAktif() {
+  Widget pencarianData() {
+    return Container(
+      decoration: BoxDecoration(
+          borderRadius: Constanst.borderStyle5,
+          border: Border.all(color: Constanst.colorNonAktif)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 15,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 7, left: 10),
+              child: Icon(Iconsax.search_normal_1),
+            ),
+          ),
+          Expanded(
+            flex: 85,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: SizedBox(
+                height: 40,
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 85,
+                        child: TextField(
+                          controller: controller.cari.value,
+                          decoration: InputDecoration(
+                              border: InputBorder.none, hintText: "Cari"),
+                          style: TextStyle(
+                              fontSize: 14.0, height: 1.0, color: Colors.black),
+                          onChanged: (value) {
+                            controller.cariData(value);
+                          },
+                        ),
+                      ),
+                      !controller.statusCari.value
+                          ? SizedBox()
+                          : Expanded(
+                              flex: 15,
+                              child: IconButton(
+                                icon: Icon(
+                                  Iconsax.close_circle,
+                                  color: Colors.red,
+                                ),
+                                onPressed: () {
+                                  controller.riwayatPersetujuan.value.clear();
+                                  controller.statusCari.value = false;
+                                  controller.cari.value.text = "";
+                                  controller.onReady();
+                                  ;
+                                },
+                              ),
+                            )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget listPencarian() {
     return ListView.builder(
         shrinkWrap: true,
-        physics: BouncingScrollPhysics(),
+        physics: controller.riwayatPersetujuan.value.length <= 8
+            ? AlwaysScrollableScrollPhysics()
+            : BouncingScrollPhysics(),
         itemCount: controller.riwayatPersetujuan.value.length,
         itemBuilder: (context, ixx) {
           var idx = controller.riwayatPersetujuan.value[ixx]['id'];
-          var status = controller.riwayatPersetujuan.value[ixx]['status'] ==
-                  "Approve"
-              ? "Approve 1"
-              : controller.riwayatPersetujuan.value[ixx]['status'] == "Approve2"
-                  ? "Approve 2"
-                  : controller.riwayatPersetujuan.value[ixx]['status'];
+          var status;
+          if (controller.valuePolaPersetujuan.value == "1") {
+            status = controller.riwayatPersetujuan.value[ixx]['status'];
+          } else {
+            status =
+                controller.riwayatPersetujuan.value[ixx]['status'] == "Approve"
+                    ? "Approve 1"
+                    : controller.riwayatPersetujuan.value[ixx]['status'] ==
+                            "Approve2"
+                        ? "Approve 2"
+                        : controller.riwayatPersetujuan.value[ixx]['status'];
+          }
+          var namaPengaju =
+              controller.riwayatPersetujuan.value[ixx]['nama_pengaju'];
+          var typeAjuan = controller.riwayatPersetujuan.value[ixx]['type'];
+          var tanggalPengajuan =
+              controller.riwayatPersetujuan.value[ixx]['waktu_pengajuan'];
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 16,
+              ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: Constanst.borderStyle2,
+                  boxShadow: [
+                    BoxShadow(
+                      color:
+                          Color.fromARGB(255, 170, 170, 170).withOpacity(0.4),
+                      spreadRadius: 1,
+                      blurRadius: 1,
+                      offset: Offset(1, 1), // changes position of shadow
+                    ),
+                  ],
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(
+                      left: 16, top: 8, bottom: 8, right: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 60,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 5),
+                              child: Text(
+                                namaPengaju ?? "",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 40,
+                            child: Container(
+                              margin: EdgeInsets.only(right: 8),
+                              decoration: BoxDecoration(
+                                color: status == 'Approve'
+                                    ? Constanst.colorBGApprove
+                                    : status == 'Approve 1'
+                                        ? Constanst.colorBGApprove
+                                        : status == 'Approve 2'
+                                            ? Constanst.colorBGApprove
+                                            : status == 'Rejected'
+                                                ? Constanst.colorBGRejected
+                                                : status == 'Pending'
+                                                    ? Constanst.colorBGPending
+                                                    : Colors.grey,
+                                borderRadius: Constanst.borderStyle1,
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.only(
+                                    left: 3, right: 3, top: 5, bottom: 5),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    status == 'Approve'
+                                        ? Icon(
+                                            Iconsax.tick_square,
+                                            color: Constanst.color5,
+                                            size: 14,
+                                          )
+                                        : status == 'Approve 1'
+                                            ? Icon(
+                                                Iconsax.tick_square,
+                                                color: Constanst.color5,
+                                                size: 14,
+                                              )
+                                            : status == 'Approve 2'
+                                                ? Icon(
+                                                    Iconsax.tick_square,
+                                                    color: Constanst.color5,
+                                                    size: 14,
+                                                  )
+                                                : status == 'Rejected'
+                                                    ? Icon(
+                                                        Iconsax.close_square,
+                                                        color: Constanst.color4,
+                                                        size: 14,
+                                                      )
+                                                    : status == 'Pending'
+                                                        ? Icon(
+                                                            Iconsax.timer,
+                                                            color: Constanst
+                                                                .color3,
+                                                            size: 14,
+                                                          )
+                                                        : SizedBox(),
+                                    Padding(
+                                      padding: const EdgeInsets.only(left: 3),
+                                      child: Text(
+                                        '$status',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: status == 'Approve'
+                                                ? Colors.green
+                                                : status == 'Approve 1'
+                                                    ? Colors.green
+                                                    : status == 'Approve 2'
+                                                        ? Colors.green
+                                                        : status == 'Rejected'
+                                                            ? Colors.red
+                                                            : status ==
+                                                                    'Pending'
+                                                                ? Constanst
+                                                                    .color3
+                                                                : Colors.black),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        typeAjuan ?? "",
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        "${Constanst.convertDate1("$tanggalPengajuan")}",
+                        style: TextStyle(fontSize: 14),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      InkWell(
+                        onTap: () {
+                          controller.filterDetailRiwayatApproval(
+                              idx, typeAjuan);
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                              color: Constanst.colorPrimary,
+                              borderRadius: Constanst.borderStyle3),
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 5, bottom: 5),
+                            child: Center(
+                              child: Text(
+                                "Lihat Detail",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          );
+        });
+  }
+
+  Widget listFilterRiwayatAktif() {
+    return ListView.builder(
+        shrinkWrap: true,
+        physics: controller.riwayatPersetujuan.value.length <= 8
+            ? AlwaysScrollableScrollPhysics()
+            : BouncingScrollPhysics(),
+        itemCount: controller.riwayatPersetujuan.value.length,
+        itemBuilder: (context, ixx) {
+          var idx = controller.riwayatPersetujuan.value[ixx]['id'];
+          var status;
+          if (controller.valuePolaPersetujuan.value == "1") {
+            status = controller.riwayatPersetujuan.value[ixx]['status'];
+          } else {
+            status =
+                controller.riwayatPersetujuan.value[ixx]['status'] == "Approve"
+                    ? "Approve 1"
+                    : controller.riwayatPersetujuan.value[ixx]['status'] ==
+                            "Approve2"
+                        ? "Approve 2"
+                        : controller.riwayatPersetujuan.value[ixx]['status'];
+          }
           var namaPengaju =
               controller.riwayatPersetujuan.value[ixx]['nama_pengaju'];
           var typeAjuan = controller.riwayatPersetujuan.value[ixx]['type'];
@@ -1033,7 +1335,9 @@ class _PesanState extends State<Pesan> {
   Widget listFilterRiwayatNonAktif() {
     return ListView.builder(
         itemCount: controller.riwayatPersetujuan.value.length,
-        physics: BouncingScrollPhysics(),
+        physics: controller.riwayatPersetujuan.value.length <= 4
+            ? AlwaysScrollableScrollPhysics()
+            : BouncingScrollPhysics(),
         itemBuilder: (context, index) {
           var tanggalNotif =
               controller.riwayatPersetujuan.value[index]['waktu_pengajuan'];
@@ -1061,20 +1365,23 @@ class _PesanState extends State<Pesan> {
                         itemBuilder: (context, ixx) {
                           var idx = controller.riwayatPersetujuan.value[index]
                               ['turunan'][ixx]['id'];
-                          var status = controller.valuePolaPersetujuan.value ==
-                                  "1"
-                              ? "Approve"
-                              : controller.riwayatPersetujuan.value[index]
-                                          ['turunan'][ixx]['status'] ==
-                                      "Approve"
-                                  ? "Approve 1"
-                                  : controller.riwayatPersetujuan.value[index]
-                                              ['turunan'][ixx]['status'] ==
-                                          "Approve2"
-                                      ? "Approve 2"
-                                      : controller
-                                              .riwayatPersetujuan.value[index]
-                                          ['turunan'][ixx]['status'];
+                          var status;
+                          if (controller.valuePolaPersetujuan.value == "1") {
+                            status = controller.riwayatPersetujuan.value[index]
+                                ['turunan'][ixx]['status'];
+                          } else {
+                            status = controller.riwayatPersetujuan.value[index]
+                                        ['turunan'][ixx]['status'] ==
+                                    "Approve"
+                                ? "Approve 1"
+                                : controller.riwayatPersetujuan.value[index]
+                                            ['turunan'][ixx]['status'] ==
+                                        "Approve2"
+                                    ? "Approve 2"
+                                    : controller.riwayatPersetujuan.value[index]
+                                        ['turunan'][ixx]['status'];
+                          }
+
                           var namaPengaju = controller.riwayatPersetujuan
                               .value[index]['turunan'][ixx]['nama_pengaju'];
                           var typeAjuan = controller.riwayatPersetujuan

@@ -33,8 +33,6 @@ class Constanst {
       bottomLeft: Radius.circular(15),
       bottomRight: Radius.circular(15));
 
-  
-
   static BorderRadius borderStyle2 = BorderRadius.only(
       topLeft: Radius.circular(10),
       topRight: Radius.circular(10),
@@ -53,7 +51,7 @@ class Constanst {
       bottomLeft: Radius.circular(20),
       bottomRight: Radius.circular(20));
 
-      static BorderRadius borderStyle5 = BorderRadius.only(
+  static BorderRadius borderStyle5 = BorderRadius.only(
       topLeft: Radius.circular(6),
       topRight: Radius.circular(6),
       bottomLeft: Radius.circular(6),
@@ -151,6 +149,14 @@ class Constanst {
     var inputFormat = DateFormat('MM-yyyy');
     var inputDate = inputFormat.parse(date);
     var outputFormat = DateFormat('MMMM yyyy');
+    var outputDate = outputFormat.format(inputDate);
+    return outputDate;
+  }
+
+  static String convertDateBulanDanHari(String date) {
+    var inputFormat = DateFormat('MM-dd');
+    var inputDate = inputFormat.parse(date);
+    var outputFormat = DateFormat('dd MMMM');
     var outputDate = outputFormat.format(inputDate);
     return outputDate;
   }

@@ -622,8 +622,12 @@ class CutiController extends GetxController {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
           if (valueBody['status'] == true) {
+            var stringTanggal =
+                "${dariTanggal.value.text} sd ${sampaiTanggal.value.text}";
             kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
-                validasiDelegasiSelected);
+                validasiDelegasiSelected, stringTanggal);
+            kirimNotifikasiToReportTo(getFullName, convertTanggalBikinPengajuan,
+                getEmid, "Cuti", stringTanggal);
             Navigator.pop(Get.context!);
 
             var pesan1 = "Pengajuan ${selectedTypeCuti.value} berhasil di buat";
@@ -677,15 +681,15 @@ class CutiController extends GetxController {
     }
   }
 
-  void kirimNotifikasiToDelegasi(
-      getFullName, convertTanggalBikinPengajuan, validasiDelegasiSelected) {
+  void kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
+      validasiDelegasiSelected, stringTanggal) {
     var dt = DateTime.now();
     var jamSekarang = DateFormat('HH:mm:ss').format(dt);
     Map<String, dynamic> body = {
       'em_id': validasiDelegasiSelected,
       'title': 'Delegasi Pengajuan Cuti',
       'deskripsi':
-          'Anda mendapatkan delegasi pekerjaan dari $getFullName untuk pengajuan $selectedTypeCuti',
+          'Anda mendapatkan delegasi pekerjaan dari $getFullName untuk pengajuan $selectedTypeCuti, tanggal pengajuan $stringTanggal',
       'url': '',
       'atten_date': convertTanggalBikinPengajuan,
       'jam': jamSekarang,
@@ -696,6 +700,29 @@ class CutiController extends GetxController {
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         UtilsAlert.showToast("Berhasil kirim delegasi");
+      }
+    });
+  }
+
+  void kirimNotifikasiToReportTo(
+      getFullName, convertTanggalBikinPengajuan, getEmid, type, stringTanggal) {
+    var dt = DateTime.now();
+    var jamSekarang = DateFormat('HH:mm:ss').format(dt);
+    Map<String, dynamic> body = {
+      'emId_pengaju': getEmid,
+      'title': 'Pengajuan Cuti',
+      'deskripsi':
+          'Anda mendapatkan pengajuan $type dari $getFullName, tanggal pengajuan $stringTanggal',
+      'url': '',
+      'atten_date': convertTanggalBikinPengajuan,
+      'jam': jamSekarang,
+      'status': '2',
+      'view': '0',
+    };
+    var connect = Api.connectionApi("post", body, "notifikasi_reportTo");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        UtilsAlert.showToast("Pengajuan berhasil di kirim");
       }
     });
   }
@@ -939,6 +966,15 @@ class CutiController extends GetxController {
     var alasan = detailData['reason'];
     var durasi = detailData['leave_duration'];
     var typeAjuan = detailData['leave_status'];
+    if (valuePolaPersetujuan.value == "1") {
+      typeAjuan = detailData['leave_status'];
+    } else {
+      typeAjuan = detailData['leave_status'] == "Approve"
+          ? "Approve 1"
+          : detailData['leave_status'] == "Approve2"
+              ? "Approve 2"
+              : detailData['leave_status'];
+    }
     var leave_files = detailData['leave_files'];
     var listTanggalTerpilih = detailData['date_selected'].split(',');
     showModalBottomSheet(
@@ -990,11 +1026,15 @@ class CutiController extends GetxController {
                           decoration: BoxDecoration(
                             color: typeAjuan == 'Approve'
                                 ? Constanst.colorBGApprove
-                                : typeAjuan == 'Rejected'
-                                    ? Constanst.colorBGRejected
-                                    : typeAjuan == 'Pending'
-                                        ? Constanst.colorBGPending
-                                        : Colors.grey,
+                                : typeAjuan == 'Approve 1'
+                                    ? Constanst.colorBGApprove
+                                    : typeAjuan == 'Approve 2'
+                                        ? Constanst.colorBGApprove
+                                        : typeAjuan == 'Rejected'
+                                            ? Constanst.colorBGRejected
+                                            : typeAjuan == 'Pending'
+                                                ? Constanst.colorBGPending
+                                                : Colors.grey,
                             borderRadius: Constanst.borderStyle1,
                           ),
                           child: Padding(
@@ -1009,19 +1049,31 @@ class CutiController extends GetxController {
                                         color: Constanst.color5,
                                         size: 14,
                                       )
-                                    : typeAjuan == 'Rejected'
+                                    : typeAjuan == 'Approve 1'
                                         ? Icon(
-                                            Iconsax.close_square,
-                                            color: Constanst.color4,
+                                            Iconsax.tick_square,
+                                            color: Constanst.color5,
                                             size: 14,
                                           )
-                                        : typeAjuan == 'Pending'
+                                        : typeAjuan == 'Approve 2'
                                             ? Icon(
-                                                Iconsax.timer,
-                                                color: Constanst.color3,
+                                                Iconsax.tick_square,
+                                                color: Constanst.color5,
                                                 size: 14,
                                               )
-                                            : SizedBox(),
+                                            : typeAjuan == 'Rejected'
+                                                ? Icon(
+                                                    Iconsax.close_square,
+                                                    color: Constanst.color4,
+                                                    size: 14,
+                                                  )
+                                                : typeAjuan == 'Pending'
+                                                    ? Icon(
+                                                        Iconsax.timer,
+                                                        color: Constanst.color3,
+                                                        size: 14,
+                                                      )
+                                                    : SizedBox(),
                                 Padding(
                                   padding: const EdgeInsets.only(left: 3),
                                   child: Text(
@@ -1031,11 +1083,15 @@ class CutiController extends GetxController {
                                         fontWeight: FontWeight.bold,
                                         color: typeAjuan == 'Approve'
                                             ? Colors.green
-                                            : typeAjuan == 'Rejected'
-                                                ? Colors.red
-                                                : typeAjuan == 'Pending'
-                                                    ? Constanst.color3
-                                                    : Colors.black),
+                                            : typeAjuan == 'Approve 1'
+                                                ? Colors.green
+                                                : typeAjuan == 'Approve 2'
+                                                    ? Colors.green
+                                                    : typeAjuan == 'Rejected'
+                                                        ? Colors.red
+                                                        : typeAjuan == 'Pending'
+                                                            ? Constanst.color3
+                                                            : Colors.black),
                                   ),
                                 ),
                               ],

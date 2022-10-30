@@ -43,6 +43,7 @@ class AbsenController extends GetxController {
   var selectedType = "".obs;
 
   var historyAbsen = <AbsenModel>[].obs;
+  var historyAbsenShow = [].obs;
   var placeCoordinate = [].obs;
   var departementAkses = [].obs;
   var listLaporanFilter = [].obs;
@@ -606,17 +607,108 @@ class AbsenController extends GetxController {
                 signout_addr: el['signout_addr'] ?? "",
                 atttype: el['atttype'] ?? 0));
           }
-
-          historyAbsen.value.sort((a, b) {
-            return DateTime.parse(b.atten_date!)
-                .compareTo(DateTime.parse(a.atten_date!));
-          });
+          if (historyAbsen.value.length != 0) {
+            var listTanggal = [];
+            var finalData = [];
+            for (var element in historyAbsen.value) {
+              listTanggal.add(element.atten_date);
+            }
+            listTanggal = listTanggal.toSet().toList();
+            for (var element in listTanggal) {
+              var valueNonTurunan = [];
+              var valueTurunan = [];
+              var stringDateAdaTurunan = "";
+              int nomorAdaTurunan = 0;
+              for (var element1 in historyAbsen.value) {
+                if (element == element1.atten_date) {
+                  var dataTurunan = {
+                    'id': element1.id,
+                    'signin_time': element1.signin_time,
+                    'signout_time': element1.signout_time,
+                    'atten_date': element1.atten_date,
+                    'place_in': element1.place_in,
+                    'place_out': element1.place_out,
+                    'signin_note': element1.signin_note,
+                    'signin_longlat': element1.signin_longlat,
+                    'signout_longlat': element1.signout_longlat,
+                  };
+                  stringDateAdaTurunan = "${element1.atten_date}";
+                  valueTurunan.add(dataTurunan);
+                } else {
+                  var dataNonTurunan = {
+                    'id': element1.id,
+                    'signin_time': element1.signin_time,
+                    'signout_time': element1.signout_time,
+                    'atten_date': element1.atten_date,
+                    'place_in': element1.place_in,
+                    'place_out': element1.place_out,
+                    'signin_note': element1.signin_note,
+                    'signin_longlat': element1.signin_longlat,
+                    'signout_longlat': element1.signout_longlat,
+                  };
+                  valueNonTurunan.add(dataNonTurunan);
+                }
+              }
+              var lengthTurunan = valueTurunan.length == 0 ? false : true;
+              if (lengthTurunan == false) {
+                var data = {
+                  'id': valueNonTurunan[0]['id'],
+                  'signin_time': valueNonTurunan[0]['signin_time'],
+                  'signout_time': valueNonTurunan[0]['signout_time'],
+                  'atten_date': valueNonTurunan[0]['atten_date'],
+                  'place_in': valueNonTurunan[0]['place_in'],
+                  'place_out': valueNonTurunan[0]['place_out'],
+                  'signin_note': valueNonTurunan[0]['signin_note'],
+                  'signin_longlat': valueNonTurunan[0]['signin_longlat'],
+                  'signout_longlat': valueNonTurunan[0]['signout_longlat'],
+                  'view_turunan': lengthTurunan,
+                  'turunan': valueTurunan,
+                };
+                finalData.add(data);
+              } else {
+                var data = {
+                  'id': "",
+                  'signout_time': "",
+                  'atten_date': stringDateAdaTurunan,
+                  'place_in': "",
+                  'place_out': "",
+                  'signin_note': "",
+                  'signin_longlat': "",
+                  'signout_longlat': "",
+                  'view_turunan': lengthTurunan,
+                  'status_view': false,
+                  'turunan': valueTurunan,
+                };
+                stringDateAdaTurunan = "";
+                finalData.add(data);
+              }
+            }
+            finalData.sort((a, b) {
+              return DateTime.parse(b['atten_date'])
+                  .compareTo(DateTime.parse(a['atten_date']));
+            });
+            historyAbsenShow.value = finalData;
+            this.historyAbsenShow.refresh();
+          }
           this.historyAbsen.refresh();
         } else {
           loading.value = "Data tidak ditemukan";
         }
       }
     });
+  }
+
+  void showTurunan(tanggal) {
+    for (var element in historyAbsenShow.value) {
+      if (element['atten_date'] == tanggal) {
+        if (element['status_view'] == false) {
+          element['status_view'] = true;
+        } else {
+          element['status_view'] = false;
+        }
+      }
+    }
+    this.historyAbsenShow.refresh();
   }
 
   void historySelected(id_absen, status) {
@@ -1367,5 +1459,4 @@ class AbsenController extends GetxController {
           ),
         ));
   }
-
 }

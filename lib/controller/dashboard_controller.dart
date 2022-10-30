@@ -33,12 +33,15 @@ import 'package:siscom_operasional/utils/widget_utils.dart';
 class DashboardController extends GetxController {
   CarouselController corouselDashboard = CarouselController();
   PageController menuController = PageController(initialPage: 0);
+  PageController informasiController = PageController(initialPage: 0);
 
   var user = [].obs;
   var menuDashboard = <MenuDashboardModel>[].obs;
   var bannerDashboard = [].obs;
   var finalMenu = [].obs;
   var informasiDashboard = [].obs;
+  var employeeUltah = [].obs;
+  var employeeTidakHadir = [].obs;
   var menuShowInMain = [].obs;
 
   var timeString = "".obs;
@@ -49,6 +52,7 @@ class DashboardController extends GetxController {
   var heightPageView = 0.0.obs;
   var heightbanner = 0.0.obs;
   var ratioDevice = 0.0.obs;
+  var selectedInformasiView = 0.obs;
 
   var deviceStatus = false.obs;
   var refreshPagesStatus = false.obs;
@@ -57,7 +61,8 @@ class DashboardController extends GetxController {
     {"id": 4, "nama_pengajuan": "Pengajuan Tidak Hadir"},
     {"id": 1, "nama_pengajuan": "Pengajuan Lembur"},
     {"id": 2, "nama_pengajuan": "Pengajuan Cuti"},
-    {"id": 3, "nama_pengajuan": "Pengajuan Tugas Luar"}
+    {"id": 3, "nama_pengajuan": "Pengajuan Tugas Luar"},
+    {"id": 5, "nama_pengajuan": "Pengajuan Dinas Luar"}
   ];
 
   @override
@@ -67,6 +72,7 @@ class DashboardController extends GetxController {
     getMenuDashboard();
     loadMenuShowInMain();
     getInformasiDashboard();
+    getEmployeeBelumAbsen();
     timeString.value = formatDateTime(DateTime.now());
     dateNow.value = dateNoww(DateTime.now());
     Timer.periodic(Duration(seconds: 1), (Timer t) => _getTime());
@@ -257,8 +263,52 @@ class DashboardController extends GetxController {
       } else {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
-          informasiDashboard.value = valueBody['data'];
+          var data = valueBody['data'];
+          var filter1 = [];
+          var dt = DateTime.now();
+          var convertDt = Constanst.convertDate1("$dt");
+          for (var element in data) {
+            var getEndDate = Constanst.convertDate1("${element['end_date']}");
+            if (convertDt != getEndDate) {
+              filter1.add(element);
+            }
+          }
+          informasiDashboard.value = filter1;
+          getEmployeeUltah(dt);
         }
+      }
+    });
+  }
+
+  void getEmployeeUltah(dt) {
+    var tanggal = "${DateFormat('yyyy-MM-dd').format(dt)}";
+    Map<String, dynamic> body = {
+      'dateNow': tanggal,
+    };
+    var connect = Api.connectionApi("post", body, "informasi_employee_ultah");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        employeeUltah.value = valueBody['data'];
+        this.employeeUltah.refresh();
+      }
+    });
+  }
+
+  void getEmployeeBelumAbsen() {
+    var dt = DateTime.now();
+    var tanggal = "${DateFormat('yyyy-MM-dd').format(dt)}";
+    Map<String, dynamic> body = {'atten_date': tanggal, 'status': "0"};
+    var connect = Api.connectionApi("post", body, "load_laporan_belum_absen");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        List data = valueBody['data'];
+        data.sort((a, b) => a['full_name']
+            .toUpperCase()
+            .compareTo(b['full_name'].toUpperCase()));
+        employeeTidakHadir.value = data;
+        this.employeeTidakHadir.refresh();
       }
     });
   }
@@ -287,19 +337,15 @@ class DashboardController extends GetxController {
 
   void getBannerDashboard() {
     bannerDashboard.value.clear();
-    var connect = Api.connectionApi("get", {}, "banner_dashboard");
+    // var connect = Api.connectionApi("get", {}, "banner_dashboard");
+    var connect = Api.connectionApi("get", {}, "banner_from_finance");
     connect.then((dynamic res) {
       if (res == false) {
         UtilsAlert.koneksiBuruk();
       } else {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
-          List<MenuDashboardModel> getData = [];
-          for (var ele in valueBody['data']) {
-            if (ele['status'] == 1) {
-              bannerDashboard.value.add(ele);
-            }
-          }
+          bannerDashboard.value = valueBody['data'];
           this.bannerDashboard.refresh();
         }
       }
@@ -459,19 +505,23 @@ class DashboardController extends GetxController {
 
   void routeSortcartForm(id) {
     if (id == 1) {
-      Get.offAll(FormLembur(
+      Get.to(FormLembur(
         dataForm: [[], false],
       ));
     } else if (id == 2) {
-      Get.offAll(FormPengajuanCuti(
+      Get.to(FormPengajuanCuti(
         dataForm: [[], false],
       ));
     } else if (id == 3) {
-      Get.offAll(FormTugasLuar(
+      Get.to(FormTugasLuar(
         dataForm: [[], false],
       ));
     } else if (id == 4) {
-      Get.offAll(FormTidakMasukKerja(
+      Get.to(FormTidakMasukKerja(
+        dataForm: [[], false],
+      ));
+    } else if (id == 5) {
+      Get.to(FormTugasLuar(
         dataForm: [[], false],
       ));
     }
@@ -656,7 +706,7 @@ class DashboardController extends GetxController {
                                                   )
                                                 : id == 5
                                                     ? Icon(
-                                                        Iconsax.clipboard_close,
+                                                        Iconsax.airplane,
                                                         color: Constanst
                                                             .colorPrimary,
                                                       )

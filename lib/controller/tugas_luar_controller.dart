@@ -15,7 +15,7 @@ import 'package:siscom_operasional/utils/widget_utils.dart';
 
 class TugasLuarController extends GetxController {
   var nomorAjuan = TextEditingController().obs;
-  var tanggalLembur = TextEditingController().obs;
+  var tanggalTugasLuar = TextEditingController().obs;
   var dariJam = TextEditingController().obs;
   var sampaiJam = TextEditingController().obs;
   var catatan = TextEditingController().obs;
@@ -52,8 +52,10 @@ class TugasLuarController extends GetxController {
 
   var listTugasLuar = [].obs;
   var listTugasLuarAll = [].obs;
-  var tampungTugasLuar = [].obs;
-  var tampungDinasLuar = [].obs;
+
+  var listDinasLuar = [].obs;
+  var listDinasLuarAll = [].obs;
+
   var allEmployee = [].obs;
   var dataTypeAjuan = [].obs;
   var departementAkses = [].obs;
@@ -85,7 +87,7 @@ class TugasLuarController extends GetxController {
   }
 
   void removeAll() {
-    tanggalLembur.value.text = "";
+    tanggalTugasLuar.value.text = "";
     dariJam.value.text = "";
     sampaiJam.value.text = "";
     catatan.value.text = "";
@@ -209,16 +211,18 @@ class TugasLuarController extends GetxController {
     bulanDanTahunNow.value = "${dt.month}-${dt.year}";
 
     if (idpengajuanTugasLuar.value == "") {
-      tanggalLembur.value.text = Constanst.convertDate("${initialDate.value}");
+      tanggalTugasLuar.value.text =
+          Constanst.convertDate("${initialDate.value}");
     }
 
-    this.tanggalLembur.refresh();
+    this.tanggalTugasLuar.refresh();
     this.bulanSelectedSearchHistory.refresh();
     this.tahunSelectedSearchHistory.refresh();
     this.bulanDanTahunNow.refresh();
   }
 
   void loadDataTugasLuar() {
+    listTugasLuarAll.value.clear();
     listTugasLuar.value.clear();
     var dataUser = AppData.informasiUser;
     var getEmid = dataUser![0].em_id;
@@ -240,7 +244,6 @@ class TugasLuarController extends GetxController {
             if (element['ajuan'] == 2) {
               listTugasLuar.value.add(element);
               listTugasLuarAll.value.add(element);
-              tampungTugasLuar.value.add(element);
             }
           }
 
@@ -258,7 +261,8 @@ class TugasLuarController extends GetxController {
   }
 
   void loadDataDinasLuar() {
-    tampungDinasLuar.value.clear();
+    listDinasLuar.value.clear();
+    listDinasLuarAll.value.clear();
     var dataUser = AppData.informasiUser;
     var getEmid = dataUser![0].em_id;
     Map<String, dynamic> body = {
@@ -274,8 +278,10 @@ class TugasLuarController extends GetxController {
           loadingString.value = "Tidak ada pengajuan";
           this.loadingString.refresh();
         } else {
-          tampungDinasLuar.value = valueBody['data'];
-          this.tampungDinasLuar.refresh();
+          listDinasLuar.value = valueBody['data'];
+          listDinasLuarAll.value = valueBody['data'];
+          this.listDinasLuar.refresh();
+          this.listDinasLuarAll.refresh();
         }
       }
     });
@@ -326,7 +332,7 @@ class TugasLuarController extends GetxController {
   }
 
   void changeTypeAjuan(name) {
-    var filter = name == "Approve 1"
+    var getTypeFilter = name == "Approve 1"
         ? "Approve"
         : name == "Approve 2"
             ? "Approve2"
@@ -335,6 +341,7 @@ class TugasLuarController extends GetxController {
                 : name == "Pending"
                     ? "Pending"
                     : "Approve";
+
     for (var element in dataTypeAjuan.value) {
       if (element['nama'] == name) {
         element['status'] = true;
@@ -343,28 +350,64 @@ class TugasLuarController extends GetxController {
       }
     }
     this.dataTypeAjuan.refresh();
-    var dataFilter = [];
-    listTugasLuarAll.value.forEach((element) {
+    if (viewTugasLuar.value) {
       if (name == "Semua") {
-        dataFilter.add(element);
-      } else {
-        if (element['status'] == filter) {
-          dataFilter.add(element);
+        List filter = [];
+        for (var element in listTugasLuarAll) {
+          filter.add(element);
         }
+        listTugasLuar.value = filter;
+        loadingString.value = listTugasLuar.value.length != 0
+            ? "Memuat data..."
+            : "Tidak ada pengajuan";
+        this.loadingString.refresh();
+        this.listTugasLuar.refresh();
+      } else {
+        List filter = [];
+        for (var element in listTugasLuarAll.value) {
+          if (element['status'] == getTypeFilter) {
+            filter.add(element);
+          }
+        }
+        listTugasLuar.value = filter;
+        loadingString.value = listTugasLuar.value.length != 0
+            ? "Memuat data..."
+            : "Tidak ada pengajuan";
+        this.loadingString.refresh();
+        this.listTugasLuar.refresh();
       }
-    });
-    listTugasLuar.value = dataFilter;
-    this.listTugasLuar.refresh();
-    if (dataFilter.isEmpty) {
-      loadingString.value = "Tidak ada Pengajuan";
     } else {
-      loadingString.value = "Sedang memuat...";
+      if (name == "Semua") {
+        List filter = [];
+        for (var element in listDinasLuarAll) {
+          filter.add(element);
+        }
+        listDinasLuar.value = filter;
+        loadingString.value = listDinasLuar.value.length != 0
+            ? "Memuat data..."
+            : "Tidak ada pengajuan";
+        this.loadingString.refresh();
+        this.listDinasLuar.refresh();
+      } else {
+        List filter = [];
+        for (var element in listDinasLuarAll.value) {
+          if (element['leave_status'] == getTypeFilter) {
+            filter.add(element);
+          }
+        }
+        listDinasLuar.value = filter;
+        loadingString.value = listDinasLuar.value.length != 0
+            ? "Memuat data..."
+            : "Tidak ada pengajuan";
+        this.loadingString.refresh();
+        this.listDinasLuar.refresh();
+      }
     }
   }
 
   void validasiKirimPengajuan() {
-    if (selectedDropdownFormTugasLuarTipe == "Tugas Luar") {
-      if (tanggalLembur.value.text == "" ||
+    if (viewTugasLuar.value) {
+      if (tanggalTugasLuar.value.text == "" ||
           dariJam.value.text == "" ||
           sampaiJam.value.text == "" ||
           catatan.value.text == "") {
@@ -379,7 +422,7 @@ class TugasLuarController extends GetxController {
           kirimPengajuan(nomorAjuan.value.text);
         }
       }
-    } else if (selectedDropdownFormTugasLuarTipe == "Dinas Luar") {
+    } else if (!viewTugasLuar.value) {
       if (tanggalSelected.value.length == 0) {
         UtilsAlert.showToast("Pilih tanggal terlebih dahulu");
       } else if (catatan.value.text == "") {
@@ -389,8 +432,9 @@ class TugasLuarController extends GetxController {
           UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan");
           checkNomorAjuanDinasLuar(statusForm.value);
         } else {
-          // UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan");
-          // kirimPengajuan(nomorAjuan.value.text);
+          UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan");
+          urutkanTanggalSelected(statusForm.value);
+          kirimPengajuanDinasLuar(statusForm.value, nomorAjuan.value.text);
         }
       }
     }
@@ -398,42 +442,24 @@ class TugasLuarController extends GetxController {
 
   void changeTypeSelected(index) {
     if (index == 0) {
-      listTugasLuar.value = tampungTugasLuar.value;
-      listTugasLuarAll.value = tampungTugasLuar.value;
-    } else if (index == 1) {
-      var listFilter = [];
-      for (var element in tampungDinasLuar.value) {
-        var data = {
-          'nomor_ajuan': element['nomor_ajuan'],
-          'dari_jam': element['start_date'],
-          'sampai_jam': element['end_date'],
-          'atten_date': element['atten_date'],
-          'status': element['leave_status'],
-          'alasan_reject': element['alasan_reject'],
-          'approve_date': element['apply_date'],
-          'uraian': element['reason'],
-          'approve_by': element['apply_by'],
-        };
-        listFilter.add(data);
-      }
-      listTugasLuar.value = listFilter;
-      listTugasLuarAll.value = listFilter;
+      viewTugasLuar.value = true;
+    } else {
+      viewTugasLuar.value = false;
     }
     selectedType.value = index;
-    this.selectedType.refresh(); 
-    this.listTugasLuar.refresh();
-    this.listTugasLuarAll.refresh();
+    this.selectedType.refresh();
+    this.viewTugasLuar.refresh();
   }
 
   void checkNomorAjuan() {
-    var listTanggal = tanggalLembur.value.text.split(',');
+    var listTanggal = tanggalTugasLuar.value.text.split(',');
     var getTanggal = listTanggal[1].replaceAll(' ', '');
-    var tanggalLemburEditData = Constanst.convertDateSimpan(getTanggal);
+    var tanggalTugasLuarEditData = Constanst.convertDateSimpan(getTanggal);
     var polaFormat = DateFormat('yyyy-MM-dd');
     var tanggalPengajuanInsert = polaFormat.format(initialDate.value);
     var finalTanggalPengajuan = statusForm.value == false
         ? tanggalPengajuanInsert
-        : tanggalLemburEditData;
+        : tanggalTugasLuarEditData;
 
     Map<String, dynamic> body = {
       'atten_date': finalTanggalPengajuan,
@@ -466,14 +492,14 @@ class TugasLuarController extends GetxController {
 
   void checkNomorAjuanDinasLuar(value) {
     urutkanTanggalSelected(value);
-    var listTanggal = tanggalLembur.value.text.split(',');
+    var listTanggal = tanggalTugasLuar.value.text.split(',');
     var getTanggal = listTanggal[1].replaceAll(' ', '');
-    var tanggalLemburEditData = Constanst.convertDateSimpan(getTanggal);
+    var tanggalTugasLuarEditData = Constanst.convertDateSimpan(getTanggal);
     var polaFormat = DateFormat('yyyy-MM-dd');
     var tanggalPengajuanInsert = polaFormat.format(initialDate.value);
     var finalTanggalPengajuan = statusForm.value == false
         ? tanggalPengajuanInsert
-        : tanggalLemburEditData;
+        : tanggalTugasLuarEditData;
 
     Map<String, dynamic> body = {
       'atten_date': finalTanggalPengajuan,
@@ -567,28 +593,47 @@ class TugasLuarController extends GetxController {
   }
 
   void cariData(value) {
-    var textCari = value.toLowerCase();
-    var filter = listTugasLuarAll.where((ajuan) {
-      var getAjuan = ajuan['nomor_ajuan'].toLowerCase();
-      return getAjuan.contains(textCari);
-    }).toList();
-    listTugasLuar.value = filter;
-    statusCari.value = true;
-    this.listTugasLuar.refresh();
-    this.statusCari.refresh();
+    if (viewTugasLuar.value) {
+      var textCari = value.toLowerCase();
+      var filter = listTugasLuarAll.where((ajuan) {
+        var getAjuan = ajuan['nomor_ajuan'].toLowerCase();
+        return getAjuan.contains(textCari);
+      }).toList();
+      listTugasLuar.value = filter;
+      statusCari.value = true;
+      this.listTugasLuar.refresh();
+      this.statusCari.refresh();
 
-    if (listTugasLuar.value.isEmpty) {
-      loadingString.value = "Tidak ada pengajuan";
+      if (listTugasLuar.value.isEmpty) {
+        loadingString.value = "Tidak ada pengajuan";
+      } else {
+        loadingString.value = "Memuat data...";
+      }
+      this.loadingString.refresh();
     } else {
-      loadingString.value = "Memuat data...";
+      var textCari = value.toLowerCase();
+      var filter = listDinasLuarAll.where((ajuan) {
+        var getAjuan = ajuan['nomor_ajuan'].toLowerCase();
+        return getAjuan.contains(textCari);
+      }).toList();
+      listDinasLuar.value = filter;
+      statusCari.value = true;
+      this.listDinasLuar.refresh();
+      this.statusCari.refresh();
+
+      if (listDinasLuar.value.isEmpty) {
+        loadingString.value = "Tidak ada pengajuan";
+      } else {
+        loadingString.value = "Memuat data...";
+      }
+      this.loadingString.refresh();
     }
-    this.loadingString.refresh();
   }
 
   void kirimPengajuan(getNomorAjuanTerakhir) {
-    var listTanggal = tanggalLembur.value.text.split(',');
+    var listTanggal = tanggalTugasLuar.value.text.split(',');
     var getTanggal = listTanggal[1].replaceAll(' ', '');
-    var tanggalLemburEditData = Constanst.convertDateSimpan(getTanggal);
+    var tanggalTugasLuarEditData = Constanst.convertDateSimpan(getTanggal);
     var dataUser = AppData.informasiUser;
     var getEmid = dataUser![0].em_id;
     var getFullName = dataUser[0].full_name;
@@ -597,7 +642,7 @@ class TugasLuarController extends GetxController {
     var tanggalPengajuanInsert = polaFormat.format(initialDate.value);
     var finalTanggalPengajuan = statusForm.value == false
         ? tanggalPengajuanInsert
-        : tanggalLemburEditData;
+        : tanggalTugasLuarEditData;
     var hasilDurasi = hitungDurasi();
     Map<String, dynamic> body = {
       'em_id': getEmid,
@@ -622,10 +667,12 @@ class TugasLuarController extends GetxController {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
           if (valueBody['status'] == true) {
-            kirimNotifikasiToDelegasi(
-                getFullName, finalTanggalPengajuan, validasiDelegasiSelected);
-            kirimNotifikasiToReportTo(
-                getFullName, finalTanggalPengajuan, getEmid, "Tugas Luar");
+            var stringWaktu =
+                "${dariJam.value.text} sd ${sampaiJam.value.text}";
+            kirimNotifikasiToDelegasi(getFullName, finalTanggalPengajuan,
+                validasiDelegasiSelected, stringWaktu, 1);
+            kirimNotifikasiToReportTo(getFullName, finalTanggalPengajuan,
+                getEmid, "Tugas Luar", stringWaktu);
             Navigator.pop(Get.context!);
             var pesan1 = "Pengajuan Tugas Luar berhasil di buat";
             var pesan2 =
@@ -681,14 +728,16 @@ class TugasLuarController extends GetxController {
     var getFullName = "${dataUser[0].full_name}";
     var validasiDelegasiSelected = validasiSelectedDelegasi();
 
-    // var convertTanggalBikinPengajuan = status == false
-    //     ? Constanst.convertDateSimpan("${initialDate.value}")
-    //     : tanggalBikinPengajuan.value;
+    var listTanggal = tanggalTugasLuar.value.text.split(',');
+    var getTanggal = listTanggal[1].replaceAll(' ', '');
+    var tanggalDinasLuarEditData = Constanst.convertDateSimpan(getTanggal);
 
     var polaFormat = DateFormat('yyyy-MM-dd');
     var tanggalPengajuanInsert = polaFormat.format(initialDate.value);
 
-    var convertTanggalBikinPengajuan = tanggalPengajuanInsert;
+    var convertTanggalBikinPengajuan = statusForm.value == false
+        ? tanggalPengajuanInsert
+        : tanggalDinasLuarEditData;
 
     Map<String, dynamic> body = {
       'em_id': '$getEmid',
@@ -718,10 +767,12 @@ class TugasLuarController extends GetxController {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
           if (valueBody['status'] == true) {
+            var stringWaktu =
+                "${dariTanggal.value.text} sd ${sampaiTanggal.value.text}";
             kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
-                validasiDelegasiSelected);
+                validasiDelegasiSelected, stringWaktu, 2);
             kirimNotifikasiToReportTo(getFullName, convertTanggalBikinPengajuan,
-                getEmid, "Dinas Luar");
+                getEmid, "Dinas Luar", stringWaktu);
             Navigator.pop(Get.context!);
 
             var pesan1 = "Pengajuan Dinas Luar berhasil di buat";
@@ -748,44 +799,48 @@ class TugasLuarController extends GetxController {
         }
       });
     } else {
-      // body['val'] = 'id';
-      // body['cari'] = idEditFormTidakMasukKerja.value;
-      // body['created_by'] = getEmid;
-      // body['menu_name'] = "Tidak Hadir";
-      // body['activity_name'] =
-      //     "Edit form pengajuan Tidak Hadir. Tanggal pengajuan = ${dariTanggal.value.text} sd ${sampaiTanggal.value.text} Alasan Pengajuan = ${alasan.value.text}";
-      // var connect = Api.connectionApi("post", body, "edit-emp_leave");
-      // connect.then((dynamic res) {
-      //   if (res.statusCode == 200) {
-      //     Navigator.pop(Get.context!);
+      body['val'] = 'id';
+      body['cari'] = idpengajuanTugasLuar.value;
+      body['created_by'] = getEmid;
+      body['menu_name'] = "Dinas Luar";
+      body['activity_name'] =
+          "Edit form Pengajuan Dinas Luar. Tanggal pengajuan = ${dariTanggal.value.text} sd ${sampaiTanggal.value.text} Alasan Pengajuan = ${catatan.value.text}";
+      var connect = Api.connectionApi("post", body, "edit-emp_leave");
+      connect.then((dynamic res) {
+        if (res.statusCode == 200) {
+          Navigator.pop(Get.context!);
 
-      //     var pesan1 =
-      //         "Pengajuan ${selectedDropdownFormTidakMasukKerjaTipe.value} berhasil di edit";
-      //     var pesan2 =
-      //         "Selanjutnya silahkan menunggu atasan kamu untuk menyetujui pengajuan yang telah dibuat atau langsung";
-      //     var pesan3 = "konfirmasi via WhatsApp";
-      //     var dataPengajuan = {
-      //       'nameType': '${selectedDropdownFormTidakMasukKerjaTipe.value}',
-      //       'nomor_ajuan': '${getNomorAjuanTerakhir}',
-      //     };
+          var pesan1 = "Pengajuan Dinas Luar berhasil di edit";
+          var pesan2 =
+              "Selanjutnya silahkan menunggu atasan kamu untuk menyetujui pengajuan yang telah dibuat atau langsung";
+          var pesan3 = "konfirmasi via WhatsApp";
+          var dataPengajuan = {
+            'nameType': 'Dinas Luar',
+            'nomor_ajuan': '${getNomorAjuanTerakhir}',
+          };
 
-      //     Get.offAll(BerhasilPengajuan(
-      //       dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
-      //     ));
-      //   }
-      // });
+          Get.offAll(BerhasilPengajuan(
+            dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
+          ));
+        }
+      });
     }
   }
 
-  void kirimNotifikasiToDelegasi(
-      getFullName, convertTanggalBikinPengajuan, validasiDelegasiSelected) {
+  void kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
+      validasiDelegasiSelected, stringWaktu, type) {
     var dt = DateTime.now();
     var jamSekarang = DateFormat('HH:mm:ss').format(dt);
+    var title_ct = type == 1
+        ? "Delegasi Pengajuan Tugas Luar"
+        : "Delegasi Pengajuan Dinas Luar";
+    var desk_ct = type == 1
+        ? "Anda mendapatkan delegasi pekerjaan dari $getFullName untuk pengajuan Tugas Luar, tanggal pengajuan $stringWaktu"
+        : "Anda mendapatkan delegasi pekerjaan dari $getFullName untuk pengajuan Dinas Luar, tanggal pengajuan $stringWaktu";
     Map<String, dynamic> body = {
       'em_id': validasiDelegasiSelected,
-      'title': 'Delegasi Pengajuan Tugas Luar',
-      'deskripsi':
-          'Anda mendapatkan delegasi pekerjaan dari $getFullName untuk pengajuan Tugas Luar',
+      'title': title_ct,
+      'deskripsi': desk_ct,
       'url': '',
       'atten_date': convertTanggalBikinPengajuan,
       'jam': jamSekarang,
@@ -801,13 +856,18 @@ class TugasLuarController extends GetxController {
   }
 
   void kirimNotifikasiToReportTo(
-      getFullName, convertTanggalBikinPengajuan, getEmid, type) {
+      getFullName, convertTanggalBikinPengajuan, getEmid, type, stringWaktu) {
     var dt = DateTime.now();
     var jamSekarang = DateFormat('HH:mm:ss').format(dt);
+    var title_ct =
+        type == "Tugas Luar" ? "Pengajuan Tugas Luar" : "Pengajuan Dinas Luar";
+    var desk_ct = type == "Tugas Luar"
+        ? "Anda mendapatkan pengajuan $type dari $getFullName, pada jam $stringWaktu"
+        : "Anda mendapatkan pengajuan $type dari $getFullName, tanggal pengajuan $stringWaktu";
     Map<String, dynamic> body = {
       'emId_pengaju': getEmid,
-      'title': 'Pengajuan Tidak Hadir',
-      'deskripsi': 'Anda mendapatkan pengajuan $type dari $getFullName',
+      'title': title_ct,
+      'deskripsi': desk_ct,
       'url': '',
       'atten_date': convertTanggalBikinPengajuan,
       'jam': jamSekarang,
@@ -891,12 +951,19 @@ class TugasLuarController extends GetxController {
                               padding: EdgeInsets.only(left: 6),
                               child: Padding(
                                 padding: EdgeInsets.only(top: 6),
-                                child: Text(
-                                  "Batalkan Pengajuan Tugas Luar",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
-                                ),
+                                child: viewTugasLuar.value
+                                    ? Text(
+                                        "Batalkan Pengajuan Tugas Luar",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16),
+                                      )
+                                    : Text(
+                                        "Batalkan Pengajuan Dinas Luar",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16),
+                                      ),
                               ),
                             )
                           ],
@@ -976,26 +1043,386 @@ class TugasLuarController extends GetxController {
   }
 
   void batalkanPengajuan(index) {
-    UtilsAlert.loadingSimpanData(Get.context!, "Batalkan Pengajuan");
-    var dataUser = AppData.informasiUser;
-    var getEmid = dataUser![0].em_id;
-    Map<String, dynamic> body = {
-      'menu_name': 'Lembur',
-      'activity_name':
-          'Membatalkan form pengajuan Lembur. Waktu Lembur = ${index["dari_jam"]} sd ${index["sampai_jam"]} Alasan Pengajuan = ${index["reason"]} Tanggal Pengajuan = ${index["atten_date"]}',
-      'created_by': '$getEmid',
-      'val': 'id',
-      'cari': '${index["id"]}',
-      'atten_date': '${index["atten_date"]}',
-    };
-    var connect = Api.connectionApi("post", body, "delete-emp_labor");
-    connect.then((dynamic res) {
-      if (res.statusCode == 200) {
-        Navigator.pop(Get.context!);
-        Navigator.pop(Get.context!);
-        UtilsAlert.showToast("Berhasil batalkan pengajuan");
-        onReady();
-      }
-    });
+    if (viewTugasLuar.value) {
+      UtilsAlert.loadingSimpanData(Get.context!, "Batalkan Pengajuan");
+      var dataUser = AppData.informasiUser;
+      var getEmid = dataUser![0].em_id;
+      Map<String, dynamic> body = {
+        'menu_name': 'Lembur',
+        'activity_name':
+            'Membatalkan form pengajuan Lembur. Waktu Lembur = ${index["dari_jam"]} sd ${index["sampai_jam"]} Alasan Pengajuan = ${index["reason"]} Tanggal Pengajuan = ${index["atten_date"]}',
+        'created_by': '$getEmid',
+        'val': 'id',
+        'cari': '${index["id"]}',
+        'atten_date': '${index["atten_date"]}',
+      };
+      var connect = Api.connectionApi("post", body, "delete-emp_labor");
+      connect.then((dynamic res) {
+        if (res.statusCode == 200) {
+          Navigator.pop(Get.context!);
+          Navigator.pop(Get.context!);
+          UtilsAlert.showToast("Berhasil batalkan pengajuan");
+          loadDataTugasLuar();
+          loadDataDinasLuar();
+        }
+      });
+    } else {
+      UtilsAlert.loadingSimpanData(Get.context!, "Batalkan Pengajuan");
+      var dataUser = AppData.informasiUser;
+      var getEmid = dataUser![0].em_id;
+      Map<String, dynamic> body = {
+        'menu_name': 'Dinas Luar',
+        'activity_name':
+            'Membatalkan form pengajuan Dinas Luar. Tanggal pengajuan = ${index["start_date"]} sd ${index["end_date"]} Alasan Pengajuan = ${index["reason"]}',
+        'created_by': '$getEmid',
+        'val': 'id',
+        'cari': '${index["id"]}',
+        'start_date': '${index["start_date"]}',
+      };
+      var connect = Api.connectionApi("post", body, "delete-emp_leave");
+      connect.then((dynamic res) {
+        if (res.statusCode == 200) {
+          Navigator.pop(Get.context!);
+          Navigator.pop(Get.context!);
+          UtilsAlert.showToast("Berhasil batalkan pengajuan");
+          loadDataTugasLuar();
+          loadDataDinasLuar();
+        }
+      });
+    }
+  }
+
+  void showDetailRiwayat(detailData) {
+    var nomorAjuan = detailData['nomor_ajuan'];
+    var tanggalMasukAjuan = detailData['atten_date'];
+    var namaTypeAjuan = "Dinas Luar";
+    var tanggalAjuanDari = detailData['start_date'];
+    var tanggalAjuanSampai = detailData['end_date'];
+    var alasan = detailData['reason'];
+    var durasi = detailData['leave_duration'];
+    // var typeAjuan = detailData['leave_status'];
+    var typeAjuan;
+    if (valuePolaPersetujuan.value == "1") {
+      typeAjuan = detailData['leave_status'];
+    } else {
+      typeAjuan = detailData['leave_status'] == "Approve"
+          ? "Approve 1"
+          : detailData['leave_status'] == "Approve2"
+              ? "Approve 2"
+              : detailData['leave_status'];
+    }
+    var jamAjuan = detailData['time_plan'];
+    var leave_files = detailData['leave_files'];
+    var listTanggalTerpilih = detailData['date_selected'].split(',');
+    showModalBottomSheet(
+      context: Get.context!,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20.0),
+        ),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 16,
+              ),
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 60,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "$namaTypeAjuan",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(
+                            height: 8,
+                          ),
+                          Text(
+                              "${Constanst.convertDate("$tanggalMasukAjuan")}"),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      flex: 40,
+                      child: Center(
+                        child: Container(
+                          margin: EdgeInsets.only(right: 8),
+                          decoration: BoxDecoration(
+                            color: typeAjuan == 'Approve'
+                                ? Constanst.colorBGApprove
+                                : typeAjuan == 'Approve 1'
+                                    ? Constanst.colorBGApprove
+                                    : typeAjuan == 'Approve 2'
+                                        ? Constanst.colorBGApprove
+                                        : typeAjuan == 'Rejected'
+                                            ? Constanst.colorBGRejected
+                                            : typeAjuan == 'Pending'
+                                                ? Constanst.colorBGPending
+                                                : Colors.grey,
+                            borderRadius: Constanst.borderStyle1,
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                                left: 3, right: 3, top: 5, bottom: 5),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                typeAjuan == 'Approve'
+                                    ? Icon(
+                                        Iconsax.tick_square,
+                                        color: Constanst.color5,
+                                        size: 14,
+                                      )
+                                    : typeAjuan == 'Approve 1'
+                                        ? Icon(
+                                            Iconsax.tick_square,
+                                            color: Constanst.color5,
+                                            size: 14,
+                                          )
+                                        : typeAjuan == 'Approve 2'
+                                            ? Icon(
+                                                Iconsax.tick_square,
+                                                color: Constanst.color5,
+                                                size: 14,
+                                              )
+                                            : typeAjuan == 'Rejected'
+                                                ? Icon(
+                                                    Iconsax.close_square,
+                                                    color: Constanst.color4,
+                                                    size: 14,
+                                                  )
+                                                : typeAjuan == 'Pending'
+                                                    ? Icon(
+                                                        Iconsax.timer,
+                                                        color: Constanst.color3,
+                                                        size: 14,
+                                                      )
+                                                    : SizedBox(),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 3),
+                                  child: Text(
+                                    '$typeAjuan',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: typeAjuan == 'Approve'
+                                            ? Colors.green
+                                            : typeAjuan == 'Approve 1'
+                                                ? Colors.green
+                                                : typeAjuan == 'Approve 2'
+                                                    ? Colors.green
+                                                    : typeAjuan == 'Rejected'
+                                                        ? Colors.red
+                                                        : typeAjuan == 'Pending'
+                                                            ? Constanst.color3
+                                                            : Colors.black),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 6,
+              ),
+              Divider(
+                height: 5,
+                color: Constanst.colorText2,
+              ),
+              SizedBox(
+                height: 16,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 30,
+                    child: Text("Nomor Ajuan"),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text(":"),
+                  ),
+                  Expanded(
+                    flex: 68,
+                    child: Text("$nomorAjuan"),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 30,
+                    child: Text("Tanggal izin"),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text(":"),
+                  ),
+                  Expanded(
+                    flex: 68,
+                    child: Text(
+                        "${Constanst.convertDate("$tanggalAjuanDari")}  SD  ${Constanst.convertDate("$tanggalAjuanSampai")}"),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 30,
+                    child: Text("Durasi Izin"),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text(":"),
+                  ),
+                  Expanded(
+                    flex: 68,
+                    child: Text("$durasi Hari"),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    flex: 30,
+                    child: Text("Alasan"),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Text(":"),
+                  ),
+                  Expanded(
+                    flex: 68,
+                    child: Text("$alasan"),
+                  )
+                ],
+              ),
+              SizedBox(
+                height: 8,
+              ),
+              jamAjuan == "" ||
+                      jamAjuan == "NULL" ||
+                      jamAjuan == null ||
+                      jamAjuan == "00:00:00"
+                  ? SizedBox()
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 30,
+                          child: Text("Jam"),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(":"),
+                        ),
+                        Expanded(
+                          flex: 68,
+                          child: Text("$jamAjuan"),
+                        )
+                      ],
+                    ),
+              jamAjuan == "" ||
+                      jamAjuan == "NULL" ||
+                      jamAjuan == null ||
+                      jamAjuan == "00:00:00"
+                  ? SizedBox()
+                  : SizedBox(
+                      height: 8,
+                    ),
+              leave_files == "" || leave_files == "NULL" || leave_files == null
+                  ? SizedBox()
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 30,
+                          child: Text("File Ajuan"),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Text(":"),
+                        ),
+                        Expanded(
+                          flex: 68,
+                          child: InkWell(
+                              onTap: () {},
+                              child: Text(
+                                "$leave_files",
+                                style: TextStyle(
+                                  color: Constanst.colorPrimary,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              )),
+                        )
+                      ],
+                    ),
+              leave_files == "" || leave_files == "NULL" || leave_files == null
+                  ? SizedBox()
+                  : SizedBox(
+                      height: 8,
+                    ),
+              Text("Tanggal Terpilih"),
+              SizedBox(
+                height: 8,
+              ),
+              ListView.builder(
+                  itemCount: listTanggalTerpilih.length,
+                  physics: NeverScrollableScrollPhysics(),
+                  shrinkWrap: true,
+                  itemBuilder: (context, index) {
+                    var nomor = index + 1;
+                    var tanggalConvert =
+                        Constanst.convertDate1(listTanggalTerpilih[index]);
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("$nomor."),
+                        Padding(
+                          padding: EdgeInsets.only(left: 8),
+                          child: Text(tanggalConvert),
+                        )
+                      ],
+                    );
+                  }),
+              SizedBox(
+                height: 16,
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

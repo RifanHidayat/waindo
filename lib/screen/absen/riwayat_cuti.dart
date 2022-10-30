@@ -426,8 +426,21 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
           var namaTypeAjuan = controller.listHistoryAjuan.value[index]['name'];
           var alasanReject =
               controller.listHistoryAjuan.value[index]['alasan_reject'];
-          var typeAjuan =
-              controller.listHistoryAjuan.value[index]['leave_status'];
+          var typeAjuan;
+          if (controller.valuePolaPersetujuan.value == "1") {
+            typeAjuan =
+                controller.listHistoryAjuan.value[index]['leave_status'];
+          } else {
+            typeAjuan = controller.listHistoryAjuan.value[index]
+                        ['leave_status'] ==
+                    "Approve"
+                ? "Approve 1"
+                : controller.listHistoryAjuan.value[index]['leave_status'] ==
+                        "Approve2"
+                    ? "Approve 2"
+                    : controller.listHistoryAjuan.value[index]['leave_status'];
+          }
+
           var apply_by = controller.listHistoryAjuan.value[index]['apply_by'];
           return InkWell(
             onTap: () => controller
@@ -485,11 +498,15 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                                 decoration: BoxDecoration(
                                   color: typeAjuan == 'Approve'
                                       ? Constanst.colorBGApprove
-                                      : typeAjuan == 'Rejected'
-                                          ? Constanst.colorBGRejected
-                                          : typeAjuan == 'Pending'
-                                              ? Constanst.colorBGPending
-                                              : Colors.grey,
+                                      : typeAjuan == 'Approve 1'
+                                          ? Constanst.colorBGApprove
+                                          : typeAjuan == 'Approve 2'
+                                              ? Constanst.colorBGApprove
+                                              : typeAjuan == 'Rejected'
+                                                  ? Constanst.colorBGRejected
+                                                  : typeAjuan == 'Pending'
+                                                      ? Constanst.colorBGPending
+                                                      : Colors.grey,
                                   borderRadius: Constanst.borderStyle1,
                                 ),
                                 child: Padding(
@@ -504,19 +521,33 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                                               color: Constanst.color5,
                                               size: 14,
                                             )
-                                          : typeAjuan == 'Rejected'
+                                          : typeAjuan == 'Approve 1'
                                               ? Icon(
-                                                  Iconsax.close_square,
-                                                  color: Constanst.color4,
+                                                  Iconsax.tick_square,
+                                                  color: Constanst.color5,
                                                   size: 14,
                                                 )
-                                              : typeAjuan == 'Pending'
+                                              : typeAjuan == 'Approve 2'
                                                   ? Icon(
-                                                      Iconsax.timer,
-                                                      color: Constanst.color3,
+                                                      Iconsax.tick_square,
+                                                      color: Constanst.color5,
                                                       size: 14,
                                                     )
-                                                  : SizedBox(),
+                                                  : typeAjuan == 'Rejected'
+                                                      ? Icon(
+                                                          Iconsax.close_square,
+                                                          color:
+                                                              Constanst.color4,
+                                                          size: 14,
+                                                        )
+                                                      : typeAjuan == 'Pending'
+                                                          ? Icon(
+                                                              Iconsax.timer,
+                                                              color: Constanst
+                                                                  .color3,
+                                                              size: 14,
+                                                            )
+                                                          : SizedBox(),
                                       Padding(
                                         padding: const EdgeInsets.only(left: 3),
                                         child: Text(
@@ -526,11 +557,19 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                                               fontWeight: FontWeight.bold,
                                               color: typeAjuan == 'Approve'
                                                   ? Colors.green
-                                                  : typeAjuan == 'Rejected'
-                                                      ? Colors.red
-                                                      : typeAjuan == 'Pending'
-                                                          ? Constanst.color3
-                                                          : Colors.black),
+                                                  : typeAjuan == 'Approve 1'
+                                                      ? Colors.green
+                                                      : typeAjuan == 'Approve 2'
+                                                          ? Colors.green
+                                                          : typeAjuan ==
+                                                                  'Rejected'
+                                                              ? Colors.red
+                                                              : typeAjuan ==
+                                                                      'Pending'
+                                                                  ? Constanst
+                                                                      .color3
+                                                                  : Colors
+                                                                      .black),
                                         ),
                                       ),
                                     ],
@@ -584,7 +623,9 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Expanded(
-                                    child: typeAjuan == "Approve"
+                                    child: typeAjuan == "Approve" ||
+                                            typeAjuan == "Approve 1" ||
+                                            typeAjuan == "Approve 2"
                                         ? Row(
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
@@ -663,7 +704,9 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                                             ],
                                           ),
                                   ),
-                                  typeAjuan == "Approve"
+                                  typeAjuan == "Approve" ||
+                                          typeAjuan == "Approve 1" ||
+                                          typeAjuan == "Approve 2"
                                       ? SizedBox()
                                       : Expanded(
                                           child: Row(

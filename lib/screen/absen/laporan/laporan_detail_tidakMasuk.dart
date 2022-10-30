@@ -53,7 +53,9 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                           ? "Detail Laporan Lembur"
                           : widget.title == "tugas_luar"
                               ? "Detail Laporan Tugas Luar"
-                              : "",
+                              : widget.title == "dinas_luar"
+                                  ? "Detail Laporan Dinas Luar"
+                                  : "",
               colorTitle: Colors.black,
               icon: 1,
               rightIcon: Icon(Iconsax.document_download),
@@ -109,7 +111,15 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                                                     color:
                                                         Constanst.colorText2),
                                               )
-                                            : SizedBox(),
+                                            : widget.title == "dinas_luar"
+                                                ? Text(
+                                                    "Riwayat Dinas Luar",
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Constanst
+                                                            .colorText2),
+                                                  )
+                                                : SizedBox(),
                             SizedBox(
                               height: 8,
                             ),
@@ -229,7 +239,9 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
           physics: BouncingScrollPhysics(),
           itemCount: controller.listDetailLaporanEmployee.value.length,
           itemBuilder: (context, index) {
-            return widget.title == "tidak_hadir" || widget.title == "cuti"
+            return widget.title == "tidak_hadir" ||
+                    widget.title == "cuti" ||
+                    widget.title == "dinas_luar"
                 ? viewTidakHadir(
                     controller.listDetailLaporanEmployee.value[index])
                 : viewLemburTugasLuar(
@@ -240,10 +252,20 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
 
   Widget viewTidakHadir(index) {
     var nomorAjuan = index['nomor_ajuan'] ?? "";
+    var get2StringNomor = '${nomorAjuan[0]}${nomorAjuan[1]}';
     var tanggalMasukAjuan = index['atten_date'] ?? "";
     var namaTypeAjuan = index['name'] ?? "";
     var alasanReject = index['alasan_reject'] ?? "";
-    var typeAjuan = index['leave_status'] ?? "";
+    var typeAjuan;
+    if (controller.valuePolaPersetujuan.value == "1") {
+      typeAjuan = index['leave_status'];
+    } else {
+      typeAjuan = index['leave_status'] == "Approve"
+          ? "Approve 1"
+          : index['leave_status'] == "Approve2"
+              ? "Approve 2"
+              : index['leave_status'];
+    }
     var approve_by = index['apply_by'] ?? "";
     return InkWell(
       onTap: () => controller.showDetailRiwayat(index),
@@ -285,11 +307,19 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                         flex: 70,
                         child: Padding(
                           padding: const EdgeInsets.only(top: 5),
-                          child: Text(
-                            namaTypeAjuan,
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
+                          child: get2StringNomor == "DL"
+                              ? Text(
+                                  "DINAS LUAR",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                )
+                              : Text(
+                                  "$namaTypeAjuan",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
                         ),
                       ),
                       Expanded(
@@ -299,11 +329,15 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                           decoration: BoxDecoration(
                             color: typeAjuan == 'Approve'
                                 ? Constanst.colorBGApprove
-                                : typeAjuan == 'Rejected'
-                                    ? Constanst.colorBGRejected
-                                    : typeAjuan == 'Pending'
-                                        ? Constanst.colorBGPending
-                                        : Colors.grey,
+                                : typeAjuan == 'Approve 1'
+                                    ? Constanst.colorBGApprove
+                                    : typeAjuan == 'Approve 2'
+                                        ? Constanst.colorBGApprove
+                                        : typeAjuan == 'Rejected'
+                                            ? Constanst.colorBGRejected
+                                            : typeAjuan == 'Pending'
+                                                ? Constanst.colorBGPending
+                                                : Colors.grey,
                             borderRadius: Constanst.borderStyle1,
                           ),
                           child: Padding(
@@ -318,19 +352,31 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                                         color: Constanst.color5,
                                         size: 14,
                                       )
-                                    : typeAjuan == 'Rejected'
+                                    : typeAjuan == 'Approve 1'
                                         ? Icon(
-                                            Iconsax.close_square,
-                                            color: Constanst.color4,
+                                            Iconsax.tick_square,
+                                            color: Constanst.color5,
                                             size: 14,
                                           )
-                                        : typeAjuan == 'Pending'
+                                        : typeAjuan == 'Approve 2'
                                             ? Icon(
-                                                Iconsax.timer,
-                                                color: Constanst.color3,
+                                                Iconsax.tick_square,
+                                                color: Constanst.color5,
                                                 size: 14,
                                               )
-                                            : SizedBox(),
+                                            : typeAjuan == 'Rejected'
+                                                ? Icon(
+                                                    Iconsax.close_square,
+                                                    color: Constanst.color4,
+                                                    size: 14,
+                                                  )
+                                                : typeAjuan == 'Pending'
+                                                    ? Icon(
+                                                        Iconsax.timer,
+                                                        color: Constanst.color3,
+                                                        size: 14,
+                                                      )
+                                                    : SizedBox(),
                                 Padding(
                                   padding: const EdgeInsets.only(left: 3),
                                   child: Text(
@@ -340,11 +386,15 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                                         fontWeight: FontWeight.bold,
                                         color: typeAjuan == 'Approve'
                                             ? Colors.green
-                                            : typeAjuan == 'Rejected'
-                                                ? Colors.red
-                                                : typeAjuan == 'Pending'
-                                                    ? Constanst.color3
-                                                    : Colors.black),
+                                            : typeAjuan == 'Approve 1'
+                                                ? Colors.green
+                                                : typeAjuan == 'Approve 2'
+                                                    ? Colors.green
+                                                    : typeAjuan == 'Rejected'
+                                                        ? Colors.red
+                                                        : typeAjuan == 'Pending'
+                                                            ? Constanst.color3
+                                                            : Colors.black),
                                   ),
                                 ),
                               ],
@@ -396,7 +446,8 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Expanded(
-                              child: typeAjuan == "Approve"
+                              child: typeAjuan == "Approve" ||
+                                      typeAjuan == "Approve 1"
                                   ? Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,

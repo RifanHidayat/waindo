@@ -16,6 +16,8 @@ class PesanController extends GetxController {
   PageController menuController = PageController(initialPage: 0);
   RefreshController refreshController = RefreshController(initialRefresh: true);
 
+  var cari = TextEditingController().obs;
+
   var selectedView = 0.obs;
 
   var listNotifikasi = [].obs;
@@ -27,6 +29,7 @@ class PesanController extends GetxController {
   var jumlahApproveLembur = 0.obs;
   var jumlahApproveTidakHadir = 0.obs;
   var jumlahApproveTugasLuar = 0.obs;
+  var jumlahApproveDinasLuar = 0.obs;
   var jumlahNotifikasiBelumDibaca = 0.obs;
   var jumlahPersetujuan = 0.obs;
   var jumlahRiwayat = 0.obs;
@@ -40,7 +43,9 @@ class PesanController extends GetxController {
 
   var statusScreenInfoApproval = false.obs;
   var statusFilteriwayat = false.obs;
-  var listDummy = ["Cuti", "Lembur", "Tidak Hadir", "Tugas Luar"];
+  var statusCari = false.obs;
+
+  var listDummy = ["Cuti", "Lembur", "Tidak Hadir", "Tugas Luar", "Dinas Luar"];
 
   @override
   void onReady() async {
@@ -103,14 +108,17 @@ class PesanController extends GetxController {
           jumlahApproveLembur.value = valueBody['jumlah_lembur'];
           jumlahApproveTidakHadir.value = valueBody['jumlah_tidak_hadir'];
           jumlahApproveTugasLuar.value = valueBody['jumlah_tugasluar'];
+          jumlahApproveDinasLuar.value = valueBody['jumlah_dinasluar'];
           jumlahPersetujuan.value = jumlahApproveCuti.value +
               jumlahApproveLembur.value +
               jumlahApproveTidakHadir.value +
-              jumlahApproveTugasLuar.value;
+              jumlahApproveTugasLuar.value +
+              jumlahApproveDinasLuar.value;
           this.jumlahApproveCuti.refresh();
           this.jumlahApproveLembur.refresh();
           this.jumlahApproveTidakHadir.refresh();
           this.jumlahApproveTugasLuar.refresh();
+          this.jumlahApproveDinasLuar.refresh();
           this.jumlahPersetujuan.refresh();
           loadScreenPersetujuan();
         } else {
@@ -164,6 +172,7 @@ class PesanController extends GetxController {
                   'waktu_dari': tanggalDari,
                   'waktu_sampai': tanggalSampai,
                   'durasi': element['leave_duration'],
+                  'waktu': element['time_plan'],
                   'waktu_pengajuan': element['atten_date'],
                   'catatan': element['reason'],
                   'status': element['leave_status'],
@@ -172,7 +181,7 @@ class PesanController extends GetxController {
                   'alasan_reject': element['alasan_reject'],
                   'date_selected': element['date_selected'],
                   'nama_tipe': element['nama_tipe'],
-                  'type': "Tidak Hadir",
+                  'type': "Izin",
                   'file': element['leave_files']
                 };
                 tampungRiwayatPersetujuan.add(data);
@@ -202,6 +211,7 @@ class PesanController extends GetxController {
                   'waktu_dari': tanggalDari,
                   'waktu_sampai': tanggalSampai,
                   'durasi': element['leave_duration'],
+                  'waktu': "",
                   'waktu_pengajuan': element['atten_date'],
                   'catatan': element['reason'],
                   'status': element['leave_status'],
@@ -211,6 +221,45 @@ class PesanController extends GetxController {
                   'alasan_reject': element['alasan_reject'],
                   'nama_tipe': element['nama_tipe'],
                   'type': 'Cuti',
+                  'file': element['leave_files']
+                };
+                tampungRiwayatPersetujuan.add(data);
+              }
+            }
+          }
+          if (valueBody['data_dinas_luar'].length != 0) {
+            for (var element in valueBody['data_dinas_luar']) {
+              if (element['leave_status'] != 'Pending') {
+                var fullName = element['full_name'] ?? "";
+                var convertNama = "$fullName";
+                var tanggalDari =
+                    Constanst.convertDate1("${element['start_date']}");
+                var tanggalSampai =
+                    Constanst.convertDate1("${element['end_date']}");
+                var nama_approve = valuePolaPersetujuan.value == "1"
+                    ? element['apply_by']
+                    : element['apply2_by'] == "" ||
+                            element['apply2_by'] == null ||
+                            element['apply2_by'] == "null"
+                        ? element['apply_by']
+                        : element['apply2_by'];
+                var data = {
+                  'id': element['id'],
+                  'nama_pengaju': convertNama,
+                  'title_ajuan': 'Pengajuan Dinas Luar',
+                  'waktu_dari': tanggalDari,
+                  'waktu_sampai': tanggalSampai,
+                  'durasi': element['leave_duration'],
+                  'waktu': "",
+                  'waktu_pengajuan': element['atten_date'],
+                  'catatan': element['reason'],
+                  'status': element['leave_status'],
+                  'apply_date': element['apply_date'],
+                  'apply_by': nama_approve,
+                  'alasan_reject': element['alasan_reject'],
+                  'date_selected': element['date_selected'],
+                  'nama_tipe': "",
+                  'type': "Dinas Luar",
                   'file': element['leave_files']
                 };
                 tampungRiwayatPersetujuan.add(data);
@@ -236,6 +285,7 @@ class PesanController extends GetxController {
                   'waktu_dari': element['dari_jam'],
                   'waktu_sampai': element['sampai_jam'],
                   'durasi': "",
+                  'waktu': "",
                   'waktu_pengajuan': element['atten_date'],
                   'catatan': element['uraian'],
                   'status': element['status'],
@@ -270,6 +320,7 @@ class PesanController extends GetxController {
                   'waktu_dari': element['dari_jam'],
                   'waktu_sampai': element['sampai_jam'],
                   'durasi': '',
+                  'waktu': '',
                   'waktu_pengajuan': element['atten_date'],
                   'catatan': element['uraian'],
                   'status': element['status'],
@@ -385,6 +436,13 @@ class PesanController extends GetxController {
         var data = {
           'title': element,
           'jumlah_approve': "${jumlahApproveTugasLuar.value}",
+        };
+        dataScreenPersetujuan.value.add(data);
+        this.dataScreenPersetujuan.refresh();
+      } else if (element == "Dinas Luar") {
+        var data = {
+          'title': element,
+          'jumlah_approve': "${jumlahApproveDinasLuar.value}",
         };
         dataScreenPersetujuan.value.add(data);
         this.dataScreenPersetujuan.refresh();
@@ -732,6 +790,31 @@ class PesanController extends GetxController {
               SizedBox(
                 height: 10,
               ),
+              dataDetail[0]['waktu'] == ""
+                  ? SizedBox()
+                  : Text(
+                      "Waktu",
+                      style: TextStyle(color: Constanst.colorText2),
+                    ),
+              dataDetail[0]['waktu'] == ""
+                  ? SizedBox()
+                  : SizedBox(
+                      height: 5,
+                    ),
+              dataDetail[0]['waktu'] == ""
+                  ? SizedBox()
+                  : Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "${dataDetail[0]['waktu']}",
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                      ],
+                    ),
+              SizedBox(
+                height: 10,
+              ),
               Text(
                 "Tanggal persetujuan / penolakan",
                 style: TextStyle(color: Constanst.colorText2),
@@ -864,6 +947,22 @@ class PesanController extends GetxController {
         );
       },
     );
+  }
+
+  void cariData(value) {
+    var textCari = value.toLowerCase();
+    var filter = allRiwayatPersetujuan.where((pengaju) {
+      var namaPengaju = pengaju['nama_pengaju'].toLowerCase();
+      return namaPengaju.contains(textCari);
+    }).toList();
+    filter.sort((a, b) {
+      return DateTime.parse(b['waktu_pengajuan'])
+          .compareTo(DateTime.parse(a['waktu_pengajuan']));
+    });
+    riwayatPersetujuan.value = filter;
+    statusCari.value = true;
+    this.riwayatPersetujuan.refresh();
+    this.statusCari.refresh();
   }
 
   void viewFile(status, file) {

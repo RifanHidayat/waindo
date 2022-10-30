@@ -689,10 +689,12 @@ class TidakMasukKerjaController extends GetxController {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
           if (valueBody['status'] == true) {
+            var stringTanggal =
+                "${dariTanggal.value.text} sd ${sampaiTanggal.value.text}";
             kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
-                validasiDelegasiSelected);
-            kirimNotifikasiToReportTo(
-                getFullName, convertTanggalBikinPengajuan, getEmid);
+                validasiDelegasiSelected, stringTanggal);
+            kirimNotifikasiToReportTo(getFullName, convertTanggalBikinPengajuan,
+                getEmid, stringTanggal);
             Navigator.pop(Get.context!);
 
             var pesan1 =
@@ -749,15 +751,15 @@ class TidakMasukKerjaController extends GetxController {
     }
   }
 
-  void kirimNotifikasiToDelegasi(
-      getFullName, convertTanggalBikinPengajuan, validasiDelegasiSelected) {
+  void kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
+      validasiDelegasiSelected, stringTanggal) {
     var dt = DateTime.now();
     var jamSekarang = DateFormat('HH:mm:ss').format(dt);
     Map<String, dynamic> body = {
       'em_id': validasiDelegasiSelected,
       'title': 'Delegasi Pengajuan Tidak Hadir',
       'deskripsi':
-          'Anda mendapatkan delegasi pekerjaan dari $getFullName untuk pengajuan $selectedDropdownFormTidakMasukKerjaTipe',
+          'Anda mendapatkan delegasi pekerjaan dari $getFullName untuk pengajuan $selectedDropdownFormTidakMasukKerjaTipe, tanggal pengajuan $stringTanggal',
       'url': '',
       'atten_date': convertTanggalBikinPengajuan,
       'jam': jamSekarang,
@@ -773,14 +775,14 @@ class TidakMasukKerjaController extends GetxController {
   }
 
   void kirimNotifikasiToReportTo(
-      getFullName, convertTanggalBikinPengajuan, getEmid) {
+      getFullName, convertTanggalBikinPengajuan, getEmid, stringTanggal) {
     var dt = DateTime.now();
     var jamSekarang = DateFormat('HH:mm:ss').format(dt);
     Map<String, dynamic> body = {
       'emId_pengaju': getEmid,
       'title': 'Pengajuan Tidak Hadir',
       'deskripsi':
-          'Anda mendapatkan pengajuan $selectedDropdownFormTidakMasukKerjaTipe dari $getFullName',
+          'Anda mendapatkan pengajuan $selectedDropdownFormTidakMasukKerjaTipe dari $getFullName , tanggal pengajuan $stringTanggal',
       'url': '',
       'atten_date': convertTanggalBikinPengajuan,
       'jam': jamSekarang,
@@ -989,9 +991,9 @@ class TidakMasukKerjaController extends GetxController {
     var dataUser = AppData.informasiUser;
     var getEmid = dataUser![0].em_id;
     Map<String, dynamic> body = {
-      'menu_name': 'Tidak Hadir',
+      'menu_name': 'Izin',
       'activity_name':
-          'Membatalkan form pengajuan Tidak Hadir. Tanggal pengajuan = ${index["start_date"]} sd ${index["end_date"]} Alasan Pengajuan = ${index["reason"]}',
+          'Membatalkan form pengajuan Izin. Tanggal pengajuan = ${index["start_date"]} sd ${index["end_date"]} Alasan Pengajuan = ${index["reason"]}',
       'created_by': '$getEmid',
       'val': 'id',
       'cari': '${index["id"]}',
@@ -1029,11 +1031,16 @@ class TidakMasukKerjaController extends GetxController {
     var alasan = detailData['reason'];
     var durasi = detailData['leave_duration'];
     // var typeAjuan = detailData['leave_status'];
-    var typeAjuan = detailData['leave_status'] == "Approve"
-        ? "Approve 1"
-        : detailData['leave_status'] == "Approve2"
-            ? "Approve 2"
-            : detailData['leave_status'];
+    var typeAjuan;
+    if (valuePolaPersetujuan.value == "1") {
+      typeAjuan = detailData['leave_status'];
+    } else {
+      typeAjuan = detailData['leave_status'] == "Approve"
+          ? "Approve 1"
+          : detailData['leave_status'] == "Approve2"
+              ? "Approve 2"
+              : detailData['leave_status'];
+    }
     var jamAjuan = detailData['time_plan'];
     var leave_files = detailData['leave_files'];
     var listTanggalTerpilih = detailData['date_selected'].split(',');

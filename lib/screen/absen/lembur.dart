@@ -409,7 +409,17 @@ class _LemburState extends State<Lembur> {
           var sampaiJam = controller.listLembur.value[index]['sampai_jam'];
           var tanggalPengajuan =
               controller.listLembur.value[index]['atten_date'];
-          var status = controller.listLembur.value[index]['status'];
+          var status;
+          if (controller.valuePolaPersetujuan.value == "1") {
+            status = controller.listLembur.value[index]['status'];
+          } else {
+            status = controller.listLembur.value[index]['status'] == "Approve"
+                ? "Approve 1"
+                : controller.listLembur.value[index]['status'] == "Approve2"
+                    ? "Approve 2"
+                    : controller.listLembur.value[index]['status'];
+          }
+
           var alasanReject =
               controller.listLembur.value[index]['alasan_reject'];
           var approveDate = controller.listLembur.value[index]['approve_date'];
@@ -464,11 +474,15 @@ class _LemburState extends State<Lembur> {
                               decoration: BoxDecoration(
                                 color: status == 'Approve'
                                     ? Constanst.colorBGApprove
-                                    : status == 'Rejected'
-                                        ? Constanst.colorBGRejected
-                                        : status == 'Pending'
-                                            ? Constanst.colorBGPending
-                                            : Colors.grey,
+                                    : status == 'Approve 1'
+                                        ? Constanst.colorBGApprove
+                                        : status == 'Approve 2'
+                                            ? Constanst.colorBGApprove
+                                            : status == 'Rejected'
+                                                ? Constanst.colorBGRejected
+                                                : status == 'Pending'
+                                                    ? Constanst.colorBGPending
+                                                    : Colors.grey,
                                 borderRadius: Constanst.borderStyle1,
                               ),
                               child: Padding(
@@ -483,19 +497,32 @@ class _LemburState extends State<Lembur> {
                                             color: Constanst.color5,
                                             size: 14,
                                           )
-                                        : status == 'Rejected'
+                                        : status == 'Approve 1'
                                             ? Icon(
-                                                Iconsax.close_square,
-                                                color: Constanst.color4,
+                                                Iconsax.tick_square,
+                                                color: Constanst.color5,
                                                 size: 14,
                                               )
-                                            : status == 'Pending'
+                                            : status == 'Approve 2'
                                                 ? Icon(
-                                                    Iconsax.timer,
-                                                    color: Constanst.color3,
+                                                    Iconsax.tick_square,
+                                                    color: Constanst.color5,
                                                     size: 14,
                                                   )
-                                                : SizedBox(),
+                                                : status == 'Rejected'
+                                                    ? Icon(
+                                                        Iconsax.close_square,
+                                                        color: Constanst.color4,
+                                                        size: 14,
+                                                      )
+                                                    : status == 'Pending'
+                                                        ? Icon(
+                                                            Iconsax.timer,
+                                                            color: Constanst
+                                                                .color3,
+                                                            size: 14,
+                                                          )
+                                                        : SizedBox(),
                                     Padding(
                                       padding: const EdgeInsets.only(left: 3),
                                       child: Text(
@@ -505,11 +532,17 @@ class _LemburState extends State<Lembur> {
                                             fontWeight: FontWeight.bold,
                                             color: status == 'Approve'
                                                 ? Colors.green
-                                                : status == 'Rejected'
-                                                    ? Colors.red
-                                                    : status == 'Pending'
-                                                        ? Constanst.color3
-                                                        : Colors.black),
+                                                : status == 'Approve 1'
+                                                    ? Colors.green
+                                                    : status == 'Approve 2'
+                                                        ? Colors.green
+                                                        : status == 'Rejected'
+                                                            ? Colors.red
+                                                            : status ==
+                                                                    'Pending'
+                                                                ? Constanst
+                                                                    .color3
+                                                                : Colors.black),
                                       ),
                                     ),
                                   ],
@@ -584,7 +617,9 @@ class _LemburState extends State<Lembur> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Expanded(
-                                  child: status == "Approve"
+                                  child: status == "Approve" ||
+                                          status == "Approve 1" ||
+                                          status == "Approve 2"
                                       ? Row(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
@@ -665,7 +700,9 @@ class _LemburState extends State<Lembur> {
                                           ],
                                         ),
                                 ),
-                                status == "Approve"
+                                status == "Approve" ||
+                                        status == "Approve 1" ||
+                                        status == "Approve 2"
                                     ? SizedBox()
                                     : Expanded(
                                         child: Row(

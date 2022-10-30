@@ -28,23 +28,36 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
 
   @override
   void initState() {
-    print(widget.dataForm![0]);
     if (widget.dataForm![1] == true) {
-      controller.tanggalLembur.value.text =
-          Constanst.convertDate("${widget.dataForm![0]['atten_date']}");
-      var convertDariJam = widget.dataForm![0]['dari_jam'].split(":");
-      var convertSampaiJam = widget.dataForm![0]['sampai_jam'].split(":");
-      var hasilDarijam = "${convertDariJam[0]}:${convertDariJam[1]}";
-      var hasilSampaijam = "${convertSampaiJam[0]}:${convertSampaiJam[1]}";
-      controller.dariJam.value.text = hasilDarijam;
-      controller.sampaiJam.value.text = hasilSampaijam;
-      controller.catatan.value.text = widget.dataForm![0]['uraian'];
-      controller.statusForm.value = true;
-      controller.screenTanggalSelected.value = false;
-      controller.idpengajuanTugasLuar.value = "${widget.dataForm![0]['id']}";
-      controller.emDelegation.value = "${widget.dataForm![0]['em_delegation']}";
+      print("nomor ajuan ${widget.dataForm![0]['nomor_ajuan']}");
       controller.nomorAjuan.value.text =
           "${widget.dataForm![0]['nomor_ajuan']}";
+      controller.idpengajuanTugasLuar.value = "${widget.dataForm![0]['id']}";
+      controller.statusForm.value = true;
+      controller.emDelegation.value = "${widget.dataForm![0]['em_delegation']}";
+      controller.tanggalTugasLuar.value.text =
+          Constanst.convertDate("${widget.dataForm![0]['atten_date']}");
+      if (controller.viewTugasLuar.value) {
+        var convertDariJam = widget.dataForm![0]['dari_jam'].split(":");
+        var convertSampaiJam = widget.dataForm![0]['sampai_jam'].split(":");
+        var hasilDarijam = "${convertDariJam[0]}:${convertDariJam[1]}";
+        var hasilSampaijam = "${convertSampaiJam[0]}:${convertSampaiJam[1]}";
+        controller.dariJam.value.text = hasilDarijam;
+        controller.sampaiJam.value.text = hasilSampaijam;
+        controller.catatan.value.text = widget.dataForm![0]['uraian'];
+      } else {
+        controller.screenTanggalSelected.value = false;
+        controller.dariTanggal.value.text = widget.dataForm![0]['start_date'];
+        controller.sampaiTanggal.value.text = widget.dataForm![0]['end_date'];
+        controller.catatan.value.text = widget.dataForm![0]['reason'];
+        var listDateTerpilih = widget.dataForm![0]['date_selected'].split(',');
+        List<DateTime> getDummy = [];
+        for (var element in listDateTerpilih) {
+          var convertDate = DateTime.parse(element);
+          getDummy.add(convertDate);
+        }
+        controller.tanggalSelectedEdit.value = getDummy;
+      }
     }
     super.initState();
   }
@@ -57,13 +70,17 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
           backgroundColor: Colors.white,
           automaticallyImplyLeading: false,
           elevation: 2,
-          flexibleSpace: AppbarMenu1(
-            title: "Form Tugas Luar",
-            colorTitle: Colors.black,
-            icon: 1,
-            onTap: () {
-              Get.back();
-            },
+          flexibleSpace: Obx(
+            () => AppbarMenu1(
+              title: controller.viewTugasLuar.value
+                  ? "Form Tugas Luar"
+                  : "Form Dinas Luar",
+              colorTitle: Colors.black,
+              icon: 1,
+              onTap: () {
+                Get.back();
+              },
+            ),
           )),
       body: WillPopScope(
           onWillPop: () async {
@@ -82,10 +99,12 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
                         SizedBox(
                           height: 20,
                         ),
-                        formTipe(),
-                        SizedBox(
-                          height: 20,
-                        ),
+                        widget.dataForm![1] == true ? SizedBox() : formTipe(),
+                        widget.dataForm![1] == true
+                            ? SizedBox()
+                            : SizedBox(
+                                height: 20,
+                              ),
                         !controller.viewTugasLuar.value
                             ? formPilihTanggal()
                             : formHariDanTanggal(),
@@ -150,7 +169,7 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
                   ),
                   onSelectionChanged:
                       (DateRangePickerSelectionChangedArgs args) {
-                    if (controller.idEditFormTugasLuar.value != "") {
+                    if (controller.idpengajuanTugasLuar.value != "") {
                       controller.tanggalSelectedEdit.value = args.value;
                       this.controller.tanggalSelectedEdit.refresh();
                     } else {
@@ -301,15 +320,15 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
                       UtilsAlert.showToast("Tanggal tidak terpilih");
                     } else {
                       controller.initialDate.value = dateSelect;
-                      controller.tanggalLembur.value.text =
+                      controller.tanggalTugasLuar.value.text =
                           Constanst.convertDate("$dateSelect");
-                      this.controller.tanggalLembur.refresh();
+                      this.controller.tanggalTugasLuar.refresh();
                     }
                   },
                   child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: Text(
-                        controller.tanggalLembur.value.text,
+                        controller.tanggalTugasLuar.value.text,
                         style: TextStyle(
                             fontSize: 14.0, height: 2.0, color: Colors.black),
                       )),
@@ -334,9 +353,9 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
                       UtilsAlert.showToast("Tanggal tidak terpilih");
                     } else {
                       controller.initialDate.value = dateSelect;
-                      controller.tanggalLembur.value.text =
+                      controller.tanggalTugasLuar.value.text =
                           Constanst.convertDate("$dateSelect");
-                      this.controller.tanggalLembur.refresh();
+                      this.controller.tanggalTugasLuar.refresh();
                     }
                   },
                   icon: Icon(
