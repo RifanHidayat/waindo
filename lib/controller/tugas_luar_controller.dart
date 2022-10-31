@@ -490,6 +490,14 @@ class TugasLuarController extends GetxController {
     });
   }
 
+  void checkNomorAjuanDalamAntrian1(nomorAjuanTerakhirDalamAntrian) {
+    var getNomorAjuanTerakhir = nomorAjuanTerakhirDalamAntrian;
+    var keyNomor = getNomorAjuanTerakhir.replaceAll("TL", '');
+    var hasilTambah = int.parse(keyNomor) + 1;
+    var finalNomor = "TL$hasilTambah";
+    kirimPengajuan(finalNomor);
+  }
+
   void checkNomorAjuanDinasLuar(value) {
     urutkanTanggalSelected(value);
     var listTanggal = tanggalTugasLuar.value.text.split(',');
@@ -528,6 +536,14 @@ class TugasLuarController extends GetxController {
         }
       }
     });
+  }
+
+  void checkNomorAjuanDalamAntrian2(status, nomorAjuanTerakhirDalamAntrian) {
+    var getNomorAjuanTerakhir = nomorAjuanTerakhirDalamAntrian;
+    var keyNomor = getNomorAjuanTerakhir.replaceAll("DL", '');
+    var hasilTambah = int.parse(keyNomor) + 1;
+    var finalNomor = "DL$hasilTambah";
+    kirimPengajuanDinasLuar(status, finalNomor);
   }
 
   void urutkanTanggalSelected(status) {
@@ -687,7 +703,9 @@ class TugasLuarController extends GetxController {
             ));
           } else {
             if (valueBody['message'] == "ulang") {
-              checkNomorAjuan();
+              var nomorAjuanTerakhirDalamAntrian =
+                  valueBody['data'][0]['nomor_ajuan'];
+              checkNomorAjuanDalamAntrian1(nomorAjuanTerakhirDalamAntrian);
             } else {
               Navigator.pop(Get.context!);
               UtilsAlert.showToast(
@@ -789,7 +807,9 @@ class TugasLuarController extends GetxController {
             ));
           } else {
             if (valueBody['message'] == "ulang") {
-              checkNomorAjuanDinasLuar(status);
+              var nomorAjuanTerakhirDalamAntrian =
+                  valueBody['data'][0]['nomor_ajuan'];
+              checkNomorAjuanDalamAntrian2(status, nomorAjuanTerakhirDalamAntrian);
             } else {
               Navigator.pop(Get.context!);
               UtilsAlert.showToast(

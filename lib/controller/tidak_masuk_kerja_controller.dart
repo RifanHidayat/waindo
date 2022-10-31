@@ -232,16 +232,16 @@ class TidakMasukKerjaController extends GetxController {
           loadingString.value = "Tidak ada pengajuan";
           this.loadingString.refresh();
         } else {
-          if (valueBody['data'].length == 0) {
-            loadingString.value = "Tidak ada pengajuan";
-          } else {
-            loadingString.value = "Sedang memuat data...";
-          }
           AlllistHistoryAjuan.value = valueBody['data'];
           for (var element in valueBody['data']) {
             if (element['category'] == 'FULLDAY') {
               listHistoryAjuan.value.add(element);
             }
+          }
+          if (listHistoryAjuan.value.length == 0) {
+            loadingString.value = "Tidak ada pengajuan";
+          } else {
+            loadingString.value = "Sedang memuat data...";
           }
           this.listHistoryAjuan.refresh();
           this.AlllistHistoryAjuan.refresh();
@@ -565,6 +565,7 @@ class TidakMasukKerjaController extends GetxController {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
         if (valueBody['status'] == true) {
+          print(valueBody['data']);
           if (valueBody['data'].isEmpty) {
             var now = DateTime.now();
             var convertBulan = now.month <= 9 ? "0${now.month}" : now.month;
@@ -583,6 +584,19 @@ class TidakMasukKerjaController extends GetxController {
         }
       }
     });
+  }
+
+  void checkNomorAjuanDalamAntrian(status, nomorAjuanTerakhirDalamAntrian) {
+    var pola = selectedDropdownFormTidakMasukKerjaTipe.value ==
+            allTipe.value[0]['name']
+        ? "SD"
+        : "ST";
+
+    var getNomorAjuanTerakhir = nomorAjuanTerakhirDalamAntrian;
+    var keyNomor = getNomorAjuanTerakhir.replaceAll("$pola", '');
+    var hasilTambah = int.parse(keyNomor) + 1;
+    var finalNomor = "$pola$hasilTambah";
+    kirimFormAjuanTidakMasukKerja(status, finalNomor);
   }
 
   void urutkanTanggalSelected(status) {
@@ -712,7 +726,10 @@ class TidakMasukKerjaController extends GetxController {
             ));
           } else {
             if (valueBody['message'] == "ulang") {
-              checkNomorAjuan(status);
+              var nomorAjuanTerakhirDalamAntrian =
+                  valueBody['data'][0]['nomor_ajuan'];
+              checkNomorAjuanDalamAntrian(
+                  status, nomorAjuanTerakhirDalamAntrian);
             } else {
               Navigator.pop(Get.context!);
               UtilsAlert.showToast(

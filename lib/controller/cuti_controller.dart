@@ -521,6 +521,14 @@ class CutiController extends GetxController {
     });
   }
 
+  void checkNomorAjuanDalamAntrian(nomorAjuanTerakhirDalamAntrian) {
+    var getNomorAjuanTerakhir = nomorAjuanTerakhirDalamAntrian;
+    var keyNomor = getNomorAjuanTerakhir.replaceAll("CT", '');
+    var hasilTambah = int.parse(keyNomor) + 1;
+    var finalNomor = "CT$hasilTambah";
+    kirimFormAjuanCuti(finalNomor);
+  }
+
   void urutkanTanggalSelected() {
     var hasilConvert = [];
     var tampungStringTanggal = "";
@@ -644,7 +652,9 @@ class CutiController extends GetxController {
             ));
           } else {
             if (valueBody['message'] == "ulang") {
-              checkNomorAjuan();
+              var nomorAjuanTerakhirDalamAntrian =
+                  valueBody['data'][0]['nomor_ajuan'];
+              checkNomorAjuanDalamAntrian(nomorAjuanTerakhirDalamAntrian);
             } else {
               Navigator.pop(Get.context!);
               UtilsAlert.showToast(

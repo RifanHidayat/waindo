@@ -320,6 +320,14 @@ class LemburController extends GetxController {
     });
   }
 
+  void checkNomorAjuanDalamAntrian(nomorAjuanTerakhirDalamAntrian) {
+    var getNomorAjuanTerakhir = nomorAjuanTerakhirDalamAntrian;
+    var keyNomor = getNomorAjuanTerakhir.replaceAll("LB", '');
+    var hasilTambah = int.parse(keyNomor) + 1;
+    var finalNomor = "LB$hasilTambah";
+    kirimPengajuan(finalNomor);
+  }
+
   void kirimPengajuan(getNomorAjuanTerakhir) {
     var listTanggal = tanggalLembur.value.text.split(',');
     var getTanggal = listTanggal[1].replaceAll(' ', '');
@@ -377,9 +385,10 @@ class LemburController extends GetxController {
               dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
             ));
           } else {
-            print("sampe sini ulang");
             if (valueBody['message'] == "ulang") {
-              checkNomorAjuan();
+              var nomorAjuanTerakhirDalamAntrian =
+                  valueBody['data'][0]['nomor_ajuan'];
+              checkNomorAjuanDalamAntrian(nomorAjuanTerakhirDalamAntrian);
             } else {
               Navigator.pop(Get.context!);
               UtilsAlert.showToast(
