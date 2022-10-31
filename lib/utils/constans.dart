@@ -18,6 +18,7 @@ class Constanst {
   static Color colorNonAktif = Color(0xffD5DBE5);
   static Color colorButton1 = Color(0xff001767);
   static Color colorButton2 = Color(0xffE9F5FE);
+  static Color colorButton3 = Color(0xffE1E9FA);
 
   static Color colorPrimary = Color(0xff001767);
   static Color color1 = Color(0xffBCC2CE);

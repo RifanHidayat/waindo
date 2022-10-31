@@ -615,7 +615,7 @@ class _DashboardState extends State<Dashboard> {
   Widget cardFormPengajuan() {
     return Container(
       decoration: BoxDecoration(
-          color: Constanst.colorButton2, borderRadius: Constanst.borderStyle2),
+          color: Constanst.colorButton3, borderRadius: Constanst.borderStyle2),
       child: InkWell(
         onTap: () => controller.widgetButtomSheetFormPengajuan(),
         child: Column(
@@ -764,7 +764,7 @@ class _DashboardState extends State<Dashboard> {
                   color:
                       controller.menuShowInMain.value[index]['status'] == false
                           ? Colors.transparent
-                          : Constanst.colorButton2,
+                          : Constanst.colorButton3,
                   borderRadius: Constanst.borderStyle3,
                 ),
                 child: Center(
@@ -803,7 +803,7 @@ class _DashboardState extends State<Dashboard> {
             return Padding(
               padding: const EdgeInsets.only(left: 16, right: 16),
               child: GridView.builder(
-                  physics: BouncingScrollPhysics(),
+                  physics: NeverScrollableScrollPhysics(),
                   padding: EdgeInsets.all(0),
                   itemCount:
                       controller.menuShowInMain.value[index]['menu'].length,
@@ -829,7 +829,7 @@ class _DashboardState extends State<Dashboard> {
                             gambar != ""
                                 ? Container(
                                     decoration: BoxDecoration(
-                                        color: Constanst.colorButton2,
+                                        color: Constanst.colorButton3,
                                         borderRadius: Constanst
                                             .styleBoxDecoration1.borderRadius),
                                     child: Padding(
@@ -861,7 +861,7 @@ class _DashboardState extends State<Dashboard> {
                                     ),
                                   )
                                 : Container(
-                                    color: Constanst.colorButton2,
+                                    color: Constanst.colorButton1,
                                     height: 32,
                                     width: 32,
                                   ),
@@ -875,7 +875,7 @@ class _DashboardState extends State<Dashboard> {
                                     : namaMenu,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                    fontSize: 10, color: Constanst.colorText3),
+                                    fontSize: 10, color: Constanst.colorText1),
                               ),
                             ),
                           ]),

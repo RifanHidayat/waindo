@@ -245,7 +245,13 @@ class Informasi extends StatelessWidget {
   Widget screenUltah() {
     return controller.employeeUltah.value.isEmpty
         ? Center(
-            child: Text("Tidak ada karyawan yang berulang tahun pada hari ini"),
+            child: Padding(
+              padding: const EdgeInsets.only(left: 30, right: 30),
+              child: Text(
+                "Tidak ada karyawan yang berulang tahun pada hari ini",
+                textAlign: TextAlign.center,
+              ),
+            ),
           )
         : ListView.builder(
             itemCount: controller.employeeUltah.value.length,
@@ -437,7 +443,10 @@ class Informasi extends StatelessWidget {
   Widget screenTidakHadir() {
     return controller.employeeTidakHadir.value.isEmpty
         ? Center(
-            child: Text("Semua karyawan hadir pada hari ini"),
+            child: Text(
+              "Semua karyawan hadir pada hari ini",
+              textAlign: TextAlign.center,
+            ),
           )
         : ListView.builder(
             itemCount: controller.employeeTidakHadir.value.length,

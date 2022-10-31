@@ -9,6 +9,7 @@ import 'package:iconsax/iconsax.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:io' show Platform;
 import 'dart:math';
 
 import 'package:image_picker/image_picker.dart';
@@ -426,9 +427,69 @@ class AbsenController extends GetxController {
     if (base64fotoUser.value == "") {
       UtilsAlert.showToast("Silahkan Absen");
     } else {
-      TrustLocation.start(1);
-      getCheckMock();
-      if (!mockLocation.value) {
+      if (Platform.isAndroid) {
+        TrustLocation.start(1);
+        getCheckMock();
+        if (!mockLocation.value) {
+          var statusPosisi = await validasiRadius();
+          if (statusPosisi == true) {
+            var latLangAbsen = "${latUser.value},${langUser.value}";
+            var dataUser = AppData.informasiUser;
+            var getEmpId = dataUser![0].em_id;
+            var getSettingAppSaveImageAbsen =
+                settingAppInfo.value![0].saveimage_attend;
+            var validasiGambar =
+                getSettingAppSaveImageAbsen == "NO" ? "" : base64fotoUser.value;
+            if (typeAbsen.value == 1) {
+              absenStatus.value = true;
+              AppData.statusAbsen = true;
+              AppData.dateLastAbsen = tanggalUserFoto.value;
+            } else {
+              absenStatus.value = false;
+              AppData.statusAbsen = false;
+              AppData.dateLastAbsen = tanggalUserFoto.value;
+            }
+            Map<String, dynamic> body = {
+              'em_id': getEmpId,
+              'tanggal_absen': tanggalUserFoto.value,
+              'waktu': timeString.value,
+              'gambar': validasiGambar,
+              'lokasi': alamatUserFoto.value,
+              'latLang': latLangAbsen,
+              'catatan': deskripsiAbsen.value.text,
+              'typeAbsen': typeAbsen.value,
+              'place': selectedType.value,
+              'kategori': "1"
+            };
+
+            var connect = Api.connectionApi("post", body, "kirimAbsen");
+            connect.then((dynamic res) {
+              if (res.statusCode == 200) {
+                var valueBody = jsonDecode(res.body);
+                print(res.body);
+                for (var element in sysData.value) {
+                  if (element['kode'] == '006') {
+                    intervalControl.value = int.parse(element['name']);
+                  }
+                }
+                this.intervalControl.refresh();
+                print("dapat interval ${intervalControl.value}");
+                Navigator.pop(Get.context!);
+                Get.offAll(BerhasilAbsensi(
+                  dataBerhasil: [
+                    titleAbsen.value,
+                    timeString.value,
+                    typeAbsen.value,
+                    intervalControl.value
+                  ],
+                ));
+              }
+            });
+          }
+        } else {
+          UtilsAlert.showToast("Periksa GPS anda");
+        }
+      } else if (Platform.isIOS) {
         var statusPosisi = await validasiRadius();
         if (statusPosisi == true) {
           var latLangAbsen = "${latUser.value},${langUser.value}";
@@ -484,8 +545,6 @@ class AbsenController extends GetxController {
             }
           });
         }
-      } else {
-        UtilsAlert.showToast("Periksa GPS anda");
       }
     }
   }

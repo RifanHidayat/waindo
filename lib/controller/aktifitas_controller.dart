@@ -162,6 +162,7 @@ class AktifitasController extends GetxController {
         };
         listAktifitas.value.add(data);
       }
+      cari.value.text = "";
       statusPencarian.value = true;
       statusFormPencarian.value = false;
       this.statusFormPencarian.refresh();

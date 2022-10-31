@@ -95,18 +95,20 @@ class Aktifitas extends StatelessWidget {
                         flex: 3,
                         child: controller.listAktifitas.value.isEmpty
                             ? Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Image.asset(
-                                      "assets/amico.png",
-                                      height: 250,
-                                    ),
-                                    SizedBox(
-                                      height: 10,
-                                    ),
-                                    Text("Anda belum memiliki aktifitas"),
-                                  ],
+                                child: SingleChildScrollView(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Image.asset(
+                                        "assets/amico.png",
+                                        height: 250,
+                                      ),
+                                      SizedBox(
+                                        height: 10,
+                                      ),
+                                      Text("Anda belum memiliki aktifitas"),
+                                    ],
+                                  ),
                                 ),
                               )
                             : controller.statusPencarian.value == false
@@ -543,7 +545,7 @@ class Aktifitas extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 14),
                   child: Text(
-                    "Aktifitas",
+                    "Aktivitas",
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -568,7 +570,27 @@ class Aktifitas extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(
-                                    flex: 90,
+                                      flex: 10,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(top: 6),
+                                        child: InkWell(
+                                          onTap: () {
+                                            controller.statusFormPencarian
+                                                .value = false;
+                                            this
+                                                .controller
+                                                .statusFormPencarian
+                                                .refresh();
+                                          },
+                                          child: Icon(
+                                            Iconsax.close_circle,
+                                            color: Colors.white,
+                                            size: 18,
+                                          ),
+                                        ),
+                                      )),
+                                  Expanded(
+                                    flex: 80,
                                     child: SizedBox(
                                       height: 30,
                                       child: TextField(
@@ -589,6 +611,18 @@ class Aktifitas extends StatelessWidget {
                                             fontSize: 14.0,
                                             height: 1.0,
                                             color: Colors.white),
+                                        onSubmitted: (value) {
+                                          if (controller.cari.value.text ==
+                                              "") {
+                                            UtilsAlert.showToast(
+                                                "Isi form cari terlebih dahulu");
+                                          } else {
+                                            UtilsAlert.loadingSimpanData(
+                                                Get.context!,
+                                                "Mencari Data...");
+                                            controller.pencarianDataAktifitas();
+                                          }
+                                        },
                                       ),
                                     ),
                                   ),

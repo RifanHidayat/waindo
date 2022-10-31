@@ -226,7 +226,7 @@ class DashboardController extends GetxController {
       deviceStatus.value = false;
       heightbanner.value = 120.0;
       heightPageView.value = 155.0;
-      ratioDevice.value = 2.5;
+      ratioDevice.value = 2.0;
     } else if (width >= 425.0) {
       print("kesini mobile besar");
       heightbanner.value = 200.0;
@@ -768,7 +768,6 @@ class DashboardController extends GetxController {
           padding: const EdgeInsets.only(left: 16, right: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
               Padding(
@@ -819,138 +818,143 @@ class DashboardController extends GetxController {
               SizedBox(
                 height: 10,
               ),
-              Padding(
-                padding: EdgeInsets.only(left: 8, right: 8),
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.vertical,
-                    physics: BouncingScrollPhysics(),
-                    itemCount: finalMenu.value.length,
-                    itemBuilder: (context, index) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            finalMenu.value[index]['nama_modul'],
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Padding(
-                              padding: EdgeInsets.only(left: 8, right: 8),
-                              child: GridView.builder(
-                                  physics: BouncingScrollPhysics(),
-                                  padding: EdgeInsets.all(0),
-                                  shrinkWrap: true,
-                                  itemCount:
-                                      finalMenu.value[index]['menu'].length,
-                                  scrollDirection: Axis.vertical,
-                                  gridDelegate:
-                                      SliverGridDelegateWithFixedCrossAxisCount(
-                                    crossAxisCount: 4,
-                                  ),
-                                  itemBuilder: (context, idxMenu) {
-                                    var gambar = finalMenu[index]['menu']
-                                        [idxMenu]['gambar'];
-                                    var url = finalMenu[index]['menu'][idxMenu]
-                                        ['url'];
-                                    var namaMenu = finalMenu[index]['menu']
-                                        [idxMenu]['nama_menu'];
-                                    return InkWell(
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                        routePageDashboard(url);
-                                      },
-                                      highlightColor: Colors.white,
-                                      child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          children: [
-                                            gambar != ""
-                                                ? Container(
-                                                    decoration: BoxDecoration(
-                                                        color: Constanst
-                                                            .colorButton2,
-                                                        borderRadius: Constanst
-                                                            .styleBoxDecoration1
-                                                            .borderRadius),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              left: 3,
-                                                              right: 3,
-                                                              top: 3,
-                                                              bottom: 3),
-                                                      child: CachedNetworkImage(
-                                                        imageUrl:
-                                                            Api.UrlgambarDashboard +
-                                                                gambar,
-                                                        progressIndicatorBuilder:
-                                                            (context, url,
-                                                                    downloadProgress) =>
-                                                                Container(
-                                                          alignment:
-                                                              Alignment.center,
-                                                          height: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .height *
-                                                              0.5,
-                                                          width: MediaQuery.of(
-                                                                  context)
-                                                              .size
-                                                              .width,
-                                                          child: CircularProgressIndicator(
-                                                              value:
-                                                                  downloadProgress
-                                                                      .progress),
+              Flexible(
+                flex: 3,
+                child: Padding(
+                  padding: EdgeInsets.only(left: 8, right: 8),
+                  child: ListView.builder(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.vertical,
+                      physics: BouncingScrollPhysics(),
+                      itemCount: finalMenu.value.length,
+                      itemBuilder: (context, index) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text(
+                              finalMenu.value[index]['nama_modul'],
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Padding(
+                                padding: EdgeInsets.only(left: 8, right: 8),
+                                child: GridView.builder(
+                                    physics: NeverScrollableScrollPhysics(),
+                                    padding: EdgeInsets.all(0),
+                                    shrinkWrap: true,
+                                    itemCount:
+                                        finalMenu.value[index]['menu'].length,
+                                    scrollDirection: Axis.vertical,
+                                    gridDelegate:
+                                        SliverGridDelegateWithFixedCrossAxisCount(
+                                      crossAxisCount: 4,
+                                    ),
+                                    itemBuilder: (context, idxMenu) {
+                                      var gambar = finalMenu[index]['menu']
+                                          [idxMenu]['gambar'];
+                                      var url = finalMenu[index]['menu']
+                                          [idxMenu]['url'];
+                                      var namaMenu = finalMenu[index]['menu']
+                                          [idxMenu]['nama_menu'];
+                                      return InkWell(
+                                        onTap: () {
+                                          Navigator.pop(context);
+                                          routePageDashboard(url);
+                                        },
+                                        highlightColor: Colors.white,
+                                        child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: [
+                                              gambar != ""
+                                                  ? Container(
+                                                      decoration: BoxDecoration(
+                                                          color: Constanst
+                                                              .colorButton2,
+                                                          borderRadius: Constanst
+                                                              .styleBoxDecoration1
+                                                              .borderRadius),
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .only(
+                                                                left: 3,
+                                                                right: 3,
+                                                                top: 3,
+                                                                bottom: 3),
+                                                        child:
+                                                            CachedNetworkImage(
+                                                          imageUrl:
+                                                              Api.UrlgambarDashboard +
+                                                                  gambar,
+                                                          progressIndicatorBuilder:
+                                                              (context, url,
+                                                                      downloadProgress) =>
+                                                                  Container(
+                                                            alignment: Alignment
+                                                                .center,
+                                                            height: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .height *
+                                                                0.5,
+                                                            width:
+                                                                MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width,
+                                                            child: CircularProgressIndicator(
+                                                                value: downloadProgress
+                                                                    .progress),
+                                                          ),
+                                                          fit: BoxFit.cover,
+                                                          width: 32,
+                                                          height: 32,
+                                                          color: Constanst
+                                                              .colorPrimary,
                                                         ),
-                                                        fit: BoxFit.cover,
-                                                        width: 32,
-                                                        height: 32,
-                                                        color: Constanst
-                                                            .colorPrimary,
                                                       ),
+                                                    )
+                                                  : Container(
+                                                      color: Constanst
+                                                          .colorButton2,
+                                                      height: 32,
+                                                      width: 32,
                                                     ),
-                                                  )
-                                                : Container(
-                                                    color:
-                                                        Constanst.colorButton2,
-                                                    height: 32,
-                                                    width: 32,
-                                                  ),
-                                            SizedBox(
-                                              height: 3,
-                                            ),
-                                            Center(
-                                              child: Text(
-                                                namaMenu.length > 20
-                                                    ? namaMenu.substring(
-                                                            0, 20) +
-                                                        '...'
-                                                    : namaMenu,
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                    fontSize: 10,
-                                                    color:
-                                                        Constanst.colorText3),
+                                              SizedBox(
+                                                height: 3,
                                               ),
-                                            ),
-                                          ]),
-                                    );
-                                  })),
-                          Divider(
-                            height: 5,
-                            color: Constanst.colorText2,
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                        ],
-                      );
-                    }),
+                                              Center(
+                                                child: Text(
+                                                  namaMenu.length > 20
+                                                      ? namaMenu.substring(
+                                                              0, 20) +
+                                                          '...'
+                                                      : namaMenu,
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                      fontSize: 10,
+                                                      color:
+                                                          Constanst.colorText3),
+                                                ),
+                                              ),
+                                            ]),
+                                      );
+                                    })),
+                            Divider(
+                              height: 5,
+                              color: Constanst.colorText2,
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                          ],
+                        );
+                      }),
+                ),
               ),
             ],
           ),
