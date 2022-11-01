@@ -69,20 +69,26 @@ class _IzinState extends State<Izin> {
                 SizedBox(
                   height: 16,
                 ),
-                controller.bulanDanTahunNow.value == ""
-                    ? SizedBox()
-                    : pickDate(),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 80,
+                      child: pencarianData(),
+                    ),
+                    Expanded(
+                      flex: 20,
+                      child: pickDate(),
+                    )
+                  ],
+                ),
+                // controller.bulanDanTahunNow.value == ""
+                //     ? SizedBox()
+                //     :
                 SizedBox(
                   height: 16,
                 ),
                 listStatusAjuan(),
-                SizedBox(
-                  height: 16,
-                ),
-                pencarianData(),
-                SizedBox(
-                  height: 16,
-                ),
                 SizedBox(
                   height: 16,
                 ),

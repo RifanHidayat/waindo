@@ -23,6 +23,7 @@ import 'package:siscom_operasional/screen/absen/tugas_luar.dart';
 import 'package:siscom_operasional/screen/absen/form/form_pengajuan_cuti.dart';
 import 'package:siscom_operasional/screen/absen/riwayat_cuti.dart';
 import 'package:siscom_operasional/screen/absen/izin.dart';
+import 'package:siscom_operasional/screen/klaim/riwayat_klaim.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
@@ -58,11 +59,12 @@ class DashboardController extends GetxController {
   var refreshPagesStatus = false.obs;
 
   List sortcardPengajuan = [
-    {"id": 4, "nama_pengajuan": "Pengajuan Tidak Hadir"},
     {"id": 1, "nama_pengajuan": "Pengajuan Lembur"},
     {"id": 2, "nama_pengajuan": "Pengajuan Cuti"},
     {"id": 3, "nama_pengajuan": "Pengajuan Tugas Luar"},
-    {"id": 5, "nama_pengajuan": "Pengajuan Dinas Luar"}
+    {"id": 4, "nama_pengajuan": "Pengajuan Izin"},
+    {"id": 5, "nama_pengajuan": "Pengajuan Klaim"},
+    {"id": 6, "nama_pengajuan": "Buat Tugas"}
   ];
 
   @override
@@ -496,6 +498,8 @@ class DashboardController extends GetxController {
       Get.offAll(Izin());
     } else if (url == "TugasLuar") {
       Get.offAll(TugasLuar());
+    } else if (url == "Klaim") {
+      Get.offAll(Klaim());
     } else if (url == "lainnya") {
       widgetButtomSheetMenuLebihDetail();
     } else {
@@ -520,10 +524,8 @@ class DashboardController extends GetxController {
       Get.to(FormTidakMasukKerja(
         dataForm: [[], false],
       ));
-    } else if (id == 5) {
-      Get.to(FormTugasLuar(
-        dataForm: [[], false],
-      ));
+    } else {
+      UtilsAlert.showToast("Tahap Development");
     }
   }
 
@@ -706,13 +708,13 @@ class DashboardController extends GetxController {
                                                   )
                                                 : id == 5
                                                     ? Icon(
-                                                        Iconsax.airplane,
+                                                        Iconsax.receipt_2,
                                                         color: Constanst
                                                             .colorPrimary,
                                                       )
                                                     : id == 6
                                                         ? Icon(
-                                                            Iconsax.logout,
+                                                            Iconsax.task_square,
                                                             color: Constanst
                                                                 .colorPrimary,
                                                           )
@@ -720,11 +722,14 @@ class DashboardController extends GetxController {
                               ),
                               Expanded(
                                 flex: 80,
-                                child: Text(
-                                  sortcardPengajuan[index]['nama_pengajuan'],
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      color: Constanst.colorText3),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: Text(
+                                    sortcardPengajuan[index]['nama_pengajuan'],
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: Constanst.colorText3),
+                                  ),
                                 ),
                               ),
                               Expanded(

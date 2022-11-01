@@ -78,6 +78,7 @@ dependencies:
   flutter_html: ^2.2.1
   flutter_foreground_task: ^3.10.0
   location: ^4.2.0
+  
 
 
 
@@ -93,6 +94,7 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  dashed_rect: ^0.0.3
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is

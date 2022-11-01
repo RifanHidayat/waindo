@@ -70,21 +70,13 @@ class Constanst {
       TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14);
 
   static BoxDecoration styleBoxDecoration1 = BoxDecoration(
-    color: Colors.white,
-    borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(8),
-        topRight: Radius.circular(8),
-        bottomLeft: Radius.circular(8),
-        bottomRight: Radius.circular(8)),
-    boxShadow: [
-      BoxShadow(
-        color: Color.fromARGB(255, 135, 135, 135).withOpacity(0.5),
-        spreadRadius: 2,
-        blurRadius: 1,
-        offset: Offset(1, 1), // changes position of shadow
-      ),
-    ],
-  );
+      color: Colors.white,
+      borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(6),
+          topRight: Radius.circular(6),
+          bottomLeft: Radius.circular(6),
+          bottomRight: Radius.circular(6)),
+      border: Border.all(color: Color(0xffD5DBE5)));
   static BoxDecoration styleBoxDecoration2(color) {
     return BoxDecoration(
       color: color!,
@@ -196,4 +188,14 @@ class Constanst {
     }
     return hari;
   }
+
+  // boxShadow: [
+  //   BoxShadow(
+  //     color: Color.fromARGB(255, 199, 199, 199).withOpacity(0.5),
+  //     spreadRadius: 2,
+  //     blurRadius: 1,
+  //     offset: Offset(1, 1), // changes position of shadow
+  //   ),
+  // ],
+
 }

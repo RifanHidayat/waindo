@@ -69,12 +69,12 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
             colorIcon: Colors.black,
             icon: 1,
             onTap: () {
-              Get.offAll(RiwayatCuti());
+              Get.back();
             },
           )),
       body: WillPopScope(
           onWillPop: () async {
-            Get.offAll(RiwayatCuti());
+            Get.back();
             return true;
           },
           child: SafeArea(
