@@ -586,7 +586,7 @@ class DashboardController extends GetxController {
                           height: 30,
                         ),
                         TextButtonWidget(
-                          title: "Saya Setuju",
+                          title: "Lanjutkan",
                           onTap: () async {
                             Navigator.pop(context);
                             await Permission.camera.request();

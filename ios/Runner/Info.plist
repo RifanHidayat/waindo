@@ -27,28 +27,23 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppleMusicUsageDescription</key>
-	<string>Music!</string>
+	<string>Izin galeri dibutuhkan untuk mengunggah foto</string>
 	<key>NSCameraUsageDescription</key>
-	<string>camera</string>
+	<string>Izin kamera dibutuhkan untuk mendapatkan foto untuk absen dan laporan anda</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Always and when in use!</string>
+	<string>Lokasi dibutuhkan untuk mendapatkan koordinat posisi absensi dan laporan anda</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Can I have location always?</string>
+	<string>Lokasi dibutuhkan untuk mendapatkan koordinat posisi absensi dan laporan anda</string>
 	<key>NSLocationUsageDescription</key>
-	<string>Older devices need location.</string>
+	<string>Lokasi dibutuhkan untuk mendapatkan koordinat posisi absensi dan laporan anda</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Need location when in use</string>
+	<string>Lokasi dibutuhkan untuk mendapatkan koordinat posisi absensi dan laporan anda</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>photos</string>
+	<string>Izin dibutuhkan untuk mendapatkan foto untuk absen dan laporan anda</string>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>appTrackingTransparency</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
-	<key>UIBackgroundModes</key>
-	<array>
-		<string>audio</string>
-		<string>location</string>
-	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -69,6 +64,6 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>kTCCServiceMediaLibrary</key>
-	<string>media</string>
+	<string>Izin media dibutuhkan untuk mengunggah file</string>
 </dict>
 </plist>
