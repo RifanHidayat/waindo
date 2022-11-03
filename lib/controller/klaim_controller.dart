@@ -227,20 +227,6 @@ class KlaimController extends GetxController {
     this.selectedDropdownType.refresh();
   }
 
-  void changeTotalKlaim(value) {
-    var check1 = totalKlaim.value.text;
-    if ('${check1[0]}${check1[1]}' == "Rp") {
-      var cv1 = value.replaceAll('Rp', '');
-      var cv2 = cv1.replaceAll('.', '');
-      int cv3 = int.parse(cv2);
-      var rupiah = convertToIdr(cv3, 0);
-      totalKlaim.value.text = rupiah;
-    } else {
-      var rupiah = convertToIdr(int.parse(value), 0);
-      totalKlaim.value.text = rupiah;
-    }
-  }
-
   String convertToIdr(dynamic number, int decimalDigit) {
     NumberFormat currencyFormatter = NumberFormat.currency(
       locale: 'id',

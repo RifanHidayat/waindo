@@ -78,6 +78,7 @@ dependencies:
   flutter_html: ^2.2.1
   flutter_foreground_task: ^3.10.0
   location: ^4.2.0
+  currency_text_input_formatter: ^2.1.8
   
 
 

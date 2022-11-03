@@ -389,13 +389,16 @@ class Aktifitas extends StatelessWidget {
                           var array = filter.split('-');
                           var bulan = array[1];
                           var tahun = array[0];
+                          controller.stringBulan.value =
+                              "${DateFormat('MMMM').format(time)}";
                           controller.bulanSelectedSearchHistory.value = bulan;
                           controller.tahunSelectedSearchHistory.value = tahun;
                           controller.bulanDanTahunNow.value = "$bulan-$tahun";
                           this.controller.bulanSelectedSearchHistory.refresh();
                           this.controller.tahunSelectedSearchHistory.refresh();
                           this.controller.bulanDanTahunNow.refresh();
-                          // controller.loadDataTugasLuar();
+                          this.controller.stringBulan.refresh();
+                          controller.getInformasiAktivitas();
                         }
                       },
                     );
@@ -473,7 +476,7 @@ class Aktifitas extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(jumlah),
+                          Text("$jumlah"),
                           SizedBox(
                             height: 5,
                           ),
@@ -504,25 +507,29 @@ class Aktifitas extends StatelessWidget {
                 CircularPercentIndicator(
                   radius: 30.0,
                   lineWidth: 4.0,
-                  percent: 0.80,
-                  center: new Text("80%"),
+                  percent: controller.persenAbsenTelat.value,
+                  center:
+                      Text("${controller.stringPersenAbsenTepatWaktu.value}"),
                   progressColor: Color(0xff14B156),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(left: 18),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Absen tepat waktu",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 16),
-                      ),
-                      Text(
-                        "Dari 1 Oktober sd 30 Oktober 2022",
-                        style: TextStyle(color: Constanst.colorText2),
-                      )
-                    ],
+                Flexible(
+                  flex: 3,
+                  child: Padding(
+                    padding: EdgeInsets.only(left: 18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Absen tepat waktu",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        Text(
+                          "Dari ${controller.firstDayMonth.value} ${controller.stringBulan.value} sd ${controller.lastDayMonth.value} ${controller.stringBulan.value} ${controller.tahunSelectedSearchHistory.value}",
+                          style: TextStyle(color: Constanst.colorText2),
+                        )
+                      ],
+                    ),
                   ),
                 )
               ],
