@@ -1,4 +1,4 @@
-package com.example.siscom_operasional
+package com.siscom.siscomhris
 
 import io.flutter.embedding.android.FlutterActivity
 

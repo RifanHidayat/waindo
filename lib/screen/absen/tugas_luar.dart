@@ -329,7 +329,7 @@ class _TugasLuarState extends State<TugasLuar> {
             var namaType = controller.dataTypeAjuan[index]['nama'];
             var status = controller.dataTypeAjuan[index]['status'];
             return InkWell(
-              highlightColor: Constanst.colorButton2,
+              highlightColor: Constanst.colorPrimary,
               onTap: () => controller.changeTypeAjuan(
                   controller.dataTypeAjuan.value[index]['nama']),
               child: Container(
@@ -337,7 +337,7 @@ class _TugasLuarState extends State<TugasLuar> {
                 margin: EdgeInsets.only(left: 5, right: 5),
                 decoration: BoxDecoration(
                   color: status == true
-                      ? Constanst.colorButton2
+                      ? Constanst.colorPrimary
                       : Constanst.colorNonAktif,
                   borderRadius: Constanst.borderStyle1,
                 ),
@@ -350,7 +350,7 @@ class _TugasLuarState extends State<TugasLuar> {
                               Iconsax.tick_square,
                               size: 14,
                               color: status == true
-                                  ? Constanst.colorPrimary
+                                  ? Colors.white
                                   : Constanst.colorText2,
                             )
                           : namaType == "Approve 1"
@@ -358,7 +358,7 @@ class _TugasLuarState extends State<TugasLuar> {
                                   Iconsax.tick_square,
                                   size: 14,
                                   color: status == true
-                                      ? Constanst.colorPrimary
+                                      ? Colors.white
                                       : Constanst.colorText2,
                                 )
                               : namaType == "Approve 2"
@@ -366,7 +366,7 @@ class _TugasLuarState extends State<TugasLuar> {
                                       Iconsax.tick_square,
                                       size: 14,
                                       color: status == true
-                                          ? Constanst.colorPrimary
+                                          ? Colors.white
                                           : Constanst.colorText2,
                                     )
                                   : namaType == "Rejected"
@@ -374,7 +374,7 @@ class _TugasLuarState extends State<TugasLuar> {
                                           Iconsax.close_square,
                                           size: 14,
                                           color: status == true
-                                              ? Constanst.colorPrimary
+                                              ? Colors.white
                                               : Constanst.colorText2,
                                         )
                                       : namaType == "Pending"
@@ -382,7 +382,7 @@ class _TugasLuarState extends State<TugasLuar> {
                                               Iconsax.timer,
                                               size: 14,
                                               color: status == true
-                                                  ? Constanst.colorPrimary
+                                                  ? Colors.white
                                                   : Constanst.colorText2,
                                             )
                                           : SizedBox(),
@@ -393,7 +393,7 @@ class _TugasLuarState extends State<TugasLuar> {
                           style: TextStyle(
                               fontSize: 12,
                               color: status == true
-                                  ? Constanst.colorPrimary
+                                  ? Colors.white
                                   : Constanst.colorText2,
                               fontWeight: FontWeight.bold),
                         ),
@@ -500,7 +500,14 @@ class _TugasLuarState extends State<TugasLuar> {
           var approveDate =
               controller.listTugasLuar.value[index]['approve_date'];
           var uraian = controller.listTugasLuar.value[index]['uraian'];
-          var approve = controller.listTugasLuar.value[index]['approve_by'];
+          var approve;
+          if (controller.listTugasLuar.value[index]['approve2_by'] == "" ||
+              controller.listTugasLuar.value[index]['approve2_by'] == "null" ||
+              controller.listTugasLuar.value[index]['approve2_by'] == null) {
+            approve = controller.listTugasLuar.value[index]['approve_by'];
+          } else {
+            approve = controller.listTugasLuar.value[index]['approve2_by'];
+          }
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -533,7 +540,7 @@ class _TugasLuarState extends State<TugasLuar> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Expanded(
-                            flex: 70,
+                            flex: 60,
                             child: Padding(
                               padding: const EdgeInsets.only(top: 5),
                               child: Text(
@@ -544,7 +551,7 @@ class _TugasLuarState extends State<TugasLuar> {
                             ),
                           ),
                           Expanded(
-                            flex: 30,
+                            flex: 40,
                             child: Container(
                               margin: EdgeInsets.only(right: 8),
                               decoration: BoxDecoration(
@@ -672,10 +679,25 @@ class _TugasLuarState extends State<TugasLuar> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    "Alasan Reject",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Icon(
+                                        Iconsax.close_circle,
+                                        color: Colors.red,
+                                      ),
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.only(left: 5, top: 3),
+                                        child: Text("Rejected by $approve"),
+                                      ),
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.only(left: 5, top: 3),
+                                        child: Text(""),
+                                      )
+                                    ],
                                   ),
                                   SizedBox(
                                     height: 6,
@@ -872,11 +894,14 @@ class _TugasLuarState extends State<TugasLuar> {
                     ? "Approve 2"
                     : controller.listDinasLuar.value[index]['leave_status'];
           }
-          var approve_by = controllerGlobal.valuePolaPersetujuan.value == "1"
-              ? controller.listDinasLuar.value[index]['apply_by']
-              : controller.listDinasLuar.value[index]['apply2_by'] == ""
-                  ? controller.listDinasLuar.value[index]['apply_by']
-                  : controller.listDinasLuar.value[index]['apply2_by'];
+          var approve_by;
+          if (controller.listDinasLuar.value[index]['apply2_by'] == "" ||
+              controller.listDinasLuar.value[index]['apply2_by'] == "null" ||
+              controller.listDinasLuar.value[index]['apply2_by'] == null) {
+            approve_by = controller.listDinasLuar.value[index]['apply_by'];
+          } else {
+            approve_by = controller.listDinasLuar.value[index]['apply2_by'];
+          }
 
           return InkWell(
             onTap: () => controller
@@ -1038,10 +1063,26 @@ class _TugasLuarState extends State<TugasLuar> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      "Alasan Reject by $approve_by",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Icon(
+                                          Iconsax.close_circle,
+                                          color: Colors.red,
+                                        ),
+                                        Padding(
+                                          padding:
+                                              EdgeInsets.only(left: 5, top: 3),
+                                          child:
+                                              Text("Rejected by $approve_by"),
+                                        ),
+                                        Padding(
+                                          padding:
+                                              EdgeInsets.only(left: 5, top: 3),
+                                          child: Text(""),
+                                        )
+                                      ],
                                     ),
                                     SizedBox(
                                       height: 6,

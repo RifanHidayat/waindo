@@ -173,73 +173,82 @@ class Informasi extends StatelessWidget {
   }
 
   Widget screenInformasi() {
-    return ListView.builder(
-        itemCount: controller.informasiDashboard.value.length,
-        physics: BouncingScrollPhysics(),
-        scrollDirection: Axis.vertical,
-        itemBuilder: (context, index) {
-          var title = controller.informasiDashboard.value[index]['title'];
-          var desc = controller.informasiDashboard.value[index]['description'];
-          var create = controller.informasiDashboard.value[index]['created_on'];
-          return Padding(
-            padding: EdgeInsets.only(left: 8, right: 8, top: 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Row(
+    return controller.informasiDashboard.value.isEmpty
+        ? Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text("Tidak ada Informasi"),
+            ),
+          )
+        : ListView.builder(
+            itemCount: controller.informasiDashboard.value.length,
+            physics: BouncingScrollPhysics(),
+            scrollDirection: Axis.vertical,
+            itemBuilder: (context, index) {
+              var title = controller.informasiDashboard.value[index]['title'];
+              var desc =
+                  controller.informasiDashboard.value[index]['description'];
+              var create =
+                  controller.informasiDashboard.value[index]['created_on'];
+              return Padding(
+                padding: EdgeInsets.only(left: 8, right: 8, top: 0),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Expanded(
-                      flex: 50,
-                      child: Text(
-                        "$title",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            color: Constanst.colorText3),
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 50,
+                          child: Text(
+                            "$title",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                color: Constanst.colorText3),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 50,
+                          child: Text(
+                            Constanst.convertDate("$create"),
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                color: Constanst.colorText2),
+                          ),
+                        )
+                      ],
                     ),
-                    Expanded(
-                      flex: 50,
-                      child: Text(
-                        Constanst.convertDate("$create"),
-                        textAlign: TextAlign.right,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            color: Constanst.colorText2),
-                      ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Html(
+                      data: desc,
+                      style: {
+                        "body": Style(
+                          fontSize: FontSize(14),
+                          color: Constanst.colorText2,
+                        ),
+                      },
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Divider(
+                      height: 5,
+                      color: Constanst.colorNonAktif,
+                    ),
+                    SizedBox(
+                      height: 8,
                     )
                   ],
                 ),
-                SizedBox(
-                  height: 8,
-                ),
-                Html(
-                  data: desc,
-                  style: {
-                    "body": Style(
-                      fontSize: FontSize(14),
-                      color: Constanst.colorText2,
-                    ),
-                  },
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Divider(
-                  height: 5,
-                  color: Constanst.colorNonAktif,
-                ),
-                SizedBox(
-                  height: 8,
-                )
-              ],
-            ),
-          );
-        });
+              );
+            });
   }
 
   Widget screenUltah() {

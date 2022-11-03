@@ -309,7 +309,7 @@ class _TidakMasukKerjaState extends State<TidakMasukKerja> {
             var namaType = controller.dataTypeAjuan[index]['nama'];
             var status = controller.dataTypeAjuan[index]['status'];
             return InkWell(
-              highlightColor: Constanst.colorButton2,
+              highlightColor: Constanst.colorPrimary,
               onTap: () => controller.changeTypeAjuan(
                   controller.dataTypeAjuan.value[index]['nama']),
               child: Container(
@@ -317,7 +317,7 @@ class _TidakMasukKerjaState extends State<TidakMasukKerja> {
                 margin: EdgeInsets.only(left: 5, right: 5),
                 decoration: BoxDecoration(
                   color: status == true
-                      ? Constanst.colorButton2
+                      ? Constanst.colorPrimary
                       : Constanst.colorNonAktif,
                   borderRadius: Constanst.borderStyle1,
                 ),
@@ -330,7 +330,7 @@ class _TidakMasukKerjaState extends State<TidakMasukKerja> {
                               Iconsax.tick_square,
                               size: 14,
                               color: status == true
-                                  ? Constanst.colorPrimary
+                                  ? Colors.white
                                   : Constanst.colorText2,
                             )
                           : namaType == "Approve 1"
@@ -338,7 +338,7 @@ class _TidakMasukKerjaState extends State<TidakMasukKerja> {
                                   Iconsax.tick_square,
                                   size: 14,
                                   color: status == true
-                                      ? Constanst.colorPrimary
+                                      ? Colors.white
                                       : Constanst.colorText2,
                                 )
                               : namaType == "Approve 2"
@@ -346,7 +346,7 @@ class _TidakMasukKerjaState extends State<TidakMasukKerja> {
                                       Iconsax.tick_square,
                                       size: 14,
                                       color: status == true
-                                          ? Constanst.colorPrimary
+                                          ? Colors.white
                                           : Constanst.colorText2,
                                     )
                                   : namaType == "Rejected"
@@ -354,7 +354,7 @@ class _TidakMasukKerjaState extends State<TidakMasukKerja> {
                                           Iconsax.close_square,
                                           size: 14,
                                           color: status == true
-                                              ? Constanst.colorPrimary
+                                              ? Colors.white
                                               : Constanst.colorText2,
                                         )
                                       : namaType == "Pending"
@@ -362,7 +362,7 @@ class _TidakMasukKerjaState extends State<TidakMasukKerja> {
                                               Iconsax.timer,
                                               size: 14,
                                               color: status == true
-                                                  ? Constanst.colorPrimary
+                                                  ? Colors.white
                                                   : Constanst.colorText2,
                                             )
                                           : SizedBox(),
@@ -373,7 +373,7 @@ class _TidakMasukKerjaState extends State<TidakMasukKerja> {
                           style: TextStyle(
                               fontSize: 12,
                               color: status == true
-                                  ? Constanst.colorPrimary
+                                  ? Colors.white
                                   : Constanst.colorText2,
                               fontWeight: FontWeight.bold),
                         ),
@@ -479,11 +479,14 @@ class _TidakMasukKerjaState extends State<TidakMasukKerja> {
                     ? "Approve 2"
                     : controller.listHistoryAjuan.value[index]['leave_status'];
           }
-          var approve_by = controllerGlobal.valuePolaPersetujuan.value == "1"
-              ? controller.listHistoryAjuan.value[index]['apply_by']
-              : controller.listHistoryAjuan.value[index]['apply2_by'] == ""
-                  ? controller.listHistoryAjuan.value[index]['apply_by']
-                  : controller.listHistoryAjuan.value[index]['apply2_by'];
+          var approve_by;
+          if (controller.listHistoryAjuan.value[index]['apply2_by'] == "" ||
+              controller.listHistoryAjuan.value[index]['apply2_by'] == "null" ||
+              controller.listHistoryAjuan.value[index]['apply2_by'] == null) {
+            approve_by = controller.listHistoryAjuan.value[index]['apply_by'];
+          } else {
+            approve_by = controller.listHistoryAjuan.value[index]['apply2_by'];
+          }
 
           return InkWell(
             onTap: () => controller
@@ -645,10 +648,26 @@ class _TidakMasukKerjaState extends State<TidakMasukKerja> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      "Alasan Reject by $approve_by",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Icon(
+                                          Iconsax.close_circle,
+                                          color: Colors.red,
+                                        ),
+                                        Padding(
+                                          padding:
+                                              EdgeInsets.only(left: 5, top: 3),
+                                          child:
+                                              Text("Rejected by $approve_by"),
+                                        ),
+                                        Padding(
+                                          padding:
+                                              EdgeInsets.only(left: 5, top: 3),
+                                          child: Text(""),
+                                        )
+                                      ],
                                     ),
                                     SizedBox(
                                       height: 6,

@@ -111,40 +111,49 @@ class _DashboardState extends State<Dashboard> {
                               SizedBox(
                                 height: 8,
                               ),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                      flex: 70,
-                                      child: Text(
-                                        "Informasi",
-                                        style: TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.bold,
-                                            color: Constanst.colorText3),
-                                      )),
-                                  Expanded(
-                                      flex: 30,
-                                      child: InkWell(
-                                        onTap: () => Get.offAll(Informasi()),
-                                        child: Padding(
-                                          padding:
-                                              const EdgeInsets.only(top: 6.0),
-                                          child: Text(
-                                            "Lihat semua",
-                                            textAlign: TextAlign.end,
-                                            style: TextStyle(
-                                                fontSize: 12,
-                                                color: Constanst.colorPrimary),
-                                          ),
-                                        ),
-                                      ))
-                                ],
-                              ),
-                              SizedBox(
-                                height: 16,
-                              ),
-                              listInformasi(),
+                              controller.informasiDashboard.value.isEmpty
+                                  ? SizedBox()
+                                  : Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                            flex: 70,
+                                            child: Text(
+                                              "Informasi",
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Constanst.colorText3),
+                                            )),
+                                        Expanded(
+                                            flex: 30,
+                                            child: InkWell(
+                                              onTap: () =>
+                                                  Get.offAll(Informasi()),
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 6.0),
+                                                child: Text(
+                                                  "Lihat semua",
+                                                  textAlign: TextAlign.end,
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Constanst
+                                                          .colorPrimary),
+                                                ),
+                                              ),
+                                            ))
+                                      ],
+                                    ),
+                              controller.informasiDashboard.value.isEmpty
+                                  ? SizedBox()
+                                  : SizedBox(
+                                      height: 16,
+                                    ),
+                              controller.informasiDashboard.value.isEmpty
+                                  ? SizedBox()
+                                  : listInformasi(),
                               SizedBox(
                                 height: 8,
                               ),
@@ -898,77 +907,86 @@ class _DashboardState extends State<Dashboard> {
   }
 
   Widget listInformasi() {
-    return ListView.builder(
-        physics: NeverScrollableScrollPhysics(),
-        padding: EdgeInsets.zero,
-        itemCount: controller.informasiDashboard.value.length > 4
-            ? 4
-            : controller.informasiDashboard.value.length,
-        scrollDirection: Axis.vertical,
-        shrinkWrap: true,
-        itemBuilder: (context, index) {
-          var title = controller.informasiDashboard.value[index]['title'];
-          var desc = controller.informasiDashboard.value[index]['description'];
-          var create = controller.informasiDashboard.value[index]['created_on'];
-          return Padding(
-            padding: EdgeInsets.only(left: 8, right: 8, top: 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Row(
+    return controller.informasiDashboard.value.isEmpty
+        ? Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text("Tidak ada Informasi"),
+            ),
+          )
+        : ListView.builder(
+            physics: NeverScrollableScrollPhysics(),
+            padding: EdgeInsets.zero,
+            itemCount: controller.informasiDashboard.value.length > 4
+                ? 4
+                : controller.informasiDashboard.value.length,
+            scrollDirection: Axis.vertical,
+            shrinkWrap: true,
+            itemBuilder: (context, index) {
+              var title = controller.informasiDashboard.value[index]['title'];
+              var desc =
+                  controller.informasiDashboard.value[index]['description'];
+              var create =
+                  controller.informasiDashboard.value[index]['created_on'];
+              return Padding(
+                padding: EdgeInsets.only(left: 8, right: 8, top: 0),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Expanded(
-                      flex: 50,
-                      child: Text(
-                        "$title",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            color: Constanst.colorText3),
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 50,
+                          child: Text(
+                            "$title",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                color: Constanst.colorText3),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 50,
+                          child: Text(
+                            Constanst.convertDate("$create"),
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 12,
+                                color: Constanst.colorText2),
+                          ),
+                        )
+                      ],
                     ),
-                    Expanded(
-                      flex: 50,
-                      child: Text(
-                        Constanst.convertDate("$create"),
-                        textAlign: TextAlign.right,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            color: Constanst.colorText2),
-                      ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Html(
+                      data: desc,
+                      style: {
+                        "body": Style(
+                          fontSize: FontSize(14),
+                          color: Constanst.colorText2,
+                        ),
+                      },
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Divider(
+                      height: 5,
+                      color: Constanst.colorNonAktif,
+                    ),
+                    SizedBox(
+                      height: 8,
                     )
                   ],
                 ),
-                SizedBox(
-                  height: 8,
-                ),
-                Html(
-                  data: desc,
-                  style: {
-                    "body": Style(
-                      fontSize: FontSize(14),
-                      color: Constanst.colorText2,
-                    ),
-                  },
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Divider(
-                  height: 5,
-                  color: Constanst.colorNonAktif,
-                ),
-                SizedBox(
-                  height: 8,
-                )
-              ],
-            ),
-          );
-        });
+              );
+            });
   }
 
   Widget listEmployeeUltah() {

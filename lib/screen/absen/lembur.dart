@@ -252,7 +252,7 @@ class _LemburState extends State<Lembur> {
             var namaType = controller.dataTypeAjuan[index]['nama'];
             var status = controller.dataTypeAjuan[index]['status'];
             return InkWell(
-              highlightColor: Constanst.colorButton2,
+              highlightColor: Constanst.colorPrimary,
               onTap: () => controller.changeTypeAjuan(
                   controller.dataTypeAjuan.value[index]['nama']),
               child: Container(
@@ -260,7 +260,7 @@ class _LemburState extends State<Lembur> {
                 margin: EdgeInsets.only(left: 5, right: 5),
                 decoration: BoxDecoration(
                   color: status == true
-                      ? Constanst.colorButton2
+                      ? Constanst.colorPrimary
                       : Constanst.colorNonAktif,
                   borderRadius: Constanst.borderStyle1,
                 ),
@@ -273,7 +273,7 @@ class _LemburState extends State<Lembur> {
                               Iconsax.tick_square,
                               size: 14,
                               color: status == true
-                                  ? Constanst.colorPrimary
+                                  ? Colors.white
                                   : Constanst.colorText2,
                             )
                           : namaType == "Approve 1"
@@ -281,7 +281,7 @@ class _LemburState extends State<Lembur> {
                                   Iconsax.tick_square,
                                   size: 14,
                                   color: status == true
-                                      ? Constanst.colorPrimary
+                                      ? Colors.white
                                       : Constanst.colorText2,
                                 )
                               : namaType == "Approve 2"
@@ -289,7 +289,7 @@ class _LemburState extends State<Lembur> {
                                       Iconsax.tick_square,
                                       size: 14,
                                       color: status == true
-                                          ? Constanst.colorPrimary
+                                          ? Colors.white
                                           : Constanst.colorText2,
                                     )
                                   : namaType == "Rejected"
@@ -297,7 +297,7 @@ class _LemburState extends State<Lembur> {
                                           Iconsax.close_square,
                                           size: 14,
                                           color: status == true
-                                              ? Constanst.colorPrimary
+                                              ? Colors.white
                                               : Constanst.colorText2,
                                         )
                                       : namaType == "Pending"
@@ -305,7 +305,7 @@ class _LemburState extends State<Lembur> {
                                               Iconsax.timer,
                                               size: 14,
                                               color: status == true
-                                                  ? Constanst.colorPrimary
+                                                  ? Colors.white
                                                   : Constanst.colorText2,
                                             )
                                           : SizedBox(),
@@ -316,7 +316,7 @@ class _LemburState extends State<Lembur> {
                           style: TextStyle(
                               fontSize: 12,
                               color: status == true
-                                  ? Constanst.colorPrimary
+                                  ? Colors.white
                                   : Constanst.colorText2,
                               fontWeight: FontWeight.bold),
                         ),
@@ -421,7 +421,15 @@ class _LemburState extends State<Lembur> {
               controller.listLembur.value[index]['alasan_reject'];
           var approveDate = controller.listLembur.value[index]['approve_date'];
           var uraian = controller.listLembur.value[index]['uraian'];
-          var approve = controller.listLembur.value[index]['approve_by'];
+          var approve;
+          if (controller.listLembur.value[index]['approve2_by'] == "" ||
+              controller.listLembur.value[index]['approve2_by'] == "null" ||
+              controller.listLembur.value[index]['approve2_by'] == null) {
+            approve = controller.listLembur.value[index]['approve_by'];
+          } else {
+            approve = controller.listLembur.value[index]['approve2_by'];
+          }
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -454,7 +462,7 @@ class _LemburState extends State<Lembur> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Expanded(
-                            flex: 70,
+                            flex: 60,
                             child: Padding(
                               padding: const EdgeInsets.only(top: 5),
                               child: Text(
@@ -465,7 +473,7 @@ class _LemburState extends State<Lembur> {
                             ),
                           ),
                           Expanded(
-                            flex: 30,
+                            flex: 40,
                             child: Container(
                               margin: EdgeInsets.only(right: 8),
                               decoration: BoxDecoration(
@@ -593,10 +601,25 @@ class _LemburState extends State<Lembur> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    "Alasan Reject",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Icon(
+                                        Iconsax.close_circle,
+                                        color: Colors.red,
+                                      ),
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.only(left: 5, top: 3),
+                                        child: Text("Rejected by $approve"),
+                                      ),
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.only(left: 5, top: 3),
+                                        child: Text(""),
+                                      )
+                                    ],
                                   ),
                                   SizedBox(
                                     height: 6,

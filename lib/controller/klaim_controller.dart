@@ -1,8 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/screen/absen/form/berhasil_pengajuan.dart';
 import 'package:siscom_operasional/screen/absen/form/form_lembur.dart';
@@ -12,6 +15,7 @@ import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/custom_dialog.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class KlaimController extends GetxController {
   var nomorAjuan = TextEditingController().obs;
@@ -19,11 +23,12 @@ class KlaimController extends GetxController {
   var durasi = TextEditingController().obs;
   var catatan = TextEditingController().obs;
   var cari = TextEditingController().obs;
-  var namaklaim = TextEditingController().obs;
   var totalKlaim = TextEditingController().obs;
 
   Rx<List<String>> allTypeKlaim = Rx<List<String>>([]);
   Rx<List<String>> allEmployeeDelegasi = Rx<List<String>>([]);
+
+  var filePengajuan = File("").obs;
 
   var bulanSelectedSearchHistory = "".obs;
   var tahunSelectedSearchHistory = "".obs;
@@ -35,15 +40,17 @@ class KlaimController extends GetxController {
   var valuePolaPersetujuan = "".obs;
   var tanggalTerpilih = "".obs;
   var tanggalShow = "".obs;
+  var namaFileUpload = "".obs;
   var loadingString = "Sedang Memuat...".obs;
 
   var statusForm = false.obs;
   var directStatus = false.obs;
   var showButtonlaporan = false.obs;
   var statusCari = false.obs;
+  var uploadFile = false.obs;
 
-  var listLembur = [].obs;
-  var listLemburAll = [].obs;
+  var listKlaim = [].obs;
+  var listKlaimAll = [].obs;
   var allEmployee = [].obs;
   var allType = [].obs;
   var dataTypeAjuan = [].obs;
@@ -66,7 +73,7 @@ class KlaimController extends GetxController {
     getTimeNow();
     getLoadsysData();
     getTypeKlaim();
-    // loadDataLembur();
+    loadDataKlaim();
     loadAllEmployeeDelegasi();
     getDepartemen(1, "");
   }
@@ -193,6 +200,7 @@ class KlaimController extends GetxController {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
         var data = valueBody['data'];
+        print(data);
         for (var element in data) {
           allTypeKlaim.value.add("${element['name']}");
           var data = {
@@ -208,6 +216,15 @@ class KlaimController extends GetxController {
         }
       }
     });
+  }
+
+  void checkTypeEdit(id) {
+    for (var element in allType.value) {
+      if ("${element['type_id']}" == "$id") {
+        selectedDropdownType.value = element['name'];
+      }
+    }
+    this.selectedDropdownType.refresh();
   }
 
   void changeTotalKlaim(value) {
@@ -233,43 +250,38 @@ class KlaimController extends GetxController {
     return currencyFormatter.format(number);
   }
 
-  // void loadDataLembur() {
-  //   listLemburAll.value.clear();
-  //   listLembur.value.clear();
-  //   var dataUser = AppData.informasiUser;
-  //   var getEmid = dataUser![0].em_id;
-  //   Map<String, dynamic> body = {
-  //     'em_id': getEmid,
-  //     'bulan': bulanSelectedSearchHistory.value,
-  //     'tahun': tahunSelectedSearchHistory.value,
-  //   };
-  //   var connect = Api.connectionApi("post", body, "history-emp_labor");
-  //   connect.then((dynamic res) {
-  //     if (res.statusCode == 200) {
-  //       var valueBody = jsonDecode(res.body);
-  //       if (valueBody['status'] == false) {
-  //         loadingString.value = "Tidak ada pengajuan";
-  //         this.loadingString.refresh();
-  //       } else {
-  //         for (var element in valueBody['data']) {
-  //           if (element['ajuan'] == 1) {
-  //             listLembur.value.add(element);
-  //             listLemburAll.value.add(element);
-  //           }
-  //         }
-  //         if (listLembur.value.length == 0) {
-  //           loadingString.value = "Tidak ada pengajuan";
-  //         } else {
-  //           loadingString.value = "Sedang Memuat...";
-  //         }
-
-  //         this.listLembur.refresh();
-  //         this.listLemburAll.refresh();
-  //         this.loadingString.refresh();
-  //       }
-  //     }
-  //   });
-  // }
+  void loadDataKlaim() {
+    listKlaimAll.value.clear();
+    listKlaim.value.clear();
+    var dataUser = AppData.informasiUser;
+    var getEmid = dataUser![0].em_id;
+    Map<String, dynamic> body = {
+      'em_id': getEmid,
+      'bulan': bulanSelectedSearchHistory.value,
+      'tahun': tahunSelectedSearchHistory.value,
+    };
+    var connect = Api.connectionApi("post", body, "history-emp_claim");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == false) {
+          loadingString.value = "Tidak ada pengajuan";
+          this.loadingString.refresh();
+        } else {
+          listKlaim.value = valueBody['data'];
+          listKlaimAll.value = valueBody['data'];
+          if (listKlaim.value.length == 0) {
+            loadingString.value = "Tidak ada pengajuan";
+          } else {
+            loadingString.value = "Sedang Memuat...";
+          }
+          this.listKlaim.refresh();
+          this.listKlaimAll.refresh();
+          this.loadingString.refresh();
+        }
+      }
+    });
+  }
 
   void loadAllEmployeeDelegasi() {
     allEmployeeDelegasi.value.clear();
@@ -314,52 +326,90 @@ class KlaimController extends GetxController {
     });
   }
 
-  void validasiKirimPengajuan() {
-    if (tanggalKlaim.value.text == "" || catatan.value.text == "") {
-      print(initialDate.value);
+  void takeFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null) {
+      PlatformFile file = result.files.first;
+      if (file.size > 5000000) {
+        UtilsAlert.showToast("Maaf file terlalu besar...Max 5MB");
+      } else {
+        namaFileUpload.value = "${file.name}";
+        filePengajuan.value = await saveFilePermanently(file);
+        uploadFile.value = true;
+        this.namaFileUpload.refresh();
+        this.filePengajuan.refresh();
+        this.uploadFile.refresh();
+      }
+    } else {
+      UtilsAlert.showToast("Gagal mengambil file");
+    }
+  }
+
+  Future<File> saveFilePermanently(PlatformFile file) async {
+    final appStorage = await getApplicationDocumentsDirectory();
+    final newFile = File('${appStorage.path}/${file.name}');
+    return File(file.path!).copy(newFile.path);
+  }
+
+  void validasiKirimPengajuan() async {
+    if (tanggalKlaim.value.text == "" ||
+        catatan.value.text == "" ||
+        tanggalTerpilih.value == "") {
       UtilsAlert.showToast("Lengkapi form *");
     } else {
-      if (statusForm.value == false) {
-        UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan");
-        checkNomorAjuan();
+      if (uploadFile.value == true) {
+        UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan File");
+        var connectUpload = await Api.connectionApiUploadFile(
+            "upload_form_klaim", filePengajuan.value);
+        var valueBody = jsonDecode(connectUpload);
+        if (valueBody['status'] == true) {
+          UtilsAlert.showToast("Berhasil upload file");
+          Navigator.pop(Get.context!);
+          if (statusForm.value == false) {
+            UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan");
+            checkNomorAjuan(statusForm.value);
+          } else {
+            UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan");
+            kirimPengajuan(nomorAjuan.value.text);
+          }
+        } else {
+          UtilsAlert.showToast("Gagal kirim file");
+        }
       } else {
-        UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan");
-        kirimPengajuan(nomorAjuan.value.text);
+        if (statusForm.value == false) {
+          UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan");
+          checkNomorAjuan(statusForm.value);
+        } else {
+          UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan");
+          kirimPengajuan(nomorAjuan.value.text);
+        }
       }
     }
   }
 
-  void checkNomorAjuan() {
-    var listTanggal = tanggalKlaim.value.text.split(',');
-    var getTanggal = listTanggal[1].replaceAll(' ', '');
-    var tanggalKlaimEditData = Constanst.convertDateSimpan(getTanggal);
-    var polaFormat = DateFormat('yyyy-MM-dd');
-    var tanggalPengajuanInsert = polaFormat.format(initialDate.value);
-    var finalTanggalPengajuan = statusForm.value == false
-        ? tanggalPengajuanInsert
-        : tanggalKlaimEditData;
-
+  void checkNomorAjuan(value) {
+    var finalTanggalPengajuan = tanggalKlaim.value.text;
     Map<String, dynamic> body = {
       'atten_date': finalTanggalPengajuan,
-      'pola': 'LB'
+      'pola': 'KL'
     };
-    var connect = Api.connectionApi("post", body, "emp_labor_lastrow");
+    var connect = Api.connectionApi("post", body, "emp_klaim_lastrow");
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
         if (valueBody['status'] == true) {
           var data = valueBody['data'];
-          print(data);
           if (valueBody['data'].length == 0) {
             var now = DateTime.now();
             var convertBulan = now.month <= 9 ? "0${now.month}" : now.month;
-            var finalNomor = "LB${now.year}${convertBulan}0001";
+            var finalNomor = "KL${now.year}${convertBulan}0001";
             kirimPengajuan(finalNomor);
           } else {
             var getNomorAjuanTerakhir = valueBody['data'][0]['nomor_ajuan'];
-            var keyNomor = getNomorAjuanTerakhir.replaceAll("LB", '');
+            var keyNomor = getNomorAjuanTerakhir.replaceAll("KL", '');
             var hasilTambah = int.parse(keyNomor) + 1;
-            var finalNomor = "LB$hasilTambah";
+            var finalNomor = "KL$hasilTambah";
             kirimPengajuan(finalNomor);
           }
         } else {
@@ -372,66 +422,67 @@ class KlaimController extends GetxController {
 
   void checkNomorAjuanDalamAntrian(nomorAjuanTerakhirDalamAntrian) {
     var getNomorAjuanTerakhir = nomorAjuanTerakhirDalamAntrian;
-    var keyNomor = getNomorAjuanTerakhir.replaceAll("LB", '');
+    var keyNomor = getNomorAjuanTerakhir.replaceAll("KL", '');
     var hasilTambah = int.parse(keyNomor) + 1;
-    var finalNomor = "LB$hasilTambah";
+    var finalNomor = "KL$hasilTambah";
     kirimPengajuan(finalNomor);
   }
 
   void kirimPengajuan(getNomorAjuanTerakhir) {
-    var listTanggal = tanggalKlaim.value.text.split(',');
-    var getTanggal = listTanggal[1].replaceAll(' ', '');
-    var tanggalKlaimEditData = Constanst.convertDateSimpan(getTanggal);
+    // data employee
     var dataUser = AppData.informasiUser;
     var getEmid = dataUser![0].em_id;
     var getFullName = dataUser[0].full_name;
-    var validasiDelegasiSelected = validasiSelectedDelegasi();
-    var polaFormat = DateFormat('yyyy-MM-dd');
-    var tanggalPengajuanInsert = polaFormat.format(initialDate.value);
-    var finalTanggalPengajuan = statusForm.value == false
-        ? tanggalPengajuanInsert
-        : tanggalKlaimEditData;
-    // var hasilDurasi = hitungDurasi();
+    // cari type klaim
+    var idSelectedType = cariTypeSelected();
+    // filter total klaim
+    var cv1 = totalKlaim.value.text.replaceAll('Rp', '');
+    var cv2 = cv1.replaceAll('.', '');
+    int cv3 = int.parse(cv2);
+    // variabel upload file
+    var nameFile;
+    if (idpengajuanKlaim == "") {
+      nameFile = uploadFile.value == true ? namaFileUpload.value : "";
+    } else {
+      nameFile = namaFileUpload.value;
+    }
+
     Map<String, dynamic> body = {
       'em_id': getEmid,
       'nomor_ajuan': getNomorAjuanTerakhir,
-      // 'durasi': hasilDurasi,
-      'atten_date': finalTanggalPengajuan,
+      'tgl_ajuan': tanggalTerpilih.value,
+      'cost_id': idSelectedType,
+      'description': catatan.value.text,
+      'total_claim': '$cv3',
       'status': 'PENDING',
-      'approve_date': '',
-      'em_delegation': validasiDelegasiSelected,
-      'uraian': catatan.value.text,
-      'ajuan': '1',
+      'nama_file': nameFile,
+      'created_on': "${DateTime.now()}",
+      'atten_date': tanggalKlaim.value.text,
       'created_by': getEmid,
-      'menu_name': 'Lembur'
+      'menu_name': 'Klaim'
     };
     if (statusForm.value == false) {
-      print("sampe sini input");
       body['activity_name'] =
-          "Membuat Pengajuan Lembur. alasan = ${catatan.value.text}";
-      var connect = Api.connectionApi("post", body, "insert-emp_labor");
+          "Membuat Pengajuan Klaim. alasan = ${catatan.value.text}";
+      var connect = Api.connectionApi("post", body, "insert-emp_claim");
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
           if (valueBody['status'] == true) {
-            // var stringWaktu =
-            //     "${dariJam.value.text} sd ${sampaiJam.value.text}";
-            // kirimNotifikasiToDelegasi(getFullName, finalTanggalPengajuan,
-            //     validasiDelegasiSelected, stringWaktu);
-            // kirimNotifikasiToReportTo(getFullName, finalTanggalPengajuan,
-            //     getEmid, "Lembur", stringWaktu);
-            // Navigator.pop(Get.context!);
-            // var pesan1 = "Pengajuan lembur berhasil dibuat";
-            // var pesan2 =
-            //     "Selanjutnya silahkan menunggu atasan kamu untuk menyetujui pengajuan yang telah dibuat atau langsung";
-            // var pesan3 = "konfirmasi via WhatsApp";
-            // var dataPengajuan = {
-            //   'nameType': 'LEMBUR',
-            //   'nomor_ajuan': '${getNomorAjuanTerakhir}',
-            // };
-            // Get.offAll(BerhasilPengajuan(
-            //   dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
-            // ));
+            kirimNotifikasiToReportTo(
+                getFullName, tanggalKlaim.value.text, getEmid, "Klaim");
+            Navigator.pop(Get.context!);
+            var pesan1 = "Pengajuan klaim berhasil dibuat";
+            var pesan2 =
+                "Selanjutnya silahkan menunggu atasan kamu untuk menyetujui pengajuan yang telah dibuat atau langsung";
+            var pesan3 = "konfirmasi via WhatsApp";
+            var dataPengajuan = {
+              'nameType': 'KLAIM',
+              'nomor_ajuan': '${getNomorAjuanTerakhir}',
+            };
+            Get.offAll(BerhasilPengajuan(
+              dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
+            ));
           } else {
             if (valueBody['message'] == "ulang") {
               var nomorAjuanTerakhirDalamAntrian =
@@ -440,7 +491,7 @@ class KlaimController extends GetxController {
             } else {
               Navigator.pop(Get.context!);
               UtilsAlert.showToast(
-                  "Data periode $finalTanggalPengajuan belum tersedia, harap hubungi HRD");
+                  "Data periode ${tanggalKlaim.value.text} belum tersedia, harap hubungi HRD");
             }
           }
         }
@@ -449,17 +500,17 @@ class KlaimController extends GetxController {
       body['val'] = "id";
       body['cari'] = idpengajuanKlaim.value;
       body['activity_name'] =
-          "Edit Pengajuan Lembur. Tanggal Pengajuan = $finalTanggalPengajuan";
-      var connect = Api.connectionApi("post", body, "edit-emp_labor");
+          "Edit Pengajuan Klaim. Tanggal Pengajuan = ${tanggalKlaim.value.text}";
+      var connect = Api.connectionApi("post", body, "edit-emp_claim");
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
           Navigator.pop(Get.context!);
-          var pesan1 = "Pengajuan lembur berhasil di edit";
+          var pesan1 = "Pengajuan klaim berhasil di edit";
           var pesan2 =
               "Selanjutnya silahkan menunggu atasan kamu untuk menyetujui pengajuan yang telah dibuat atau langsung";
           var pesan3 = "konfirmasi via WhatsApp";
           var dataPengajuan = {
-            'nameType': 'LEMBUR',
+            'nameType': 'KLAIM',
             'nomor_ajuan': '${getNomorAjuanTerakhir}',
           };
           Get.offAll(BerhasilPengajuan(
@@ -489,7 +540,7 @@ class KlaimController extends GetxController {
     }
     this.dataTypeAjuan.refresh();
     var dataFilter = [];
-    listLemburAll.value.forEach((element) {
+    listKlaimAll.value.forEach((element) {
       if (name == "Semua") {
         dataFilter.add(element);
       } else {
@@ -498,8 +549,8 @@ class KlaimController extends GetxController {
         }
       }
     });
-    listLembur.value = dataFilter;
-    this.listLembur.refresh();
+    listKlaim.value = dataFilter;
+    this.listKlaim.refresh();
     if (dataFilter.isEmpty) {
       loadingString.value = "Tidak ada Pengajuan";
     } else {
@@ -509,16 +560,16 @@ class KlaimController extends GetxController {
 
   void cariData(value) {
     var textCari = value.toLowerCase();
-    var filter = listLemburAll.where((ajuan) {
+    var filter = listKlaimAll.where((ajuan) {
       var getAjuan = ajuan['nomor_ajuan'].toLowerCase();
       return getAjuan.contains(textCari);
     }).toList();
-    listLembur.value = filter;
+    listKlaim.value = filter;
     statusCari.value = true;
-    this.listLembur.refresh();
+    this.listKlaim.refresh();
     this.statusCari.refresh();
 
-    if (listLembur.value.isEmpty) {
+    if (listKlaim.value.isEmpty) {
       loadingString.value = "Tidak ada pengajuan";
     } else {
       loadingString.value = "Memuat data...";
@@ -526,38 +577,15 @@ class KlaimController extends GetxController {
     this.loadingString.refresh();
   }
 
-  void kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
-      validasiDelegasiSelected, stringWaktu) {
-    var dt = DateTime.now();
-    var jamSekarang = DateFormat('HH:mm:ss').format(dt);
-    Map<String, dynamic> body = {
-      'em_id': validasiDelegasiSelected,
-      'title': 'Delegasi Pengajuan Lembur',
-      'deskripsi':
-          'Anda mendapatkan delegasi pekerjaan dari $getFullName untuk Pengajuan Lembur, waktu pengajuan $stringWaktu',
-      'url': '',
-      'atten_date': convertTanggalBikinPengajuan,
-      'jam': jamSekarang,
-      'status': '2',
-      'view': '0',
-    };
-    var connect = Api.connectionApi("post", body, "insert-notifikasi");
-    connect.then((dynamic res) {
-      if (res.statusCode == 200) {
-        UtilsAlert.showToast("Berhasil kirim delegasi");
-      }
-    });
-  }
-
   void kirimNotifikasiToReportTo(
-      getFullName, convertTanggalBikinPengajuan, getEmid, type, stringWaktu) {
+      getFullName, convertTanggalBikinPengajuan, getEmid, type) {
     var dt = DateTime.now();
     var jamSekarang = DateFormat('HH:mm:ss').format(dt);
     Map<String, dynamic> body = {
       'emId_pengaju': getEmid,
       'title': 'Pengajuan Lembur',
       'deskripsi':
-          'Anda mendapatkan pengajuan $type dari $getFullName, waktu pengajuan $stringWaktu',
+          'Anda mendapatkan pengajuan $type dari $getFullName, waktu pengajuan $convertTanggalBikinPengajuan',
       'url': '',
       'atten_date': convertTanggalBikinPengajuan,
       'jam': jamSekarang,
@@ -572,26 +600,16 @@ class KlaimController extends GetxController {
     });
   }
 
-  String validasiSelectedDelegasi() {
+  String cariTypeSelected() {
     var result = [];
-    for (var element in allEmployee.value) {
-      var fullName = element['full_name'] ?? "";
-      var namaElement = "$fullName";
-      if (namaElement == selectedDropdownDelegasi.value) {
+    for (var element in allType.value) {
+      var nameType = element['name'] ?? "";
+      if (nameType == selectedDropdownType.value) {
         result.add(element);
       }
     }
-    return "${result[0]['em_id']}";
+    return "${result[0]['type_id']}";
   }
-
-  // String hitungDurasi() {
-  //   var format = DateFormat("HH:mm");
-  //   // var dari = format.parse("${dariJam.value.text}");
-  //   // var sampai = format.parse("${sampaiJam.value.text}");
-  //   // var hasil1 = "${sampai.difference(dari)}";
-  //   // var hasilAkhir = hasil1.replaceAll(':00.000000', '');
-  //   return "$hasilAkhir";
-  // }
 
   void showModalBatalPengajuan(index) {
     showModalBottomSheet(
@@ -642,7 +660,7 @@ class KlaimController extends GetxController {
                               child: Padding(
                                 padding: EdgeInsets.only(top: 6),
                                 child: Text(
-                                  "Batalkan Pengajuan Lembur",
+                                  "Batalkan Pengajuan Klaim",
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16),
@@ -729,23 +747,32 @@ class KlaimController extends GetxController {
     UtilsAlert.loadingSimpanData(Get.context!, "Batalkan Pengajuan");
     var dataUser = AppData.informasiUser;
     var getEmid = dataUser![0].em_id;
+    DateTime ftr1 = DateTime.parse(index["created_on"]);
+    var filterTanggal = "${DateFormat('yyyy-MM-dd').format(ftr1)}";
     Map<String, dynamic> body = {
-      'menu_name': 'Lembur',
+      'menu_name': 'Klaim',
       'activity_name':
-          'Membatalkan form pengajuan Lembur. Waktu Lembur = ${index["dari_jam"]} sd ${index["sampai_jam"]} Alasan Pengajuan = ${index["reason"]} Tanggal Pengajuan = ${index["atten_date"]}',
+          'Membatalkan form pengajuan Klaim. Alasan Pengajuan = ${index["reason"]} Tanggal Pengajuan = $filterTanggal',
       'created_by': '$getEmid',
       'val': 'id',
       'cari': '${index["id"]}',
-      'atten_date': '${index["atten_date"]}',
+      'atten_date': filterTanggal,
     };
-    var connect = Api.connectionApi("post", body, "delete-emp_labor");
+    var connect = Api.connectionApi("post", body, "delete-emp_claim");
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         Navigator.pop(Get.context!);
         Navigator.pop(Get.context!);
         UtilsAlert.showToast("Berhasil batalkan pengajuan");
-        onReady();
+        loadDataKlaim();
       }
     });
+  }
+
+  void viewLampiranAjuan(value) {
+    _launchURL() async => await canLaunch(Api.UrlfileKlaim + value)
+        ? await launch(Api.UrlfileKlaim + value)
+        : throw UtilsAlert.showToast('Tidak dapat membuka');
+    _launchURL();
   }
 }

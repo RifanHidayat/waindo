@@ -263,7 +263,7 @@ class _IzinState extends State<Izin> {
             var namaType = controller.dataTypeAjuan[index]['nama'];
             var status = controller.dataTypeAjuan[index]['status'];
             return InkWell(
-              highlightColor: Constanst.colorButton2,
+              highlightColor: Constanst.colorPrimary,
               onTap: () => controller.changeTypeAjuan(
                   controller.dataTypeAjuan.value[index]['nama']),
               child: Container(
@@ -271,7 +271,7 @@ class _IzinState extends State<Izin> {
                 margin: EdgeInsets.only(left: 5, right: 5),
                 decoration: BoxDecoration(
                   color: status == true
-                      ? Constanst.colorButton2
+                      ? Constanst.colorPrimary
                       : Constanst.colorNonAktif,
                   borderRadius: Constanst.borderStyle1,
                 ),
@@ -284,26 +284,42 @@ class _IzinState extends State<Izin> {
                               Iconsax.tick_square,
                               size: 14,
                               color: status == true
-                                  ? Constanst.colorPrimary
+                                  ? Colors.white
                                   : Constanst.colorText2,
                             )
-                          : namaType == "Rejected"
+                          : namaType == "Approve 1"
                               ? Icon(
-                                  Iconsax.close_square,
+                                  Iconsax.tick_square,
                                   size: 14,
                                   color: status == true
-                                      ? Constanst.colorPrimary
+                                      ? Colors.white
                                       : Constanst.colorText2,
                                 )
-                              : namaType == "Pending"
+                              : namaType == "Approve 2"
                                   ? Icon(
-                                      Iconsax.timer,
+                                      Iconsax.tick_square,
                                       size: 14,
                                       color: status == true
-                                          ? Constanst.colorPrimary
+                                          ? Colors.white
                                           : Constanst.colorText2,
                                     )
-                                  : SizedBox(),
+                                  : namaType == "Rejected"
+                                      ? Icon(
+                                          Iconsax.close_square,
+                                          size: 14,
+                                          color: status == true
+                                              ? Colors.white
+                                              : Constanst.colorText2,
+                                        )
+                                      : namaType == "Pending"
+                                          ? Icon(
+                                              Iconsax.timer,
+                                              size: 14,
+                                              color: status == true
+                                                  ? Colors.white
+                                                  : Constanst.colorText2,
+                                            )
+                                          : SizedBox(),
                       Padding(
                         padding: const EdgeInsets.only(left: 6, right: 6),
                         child: Text(
@@ -311,7 +327,7 @@ class _IzinState extends State<Izin> {
                           style: TextStyle(
                               fontSize: 12,
                               color: status == true
-                                  ? Constanst.colorPrimary
+                                  ? Colors.white
                                   : Constanst.colorText2,
                               fontWeight: FontWeight.bold),
                         ),
@@ -450,7 +466,7 @@ class _IzinState extends State<Izin> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Expanded(
-                            flex: 70,
+                            flex: 60,
                             child: Padding(
                               padding: const EdgeInsets.only(top: 5),
                               child: Text(
@@ -461,7 +477,7 @@ class _IzinState extends State<Izin> {
                             ),
                           ),
                           Expanded(
-                            flex: 30,
+                            flex: 40,
                             child: Container(
                               margin: EdgeInsets.only(right: 8),
                               decoration: BoxDecoration(

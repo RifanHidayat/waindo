@@ -23,6 +23,7 @@ import 'package:siscom_operasional/screen/absen/tugas_luar.dart';
 import 'package:siscom_operasional/screen/absen/form/form_pengajuan_cuti.dart';
 import 'package:siscom_operasional/screen/absen/riwayat_cuti.dart';
 import 'package:siscom_operasional/screen/absen/izin.dart';
+import 'package:siscom_operasional/screen/klaim/form_klaim.dart';
 import 'package:siscom_operasional/screen/klaim/riwayat_klaim.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
@@ -268,13 +269,16 @@ class DashboardController extends GetxController {
           var data = valueBody['data'];
           var filter1 = [];
           var dt = DateTime.now();
-          var convertDt = Constanst.convertDate1("$dt");
           for (var element in data) {
-            var getEndDate = Constanst.convertDate1("${element['end_date']}");
-            if (convertDt != getEndDate) {
+            DateTime dt2 = DateTime.parse("${element['end_date']}");
+            if (dt2.isBefore(dt)) {
+            } else {
               filter1.add(element);
             }
           }
+          filter1.sort((a, b) => b['begin_date']
+              .toUpperCase()
+              .compareTo(a['begin_date'].toUpperCase()));
           informasiDashboard.value = filter1;
           getEmployeeUltah(dt);
         }
@@ -491,7 +495,9 @@ class DashboardController extends GetxController {
     } else if (url == "Lembur") {
       Get.offAll(Lembur());
     } else if (url == "FormPengajuanCuti") {
-      Get.offAll(FormPengajuanCuti());
+      Get.to(FormPengajuanCuti(
+        dataForm: [[], false],
+      ));
     } else if (url == "RiwayatCuti") {
       Get.offAll(RiwayatCuti());
     } else if (url == "Izin") {
@@ -500,6 +506,10 @@ class DashboardController extends GetxController {
       Get.offAll(TugasLuar());
     } else if (url == "Klaim") {
       Get.offAll(Klaim());
+    } else if (url == "FormKlaim") {
+      Get.to(FormKlaim(
+        dataForm: [[], false],
+      ));
     } else if (url == "lainnya") {
       widgetButtomSheetMenuLebihDetail();
     } else {
@@ -522,6 +532,10 @@ class DashboardController extends GetxController {
       ));
     } else if (id == 4) {
       Get.to(FormTidakMasukKerja(
+        dataForm: [[], false],
+      ));
+    } else if (id == 5) {
+      Get.to(FormKlaim(
         dataForm: [[], false],
       ));
     } else {
@@ -588,7 +602,7 @@ class DashboardController extends GetxController {
                           height: 30,
                         ),
                         TextButtonWidget(
-                          title: "Saya Setuju",
+                          title: "Lanjutkan",
                           onTap: () async {
                             Navigator.pop(context);
                             await Permission.camera.request();

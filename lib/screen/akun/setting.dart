@@ -45,7 +45,7 @@ class _SettingState extends State<Setting> {
           child: Stack(
             children: [
               Container(
-                height: 140,
+                height: 150,
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                     image: DecorationImage(
@@ -55,95 +55,120 @@ class _SettingState extends State<Setting> {
               ),
               Padding(
                 padding: EdgeInsets.only(left: 16, right: 16),
-                child: RefreshIndicator(
-                  onRefresh: refreshData,
-                  child: SingleChildScrollView(
-                    physics: AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          height: 50,
-                        ),
-                        Obx(() => firstLine()),
-                        SizedBox(
-                          height: 30,
-                        ),
-                        Text(
-                          "Perusahaan",
-                          style: TextStyle(
-                              fontSize: 14, color: Constanst.colorText1),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 8, right: 5, top: 15),
-                          child: lineInfoPengguna(),
-                        ),
-                        Text(
-                          "Keamanan",
-                          style: TextStyle(
-                              fontSize: 14, color: Constanst.colorText1),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 8, right: 5, top: 15),
-                          child: lineKeamananAkun(),
-                        ),
-                        Text(
-                          "Lainnya",
-                          style: TextStyle(
-                              fontSize: 14, color: Constanst.colorText1),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 8, right: 5, top: 15),
-                          child: lineLainnya(),
-                        ),
-                        TextButton(
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.white),
-                              overlayColor: MaterialStateProperty.all<Color>(
-                                  Color.fromARGB(255, 255, 200, 196)),
-                              shape: MaterialStateProperty.all<
-                                  RoundedRectangleBorder>(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  side: BorderSide(color: Colors.red),
-                                ),
-                              )),
-                          onPressed: () {
-                            controller.logout();
-                          },
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Keluar",
-                                style: TextStyle(color: Colors.red),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 8),
-                                child: Icon(
-                                  Iconsax.logout,
-                                  color: Colors.red,
-                                  size: 20,
-                                ),
-                              )
-                            ],
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 20,
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: 50,
                           ),
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Center(
-                          child: Text(
-                            "© Copyright 2022 PT. Shan Informasi Sistem",
-                            style: TextStyle(
-                                color: Constanst.colorText1, fontSize: 10),
-                          ),
-                        )
-                      ],
+                          Obx(() => firstLine()),
+                        ],
+                      ),
                     ),
-                  ),
+                    Expanded(
+                      flex: 80,
+                      child: SizedBox(
+                        child: RefreshIndicator(
+                          onRefresh: refreshData,
+                          child: SingleChildScrollView(
+                            physics: AlwaysScrollableScrollPhysics(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Perusahaan",
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Constanst.colorText1),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 8, right: 5, top: 15),
+                                  child: lineInfoPengguna(),
+                                ),
+                                Text(
+                                  "Keamanan",
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Constanst.colorText1),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 8, right: 5, top: 15),
+                                  child: lineKeamananAkun(),
+                                ),
+                                Text(
+                                  "Lainnya",
+                                  style: TextStyle(
+                                      fontSize: 14,
+                                      color: Constanst.colorText1),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 8, right: 5, top: 15),
+                                  child: lineLainnya(),
+                                ),
+                                TextButton(
+                                  style: ButtonStyle(
+                                      backgroundColor:
+                                          MaterialStateProperty.all<Color>(
+                                              Colors.white),
+                                      overlayColor: MaterialStateProperty.all<
+                                              Color>(
+                                          Color.fromARGB(255, 255, 200, 196)),
+                                      shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                        RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          side: BorderSide(color: Colors.red),
+                                        ),
+                                      )),
+                                  onPressed: () {
+                                    controller.logout();
+                                  },
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        "Keluar",
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(left: 8),
+                                        child: Icon(
+                                          Iconsax.logout,
+                                          color: Colors.red,
+                                          size: 20,
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Center(
+                                  child: Text(
+                                    "© Copyright 2022 PT. Shan Informasi Sistem",
+                                    style: TextStyle(
+                                        color: Constanst.colorText1,
+                                        fontSize: 10),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -158,7 +183,7 @@ class _SettingState extends State<Setting> {
             children: [
               UtilsAlert.shimmerInfoPersonal(Get.context!),
               SizedBox(
-                height: 30,
+                height: 50,
               )
             ],
           )

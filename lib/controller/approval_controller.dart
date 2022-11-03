@@ -67,6 +67,8 @@ class ApprovalController extends GetxController {
               loadDataTugasLuar();
             } else if (title == "Dinas Luar") {
               loadDataDinasLuar();
+            } else if (title == "Klaim") {
+              loadDataKlaim();
             }
           }
         }
@@ -119,6 +121,7 @@ class ApprovalController extends GetxController {
             'waktu_pengajuan': element['atten_date'],
             'catatan': element['reason'],
             'type': 'Cuti',
+            'lainnya': "",
             'file': element['leave_files']
           };
           listData.value.add(data);
@@ -174,6 +177,7 @@ class ApprovalController extends GetxController {
             'waktu_pengajuan': element['atten_date'],
             'catatan': element['uraian'],
             'type': 'Lembur',
+            'lainnya': "",
             'file': ""
           };
           listData.value.sort(
@@ -232,6 +236,7 @@ class ApprovalController extends GetxController {
             'waktu_pengajuan': element['atten_date'],
             'catatan': element['reason'],
             'type': element['nama_tipe'],
+            'lainnya': "",
             'file': element['leave_files']
           };
           listData.value.add(data);
@@ -287,6 +292,7 @@ class ApprovalController extends GetxController {
             'waktu_pengajuan': element['atten_date'],
             'catatan': element['uraian'],
             'type': 'Tugas Luar',
+            'lainnya': "",
             'file': ''
           };
           listData.value.add(data);
@@ -345,7 +351,68 @@ class ApprovalController extends GetxController {
             'waktu_pengajuan': element['atten_date'],
             'catatan': element['reason'],
             'type': "Dinas Luar",
+            'lainnya': "",
             'file': element['leave_files']
+          };
+          listData.value.add(data);
+          listDataAll.value.add(data);
+        }
+        listData.value.sort(
+            (a, b) => b['waktu_pengajuan'].compareTo(a['waktu_pengajuan']));
+        this.listData.refresh();
+        this.listNotModif.refresh();
+      }
+    });
+  }
+
+  void loadDataKlaim() {
+    var urlLoad = valuePolaPersetujuan.value == "1"
+        ? "spesifik_approval"
+        : "spesifik_approval_multi";
+    listNotModif.value.clear();
+    listData.value.clear();
+    listDataAll.value.clear();
+    var dataUser = AppData.informasiUser;
+    var getEmCode = dataUser![0].em_id;
+    Map<String, dynamic> body = {
+      'em_id': getEmCode,
+      'name_data': 'klaim',
+      'bulan': bulanSelected.value,
+      'tahun': tahunSelected.value,
+    };
+    var connect = Api.connectionApi("post", body, urlLoad);
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['data'].length == 0) {
+          loadingString.value = 'Tidak ada pengajuan';
+        }
+        listNotModif.value = valueBody['data'];
+        for (var element in valueBody['data']) {
+          var fullName = element['full_name'] ?? "";
+          var convertNama = "$fullName";
+          DateTime fltr1 = DateTime.parse("${element['tgl_ajuan']}");
+          DateTime fltr2 = DateTime.parse("${element['created_on']}");
+          var tanggalDari = "${DateFormat('dd-MM-yyyy').format(fltr1)}";
+          var tanggalSampai = "${DateFormat('dd-MM-yyyy').format(fltr1)}";
+          var tanggalPembuatan = "${DateFormat('yyyy-MM-dd').format(fltr2)}";
+          var filterStatus =
+              element['status'] == "Approve" ? "Approve 1" : element['status'];
+          var data = {
+            'id': element['id'],
+            'nama_pengaju': convertNama,
+            'title_ajuan': 'Pengajuan Klaim',
+            'waktu_dari': tanggalDari,
+            'waktu_sampai': "",
+            'durasi': "",
+            'leave_status': filterStatus,
+            'delegasi': "",
+            'nama_approve1': element['approve_by'],
+            'waktu_pengajuan': tanggalPembuatan,
+            'catatan': element['description'],
+            'type': "Klaim",
+            'lainnya': element,
+            'file': element['nama_file']
           };
           listData.value.add(data);
           listDataAll.value.add(data);
@@ -374,7 +441,9 @@ class ApprovalController extends GetxController {
     if (title == "Cuti") {
       loadCutiPengaju(emId);
     }
-    infoDelegasi(delegasi);
+    if (title != "Klaim") {
+      infoDelegasi(delegasi);
+    }
     detailData.value.clear();
     for (var element in listData.value) {
       if ("${element['id']}" == "$idxDetail") {
@@ -397,6 +466,15 @@ class ApprovalController extends GetxController {
         this.fullNameDelegasi.refresh();
       }
     });
+  }
+
+  String convertToIdr(dynamic number, int decimalDigit) {
+    NumberFormat currencyFormatter = NumberFormat.currency(
+      locale: 'id',
+      symbol: 'Rp ',
+      decimalDigits: decimalDigit,
+    );
+    return currencyFormatter.format(number);
   }
 
   void loadCutiPengaju(emId) {
@@ -606,10 +684,16 @@ class ApprovalController extends GetxController {
     var dateString = "${dt.day}-${dt.month}-${dt.year}";
     var tanggalNow = Constanst.convertDateSimpan(dateString);
 
-    var url_tujuan = detailData[0]['type'] == 'Tugas Luar' ||
-            detailData[0]['type'] == 'Lembur'
-        ? 'edit-emp_labor'
-        : 'edit-emp_leave';
+    var url_tujuan;
+
+    if (detailData[0]['type'] == 'Klaim') {
+      url_tujuan = 'edit-emp_claim';
+    } else {
+      url_tujuan = detailData[0]['type'] == 'Tugas Luar' ||
+              detailData[0]['type'] == 'Lembur'
+          ? 'edit-emp_labor'
+          : 'edit-emp_leave';
+    }
 
     if (valuePolaPersetujuan.value == "1") {
       if (pilihan == true && url_tujuan == "edit-emp_leave") {
@@ -759,6 +843,32 @@ class ApprovalController extends GetxController {
               pilihan, namaAtasanApprove, url_tujuan, alasanRejectShow);
         }
       });
+    } else if (url_tujuan == 'edit-emp_claim') {
+      Map<String, dynamic> body = {
+        'status': statusPengajuan,
+        'atten_date': detailData[0]['waktu_pengajuan'],
+        'approve_date': applyDate1,
+        'approve_by': applyBy1,
+        'approve_id': applyId1,
+        'approve2_date': applyDate2,
+        'approve2_by': applyBy2,
+        'approve2_id': applyId2,
+        'alasan_reject': alasanReject.value.text,
+        'created_by': getEmpid,
+        'menu_name': detailData[0]['type'],
+        'val': 'id',
+        'cari': dataEditFinal[0]['id'],
+        'activity_name':
+            "$statusPengajuan Pengajuan ${detailData[0]['type']} pada tanggal $tanggalNow. Pengajuan atas nama ${detailData[0]['nama_pengaju']} $alasanRejectShow"
+      };
+      var connect = Api.connectionApi("post", body, 'edit-emp_claim');
+      connect.then((dynamic res) {
+        if (res.statusCode == 200) {
+          print('berhasil sampai sini klaim');
+          insertNotifikasi(dataEditFinal, statusPengajuan, tanggalNow, dt,
+              pilihan, namaAtasanApprove, url_tujuan, alasanRejectShow);
+        }
+      });
     }
   }
 
@@ -879,9 +989,14 @@ class ApprovalController extends GetxController {
           ? await launch(Api.UrlfileTidakhadir + file)
           : throw UtilsAlert.showToast('Tidak dapat membuka');
       _launchURL();
-    } else {
+    } else if (status == "cuti") {
       _launchURL() async => await canLaunch(Api.UrlfileCuti + file)
           ? await launch(Api.UrlfileCuti + file)
+          : throw UtilsAlert.showToast('Tidak dapat membuka');
+      _launchURL();
+    } else if (status == "klaim") {
+      _launchURL() async => await canLaunch(Api.UrlfileKlaim + file)
+          ? await launch(Api.UrlfileKlaim + file)
           : throw UtilsAlert.showToast('Tidak dapat membuka');
       _launchURL();
     }
