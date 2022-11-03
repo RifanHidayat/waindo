@@ -657,7 +657,14 @@ class _PesanState extends State<Pesan> {
                                                               color: Constanst
                                                                   .colorPrimary,
                                                             )
-                                                          : SizedBox(),
+                                                          : title == 'Klaim'
+                                                              ? Icon(
+                                                                  Iconsax
+                                                                      .receipt,
+                                                                  color: Constanst
+                                                                      .colorPrimary,
+                                                                )
+                                                              : SizedBox(),
                                     ),
                                     Expanded(
                                       flex: 60,
@@ -835,6 +842,12 @@ class _PesanState extends State<Pesan> {
                                             controller.filterApproveHistory(
                                                 'Pengajuan Dinas Luar'),
                                         child: Text("Pengajuan Dinas Luar")),
+                                    PopupMenuItem(
+                                        value: "6",
+                                        onTap: () =>
+                                            controller.filterApproveHistory(
+                                                'Pengajuan Klaim'),
+                                        child: Text("Pengajuan Klaim")),
                                   ],
                                 )),
                       )
@@ -902,6 +915,9 @@ class _PesanState extends State<Pesan> {
                               fontSize: 14.0, height: 1.0, color: Colors.black),
                           onChanged: (value) {
                             controller.cariData(value);
+                          },
+                          onSubmitted: (value) {
+                            print(value);
                           },
                         ),
                       ),

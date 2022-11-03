@@ -55,7 +55,9 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                               ? "Detail Laporan Tugas Luar"
                               : widget.title == "dinas_luar"
                                   ? "Detail Laporan Dinas Luar"
-                                  : "",
+                                  : widget.title == "klaim"
+                                      ? "Detail Laporan Klaim"
+                                      : "",
               colorTitle: Colors.black,
               icon: 1,
               rightIcon: Icon(Iconsax.document_download),
@@ -119,7 +121,15 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                                                         color: Constanst
                                                             .colorText2),
                                                   )
-                                                : SizedBox(),
+                                                : widget.title == "klaim"
+                                                    ? Text(
+                                                        "Riwayat Klaim",
+                                                        style: TextStyle(
+                                                            fontSize: 12,
+                                                            color: Constanst
+                                                                .colorText2),
+                                                      )
+                                                    : SizedBox(),
                             SizedBox(
                               height: 8,
                             ),
@@ -171,7 +181,7 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
             var namaType = controller.dataTypeAjuan[index]['nama'];
             var status = controller.dataTypeAjuan[index]['status'];
             return InkWell(
-              highlightColor: Constanst.colorButton2,
+              highlightColor: Constanst.colorPrimary,
               onTap: () => controller.changeTypeAjuanLaporan(
                   controller.dataTypeAjuan.value[index]['nama'], widget.title),
               child: Container(
@@ -179,7 +189,7 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                 margin: EdgeInsets.only(left: 5, right: 5),
                 decoration: BoxDecoration(
                   color: status == true
-                      ? Constanst.colorButton2
+                      ? Constanst.colorPrimary
                       : Constanst.colorNonAktif,
                   borderRadius: Constanst.borderStyle1,
                 ),
@@ -192,26 +202,42 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                               Iconsax.tick_square,
                               size: 14,
                               color: status == true
-                                  ? Constanst.colorPrimary
+                                  ? Colors.white
                                   : Constanst.colorText2,
                             )
-                          : namaType == "Rejected"
+                          : namaType == "Approve 1"
                               ? Icon(
-                                  Iconsax.close_square,
+                                  Iconsax.tick_square,
                                   size: 14,
                                   color: status == true
-                                      ? Constanst.colorPrimary
+                                      ? Colors.white
                                       : Constanst.colorText2,
                                 )
-                              : namaType == "Pending"
+                              : namaType == "Approve 2"
                                   ? Icon(
-                                      Iconsax.timer,
+                                      Iconsax.tick_square,
                                       size: 14,
                                       color: status == true
-                                          ? Constanst.colorPrimary
+                                          ? Colors.white
                                           : Constanst.colorText2,
                                     )
-                                  : SizedBox(),
+                                  : namaType == "Rejected"
+                                      ? Icon(
+                                          Iconsax.close_square,
+                                          size: 14,
+                                          color: status == true
+                                              ? Colors.white
+                                              : Constanst.colorText2,
+                                        )
+                                      : namaType == "Pending"
+                                          ? Icon(
+                                              Iconsax.timer,
+                                              size: 14,
+                                              color: status == true
+                                                  ? Colors.white
+                                                  : Constanst.colorText2,
+                                            )
+                                          : SizedBox(),
                       Padding(
                         padding: const EdgeInsets.only(left: 6, right: 6),
                         child: Text(
@@ -219,7 +245,7 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                           style: TextStyle(
                               fontSize: 12,
                               color: status == true
-                                  ? Constanst.colorPrimary
+                                  ? Colors.white
                                   : Constanst.colorText2,
                               fontWeight: FontWeight.bold),
                         ),
@@ -244,8 +270,11 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                     widget.title == "dinas_luar"
                 ? viewTidakHadir(
                     controller.listDetailLaporanEmployee.value[index])
-                : viewLemburTugasLuar(
-                    controller.listDetailLaporanEmployee.value[index]);
+                : widget.title == "klaim"
+                    ? viewKlaim(
+                        controller.listDetailLaporanEmployee.value[index])
+                    : viewLemburTugasLuar(
+                        controller.listDetailLaporanEmployee.value[index]);
           }),
     );
   }
@@ -266,7 +295,14 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
               ? "Approve 2"
               : index['leave_status'];
     }
-    var approve_by = index['apply_by'] ?? "";
+    var approve_by;
+    if (index['apply2_by'] == "" ||
+        index['apply2_by'] == "null" ||
+        index['apply2_by'] == null) {
+      approve_by = index['apply_by'];
+    } else {
+      approve_by = index['apply_by'];
+    }
     return InkWell(
       onTap: () => controller.showDetailRiwayat(index),
       child: Column(
@@ -304,7 +340,7 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       Expanded(
-                        flex: 70,
+                        flex: 60,
                         child: Padding(
                           padding: const EdgeInsets.only(top: 5),
                           child: get2StringNomor == "DL"
@@ -323,7 +359,7 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                         ),
                       ),
                       Expanded(
-                        flex: 30,
+                        flex: 40,
                         child: Container(
                           margin: EdgeInsets.only(right: 8),
                           decoration: BoxDecoration(
@@ -447,7 +483,8 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                           children: [
                             Expanded(
                               child: typeAjuan == "Approve" ||
-                                      typeAjuan == "Approve 1"
+                                      typeAjuan == "Approve 1" ||
+                                      typeAjuan == "Approve 2"
                                   ? Row(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
@@ -501,11 +538,27 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
     var dariJam = index['dari_jam'];
     var sampaiJam = index['sampai_jam'];
     var tanggalPengajuan = index['atten_date'];
-    var status = index['status'];
+    var status;
+    if (controller.valuePolaPersetujuan.value == "1") {
+      status = index['status'];
+    } else {
+      status = index['status'] == "Approve"
+          ? "Approve 1"
+          : index['status'] == "Approve2"
+              ? "Approve 2"
+              : index['status'];
+    }
     var alasanReject = index['alasan_reject'];
     var approveDate = index['approve_date'];
     var uraian = index['uraian'];
-    var approve = index['approve_by'];
+    var approve;
+    if (index['approve2_by'] == "" ||
+        index['approve2_by'] == "null" ||
+        index['approve2_by'] == null) {
+      approve = index['approve_by'];
+    } else {
+      approve = index['approve2_by'];
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.start,
@@ -554,11 +607,15 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                         decoration: BoxDecoration(
                           color: status == 'Approve'
                               ? Constanst.colorBGApprove
-                              : status == 'Rejected'
-                                  ? Constanst.colorBGRejected
-                                  : status == 'Pending'
-                                      ? Constanst.colorBGPending
-                                      : Colors.grey,
+                              : status == 'Approve 1'
+                                  ? Constanst.colorBGApprove
+                                  : status == 'Approve 2'
+                                      ? Constanst.colorBGApprove
+                                      : status == 'Rejected'
+                                          ? Constanst.colorBGRejected
+                                          : status == 'Pending'
+                                              ? Constanst.colorBGPending
+                                              : Colors.grey,
                           borderRadius: Constanst.borderStyle1,
                         ),
                         child: Padding(
@@ -573,19 +630,31 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                                       color: Constanst.color5,
                                       size: 14,
                                     )
-                                  : status == 'Rejected'
+                                  : status == 'Approve 1'
                                       ? Icon(
-                                          Iconsax.close_square,
-                                          color: Constanst.color4,
+                                          Iconsax.tick_square,
+                                          color: Constanst.color5,
                                           size: 14,
                                         )
-                                      : status == 'Pending'
+                                      : status == 'Approve 2'
                                           ? Icon(
-                                              Iconsax.timer,
-                                              color: Constanst.color3,
+                                              Iconsax.tick_square,
+                                              color: Constanst.color5,
                                               size: 14,
                                             )
-                                          : SizedBox(),
+                                          : status == 'Rejected'
+                                              ? Icon(
+                                                  Iconsax.close_square,
+                                                  color: Constanst.color4,
+                                                  size: 14,
+                                                )
+                                              : status == 'Pending'
+                                                  ? Icon(
+                                                      Iconsax.timer,
+                                                      color: Constanst.color3,
+                                                      size: 14,
+                                                    )
+                                                  : SizedBox(),
                               Padding(
                                 padding: const EdgeInsets.only(left: 3),
                                 child: Text(
@@ -595,11 +664,15 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                                       fontWeight: FontWeight.bold,
                                       color: status == 'Approve'
                                           ? Colors.green
-                                          : status == 'Rejected'
-                                              ? Colors.red
-                                              : status == 'Pending'
-                                                  ? Constanst.color3
-                                                  : Colors.black),
+                                          : status == 'Approve 1'
+                                              ? Colors.green
+                                              : status == 'Approve 2'
+                                                  ? Colors.green
+                                                  : status == 'Rejected'
+                                                      ? Colors.red
+                                                      : status == 'Pending'
+                                                          ? Constanst.color3
+                                                          : Colors.black),
                                 ),
                               ),
                             ],
@@ -670,7 +743,9 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Expanded(
-                            child: status == "Approve"
+                            child: status == "Approve" ||
+                                    status == "Approve 1" ||
+                                    status == "Approve 2"
                                 ? Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
@@ -704,6 +779,336 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                                         height: 5,
                                       ),
                                       Text("")
+                                    ],
+                                  ),
+                          ),
+                        ],
+                      )
+              ],
+            ),
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget viewKlaim(valueList) {
+    var nomorAjuan = valueList['nomor_ajuan'];
+    var tanggalPengajuan = valueList['created_on'];
+    var status;
+    if (controller.valuePolaPersetujuan.value == "1") {
+      status = valueList['status'];
+    } else {
+      status = valueList['status'] == "Approve"
+          ? "Approve 1"
+          : valueList['status'] == "Approve2"
+              ? "Approve 2"
+              : valueList['status'];
+    }
+    DateTime fltr1 = DateTime.parse("${valueList['tgl_ajuan']}");
+    var tanggalAjuan = "${DateFormat('dd MMMM yyyy').format(fltr1)}";
+    var totalKlaim = valueList['total_claim'];
+    var rupiah = controller.convertToIdr(totalKlaim, 0);
+    var alasanReject = valueList['alasan_reject'];
+    var approveDate = valueList['approve_date'];
+    var uraian = valueList['description'];
+    var approve;
+    if (valueList['approve2_by'] == "" ||
+        valueList['approve2_by'] == "null" ||
+        valueList['approve2_by'] == null) {
+      approve = valueList['approve_by'];
+    } else {
+      approve = valueList['approve2_by'];
+    }
+    var namaFile = valueList['nama_file'];
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 10,
+        ),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: Constanst.borderStyle1,
+            boxShadow: [
+              BoxShadow(
+                color: Color.fromARGB(255, 190, 190, 190).withOpacity(0.4),
+                spreadRadius: 1,
+                blurRadius: 1,
+                offset: Offset(1, 1), // changes position of shadow
+              ),
+            ],
+          ),
+          child: Padding(
+            padding:
+                const EdgeInsets.only(left: 16, top: 8, bottom: 8, right: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 60,
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 5),
+                        child: Text(
+                          Constanst.convertDate('$tanggalPengajuan'),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 40,
+                      child: Container(
+                        margin: EdgeInsets.only(right: 8),
+                        decoration: BoxDecoration(
+                          color: status == 'Approve'
+                              ? Constanst.colorBGApprove
+                              : status == 'Approve 1'
+                                  ? Constanst.colorBGApprove
+                                  : status == 'Approve 2'
+                                      ? Constanst.colorBGApprove
+                                      : status == 'Rejected'
+                                          ? Constanst.colorBGRejected
+                                          : status == 'Pending'
+                                              ? Constanst.colorBGPending
+                                              : Colors.grey,
+                          borderRadius: Constanst.borderStyle1,
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                              left: 3, right: 3, top: 5, bottom: 5),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              status == 'Approve'
+                                  ? Icon(
+                                      Iconsax.tick_square,
+                                      color: Constanst.color5,
+                                      size: 14,
+                                    )
+                                  : status == 'Approve 1'
+                                      ? Icon(
+                                          Iconsax.tick_square,
+                                          color: Constanst.color5,
+                                          size: 14,
+                                        )
+                                      : status == 'Approve 2'
+                                          ? Icon(
+                                              Iconsax.tick_square,
+                                              color: Constanst.color5,
+                                              size: 14,
+                                            )
+                                          : status == 'Rejected'
+                                              ? Icon(
+                                                  Iconsax.close_square,
+                                                  color: Constanst.color4,
+                                                  size: 14,
+                                                )
+                                              : status == 'Pending'
+                                                  ? Icon(
+                                                      Iconsax.timer,
+                                                      color: Constanst.color3,
+                                                      size: 14,
+                                                    )
+                                                  : SizedBox(),
+                              Padding(
+                                padding: const EdgeInsets.only(left: 3),
+                                child: Text(
+                                  '$status',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: status == 'Approve'
+                                          ? Colors.green
+                                          : status == 'Approve 1'
+                                              ? Colors.green
+                                              : status == 'Approve 2'
+                                                  ? Colors.green
+                                                  : status == 'Rejected'
+                                                      ? Colors.red
+                                                      : status == 'Pending'
+                                                          ? Constanst.color3
+                                                          : Colors.black),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  "NO.$nomorAjuan",
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(
+                      fontSize: 14,
+                      color: Constanst.colorText1,
+                      fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  'Pengajuan : $tanggalAjuan',
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(fontSize: 14, color: Constanst.colorText2),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  'Total Klaim : $rupiah',
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(fontSize: 14, color: Constanst.colorText2),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  '$uraian',
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(fontSize: 14, color: Constanst.colorText2),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                namaFile == "" || namaFile == "NULL" || namaFile == null
+                    ? SizedBox()
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 70,
+                            child: Text(
+                              "$namaFile",
+                              style: TextStyle(
+                                  fontSize: 14, color: Constanst.colorText2),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 30,
+                            child: InkWell(
+                                onTap: () {
+                                  controller.viewLampiranAjuanKlaim(namaFile);
+                                },
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      "Lihat File",
+                                      style: TextStyle(
+                                        color: Constanst.colorPrimary,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(left: 3),
+                                      child: Icon(
+                                        Iconsax.arrow_right_1,
+                                        size: 20,
+                                      ),
+                                    )
+                                  ],
+                                )),
+                          )
+                        ],
+                      ),
+                SizedBox(
+                  height: 5,
+                ),
+                Divider(
+                  height: 5,
+                  color: Constanst.colorText2,
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                status == "Rejected"
+                    ? SizedBox(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(
+                                  Iconsax.close_circle,
+                                  color: Colors.red,
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(left: 5, top: 3),
+                                  child: Text("Rejected by $approve"),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(left: 5, top: 3),
+                                  child: Text(""),
+                                )
+                              ],
+                            ),
+                            SizedBox(
+                              height: 6,
+                            ),
+                            Text(
+                              "$alasanReject",
+                              style: TextStyle(
+                                  fontSize: 14, color: Constanst.colorText2),
+                            ),
+                            SizedBox(
+                              height: 6,
+                            ),
+                          ],
+                        ),
+                      )
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Expanded(
+                            child: status == "Approve" ||
+                                    status == "Approve 1" ||
+                                    status == "Approve 2"
+                                ? Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Icon(
+                                        Iconsax.tick_circle,
+                                        color: Colors.green,
+                                      ),
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.only(left: 5, top: 3),
+                                        child: Text("Approved by $approve"),
+                                      ),
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.only(left: 5, top: 3),
+                                        child: Text(""),
+                                      )
+                                    ],
+                                  )
+                                : Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "Pending Approval",
+                                        style: TextStyle(
+                                            color: Constanst.colorText2),
+                                      ),
+                                      SizedBox(
+                                        height: 5,
+                                      ),
                                     ],
                                   ),
                           ),

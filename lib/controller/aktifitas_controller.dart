@@ -96,6 +96,10 @@ class AktifitasController extends GetxController {
     bulanSelectedSearchHistory.value = "${dt.month}";
     tahunSelectedSearchHistory.value = "${dt.year}";
     bulanDanTahunNow.value = "${dt.month}-${dt.year}";
+
+    this.bulanSelectedSearchHistory.refresh();
+    this.tahunSelectedSearchHistory.refresh();
+    this.bulanDanTahunNow.refresh();
   }
 
   void loadAktifitas() {
@@ -127,11 +131,25 @@ class AktifitasController extends GetxController {
   }
 
   void getInformasiAktivitas() {
-    infoAktifitas.value.clear();
-    for (var element in dummyInfo) {
-      infoAktifitas.value.add(element);
-    }
-    this.infoAktifitas.refresh();
+    var dataUser = AppData.informasiUser;
+    var getEmId = dataUser![0].em_id;
+    Map<String, dynamic> body = {
+      'em_id': getEmId,
+      'bulan': bulanSelectedSearchHistory.value,
+      'tahun': tahunSelectedSearchHistory.value,
+    };
+    var connect = Api.connectionApi("post", body, '');
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+      }
+    });
+
+    // infoAktifitas.value.clear();
+    // for (var element in dummyInfo) {
+    //   infoAktifitas.value.add(element);
+    // }
+    // this.infoAktifitas.refresh();
   }
 
   void showInputCari() {

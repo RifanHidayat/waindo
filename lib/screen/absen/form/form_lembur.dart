@@ -58,12 +58,12 @@ class _FormLemburState extends State<FormLembur> {
             colorTitle: Colors.black,
             icon: 1,
             onTap: () {
-              Get.offAll(Lembur());
+              Get.back();
             },
           )),
       body: WillPopScope(
           onWillPop: () async {
-            Get.offAll(Lembur());
+            Get.back();
             return true;
           },
           child: SafeArea(

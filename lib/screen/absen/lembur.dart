@@ -70,18 +70,29 @@ class _LemburState extends State<Lembur> {
                 ),
                 controller.bulanDanTahunNow.value == ""
                     ? SizedBox()
-                    : pickDate(),
+                    : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Expanded(
+                            flex: 60,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 8),
+                              child: pencarianData(),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 40,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: pickDate(),
+                            ),
+                          )
+                        ],
+                      ),
                 SizedBox(
                   height: 16,
                 ),
                 listStatusAjuan(),
-                SizedBox(
-                  height: 16,
-                ),
-                pencarianData(),
-                SizedBox(
-                  height: 16,
-                ),
                 SizedBox(
                   height: 16,
                 ),
@@ -172,72 +183,58 @@ class _LemburState extends State<Lembur> {
 
   Widget pickDate() {
     return Container(
+      height: 42,
       decoration: Constanst.styleBoxDecoration1,
-      child: Padding(
-        padding: EdgeInsets.only(top: 15, bottom: 10),
-        child: InkWell(
-          onTap: () {
-            DatePicker.showPicker(
-              Get.context!,
-              pickerModel: CustomMonthPicker(
-                minTime: DateTime(2020, 1, 1),
-                maxTime: DateTime(2050, 1, 1),
-                currentTime: DateTime.now(),
-              ),
-              onConfirm: (time) {
-                if (time != null) {
-                  print("$time");
-                  var filter = DateFormat('yyyy-MM').format(time);
-                  var array = filter.split('-');
-                  var bulan = array[1];
-                  var tahun = array[0];
-                  controller.bulanSelectedSearchHistory.value = bulan;
-                  controller.tahunSelectedSearchHistory.value = tahun;
-                  controller.bulanDanTahunNow.value = "$bulan-$tahun";
-                  this.controller.bulanSelectedSearchHistory.refresh();
-                  this.controller.tahunSelectedSearchHistory.refresh();
-                  this.controller.bulanDanTahunNow.refresh();
-                  controller.loadDataLembur();
-                }
-              },
-            );
-          },
+      child: InkWell(
+        onTap: () {
+          DatePicker.showPicker(
+            Get.context!,
+            pickerModel: CustomMonthPicker(
+              minTime: DateTime(2020, 1, 1),
+              maxTime: DateTime(2050, 1, 1),
+              currentTime: DateTime.now(),
+            ),
+            onConfirm: (time) {
+              if (time != null) {
+                print("$time");
+                var filter = DateFormat('yyyy-MM').format(time);
+                var array = filter.split('-');
+                var bulan = array[1];
+                var tahun = array[0];
+                controller.bulanSelectedSearchHistory.value = bulan;
+                controller.tahunSelectedSearchHistory.value = tahun;
+                controller.bulanDanTahunNow.value = "$bulan-$tahun";
+                this.controller.bulanSelectedSearchHistory.refresh();
+                this.controller.tahunSelectedSearchHistory.refresh();
+                this.controller.bulanDanTahunNow.refresh();
+                controller.loadDataLembur();
+              }
+            },
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                flex: 90,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: Icon(Iconsax.calendar_2),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: Text(
-                        "${Constanst.convertDateBulanDanTahun(controller.bulanDanTahunNow.value)}",
-                        style: TextStyle(fontSize: 16, color: Constanst.color2),
-                      ),
-                    ),
-                  ],
-                ),
+                flex: 20,
+                child: Icon(Iconsax.calendar_2),
+              ),
+              Expanded(
+                flex: 70,
+                child: Padding(
+                    padding: const EdgeInsets.only(left: 6, top: 3),
+                    child: Text(
+                        "${controller.bulanSelectedSearchHistory.value}-${controller.tahunSelectedSearchHistory.value}")),
               ),
               Expanded(
                 flex: 10,
-                child: Container(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: Icon(
-                      Iconsax.arrow_down_14,
-                      size: 24,
-                      color: Constanst.colorText2,
-                    ),
-                  ),
+                child: Icon(
+                  Icons.arrow_drop_down_rounded,
+                  size: 24,
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -255,7 +252,7 @@ class _LemburState extends State<Lembur> {
             var namaType = controller.dataTypeAjuan[index]['nama'];
             var status = controller.dataTypeAjuan[index]['status'];
             return InkWell(
-              highlightColor: Constanst.colorButton2,
+              highlightColor: Constanst.colorPrimary,
               onTap: () => controller.changeTypeAjuan(
                   controller.dataTypeAjuan.value[index]['nama']),
               child: Container(
@@ -263,7 +260,7 @@ class _LemburState extends State<Lembur> {
                 margin: EdgeInsets.only(left: 5, right: 5),
                 decoration: BoxDecoration(
                   color: status == true
-                      ? Constanst.colorButton2
+                      ? Constanst.colorPrimary
                       : Constanst.colorNonAktif,
                   borderRadius: Constanst.borderStyle1,
                 ),
@@ -276,7 +273,7 @@ class _LemburState extends State<Lembur> {
                               Iconsax.tick_square,
                               size: 14,
                               color: status == true
-                                  ? Constanst.colorPrimary
+                                  ? Colors.white
                                   : Constanst.colorText2,
                             )
                           : namaType == "Approve 1"
@@ -284,7 +281,7 @@ class _LemburState extends State<Lembur> {
                                   Iconsax.tick_square,
                                   size: 14,
                                   color: status == true
-                                      ? Constanst.colorPrimary
+                                      ? Colors.white
                                       : Constanst.colorText2,
                                 )
                               : namaType == "Approve 2"
@@ -292,7 +289,7 @@ class _LemburState extends State<Lembur> {
                                       Iconsax.tick_square,
                                       size: 14,
                                       color: status == true
-                                          ? Constanst.colorPrimary
+                                          ? Colors.white
                                           : Constanst.colorText2,
                                     )
                                   : namaType == "Rejected"
@@ -300,7 +297,7 @@ class _LemburState extends State<Lembur> {
                                           Iconsax.close_square,
                                           size: 14,
                                           color: status == true
-                                              ? Constanst.colorPrimary
+                                              ? Colors.white
                                               : Constanst.colorText2,
                                         )
                                       : namaType == "Pending"
@@ -308,7 +305,7 @@ class _LemburState extends State<Lembur> {
                                               Iconsax.timer,
                                               size: 14,
                                               color: status == true
-                                                  ? Constanst.colorPrimary
+                                                  ? Colors.white
                                                   : Constanst.colorText2,
                                             )
                                           : SizedBox(),
@@ -319,7 +316,7 @@ class _LemburState extends State<Lembur> {
                           style: TextStyle(
                               fontSize: 12,
                               color: status == true
-                                  ? Constanst.colorPrimary
+                                  ? Colors.white
                                   : Constanst.colorText2,
                               fontWeight: FontWeight.bold),
                         ),
@@ -424,7 +421,15 @@ class _LemburState extends State<Lembur> {
               controller.listLembur.value[index]['alasan_reject'];
           var approveDate = controller.listLembur.value[index]['approve_date'];
           var uraian = controller.listLembur.value[index]['uraian'];
-          var approve = controller.listLembur.value[index]['approve_by'];
+          var approve;
+          if (controller.listLembur.value[index]['approve2_by'] == "" ||
+              controller.listLembur.value[index]['approve2_by'] == "null" ||
+              controller.listLembur.value[index]['approve2_by'] == null) {
+            approve = controller.listLembur.value[index]['approve_by'];
+          } else {
+            approve = controller.listLembur.value[index]['approve2_by'];
+          }
+
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -457,7 +462,7 @@ class _LemburState extends State<Lembur> {
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Expanded(
-                            flex: 70,
+                            flex: 60,
                             child: Padding(
                               padding: const EdgeInsets.only(top: 5),
                               child: Text(
@@ -468,7 +473,7 @@ class _LemburState extends State<Lembur> {
                             ),
                           ),
                           Expanded(
-                            flex: 30,
+                            flex: 40,
                             child: Container(
                               margin: EdgeInsets.only(right: 8),
                               decoration: BoxDecoration(
@@ -596,10 +601,25 @@ class _LemburState extends State<Lembur> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    "Alasan Reject",
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Icon(
+                                        Iconsax.close_circle,
+                                        color: Colors.red,
+                                      ),
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.only(left: 5, top: 3),
+                                        child: Text("Rejected by $approve"),
+                                      ),
+                                      Padding(
+                                        padding:
+                                            EdgeInsets.only(left: 5, top: 3),
+                                        child: Text(""),
+                                      )
+                                    ],
                                   ),
                                   SizedBox(
                                     height: 6,

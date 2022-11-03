@@ -14,6 +14,7 @@ import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/month_year_picker.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LaporanTidakHadirController extends GetxController {
   PageController? pageViewFilterWaktu;
@@ -172,6 +173,7 @@ class LaporanTidakHadirController extends GetxController {
 
   void cariLaporanPengajuanTanggal(tanggalTerpilih) async {
     var tanggalSubmit = "${DateFormat('yyyy-MM-dd').format(tanggalTerpilih)}";
+
     statusLoadingSubmitLaporan.value = true;
     allNameLaporanTidakhadir.value.clear();
     Map<String, dynamic> body = {
@@ -280,7 +282,15 @@ class LaporanTidakHadirController extends GetxController {
   }
 
   void changeTypeAjuanLaporan(name, title) {
-    print(name);
+    var statusFilter = name == "Approve 1"
+        ? "Approve"
+        : name == "Approve 2"
+            ? "Approve2"
+            : name == "Rejected"
+                ? "Rejected"
+                : name == "Pending"
+                    ? "Pending"
+                    : "Approve";
     for (var element in dataTypeAjuan.value) {
       if (element['nama'] == name) {
         element['status'] = true;
@@ -306,11 +316,11 @@ class LaporanTidakHadirController extends GetxController {
         if (title == "tidak_hadir" ||
             title == "cuti" ||
             title == "dinas_luar") {
-          if (element['leave_status'] == name) {
+          if (element['leave_status'] == statusFilter) {
             data.add(element);
           }
         } else {
-          if (element['status'] == name) {
+          if (element['status'] == statusFilter) {
             data.add(element);
           }
         }
@@ -1211,5 +1221,21 @@ class LaporanTidakHadirController extends GetxController {
         );
       },
     );
+  }
+
+  void viewLampiranAjuanKlaim(value) {
+    _launchURL() async => await canLaunch(Api.UrlfileKlaim + value)
+        ? await launch(Api.UrlfileKlaim + value)
+        : throw UtilsAlert.showToast('Tidak dapat membuka');
+    _launchURL();
+  }
+
+  String convertToIdr(dynamic number, int decimalDigit) {
+    NumberFormat currencyFormatter = NumberFormat.currency(
+      locale: 'id',
+      symbol: 'Rp ',
+      decimalDigits: decimalDigit,
+    );
+    return currencyFormatter.format(number);
   }
 }

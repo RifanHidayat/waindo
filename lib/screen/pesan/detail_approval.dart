@@ -31,6 +31,14 @@ class _DetailApprovalState extends State<DetailApproval> {
 
   @override
   Widget build(BuildContext context) {
+    var totalKlaim = controller.detailData[0]['type'] == "Klaim"
+        ? controller.detailData[0]['lainnya']['total_claim']
+        : 0;
+    var rupiah = controller.convertToIdr(totalKlaim, 0);
+    var namaTipe = controller.detailData[0]['type'] == "Klaim"
+        ? controller.detailData[0]['lainnya']['nama_tipe']
+        : "";
+
     return Scaffold(
       backgroundColor: Constanst.coloBackgroundScreen,
       appBar: AppBar(
@@ -140,21 +148,25 @@ class _DetailApprovalState extends State<DetailApproval> {
                                         TextStyle(fontWeight: FontWeight.bold),
                                   ),
                                 ),
-                                Expanded(
-                                  flex: 10,
-                                  child: Text("s.d",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                ),
-                                Expanded(
-                                  flex: 45,
-                                  child: Text(
-                                    "${controller.detailData[0]['waktu_sampai']}",
-                                    textAlign: TextAlign.center,
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold),
-                                  ),
-                                ),
+                                controller.detailData[0]['type'] == "Klaim"
+                                    ? SizedBox()
+                                    : Expanded(
+                                        flex: 10,
+                                        child: Text("s.d",
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold)),
+                                      ),
+                                controller.detailData[0]['type'] == "Klaim"
+                                    ? SizedBox()
+                                    : Expanded(
+                                        flex: 45,
+                                        child: Text(
+                                          "${controller.detailData[0]['waktu_sampai']}",
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
                               ],
                             ),
                             SizedBox(
@@ -166,18 +178,31 @@ class _DetailApprovalState extends State<DetailApproval> {
                                     style:
                                         TextStyle(color: Constanst.colorText2),
                                   )
-                                : Text(
-                                    "Delegasi Kepada",
-                                    style:
-                                        TextStyle(color: Constanst.colorText2),
-                                  ),
+                                : controller.detailData[0]['type'] == "Klaim"
+                                    ? Text(
+                                        "Total Klaim",
+                                        style: TextStyle(
+                                            color: Constanst.colorText2),
+                                      )
+                                    : Text(
+                                        "Delegasi Kepada",
+                                        style: TextStyle(
+                                            color: Constanst.colorText2),
+                                      ),
                             SizedBox(
                               height: 5,
                             ),
-                            Text(
-                              "${controller.fullNameDelegasi.value}",
-                              style: TextStyle(fontWeight: FontWeight.bold),
-                            ),
+                            controller.detailData[0]['type'] == "Klaim"
+                                ? Text(
+                                    "$rupiah",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  )
+                                : Text(
+                                    "${controller.fullNameDelegasi.value}",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold),
+                                  ),
                             SizedBox(
                               height: 10,
                             ),
@@ -209,7 +234,7 @@ class _DetailApprovalState extends State<DetailApproval> {
                               height: 5,
                             ),
                             Text(
-                              "${controller.detailData[0]['type']}",
+                              "${controller.detailData[0]['type']} $namaTipe",
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             controller.detailData[0]['file'] == ""
@@ -221,7 +246,11 @@ class _DetailApprovalState extends State<DetailApproval> {
                             controllerGlobal.valuePolaPersetujuan.value ==
                                         "1" ||
                                     controller.detailData[0]['nama_approve1'] ==
-                                        ""
+                                        "" ||
+                                    controller.detailData[0]['nama_approve1'] ==
+                                        "null" ||
+                                    controller.detailData[0]['nama_approve1'] ==
+                                        null
                                 ? SizedBox()
                                 : infoApprove1(),
                             Row(
@@ -318,9 +347,14 @@ class _DetailApprovalState extends State<DetailApproval> {
                         "Pengajuan Tidak Hadir") {
                       controller.viewFile(
                           "tidak_hadir", controller.detailData[0]['file']);
-                    } else {
+                    } else if (controller.detailData[0]['title_ajuan'] ==
+                        "Pengajuan Cuti") {
                       controller.viewFile(
                           "cuti", controller.detailData[0]['file']);
+                    } else if (controller.detailData[0]['title_ajuan'] ==
+                        "Pengajuan Klaim") {
+                      controller.viewFile(
+                          "klaim", controller.detailData[0]['file']);
                     }
                   },
                   child: Row(

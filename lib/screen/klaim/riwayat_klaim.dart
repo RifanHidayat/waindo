@@ -5,25 +5,28 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
+import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/global_controller.dart';
-import 'package:siscom_operasional/controller/tugas_luar_controller.dart';
+import 'package:siscom_operasional/controller/lembur_controller.dart';
+import 'package:siscom_operasional/controller/pesan_controller.dart';
+import 'package:siscom_operasional/controller/klaim_controller.dart';
 import 'package:siscom_operasional/screen/absen/form/form_lembur.dart';
-import 'package:siscom_operasional/screen/absen/form/form_tugas_luar.dart';
 import 'package:siscom_operasional/screen/absen/laporan/laporan_tidakMasuk.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
+import 'package:siscom_operasional/screen/klaim/form_klaim.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/month_year_picker.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 
-class TugasLuar extends StatefulWidget {
+class Klaim extends StatefulWidget {
   @override
-  _TugasLuarState createState() => _TugasLuarState();
+  _KlaimState createState() => _KlaimState();
 }
 
-class _TugasLuarState extends State<TugasLuar> {
-  final controller = Get.put(TugasLuarController());
+class _KlaimState extends State<Klaim> {
+  final controller = Get.put(KlaimController());
   var controllerGlobal = Get.put(GlobalController());
 
   @override
@@ -33,8 +36,7 @@ class _TugasLuarState extends State<TugasLuar> {
 
   Future<void> refreshData() async {
     await Future.delayed(Duration(seconds: 2));
-    controller.loadDataTugasLuar();
-    controller.loadDataDinasLuar();
+    controller.loadDataKlaim();
   }
 
   @override
@@ -45,17 +47,14 @@ class _TugasLuarState extends State<TugasLuar> {
           backgroundColor: Colors.white,
           automaticallyImplyLeading: false,
           elevation: 2,
-          flexibleSpace: Obx(
-            () => AppbarMenu1(
-              title:
-                  controller.viewTugasLuar.value ? "Tugas Luar" : "Dinas Luar",
-              colorTitle: Constanst.colorText3,
-              colorIcon: Constanst.colorText3,
-              icon: 1,
-              onTap: () {
-                Get.offAll(InitScreen());
-              },
-            ),
+          flexibleSpace: AppbarMenu1(
+            title: "Klaim",
+            colorTitle: Constanst.colorText3,
+            colorIcon: Constanst.colorText3,
+            icon: 1,
+            onTap: () {
+              Get.offAll(InitScreen());
+            },
           )),
       body: WillPopScope(
         onWillPop: () async {
@@ -99,29 +98,13 @@ class _TugasLuarState extends State<TugasLuar> {
                 SizedBox(
                   height: 16,
                 ),
-                listTypeTugasLuar(),
-                Divider(
-                  height: 5,
-                  color: Constanst.colorText2,
+                Text(
+                  "Riwayat Pengajuan Klaim",
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: Constanst.sizeTitle,
+                      color: Constanst.colorText3),
                 ),
-                SizedBox(
-                  height: 16,
-                ),
-                controller.viewTugasLuar.value
-                    ? Text(
-                        "Riwayat Pengajuan Tugas Luar",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: Constanst.sizeTitle,
-                            color: Constanst.colorText3),
-                      )
-                    : Text(
-                        "Riwayat Pengajuan Dinas Luar",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: Constanst.sizeTitle,
-                            color: Constanst.colorText3),
-                      ),
                 SizedBox(
                   height: 8,
                 ),
@@ -129,13 +112,11 @@ class _TugasLuarState extends State<TugasLuar> {
                     child: RefreshIndicator(
                         color: Constanst.colorPrimary,
                         onRefresh: refreshData,
-                        child: controller.listTugasLuar.value.isEmpty
+                        child: controller.listKlaim.value.isEmpty
                             ? Center(
                                 child: Text(controller.loadingString.value),
                               )
-                            : controller.viewTugasLuar.value
-                                ? riwayatTugasLuar()
-                                : riwayatDinasLuar()))
+                            : riwayatKlaim()))
               ],
             ),
           ),
@@ -160,30 +141,19 @@ class _TugasLuarState extends State<TugasLuar> {
                       child: Icon(Iconsax.minus_cirlce),
                       backgroundColor: Color(0xff2F80ED),
                       foregroundColor: Colors.white,
-                      label: 'Laporan Tugas Luar',
+                      label: 'Laporan Klaim',
                       onTap: () {
                         Get.to(LaporanTidakMasuk(
-                          title: 'tugas_luar',
-                        ));
-                      }),
-                  SpeedDialChild(
-                      child: Icon(Iconsax.minus_cirlce),
-                      backgroundColor: Color(0xff2F80ED),
-                      foregroundColor: Colors.white,
-                      label: 'Laporan Dinas Luar',
-                      onTap: () {
-                        Get.to(LaporanTidakMasuk(
-                          title: 'dinas_luar',
+                          title: 'klaim',
                         ));
                       }),
                   SpeedDialChild(
                       child: Icon(Iconsax.add_square),
                       backgroundColor: Color(0xff14B156),
                       foregroundColor: Colors.white,
-                      label: 'Buat Pengajuan Tugas Luar',
+                      label: 'Buat Pengajuan Klaim',
                       onTap: () {
-                        controller.viewTugasLuar.value = true;
-                        Get.to(FormTugasLuar(
+                        Get.to(FormKlaim(
                           dataForm: [[], false],
                         ));
                       }),
@@ -196,10 +166,9 @@ class _TugasLuarState extends State<TugasLuar> {
             child: controller.showButtonlaporan.value == true
                 ? SizedBox()
                 : TextButtonWidget2(
-                    title: "Buat Pengajuan Tugas Luar",
+                    title: "Buat Pengajuan Klaim",
                     onTap: () {
-                      controller.viewTugasLuar.value = true;
-                      Get.to(FormTugasLuar(
+                      Get.to(FormKlaim(
                         dataForm: [[], false],
                       ));
                     },
@@ -210,49 +179,6 @@ class _TugasLuarState extends State<TugasLuar> {
                       Iconsax.add,
                       color: Constanst.colorWhite,
                     ))),
-      ),
-    );
-  }
-
-  Widget listTypeTugasLuar() {
-    return SizedBox(
-      width: MediaQuery.of(Get.context!).size.width,
-      height: 50,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: InkWell(
-              onTap: () => controller.changeTypeSelected(0),
-              child: Center(
-                  child: Text(
-                "Tugas Luar",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: controller.selectedType.value == 0
-                        ? Constanst.colorPrimary
-                        : Constanst.colorText2),
-              )),
-            ),
-          ),
-          Expanded(
-            child: InkWell(
-              onTap: () => controller.changeTypeSelected(1),
-              child: Center(
-                  child: Text(
-                "Dinas Luar",
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: controller.selectedType.value == 1
-                        ? Constanst.colorPrimary
-                        : Constanst.colorText2),
-              )),
-            ),
-          ),
-        ],
       ),
     );
   }
@@ -283,8 +209,6 @@ class _TugasLuarState extends State<TugasLuar> {
                 this.controller.bulanSelectedSearchHistory.refresh();
                 this.controller.tahunSelectedSearchHistory.refresh();
                 this.controller.bulanDanTahunNow.refresh();
-                controller.loadDataTugasLuar();
-                controller.loadDataDinasLuar();
               }
             },
           );
@@ -471,43 +395,43 @@ class _TugasLuarState extends State<TugasLuar> {
     );
   }
 
-  Widget riwayatTugasLuar() {
+  Widget riwayatKlaim() {
     return ListView.builder(
-        physics: controller.listTugasLuar.value.length <= 8
+        physics: controller.listKlaim.value.length <= 8
             ? AlwaysScrollableScrollPhysics()
             : BouncingScrollPhysics(),
-        itemCount: controller.listTugasLuar.value.length,
+        itemCount: controller.listKlaim.value.length,
         itemBuilder: (context, index) {
-          var nomorAjuan = controller.listTugasLuar.value[index]['nomor_ajuan'];
-          var dariJam = controller.listTugasLuar.value[index]['dari_jam'];
-          var sampaiJam = controller.listTugasLuar.value[index]['sampai_jam'];
+          var nomorAjuan = controller.listKlaim.value[index]['nomor_ajuan'];
           var tanggalPengajuan =
-              controller.listTugasLuar.value[index]['atten_date'];
-
+              controller.listKlaim.value[index]['created_on'];
           var status;
           if (controller.valuePolaPersetujuan.value == "1") {
-            status = controller.listTugasLuar.value[index]['status'];
+            status = controller.listKlaim.value[index]['status'];
           } else {
-            status = controller.listTugasLuar.value[index]['status'] ==
-                    "Approve"
+            status = controller.listKlaim.value[index]['status'] == "Approve"
                 ? "Approve 1"
-                : controller.listTugasLuar.value[index]['status'] == "Approve2"
+                : controller.listKlaim.value[index]['status'] == "Approve2"
                     ? "Approve 2"
-                    : controller.listTugasLuar.value[index]['status'];
+                    : controller.listKlaim.value[index]['status'];
           }
-          var alasanReject =
-              controller.listTugasLuar.value[index]['alasan_reject'];
-          var approveDate =
-              controller.listTugasLuar.value[index]['approve_date'];
-          var uraian = controller.listTugasLuar.value[index]['uraian'];
+
+          DateTime fltr1 = DateTime.parse(
+              "${controller.listKlaim.value[index]['tgl_ajuan']}");
+          var tanggalAjuan = "${DateFormat('dd MMMM yyyy').format(fltr1)}";
+          var totalKlaim = controller.listKlaim.value[index]['total_claim'];
+          var rupiah = controller.convertToIdr(totalKlaim, 0);
+          var alasanReject = controller.listKlaim.value[index]['alasan_reject'];
+          var approveDate = controller.listKlaim.value[index]['approve_date'];
+          var uraian = controller.listKlaim.value[index]['description'];
           var approve;
-          if (controller.listTugasLuar.value[index]['approve2_by'] == "" ||
-              controller.listTugasLuar.value[index]['approve2_by'] == "null" ||
-              controller.listTugasLuar.value[index]['approve2_by'] == null) {
-            approve = controller.listTugasLuar.value[index]['approve_by'];
+          if (controller.listKlaim.value[index]['approve2_by'] == "") {
+            approve = controller.listKlaim.value[index]['approve_by'];
           } else {
-            approve = controller.listTugasLuar.value[index]['approve2_by'];
+            approve = controller.listKlaim.value[index]['approve2_by'];
           }
+
+          var namaFile = controller.listKlaim.value[index]['nama_file'];
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -650,7 +574,16 @@ class _TugasLuarState extends State<TugasLuar> {
                         height: 5,
                       ),
                       Text(
-                        '${dariJam} sd ${sampaiJam}',
+                        'Pengajuan : $tanggalAjuan',
+                        textAlign: TextAlign.justify,
+                        style: TextStyle(
+                            fontSize: 14, color: Constanst.colorText2),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        'Total Klaim : $rupiah',
                         textAlign: TextAlign.justify,
                         style: TextStyle(
                             fontSize: 14, color: Constanst.colorText2),
@@ -664,6 +597,55 @@ class _TugasLuarState extends State<TugasLuar> {
                         style: TextStyle(
                             fontSize: 14, color: Constanst.colorText2),
                       ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      namaFile == "" || namaFile == "NULL" || namaFile == null
+                          ? SizedBox()
+                          : Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  flex: 70,
+                                  child: Text(
+                                    "$namaFile",
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: Constanst.colorText2),
+                                  ),
+                                ),
+                                Expanded(
+                                  flex: 30,
+                                  child: InkWell(
+                                      onTap: () {
+                                        controller.viewLampiranAjuan(namaFile);
+                                      },
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          Text(
+                                            "Lihat File",
+                                            style: TextStyle(
+                                              color: Constanst.colorPrimary,
+                                              decoration:
+                                                  TextDecoration.underline,
+                                            ),
+                                          ),
+                                          Padding(
+                                            padding: EdgeInsets.only(left: 3),
+                                            child: Icon(
+                                              Iconsax.arrow_right_1,
+                                              size: 20,
+                                            ),
+                                          )
+                                        ],
+                                      )),
+                                )
+                              ],
+                            ),
                       SizedBox(
                         height: 5,
                       ),
@@ -703,11 +685,14 @@ class _TugasLuarState extends State<TugasLuar> {
                                     height: 6,
                                   ),
                                   Text(
-                                    alasanReject,
+                                    "$alasanReject",
                                     style: TextStyle(
                                         fontSize: 14,
                                         color: Constanst.colorText2),
-                                  )
+                                  ),
+                                  SizedBox(
+                                    height: 6,
+                                  ),
                                 ],
                               ),
                             )
@@ -751,6 +736,9 @@ class _TugasLuarState extends State<TugasLuar> {
                                             SizedBox(
                                               height: 5,
                                             ),
+                                            SizedBox(
+                                              height: 5,
+                                            ),
                                             Row(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
@@ -771,8 +759,7 @@ class _TugasLuarState extends State<TugasLuar> {
                                                     child: InkWell(
                                                         onTap: () {
                                                           var dataEmployee = {
-                                                            'nameType':
-                                                                'TUGAS LUAR',
+                                                            'nameType': 'KLAIM',
                                                             'nomor_ajuan':
                                                                 '$nomorAjuan',
                                                           };
@@ -813,7 +800,7 @@ class _TugasLuarState extends State<TugasLuar> {
                                               onTap: () {
                                                 controller
                                                     .showModalBatalPengajuan(
-                                                        controller.listTugasLuar
+                                                        controller.listKlaim
                                                             .value[index]);
                                               },
                                               child: Text(
@@ -836,11 +823,9 @@ class _TugasLuarState extends State<TugasLuar> {
                                                           .colorPrimary)),
                                               child: InkWell(
                                                 onTap: () {
-                                                  controller.viewTugasLuar
-                                                      .value = true;
-                                                  Get.to(FormTugasLuar(
+                                                  Get.to(FormKlaim(
                                                     dataForm: [
-                                                      controller.listTugasLuar
+                                                      controller.listKlaim
                                                           .value[index],
                                                       true
                                                     ],
@@ -865,396 +850,6 @@ class _TugasLuarState extends State<TugasLuar> {
                 ),
               )
             ],
-          );
-        });
-  }
-
-  Widget riwayatDinasLuar() {
-    return ListView.builder(
-        physics: controller.listDinasLuar.value.length <= 5
-            ? AlwaysScrollableScrollPhysics()
-            : BouncingScrollPhysics(),
-        itemCount: controller.listDinasLuar.value.length,
-        itemBuilder: (context, index) {
-          var nomorAjuan = controller.listDinasLuar.value[index]['nomor_ajuan'];
-          var tanggalMasukAjuan =
-              controller.listDinasLuar.value[index]['atten_date'];
-          var namaTypeAjuan = "Dinas Luar";
-          var alasanReject =
-              controller.listDinasLuar.value[index]['alasan_reject'] ?? "";
-          var typeAjuan;
-          if (controller.valuePolaPersetujuan.value == "1") {
-            typeAjuan = controller.listDinasLuar.value[index]['leave_status'];
-          } else {
-            typeAjuan = controller.listDinasLuar.value[index]['leave_status'] ==
-                    "Approve"
-                ? "Approve 1"
-                : controller.listDinasLuar.value[index]['leave_status'] ==
-                        "Approve2"
-                    ? "Approve 2"
-                    : controller.listDinasLuar.value[index]['leave_status'];
-          }
-          var approve_by;
-          if (controller.listDinasLuar.value[index]['apply2_by'] == "" ||
-              controller.listDinasLuar.value[index]['apply2_by'] == "null" ||
-              controller.listDinasLuar.value[index]['apply2_by'] == null) {
-            approve_by = controller.listDinasLuar.value[index]['apply_by'];
-          } else {
-            approve_by = controller.listDinasLuar.value[index]['apply2_by'];
-          }
-
-          return InkWell(
-            onTap: () => controller
-                .showDetailRiwayat(controller.listDinasLuar.value[index]),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 10,
-                ),
-                Text("${Constanst.convertDate("$tanggalMasukAjuan")}"),
-                SizedBox(
-                  height: 8,
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: Constanst.borderStyle1,
-                    boxShadow: [
-                      BoxShadow(
-                        color:
-                            Color.fromARGB(255, 170, 170, 170).withOpacity(0.4),
-                        spreadRadius: 1,
-                        blurRadius: 1,
-                        offset: Offset(1, 1), // changes position of shadow
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              flex: 60,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 5),
-                                child: Text(
-                                  namaTypeAjuan,
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16),
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              flex: 40,
-                              child: Container(
-                                margin: EdgeInsets.only(right: 6),
-                                decoration: BoxDecoration(
-                                  color: typeAjuan == 'Approve'
-                                      ? Constanst.colorBGApprove
-                                      : typeAjuan == 'Approve 1'
-                                          ? Constanst.colorBGApprove
-                                          : typeAjuan == 'Approve 2'
-                                              ? Constanst.colorBGApprove
-                                              : typeAjuan == 'Rejected'
-                                                  ? Constanst.colorBGRejected
-                                                  : typeAjuan == 'Pending'
-                                                      ? Constanst.colorBGPending
-                                                      : Colors.grey,
-                                  borderRadius: Constanst.borderStyle1,
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                      left: 3, right: 3, top: 5, bottom: 5),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      typeAjuan == 'Approve'
-                                          ? Icon(
-                                              Iconsax.tick_square,
-                                              color: Constanst.color5,
-                                              size: 14,
-                                            )
-                                          : typeAjuan == 'Approve 1'
-                                              ? Icon(
-                                                  Iconsax.tick_square,
-                                                  color: Constanst.color5,
-                                                  size: 14,
-                                                )
-                                              : typeAjuan == 'Approve 2'
-                                                  ? Icon(
-                                                      Iconsax.tick_square,
-                                                      color: Constanst.color5,
-                                                      size: 14,
-                                                    )
-                                                  : typeAjuan == 'Rejected'
-                                                      ? Icon(
-                                                          Iconsax.close_square,
-                                                          color:
-                                                              Constanst.color4,
-                                                          size: 14,
-                                                        )
-                                                      : typeAjuan == 'Pending'
-                                                          ? Icon(
-                                                              Iconsax.timer,
-                                                              color: Constanst
-                                                                  .color3,
-                                                              size: 14,
-                                                            )
-                                                          : SizedBox(),
-                                      Padding(
-                                        padding: const EdgeInsets.only(left: 3),
-                                        child: Text(
-                                          '$typeAjuan',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color: typeAjuan == 'Approve'
-                                                  ? Colors.green
-                                                  : typeAjuan == 'Approve 1'
-                                                      ? Colors.green
-                                                      : typeAjuan == 'Approve 2'
-                                                          ? Colors.green
-                                                          : typeAjuan ==
-                                                                  'Rejected'
-                                                              ? Colors.red
-                                                              : typeAjuan ==
-                                                                      'Pending'
-                                                                  ? Constanst
-                                                                      .color3
-                                                                  : Colors
-                                                                      .black),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Text(
-                          "NO.$nomorAjuan",
-                          textAlign: TextAlign.justify,
-                          style: TextStyle(
-                              fontSize: 14,
-                              color: Constanst.colorText1,
-                              fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        Divider(height: 5, color: Constanst.colorText2),
-                        SizedBox(
-                          height: 5,
-                        ),
-                        typeAjuan == 'Rejected'
-                            ? SizedBox(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Icon(
-                                          Iconsax.close_circle,
-                                          color: Colors.red,
-                                        ),
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.only(left: 5, top: 3),
-                                          child:
-                                              Text("Rejected by $approve_by"),
-                                        ),
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.only(left: 5, top: 3),
-                                          child: Text(""),
-                                        )
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 6,
-                                    ),
-                                    Text(
-                                      alasanReject,
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Constanst.colorText2),
-                                    )
-                                  ],
-                                ),
-                              )
-                            : Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Expanded(
-                                    child: typeAjuan == "Approve 1" ||
-                                            typeAjuan == "Approve" ||
-                                            typeAjuan == "Approve 2"
-                                        ? Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Icon(
-                                                Iconsax.tick_circle,
-                                                color: Colors.green,
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsets.only(
-                                                    left: 5, top: 3),
-                                                child: Text(
-                                                    "Approved by $approve_by"),
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsets.only(
-                                                    left: 5, top: 3),
-                                                child: Text(""),
-                                              )
-                                            ],
-                                          )
-                                        : Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                "Pending Approval",
-                                                style: TextStyle(
-                                                    color:
-                                                        Constanst.colorText2),
-                                              ),
-                                              SizedBox(
-                                                height: 5,
-                                              ),
-                                              Row(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Image.asset(
-                                                    'assets/whatsapp.png',
-                                                    width: 25,
-                                                    height: 25,
-                                                  ),
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.only(
-                                                            left: 6),
-                                                    child: Padding(
-                                                      padding:
-                                                          const EdgeInsets.only(
-                                                              top: 3),
-                                                      child: InkWell(
-                                                          onTap: () {
-                                                            var dataEmployee = {
-                                                              'nameType':
-                                                                  '$namaTypeAjuan',
-                                                              'nomor_ajuan':
-                                                                  '$nomorAjuan',
-                                                            };
-                                                            controllerGlobal
-                                                                .showDataPilihAtasan(
-                                                                    dataEmployee);
-                                                          },
-                                                          child: Text(
-                                                            "Konfirmasi via WA",
-                                                            style: TextStyle(
-                                                              decoration:
-                                                                  TextDecoration
-                                                                      .underline,
-                                                            ),
-                                                          )),
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                  ),
-                                  typeAjuan == "Approve 1" ||
-                                          typeAjuan == "Approve" ||
-                                          typeAjuan == "Approve 2"
-                                      ? SizedBox()
-                                      : Expanded(
-                                          child: Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.center,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Expanded(
-                                                child: Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 10),
-                                              child: InkWell(
-                                                onTap: () {
-                                                  controller
-                                                      .showModalBatalPengajuan(
-                                                          controller
-                                                              .listDinasLuar
-                                                              .value[index]);
-                                                },
-                                                child: Text(
-                                                  "Batalkan",
-                                                  textAlign: TextAlign.center,
-                                                  style: TextStyle(
-                                                      color: Colors.red),
-                                                ),
-                                              ),
-                                            )),
-                                            Expanded(
-                                                child: Padding(
-                                              padding:
-                                                  EdgeInsets.only(right: 10),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        Constanst.borderStyle1,
-                                                    border: Border.all(
-                                                        color: Constanst
-                                                            .colorPrimary)),
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    controller.viewTugasLuar
-                                                        .value = false;
-                                                    Get.to(FormTugasLuar(
-                                                      dataForm: [
-                                                        controller.listDinasLuar
-                                                            .value[index],
-                                                        true
-                                                      ],
-                                                    ));
-                                                  },
-                                                  child: Text(
-                                                    "Edit",
-                                                    textAlign: TextAlign.center,
-                                                    style: TextStyle(
-                                                        color: Constanst
-                                                            .colorPrimary),
-                                                  ),
-                                                ),
-                                              ),
-                                            )),
-                                          ],
-                                        )),
-                                ],
-                              )
-                      ],
-                    ),
-                  ),
-                )
-              ],
-            ),
           );
         });
   }

@@ -71,55 +71,56 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                          flex: 12,
-                          child: SingleChildScrollView(
-                            physics: BouncingScrollPhysics(),
-                            child: Column(
+                      SizedBox(
+                        height: 16,
+                      ),
+                      controller.bulanDanTahunNow.value == ""
+                          ? SizedBox()
+                          : Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                SizedBox(
-                                  height: 16,
+                                Expanded(
+                                  flex: 60,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(right: 8),
+                                    child: pencarianData(),
+                                  ),
                                 ),
-                                pickDate(),
+                                Expanded(
+                                  flex: 40,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: pickDate(),
+                                  ),
+                                )
                               ],
                             ),
-                          )),
-                      Expanded(
-                          flex: 88,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              listStatusAjuan(),
-                              SizedBox(
-                                height: 16,
-                              ),
-                              pencarianData(),
-                              SizedBox(
-                                height: 16,
-                              ),
-                              Text(
-                                "Riwayat Pengajuan Cuti",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 14),
-                              ),
-                              SizedBox(
-                                height: 8,
-                              ),
-                              Flexible(
-                                child: RefreshIndicator(
-                                    color: Constanst.colorPrimary,
-                                    onRefresh: refreshData,
-                                    child: controller
-                                            .listHistoryAjuan.value.isEmpty
-                                        ? Center(
-                                            child: Obx(() => Text(controller
-                                                .stringLoading.value)),
-                                          )
-                                        : listAjuanCuti()),
-                              )
-                            ],
-                          ))
+                      SizedBox(
+                        height: 16,
+                      ),
+                      listStatusAjuan(),
+                      SizedBox(
+                        height: 16,
+                      ),
+                      Text(
+                        "Riwayat Pengajuan Cuti",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                      SizedBox(
+                        height: 8,
+                      ),
+                      Flexible(
+                        child: RefreshIndicator(
+                            color: Constanst.colorPrimary,
+                            onRefresh: refreshData,
+                            child: controller.listHistoryAjuan.value.isEmpty
+                                ? Center(
+                                    child: Obx(() =>
+                                        Text(controller.stringLoading.value)),
+                                  )
+                                : listAjuanCuti()),
+                      )
                     ],
                   ),
                 ),
@@ -156,7 +157,7 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                       foregroundColor: Colors.white,
                       label: 'Buat Pengajuan Cuti',
                       onTap: () {
-                        Get.offAll(FormPengajuanCuti(
+                        Get.to(FormPengajuanCuti(
                           dataForm: [[], false],
                         ));
                       }),
@@ -171,7 +172,7 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                 : TextButtonWidget2(
                     title: "Buat Pengajuan Cuti",
                     onTap: () {
-                      Get.offAll(FormPengajuanCuti(
+                      Get.to(FormPengajuanCuti(
                         dataForm: [[], false],
                       ));
                     },
@@ -188,6 +189,7 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
 
   Widget pickDate() {
     return Container(
+      height: 42,
       decoration: Constanst.styleBoxDecoration1,
       child: InkWell(
         onTap: () {
@@ -217,42 +219,28 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
           );
         },
         child: Padding(
-          padding: EdgeInsets.only(top: 15, bottom: 10),
+          padding: const EdgeInsets.all(8.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                flex: 90,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: Icon(Iconsax.calendar_2),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: Text(
-                        "${Constanst.convertDateBulanDanTahun(controller.bulanDanTahunNow.value)}",
-                        style: TextStyle(fontSize: 16),
-                      ),
-                    ),
-                  ],
-                ),
+                flex: 20,
+                child: Icon(Iconsax.calendar_2),
+              ),
+              Expanded(
+                flex: 70,
+                child: Padding(
+                    padding: const EdgeInsets.only(left: 6, top: 3),
+                    child: Text(
+                        "${controller.bulanSelectedSearchHistory.value}-${controller.tahunSelectedSearchHistory.value}")),
               ),
               Expanded(
                 flex: 10,
-                child: Container(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: Icon(
-                      Icons.arrow_drop_down_rounded,
-                      size: 24,
-                    ),
-                  ),
+                child: Icon(
+                  Icons.arrow_drop_down_rounded,
+                  size: 24,
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -270,7 +258,7 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
             var namaType = controller.dataTypeAjuan[index]['nama'];
             var status = controller.dataTypeAjuan[index]['status'];
             return InkWell(
-              highlightColor: Constanst.colorButton2,
+              highlightColor: Constanst.colorPrimary,
               onTap: () => controller.changeTypeAjuan(
                   controller.dataTypeAjuan.value[index]['nama']),
               child: Container(
@@ -278,7 +266,7 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                 margin: EdgeInsets.only(left: 5, right: 5),
                 decoration: BoxDecoration(
                   color: status == true
-                      ? Constanst.colorButton2
+                      ? Constanst.colorPrimary
                       : Constanst.colorNonAktif,
                   borderRadius: Constanst.borderStyle1,
                 ),
@@ -291,7 +279,7 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                               Iconsax.tick_square,
                               size: 14,
                               color: status == true
-                                  ? Constanst.colorPrimary
+                                  ? Colors.white
                                   : Constanst.colorText2,
                             )
                           : namaType == "Approve 1"
@@ -299,7 +287,7 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                                   Iconsax.tick_square,
                                   size: 14,
                                   color: status == true
-                                      ? Constanst.colorPrimary
+                                      ? Colors.white
                                       : Constanst.colorText2,
                                 )
                               : namaType == "Approve 2"
@@ -307,7 +295,7 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                                       Iconsax.tick_square,
                                       size: 14,
                                       color: status == true
-                                          ? Constanst.colorPrimary
+                                          ? Colors.white
                                           : Constanst.colorText2,
                                     )
                                   : namaType == "Rejected"
@@ -315,7 +303,7 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                                           Iconsax.close_square,
                                           size: 14,
                                           color: status == true
-                                              ? Constanst.colorPrimary
+                                              ? Colors.white
                                               : Constanst.colorText2,
                                         )
                                       : namaType == "Pending"
@@ -323,7 +311,7 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                                               Iconsax.timer,
                                               size: 14,
                                               color: status == true
-                                                  ? Constanst.colorPrimary
+                                                  ? Colors.white
                                                   : Constanst.colorText2,
                                             )
                                           : SizedBox(),
@@ -334,7 +322,7 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                           style: TextStyle(
                               fontSize: 12,
                               color: status == true
-                                  ? Constanst.colorPrimary
+                                  ? Colors.white
                                   : Constanst.colorText2,
                               fontWeight: FontWeight.bold),
                         ),
@@ -440,8 +428,14 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                     ? "Approve 2"
                     : controller.listHistoryAjuan.value[index]['leave_status'];
           }
-
-          var apply_by = controller.listHistoryAjuan.value[index]['apply_by'];
+          var apply_by;
+          if (controller.listHistoryAjuan.value[index]['apply2_by'] == "" ||
+              controller.listHistoryAjuan.value[index]['apply2_by'] == "null" ||
+              controller.listHistoryAjuan.value[index]['apply2_by'] == null) {
+            apply_by = controller.listHistoryAjuan.value[index]['apply_by'];
+          } else {
+            apply_by = controller.listHistoryAjuan.value[index]['apply2_by'];
+          }
           return InkWell(
             onTap: () => controller
                 .showDetailRiwayat(controller.listHistoryAjuan.value[index]),
@@ -480,7 +474,7 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Expanded(
-                              flex: 70,
+                              flex: 60,
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 5),
                                 child: Text(
@@ -492,7 +486,7 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                               ),
                             ),
                             Expanded(
-                              flex: 30,
+                              flex: 40,
                               child: Container(
                                 margin: EdgeInsets.only(right: 8),
                                 decoration: BoxDecoration(
@@ -602,10 +596,25 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      "Alasan Reject",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Icon(
+                                          Iconsax.close_circle,
+                                          color: Colors.red,
+                                        ),
+                                        Padding(
+                                          padding:
+                                              EdgeInsets.only(left: 5, top: 3),
+                                          child: Text("Rejected by $apply_by"),
+                                        ),
+                                        Padding(
+                                          padding:
+                                              EdgeInsets.only(left: 5, top: 3),
+                                          child: Text(""),
+                                        )
+                                      ],
                                     ),
                                     SizedBox(
                                       height: 6,

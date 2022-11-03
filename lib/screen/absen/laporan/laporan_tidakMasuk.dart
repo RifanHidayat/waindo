@@ -53,7 +53,9 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
                               ? "Laporan Tugas Luar"
                               : widget.title == "dinas_luar"
                                   ? "Laporan Dinas Luar"
-                                  : "",
+                                  : widget.title == "klaim"
+                                      ? "Laporan Klaim"
+                                      : "",
               colorTitle: Colors.black,
               icon: 1,
               rightIcon: Icon(Iconsax.document_download),
@@ -224,79 +226,6 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
                         )),
                   ),
                 ),
-
-                // Padding(
-                //     padding: const EdgeInsets.only(right: 5),
-                //     child: InkWell(
-                //       onTap: () {
-                //         DatePicker.showPicker(
-                //           Get.context!,
-                //           pickerModel: CustomMonthPicker(
-                //             minTime: DateTime(2020, 1, 1),
-                //             maxTime: DateTime(2050, 1, 1),
-                //             currentTime: DateTime.now(),
-                //           ),
-                //           onConfirm: (time) {
-                //             if (time != null) {
-                //               print("$time");
-                //               var filter = DateFormat('yyyy-MM').format(time);
-                //               var array = filter.split('-');
-                //               var bulan = array[1];
-                //               var tahun = array[0];
-                //               controller.bulanSelectedSearchHistory.value =
-                //                   bulan;
-                //               controller.tahunSelectedSearchHistory.value =
-                //                   tahun;
-                //               controller.bulanDanTahunNow.value =
-                //                   "$bulan-$tahun";
-                //               this
-                //                   .controller
-                //                   .bulanSelectedSearchHistory
-                //                   .refresh();
-                //               this
-                //                   .controller
-                //                   .tahunSelectedSearchHistory
-                //                   .refresh();
-                //               this.controller.bulanDanTahunNow.refresh();
-                //             }
-                //           },
-                //         );
-                //       },
-                //       child: Container(
-                //         height: 50,
-                //         decoration: BoxDecoration(
-                //             borderRadius: Constanst.borderStyle1,
-                //             border: Border.all(color: Constanst.colorText2)),
-                //         child: Padding(
-                //           padding: EdgeInsets.only(top: 15, bottom: 8),
-                //           child: Row(
-                //             crossAxisAlignment: CrossAxisAlignment.start,
-                //             children: [
-                //               Expanded(
-                //                 child: Row(
-                //                   crossAxisAlignment: CrossAxisAlignment.start,
-                //                   children: [
-                //                     Padding(
-                //                       padding: const EdgeInsets.only(left: 6),
-                //                       child: Icon(Iconsax.calendar_2),
-                //                     ),
-                //                     Flexible(
-                //                       child: Padding(
-                //                         padding: const EdgeInsets.only(left: 3),
-                //                         child: Text(
-                //                           "${Constanst.convertDateBulanDanTahun(controller.bulanDanTahunNow.value)}",
-                //                           style: TextStyle(fontSize: 16),
-                //                         ),
-                //                       ),
-                //                     ),
-                //                   ],
-                //                 ),
-                //               ),
-                //             ],
-                //           ),
-                //         ),
-                //       ),
-                //     )),
               ),
               Expanded(
                 flex: 50,
@@ -413,11 +342,27 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
           var jobTitle =
               controller.allNameLaporanTidakhadir.value[index]['job_title'];
           var emId = controller.allNameLaporanTidakhadir.value[index]['em_id'];
-          var statusAjuan =
-              widget.title == "lembur" || widget.title == "tugas_luar"
-                  ? controller.allNameLaporanTidakhadir.value[index]['status']
-                  : controller.allNameLaporanTidakhadir.value[index]
-                      ['leave_status'];
+          var statusAjuan;
+          if (widget.title == "lembur" ||
+              widget.title == "tugas_luar" ||
+              widget.title == "klaim") {
+            var tampung =
+                controller.allNameLaporanTidakhadir.value[index]['status'];
+            statusAjuan = tampung == "Approve"
+                ? "Approve 1"
+                : tampung == "Approve2"
+                    ? "Approve 2"
+                    : tampung;
+          } else {
+            var tampung = controller.allNameLaporanTidakhadir.value[index]
+                ['leave_status'];
+            statusAjuan = tampung == "Approve"
+                ? "Approve 1"
+                : tampung == "Approve2"
+                    ? "Approve 2"
+                    : tampung;
+          }
+
           var jumlahPengajuan = controller.allNameLaporanTidakhadir.value[index]
               ['jumlah_pengajuan'];
 
@@ -492,19 +437,33 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
                                               color: Constanst.color5,
                                               size: 14,
                                             )
-                                          : statusAjuan == 'Rejected'
+                                          : statusAjuan == 'Approve 1'
                                               ? Icon(
-                                                  Iconsax.close_square,
-                                                  color: Constanst.color4,
+                                                  Iconsax.tick_square,
+                                                  color: Constanst.color5,
                                                   size: 14,
                                                 )
-                                              : statusAjuan == 'Pending'
+                                              : statusAjuan == 'Approve 2'
                                                   ? Icon(
-                                                      Iconsax.timer,
-                                                      color: Constanst.color3,
+                                                      Iconsax.tick_square,
+                                                      color: Constanst.color5,
                                                       size: 14,
                                                     )
-                                                  : SizedBox(),
+                                                  : statusAjuan == 'Rejected'
+                                                      ? Icon(
+                                                          Iconsax.close_square,
+                                                          color:
+                                                              Constanst.color4,
+                                                          size: 14,
+                                                        )
+                                                      : statusAjuan == 'Pending'
+                                                          ? Icon(
+                                                              Iconsax.timer,
+                                                              color: Constanst
+                                                                  .color3,
+                                                              size: 14,
+                                                            )
+                                                          : SizedBox(),
                                       Padding(
                                         padding: const EdgeInsets.only(left: 3),
                                         child: Text(
@@ -514,11 +473,20 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
                                               fontWeight: FontWeight.bold,
                                               color: statusAjuan == 'Approve'
                                                   ? Colors.green
-                                                  : statusAjuan == 'Rejected'
-                                                      ? Colors.red
-                                                      : statusAjuan == 'Pending'
-                                                          ? Constanst.color3
-                                                          : Colors.black),
+                                                  : statusAjuan == 'Approve 1'
+                                                      ? Colors.green
+                                                      : statusAjuan ==
+                                                              'Approve 2'
+                                                          ? Colors.green
+                                                          : statusAjuan ==
+                                                                  'Rejected'
+                                                              ? Colors.red
+                                                              : statusAjuan ==
+                                                                      'Pending'
+                                                                  ? Constanst
+                                                                      .color3
+                                                                  : Colors
+                                                                      .black),
                                         ),
                                       ),
                                     ],

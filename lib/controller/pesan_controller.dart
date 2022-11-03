@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/global_controller.dart';
@@ -30,6 +31,7 @@ class PesanController extends GetxController {
   var jumlahApproveTidakHadir = 0.obs;
   var jumlahApproveTugasLuar = 0.obs;
   var jumlahApproveDinasLuar = 0.obs;
+  var jumlahApproveKlaim = 0.obs;
   var jumlahNotifikasiBelumDibaca = 0.obs;
   var jumlahPersetujuan = 0.obs;
   var jumlahRiwayat = 0.obs;
@@ -45,7 +47,14 @@ class PesanController extends GetxController {
   var statusFilteriwayat = false.obs;
   var statusCari = false.obs;
 
-  var listDummy = ["Cuti", "Lembur", "Tidak Hadir", "Tugas Luar", "Dinas Luar"];
+  var listDummy = [
+    "Cuti",
+    "Lembur",
+    "Tidak Hadir",
+    "Tugas Luar",
+    "Dinas Luar",
+    "Klaim"
+  ];
 
   @override
   void onReady() async {
@@ -109,16 +118,19 @@ class PesanController extends GetxController {
           jumlahApproveTidakHadir.value = valueBody['jumlah_tidak_hadir'];
           jumlahApproveTugasLuar.value = valueBody['jumlah_tugasluar'];
           jumlahApproveDinasLuar.value = valueBody['jumlah_dinasluar'];
+          jumlahApproveKlaim.value = valueBody['jumlah_klaim'];
           jumlahPersetujuan.value = jumlahApproveCuti.value +
               jumlahApproveLembur.value +
               jumlahApproveTidakHadir.value +
               jumlahApproveTugasLuar.value +
-              jumlahApproveDinasLuar.value;
+              jumlahApproveDinasLuar.value +
+              jumlahApproveKlaim.value;
           this.jumlahApproveCuti.refresh();
           this.jumlahApproveLembur.refresh();
           this.jumlahApproveTidakHadir.refresh();
           this.jumlahApproveTugasLuar.refresh();
           this.jumlahApproveDinasLuar.refresh();
+          this.jumlahApproveKlaim.refresh();
           this.jumlahPersetujuan.refresh();
           loadScreenPersetujuan();
         } else {
@@ -182,6 +194,7 @@ class PesanController extends GetxController {
                   'date_selected': element['date_selected'],
                   'nama_tipe': element['nama_tipe'],
                   'type': "Izin",
+                  'lainnya': '',
                   'file': element['leave_files']
                 };
                 tampungRiwayatPersetujuan.add(data);
@@ -221,6 +234,7 @@ class PesanController extends GetxController {
                   'alasan_reject': element['alasan_reject'],
                   'nama_tipe': element['nama_tipe'],
                   'type': 'Cuti',
+                  'lainnya': '',
                   'file': element['leave_files']
                 };
                 tampungRiwayatPersetujuan.add(data);
@@ -260,6 +274,7 @@ class PesanController extends GetxController {
                   'date_selected': element['date_selected'],
                   'nama_tipe': "",
                   'type': "Dinas Luar",
+                  'lainnya': '',
                   'file': element['leave_files']
                 };
                 tampungRiwayatPersetujuan.add(data);
@@ -295,6 +310,7 @@ class PesanController extends GetxController {
                   'alasan_reject': element['alasan_reject'],
                   'nama_tipe': "",
                   'type': 'Lembur',
+                  'lainnya': '',
                   'file': ""
                 };
                 tampungRiwayatPersetujuan.add(data);
@@ -330,7 +346,50 @@ class PesanController extends GetxController {
                   'alasan_reject': element['alasan_reject'],
                   'nama_tipe': "",
                   'type': 'Tugas Luar',
+                  'lainnya': '',
                   'file': ''
+                };
+                tampungRiwayatPersetujuan.add(data);
+              }
+            }
+          }
+          if (valueBody['data_klaim'].length != 0) {
+            for (var element in valueBody['data_klaim']) {
+              if (element['status'] != 'Pending') {
+                var fullName = element['full_name'] ?? "";
+                var convertNama = "$fullName";
+                var nama_approve = valuePolaPersetujuan.value == "1"
+                    ? element['approve_by']
+                    : element['approve2_by'] == "" ||
+                            element['approve2_by'] == null ||
+                            element['approve2_by'] == "null"
+                        ? element['approve_by']
+                        : element['approve2_by'];
+                DateTime fltr1 = DateTime.parse("${element['tgl_ajuan']}");
+                DateTime fltr2 = DateTime.parse("${element['created_on']}");
+                var tanggalPengajuan =
+                    "${DateFormat('dd-MM-yyyy').format(fltr1)}";
+                var tanggalPembuatan =
+                    "${DateFormat('yyyy-MM-dd').format(fltr2)}";
+                var data = {
+                  'id': element['id'],
+                  'nama_pengaju': convertNama,
+                  'title_ajuan': 'Pengajuan Klaim',
+                  'waktu_dari': tanggalPengajuan,
+                  'waktu_sampai': "",
+                  'durasi': "",
+                  'waktu': "",
+                  'waktu_pengajuan': tanggalPembuatan,
+                  'catatan': element['description'],
+                  'status': element['status'],
+                  'apply_date': element['approve_date'],
+                  'apply_by': nama_approve,
+                  'date_selected': '',
+                  'alasan_reject': element['alasan_reject'],
+                  'nama_tipe': "",
+                  'type': 'Klaim',
+                  'lainnya': element,
+                  'file': element['nama_file'],
                 };
                 tampungRiwayatPersetujuan.add(data);
               }
@@ -446,6 +505,13 @@ class PesanController extends GetxController {
         };
         dataScreenPersetujuan.value.add(data);
         this.dataScreenPersetujuan.refresh();
+      } else if (element == "Klaim") {
+        var data = {
+          'title': element,
+          'jumlah_approve': "${jumlahApproveKlaim.value}",
+        };
+        dataScreenPersetujuan.value.add(data);
+        this.dataScreenPersetujuan.refresh();
       }
     }
     statusScreenInfoApproval.value = false;
@@ -557,6 +623,15 @@ class PesanController extends GetxController {
     });
   }
 
+  String convertToIdr(dynamic number, int decimalDigit) {
+    NumberFormat currencyFormatter = NumberFormat.currency(
+      locale: 'id',
+      symbol: 'Rp ',
+      decimalDigits: decimalDigit,
+    );
+    return currencyFormatter.format(number);
+  }
+
   void filterDetailRiwayatApproval(id, type) {
     var dataDetail = [];
     allRiwayatPersetujuan.forEach((element) {
@@ -577,6 +652,14 @@ class PesanController extends GetxController {
       var data = dataDetail[0]['date_selected'].split(',');
       listDateSelected = data;
     }
+    var totalKlaim = dataDetail[0]['type'] == "Klaim"
+        ? dataDetail[0]['lainnya']['total_claim']
+        : 0;
+    var rupiah = convertToIdr(totalKlaim, 0);
+    var namaTipe = dataDetail[0]['type'] == "Klaim"
+        ? dataDetail[0]['lainnya']['nama_tipe']
+        : "";
+
     showModalBottomSheet(
       context: Get.context!,
       isScrollControlled: true,
@@ -670,21 +753,48 @@ class PesanController extends GetxController {
                     dataDetail[0]['waktu_dari'],
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 5),
-                    child: Text("s.d",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 5),
-                    child: Text(
-                      dataDetail[0]['waktu_sampai'],
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
+                  dataDetail[0]['type'] == "Klaim"
+                      ? SizedBox()
+                      : Padding(
+                          padding: const EdgeInsets.only(left: 5),
+                          child: Text("s.d",
+                              style: TextStyle(fontWeight: FontWeight.bold)),
+                        ),
+                  dataDetail[0]['type'] == "Klaim"
+                      ? SizedBox()
+                      : Padding(
+                          padding: const EdgeInsets.only(left: 5),
+                          child: Text(
+                            dataDetail[0]['waktu_sampai'],
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
                 ],
               ),
+              dataDetail[0]['type'] != "Klaim"
+                  ? SizedBox()
+                  : SizedBox(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            "Total Klaim",
+                            style: TextStyle(color: Constanst.colorText2),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            "$rupiah",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
               SizedBox(
                 height: 10,
               ),
@@ -773,7 +883,7 @@ class PesanController extends GetxController {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "${dataDetail[0]['type']}",
+                    "${dataDetail[0]['type']} $namaTipe",
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   dataDetail[0]['nama_tipe'] == ""
@@ -951,7 +1061,7 @@ class PesanController extends GetxController {
 
   void cariData(value) {
     var textCari = value.toLowerCase();
-    var filter = allRiwayatPersetujuan.where((pengaju) {
+    List filter = allRiwayatPersetujuan.where((pengaju) {
       var namaPengaju = pengaju['nama_pengaju'].toLowerCase();
       return namaPengaju.contains(textCari);
     }).toList();
@@ -959,10 +1069,12 @@ class PesanController extends GetxController {
       return DateTime.parse(b['waktu_pengajuan'])
           .compareTo(DateTime.parse(a['waktu_pengajuan']));
     });
-    riwayatPersetujuan.value = filter;
-    statusCari.value = true;
-    this.riwayatPersetujuan.refresh();
-    this.statusCari.refresh();
+    if (filter.isNotEmpty) {
+      riwayatPersetujuan.value = filter;
+      statusCari.value = true;
+      this.riwayatPersetujuan.refresh();
+      this.statusCari.refresh();
+    }
   }
 
   void viewFile(status, file) {

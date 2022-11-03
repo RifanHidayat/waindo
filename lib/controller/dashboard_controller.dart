@@ -23,6 +23,8 @@ import 'package:siscom_operasional/screen/absen/tugas_luar.dart';
 import 'package:siscom_operasional/screen/absen/form/form_pengajuan_cuti.dart';
 import 'package:siscom_operasional/screen/absen/riwayat_cuti.dart';
 import 'package:siscom_operasional/screen/absen/izin.dart';
+import 'package:siscom_operasional/screen/klaim/form_klaim.dart';
+import 'package:siscom_operasional/screen/klaim/riwayat_klaim.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
@@ -58,11 +60,12 @@ class DashboardController extends GetxController {
   var refreshPagesStatus = false.obs;
 
   List sortcardPengajuan = [
-    {"id": 4, "nama_pengajuan": "Pengajuan Tidak Hadir"},
     {"id": 1, "nama_pengajuan": "Pengajuan Lembur"},
     {"id": 2, "nama_pengajuan": "Pengajuan Cuti"},
     {"id": 3, "nama_pengajuan": "Pengajuan Tugas Luar"},
-    {"id": 5, "nama_pengajuan": "Pengajuan Dinas Luar"}
+    {"id": 4, "nama_pengajuan": "Pengajuan Izin"},
+    {"id": 5, "nama_pengajuan": "Pengajuan Klaim"},
+    {"id": 6, "nama_pengajuan": "Buat Tugas"}
   ];
 
   @override
@@ -266,13 +269,16 @@ class DashboardController extends GetxController {
           var data = valueBody['data'];
           var filter1 = [];
           var dt = DateTime.now();
-          var convertDt = Constanst.convertDate1("$dt");
           for (var element in data) {
-            var getEndDate = Constanst.convertDate1("${element['end_date']}");
-            if (convertDt != getEndDate) {
+            DateTime dt2 = DateTime.parse("${element['end_date']}");
+            if (dt2.isBefore(dt)) {
+            } else {
               filter1.add(element);
             }
           }
+          filter1.sort((a, b) => b['begin_date']
+              .toUpperCase()
+              .compareTo(a['begin_date'].toUpperCase()));
           informasiDashboard.value = filter1;
           getEmployeeUltah(dt);
         }
@@ -489,13 +495,21 @@ class DashboardController extends GetxController {
     } else if (url == "Lembur") {
       Get.offAll(Lembur());
     } else if (url == "FormPengajuanCuti") {
-      Get.offAll(FormPengajuanCuti());
+      Get.to(FormPengajuanCuti(
+        dataForm: [[], false],
+      ));
     } else if (url == "RiwayatCuti") {
       Get.offAll(RiwayatCuti());
     } else if (url == "Izin") {
       Get.offAll(Izin());
     } else if (url == "TugasLuar") {
       Get.offAll(TugasLuar());
+    } else if (url == "Klaim") {
+      Get.offAll(Klaim());
+    } else if (url == "FormKlaim") {
+      Get.to(FormKlaim(
+        dataForm: [[], false],
+      ));
     } else if (url == "lainnya") {
       widgetButtomSheetMenuLebihDetail();
     } else {
@@ -521,9 +535,11 @@ class DashboardController extends GetxController {
         dataForm: [[], false],
       ));
     } else if (id == 5) {
-      Get.to(FormTugasLuar(
+      Get.to(FormKlaim(
         dataForm: [[], false],
       ));
+    } else {
+      UtilsAlert.showToast("Tahap Development");
     }
   }
 
@@ -706,13 +722,13 @@ class DashboardController extends GetxController {
                                                   )
                                                 : id == 5
                                                     ? Icon(
-                                                        Iconsax.airplane,
+                                                        Iconsax.receipt_2,
                                                         color: Constanst
                                                             .colorPrimary,
                                                       )
                                                     : id == 6
                                                         ? Icon(
-                                                            Iconsax.logout,
+                                                            Iconsax.task_square,
                                                             color: Constanst
                                                                 .colorPrimary,
                                                           )
@@ -720,11 +736,14 @@ class DashboardController extends GetxController {
                               ),
                               Expanded(
                                 flex: 80,
-                                child: Text(
-                                  sortcardPengajuan[index]['nama_pengajuan'],
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      color: Constanst.colorText3),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 8.0),
+                                  child: Text(
+                                    sortcardPengajuan[index]['nama_pengajuan'],
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: Constanst.colorText3),
+                                  ),
                                 ),
                               ),
                               Expanded(
