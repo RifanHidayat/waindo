@@ -17,6 +17,7 @@ import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/dashed_rect.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 
 class FormKlaim extends StatefulWidget {
   List? dataForm;
@@ -245,6 +246,13 @@ class _FormKlaimState extends State<FormKlaim> {
           child: Padding(
             padding: const EdgeInsets.only(left: 8),
             child: TextField(
+              inputFormatters: [
+                CurrencyTextInputFormatter(
+                  locale: 'id',
+                  symbol: 'Rp ',
+                  decimalDigits: 0,
+                )
+              ],
               cursorColor: Colors.black,
               controller: controller.totalKlaim.value,
               keyboardType: TextInputType.number,
@@ -253,7 +261,8 @@ class _FormKlaimState extends State<FormKlaim> {
               style:
                   TextStyle(fontSize: 14.0, height: 2.0, color: Colors.black),
               onSubmitted: (value) {
-                controller.changeTotalKlaim(value);
+                controller.totalKlaim.value.text = value;
+                this.controller.totalKlaim.refresh();
               },
             ),
           ),

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:intl/intl.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
@@ -21,45 +22,45 @@ class AktifitasController extends GetxController {
   var bulanSelectedSearchHistory = "".obs;
   var tahunSelectedSearchHistory = "".obs;
   var bulanDanTahunNow = "".obs;
+  var stringPersenAbsenTepatWaktu = "".obs;
+  var stringBulan = "".obs;
 
   var statusPencarian = false.obs;
   var statusFormPencarian = false.obs;
   var visibleWidget = false.obs;
 
   var indexList = 0.0.obs;
+  var persenAbsenTelat = 0.0.obs;
 
   var limit = 10.obs;
+  var jumlahTepatWaktu = 0.obs;
+  var firstDayMonth = 0.obs;
+  var lastDayMonth = 0.obs;
 
   List dummyInfo = [
     {
       'id': '1',
       'nama': 'Masuk Kerja',
-      'jumlah': '0',
     },
     {
       'id': '2',
       'nama': 'Izin',
-      'jumlah': '0',
     },
     {
       'id': '3',
       'nama': 'Sakit',
-      'jumlah': '0',
     },
     {
       'id': '4',
       'nama': 'Cuti',
-      'jumlah': '0',
     },
     {
       'id': '5',
       'nama': 'Lembur',
-      'jumlah': '0',
     },
     {
       'id': '6',
       'nama': 'WFH',
-      'jumlah': '0',
     },
   ];
 
@@ -97,6 +98,9 @@ class AktifitasController extends GetxController {
     tahunSelectedSearchHistory.value = "${dt.year}";
     bulanDanTahunNow.value = "${dt.month}-${dt.year}";
 
+    stringBulan.value = "${DateFormat('MMMM').format(dt)}";
+
+    this.stringBulan.refresh();
     this.bulanSelectedSearchHistory.refresh();
     this.tahunSelectedSearchHistory.refresh();
     this.bulanDanTahunNow.refresh();
@@ -131,6 +135,7 @@ class AktifitasController extends GetxController {
   }
 
   void getInformasiAktivitas() {
+    infoAktifitas.value.clear();
     var dataUser = AppData.informasiUser;
     var getEmId = dataUser![0].em_id;
     Map<String, dynamic> body = {
@@ -138,18 +143,133 @@ class AktifitasController extends GetxController {
       'bulan': bulanSelectedSearchHistory.value,
       'tahun': tahunSelectedSearchHistory.value,
     };
-    var connect = Api.connectionApi("post", body, '');
+    var connect = Api.connectionApi("post", body, 'info_aktifitas_employee');
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
+
+        var finalFilterMasukKerja;
+
+        if (valueBody['status'] == true) {
+          var tampungMasukKerja = valueBody['data_masuk_kerja'];
+          var seen = Set<String>();
+          List filter = tampungMasukKerja
+              .where((tanggal) => seen.add(tanggal['atten_date']))
+              .toList();
+          finalFilterMasukKerja = filter;
+        }
+
+        var dataMasukKerja =
+            valueBody['status'] == false ? 0 : finalFilterMasukKerja.length;
+
+        var dataIzin = valueBody['status'] == false
+            ? 0
+            : valueBody['data_izin'][0]['jumlah_izin'];
+        var dataSakit = valueBody['status'] == false
+            ? 0
+            : valueBody['data_sakit'][0]['jumlah_sakit'];
+        var dataCuti = valueBody['status'] == false
+            ? 0
+            : valueBody['data_cuti'][0]['jumlah_cuti'];
+        var dataLembur = valueBody['status'] == false
+            ? 0
+            : valueBody['data_lembur'][0]['jumlah_lembur'];
+        var dataMasukWfh = valueBody['status'] == false
+            ? 0
+            : valueBody['data_masukwfh'][0]['jumlah_masuk_wfh'];
+        List dataAbsenTepatWaktu = valueBody['status'] == false
+            ? []
+            : valueBody['data_absentepatwaktu'];
+
+        if (dataAbsenTepatWaktu.isNotEmpty) {
+          var tampungTepatWaktu = [];
+          for (var element in dataAbsenTepatWaktu) {
+            var listJamMasuk = (element['signin_time'].split(':'));
+            var perhitunganJamMasuk1 =
+                830 - int.parse("${listJamMasuk[0]}${listJamMasuk[1]}");
+            if (perhitunganJamMasuk1 < 0) {
+              print('telat');
+            } else {
+              tampungTepatWaktu.add(element);
+            }
+          }
+          jumlahTepatWaktu.value = tampungTepatWaktu.length;
+        } else {
+          jumlahTepatWaktu.value = 0;
+        }
+
+        for (var element in dummyInfo) {
+          if (element['id'] == '1') {
+            var data = {
+              'id': '1',
+              'nama': 'Masuk Kerja',
+              'jumlah': dataMasukKerja,
+            };
+            infoAktifitas.value.add(data);
+          } else if (element['id'] == '2') {
+            var data = {
+              'id': '2',
+              'nama': 'Izin',
+              'jumlah': dataIzin,
+            };
+            infoAktifitas.value.add(data);
+          } else if (element['id'] == '3') {
+            var data = {
+              'id': '3',
+              'nama': 'Sakit',
+              'jumlah': dataSakit,
+            };
+            infoAktifitas.value.add(data);
+          } else if (element['id'] == '4') {
+            var data = {
+              'id': '4',
+              'nama': 'Cuti',
+              'jumlah': dataCuti,
+            };
+            infoAktifitas.value.add(data);
+          } else if (element['id'] == '5') {
+            var data = {
+              'id': '5',
+              'nama': 'Lembur',
+              'jumlah': dataLembur,
+            };
+            infoAktifitas.value.add(data);
+          } else if (element['id'] == '6') {
+            var data = {
+              'id': '6',
+              'nama': 'WFH',
+              'jumlah': dataMasukWfh,
+            };
+            infoAktifitas.value.add(data);
+          }
+        }
+        this.jumlahTepatWaktu.refresh();
+        this.infoAktifitas.refresh();
+        hitungTepatWaktu(20, jumlahTepatWaktu.value);
       }
     });
+  }
 
-    // infoAktifitas.value.clear();
-    // for (var element in dummyInfo) {
-    //   infoAktifitas.value.add(element);
-    // }
-    // this.infoAktifitas.refresh();
+  void hitungTepatWaktu(totalDay, terpakai) {
+    print('terpaakai $terpakai');
+    var hitung1 = (terpakai / totalDay) * 100;
+    var convert1 = hitung1;
+    var convertedValue = double.parse("${convert1}") / 100;
+    print('persen double $convertedValue');
+    var fltr1 = '$convertedValue'.split('.');
+    var fltr2 = '${fltr1[1]}0 %';
+    stringPersenAbsenTepatWaktu.value = "$fltr2";
+    persenAbsenTelat.value = convertedValue;
+    DateTime now = DateTime.now();
+    int firstday = DateTime(now.year, now.month + 1).day;
+    int lastday = DateTime(now.year, now.month + 1, 0).day;
+    firstDayMonth.value = firstday;
+    lastDayMonth.value = lastday;
+
+    this.firstDayMonth.refresh();
+    this.lastDayMonth.refresh();
+    this.persenAbsenTelat.refresh();
+    this.stringPersenAbsenTepatWaktu.refresh();
   }
 
   void showInputCari() {
