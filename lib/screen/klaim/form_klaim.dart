@@ -255,7 +255,7 @@ class _FormKlaimState extends State<FormKlaim> {
               ],
               cursorColor: Colors.black,
               controller: controller.totalKlaim.value,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.numberWithOptions(signed: true),
               textInputAction: TextInputAction.done,
               decoration: new InputDecoration(border: InputBorder.none),
               style:
