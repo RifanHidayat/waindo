@@ -590,7 +590,7 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Expanded(
-                      flex: 70,
+                      flex: 60,
                       child: Padding(
                         padding: const EdgeInsets.only(top: 5),
                         child: Text(
@@ -601,7 +601,7 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                       ),
                     ),
                     Expanded(
-                      flex: 30,
+                      flex: 40,
                       child: Container(
                         margin: EdgeInsets.only(right: 8),
                         decoration: BoxDecoration(
@@ -988,7 +988,7 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Expanded(
-                            flex: 70,
+                            flex: 60,
                             child: Text(
                               "$namaFile",
                               style: TextStyle(
@@ -996,7 +996,7 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                             ),
                           ),
                           Expanded(
-                            flex: 30,
+                            flex: 40,
                             child: InkWell(
                                 onTap: () {
                                   controller.viewLampiranAjuanKlaim(namaFile);
