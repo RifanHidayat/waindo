@@ -39,9 +39,7 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Lokasi dibutuhkan untuk mendapatkan koordinat posisi absensi dan laporan anda</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Izin dibutuhkan untuk mendapatkan foto untuk absen dan laporan anda</string>
-	<key>NSUserTrackingUsageDescription</key>
-	<string>appTrackingTransparency</string>
+	<string>Izin dibutuhkan untuk mendapatkan foto untuk absen dan laporan anda</string> 
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
