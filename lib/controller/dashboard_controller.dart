@@ -54,6 +54,7 @@ class DashboardController extends GetxController {
   var heightPageView = 0.0.obs;
   var heightbanner = 0.0.obs;
   var ratioDevice = 0.0.obs;
+  var tinggiHp = 0.0.obs;
   var selectedInformasiView = 0.obs;
 
   var deviceStatus = false.obs;
@@ -224,6 +225,8 @@ class DashboardController extends GetxController {
 
   void getSizeDevice() {
     double width = MediaQuery.of(Get.context!).size.width;
+    double height = MediaQuery.of(Get.context!).size.height;
+    tinggiHp.value = height;
     if (width <= 395.0 || width <= 425.0) {
       print("kesini mobile kecil");
       deviceStatus.value = false;

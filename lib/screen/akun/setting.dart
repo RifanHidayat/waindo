@@ -59,18 +59,20 @@ class _SettingState extends State<Setting> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      flex: 20,
+                      flex:
+                          controllerDashboard.tinggiHp.value > 740.0 ? 20 : 25,
                       child: Column(
                         children: [
                           SizedBox(
-                            height: 50,
+                            height: 40,
                           ),
                           Obx(() => firstLine()),
                         ],
                       ),
                     ),
                     Expanded(
-                      flex: 80,
+                      flex:
+                          controllerDashboard.tinggiHp.value > 740.0 ? 80 : 75,
                       child: SizedBox(
                         child: RefreshIndicator(
                           onRefresh: refreshData,

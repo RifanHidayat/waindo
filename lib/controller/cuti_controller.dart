@@ -349,12 +349,14 @@ class CutiController extends GetxController {
           var valueBody = jsonDecode(res.body);
           var data = valueBody['data'];
           for (var element in data) {
-            var fullName = element['full_name'] ?? "";
-            String namaUser = "$fullName";
-            if (namaUser != full_name) {
-              allEmployeeDelegasi.value.add(namaUser);
+            if (element['status'] == 'ACTIVE') {
+              var fullName = element['full_name'] ?? "";
+              String namaUser = "$fullName";
+              if (namaUser != full_name) {
+                allEmployeeDelegasi.value.add(namaUser);
+              }
+              allEmployee.value.add(element);
             }
-            allEmployee.value.add(element);
           }
           if (statusForm.value == false) {
             var listFirst = valueBody['data'].first;
@@ -822,9 +824,10 @@ class CutiController extends GetxController {
       'created_by': '$getEmid',
       'val': 'id',
       'cari': '${index["id"]}',
+      'status_transaksi': 0,
       'start_date': '${index["start_date"]}',
     };
-    var connect = Api.connectionApi("post", body, "delete-emp_leave");
+    var connect = Api.connectionApi("post", body, "edit-emp_leave");
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         Navigator.pop(Get.context!);
@@ -1331,10 +1334,15 @@ class CutiController extends GetxController {
     );
   }
 
-  void viewLampiranAjuan(value) {
-    _launchURL() async => await canLaunch(Api.UrlfileCuti + value)
-        ? await launch(Api.UrlfileCuti + value)
-        : throw UtilsAlert.showToast('Tidak dapat membuka');
-    _launchURL();
+  void viewLampiranAjuan(value) async {
+    var urlViewGambar = Api.UrlfileCuti + value;
+
+    final url = Uri.parse(urlViewGambar);
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      UtilsAlert.showToast('Tidak dapat membuka file');
+    }
   }
 }

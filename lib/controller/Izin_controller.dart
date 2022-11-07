@@ -118,12 +118,14 @@ class IzinController extends GetxController {
           var valueBody = jsonDecode(res.body);
           var data = valueBody['data'];
           for (var element in data) {
-            var fullName = element['full_name'] ?? "";
-            String namaUser = "$fullName";
-            if (namaUser != full_name) {
-              allDelegasiIzin.value.add(namaUser);
+            if (element['status'] == 'ACTIVE') {
+              var fullName = element['full_name'] ?? "";
+              String namaUser = "$fullName";
+              if (namaUser != full_name) {
+                allDelegasiIzin.value.add(namaUser);
+              }
+              allEmployee.value.add(element);
             }
-            allEmployee.value.add(element);
           }
           if (idpengajuanIzin.value == "") {
             var listFirst = valueBody['data'].first;

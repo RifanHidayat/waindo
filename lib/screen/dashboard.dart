@@ -711,13 +711,17 @@ class _DashboardState extends State<Dashboard> {
                   (BuildContext context, int itemIndex, int pageViewIndex) {
                 return Obx(
                   () => InkWell(
-                    onTap: () {
-                      _launchURL() async => await canLaunch(controller
-                              .bannerDashboard.value[itemIndex]['url'])
-                          ? await launch(controller
-                              .bannerDashboard.value[itemIndex]['url'])
-                          : throw UtilsAlert.showToast('Tidak dapat membuka');
-                      _launchURL();
+                    onTap: () async {
+                      var urlViewGambar =
+                          controller.bannerDashboard.value[itemIndex]['url'];
+
+                      final url = Uri.parse(urlViewGambar);
+                      if (!await launchUrl(
+                        url,
+                        mode: LaunchMode.externalApplication,
+                      )) {
+                        UtilsAlert.showToast('Tidak dapat membuka file');
+                      }
                     },
                     child: SizedBox(
                         width: MediaQuery.of(context).size.width,

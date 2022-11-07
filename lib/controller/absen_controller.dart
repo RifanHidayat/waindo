@@ -674,10 +674,8 @@ class AbsenController extends GetxController {
             }
             listTanggal = listTanggal.toSet().toList();
             for (var element in listTanggal) {
-              var valueNonTurunan = [];
               var valueTurunan = [];
               var stringDateAdaTurunan = "";
-              int nomorAdaTurunan = 0;
               for (var element1 in historyAbsen.value) {
                 if (element == element1.atten_date) {
                   var dataTurunan = {
@@ -693,35 +691,44 @@ class AbsenController extends GetxController {
                   };
                   stringDateAdaTurunan = "${element1.atten_date}";
                   valueTurunan.add(dataTurunan);
-                } else {
-                  var dataNonTurunan = {
-                    'id': element1.id,
-                    'signin_time': element1.signin_time,
-                    'signout_time': element1.signout_time,
-                    'atten_date': element1.atten_date,
-                    'place_in': element1.place_in,
-                    'place_out': element1.place_out,
-                    'signin_note': element1.signin_note,
-                    'signin_longlat': element1.signin_longlat,
-                    'signout_longlat': element1.signout_longlat,
-                  };
-                  valueNonTurunan.add(dataNonTurunan);
                 }
               }
-              var lengthTurunan = valueTurunan.length == 0 ? false : true;
+              List hasilFilter = [];
+              List hasilFilterPengajuan = [];
+              for (var element1 in valueTurunan) {
+                if (element1['place_in'] == 'pengajuan') {
+                  hasilFilterPengajuan.add(element1);
+                } else {
+                  hasilFilter.add(element1);
+                }
+              }
+              List hasilFinalPengajuan = [];
+              if (hasilFilterPengajuan.isNotEmpty) {
+                var data = hasilFilterPengajuan;
+                var seen = Set<String>();
+                List filter = data
+                    .where((pengajuan) => seen.add(pengajuan['signin_note']))
+                    .toList();
+                hasilFinalPengajuan = filter;
+              }
+              List finalAllData = new List.from(hasilFilter)
+                ..addAll(hasilFinalPengajuan);
+
+              var lengthTurunan = finalAllData.length == 1 ? false : true;
+
               if (lengthTurunan == false) {
                 var data = {
-                  'id': valueNonTurunan[0]['id'],
-                  'signin_time': valueNonTurunan[0]['signin_time'],
-                  'signout_time': valueNonTurunan[0]['signout_time'],
-                  'atten_date': valueNonTurunan[0]['atten_date'],
-                  'place_in': valueNonTurunan[0]['place_in'],
-                  'place_out': valueNonTurunan[0]['place_out'],
-                  'signin_note': valueNonTurunan[0]['signin_note'],
-                  'signin_longlat': valueNonTurunan[0]['signin_longlat'],
-                  'signout_longlat': valueNonTurunan[0]['signout_longlat'],
+                  'id': finalAllData[0]['id'],
+                  'signin_time': finalAllData[0]['signin_time'],
+                  'signout_time': finalAllData[0]['signout_time'],
+                  'atten_date': finalAllData[0]['atten_date'],
+                  'place_in': finalAllData[0]['place_in'],
+                  'place_out': finalAllData[0]['place_out'],
+                  'signin_note': finalAllData[0]['signin_note'],
+                  'signin_longlat': finalAllData[0]['signin_longlat'],
+                  'signout_longlat': finalAllData[0]['signout_longlat'],
                   'view_turunan': lengthTurunan,
-                  'turunan': valueTurunan,
+                  'turunan': [],
                 };
                 finalData.add(data);
               } else {
@@ -736,7 +743,7 @@ class AbsenController extends GetxController {
                   'signout_longlat': "",
                   'view_turunan': lengthTurunan,
                   'status_view': false,
-                  'turunan': valueTurunan,
+                  'turunan': finalAllData,
                 };
                 stringDateAdaTurunan = "";
                 finalData.add(data);

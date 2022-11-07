@@ -1223,11 +1223,16 @@ class LaporanTidakHadirController extends GetxController {
     );
   }
 
-  void viewLampiranAjuanKlaim(value) {
-    _launchURL() async => await canLaunch(Api.UrlfileKlaim + value)
-        ? await launch(Api.UrlfileKlaim + value)
-        : throw UtilsAlert.showToast('Tidak dapat membuka');
-    _launchURL();
+  void viewLampiranAjuanKlaim(value) async {
+    var urlViewGambar = Api.UrlfileKlaim + value;
+
+    final url = Uri.parse(urlViewGambar);
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      UtilsAlert.showToast('Tidak dapat membuka file');
+    }
   }
 
   String convertToIdr(dynamic number, int decimalDigit) {

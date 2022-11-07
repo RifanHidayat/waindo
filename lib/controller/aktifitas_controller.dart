@@ -257,7 +257,12 @@ class AktifitasController extends GetxController {
     var convertedValue = double.parse("${convert1}") / 100;
     print('persen double $convertedValue');
     var fltr1 = '$convertedValue'.split('.');
-    var fltr2 = '${fltr1[1]}0 %';
+    var fltr2;
+    if (fltr1[1].length != 1) {
+      fltr2 = '${fltr1[1]} %';
+    } else {
+      fltr2 = '${fltr1[1]}0 %';
+    }
     stringPersenAbsenTepatWaktu.value = "$fltr2";
     persenAbsenTelat.value = convertedValue;
     DateTime now = DateTime.now();
