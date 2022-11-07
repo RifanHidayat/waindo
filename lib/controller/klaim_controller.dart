@@ -285,12 +285,14 @@ class KlaimController extends GetxController {
           var valueBody = jsonDecode(res.body);
           var data = valueBody['data'];
           for (var element in data) {
-            var fullName = element['full_name'] ?? "";
-            String namaUser = "$fullName";
-            if (namaUser != full_name) {
-              allEmployeeDelegasi.value.add(namaUser);
+            if (element['status'] == 'ACTIVE') {
+              var fullName = element['full_name'] ?? "";
+              String namaUser = "$fullName";
+              if (namaUser != full_name) {
+                allEmployeeDelegasi.value.add(namaUser);
+              }
+              allEmployee.value.add(element);
             }
-            allEmployee.value.add(element);
           }
           if (idpengajuanKlaim.value == "") {
             var listFirst = valueBody['data'].first;
@@ -742,9 +744,10 @@ class KlaimController extends GetxController {
       'created_by': '$getEmid',
       'val': 'id',
       'cari': '${index["id"]}',
+      'status_transaksi': 0,
       'atten_date': filterTanggal,
     };
-    var connect = Api.connectionApi("post", body, "delete-emp_claim");
+    var connect = Api.connectionApi("post", body, "edit-emp_claim");
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         Navigator.pop(Get.context!);
@@ -755,10 +758,15 @@ class KlaimController extends GetxController {
     });
   }
 
-  void viewLampiranAjuan(value) {
-    _launchURL() async => await canLaunch(Api.UrlfileKlaim + value)
-        ? await launch(Api.UrlfileKlaim + value)
-        : throw UtilsAlert.showToast('Tidak dapat membuka');
-    _launchURL();
+  void viewLampiranAjuan(value) async {
+    var urlViewGambar = Api.UrlfileKlaim + value;
+
+    final url = Uri.parse(urlViewGambar);
+    if (!await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    )) {
+      UtilsAlert.showToast('Tidak dapat membuka file');
+    }
   }
 }

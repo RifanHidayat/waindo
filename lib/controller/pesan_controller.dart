@@ -1077,17 +1077,27 @@ class PesanController extends GetxController {
     }
   }
 
-  void viewFile(status, file) {
+  void viewFile(status, file) async {
     if (status == "tidak_hadir") {
-      _launchURL() async => await canLaunch(Api.UrlfileTidakhadir + file)
-          ? await launch(Api.UrlfileTidakhadir + file)
-          : throw UtilsAlert.showToast('Tidak dapat membuka');
-      _launchURL();
+      var urlViewGambar = Api.UrlfileTidakhadir + file;
+
+      final url = Uri.parse(urlViewGambar);
+      if (!await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication,
+      )) {
+        UtilsAlert.showToast('Tidak dapat membuka file');
+      }
     } else {
-      _launchURL() async => await canLaunch(Api.UrlfileCuti + file)
-          ? await launch(Api.UrlfileCuti + file)
-          : throw UtilsAlert.showToast('Tidak dapat membuka');
-      _launchURL();
+      var urlViewGambar = Api.UrlfileCuti + file;
+
+      final url = Uri.parse(urlViewGambar);
+      if (!await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication,
+      )) {
+        UtilsAlert.showToast('Tidak dapat membuka file');
+      }
     }
   }
 }

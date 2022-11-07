@@ -805,7 +805,15 @@ class ApprovalController extends GetxController {
         if (res.statusCode == 200) {
           print('berhasil sampai sini');
           if (pilihan == true) {
-            insertAbsensiUserAfterApprove(dataEditFinal);
+            if (valuePolaPersetujuan.value == '1') {
+              if (statusPengajuan == 'Approve') {
+                insertAbsensiUserAfterApprove(dataEditFinal);
+              }
+            } else {
+              if (statusPengajuan == 'Approve2') {
+                insertAbsensiUserAfterApprove(dataEditFinal);
+              }
+            }
           }
           insertNotifikasi(dataEditFinal, statusPengajuan, tanggalNow, dt,
               pilihan, namaAtasanApprove, url_tujuan, alasanRejectShow);
@@ -983,22 +991,37 @@ class ApprovalController extends GetxController {
     });
   }
 
-  void viewFile(status, file) {
+  void viewFile(status, file) async {
     if (status == "tidak_hadir") {
-      _launchURL() async => await canLaunch(Api.UrlfileTidakhadir + file)
-          ? await launch(Api.UrlfileTidakhadir + file)
-          : throw UtilsAlert.showToast('Tidak dapat membuka');
-      _launchURL();
+      var urlViewGambar = Api.UrlfileTidakhadir + file;
+
+      final url = Uri.parse(urlViewGambar);
+      if (!await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication,
+      )) {
+        UtilsAlert.showToast('Tidak dapat membuka file');
+      }
     } else if (status == "cuti") {
-      _launchURL() async => await canLaunch(Api.UrlfileCuti + file)
-          ? await launch(Api.UrlfileCuti + file)
-          : throw UtilsAlert.showToast('Tidak dapat membuka');
-      _launchURL();
+      var urlViewGambar = Api.UrlfileCuti + file;
+
+      final url = Uri.parse(urlViewGambar);
+      if (!await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication,
+      )) {
+        UtilsAlert.showToast('Tidak dapat membuka file');
+      }
     } else if (status == "klaim") {
-      _launchURL() async => await canLaunch(Api.UrlfileKlaim + file)
-          ? await launch(Api.UrlfileKlaim + file)
-          : throw UtilsAlert.showToast('Tidak dapat membuka');
-      _launchURL();
+      var urlViewGambar = Api.UrlfileKlaim + file;
+
+      final url = Uri.parse(urlViewGambar);
+      if (!await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication,
+      )) {
+        UtilsAlert.showToast('Tidak dapat membuka file');
+      }
     }
   }
 }

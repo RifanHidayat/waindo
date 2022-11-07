@@ -117,10 +117,12 @@ class GlobalController extends GetxController {
                                 konfirmasiAtasan.value[index]['em_image'];
                             var nohp =
                                 konfirmasiAtasan.value[index]['em_mobile'];
+                            var jeniKelamin =
+                                konfirmasiAtasan.value[index]['em_gender'];
                             return InkWell(
                               onTap: () {
                                 kirimKonfirmasiWa(
-                                    dataEmployee, full_name, nohp);
+                                    dataEmployee, full_name, nohp, jeniKelamin);
                               },
                               child: Padding(
                                 padding:
@@ -235,38 +237,52 @@ class GlobalController extends GetxController {
         });
   }
 
-  void kirimKonfirmasiWa(dataEmployee, namaAtasan, nomorAtasan) async {
+  void kirimKonfirmasiWa(
+      dataEmployee, namaAtasan, nomorAtasan, jeniKelamin) async {
+    print('jenis kelamin $jeniKelamin');
+    print('nomor atasan $nomorAtasan');
     if (nomorAtasan == "" || nomorAtasan == null || nomorAtasan == "null") {
       UtilsAlert.showToast("Nomor wa atasan tidak valid");
     } else {
       var dataUser = AppData.informasiUser;
       var getEmid = dataUser![0].em_id;
       var getFullName = dataUser[0].full_name;
-      var gabunganPesan =
-          "Hallo pak ${namaAtasan}, saya ${getFullName} mengajukan ${dataEmployee['nameType']} dengan nomor ajuan ${dataEmployee['nomor_ajuan']}";
+      var pesan;
+      if (jeniKelamin == "PRIA") {
+        pesan =
+            "Hallo pak ${namaAtasan}, saya ${getFullName} mengajukan ${dataEmployee['nameType']} dengan nomor ajuan ${dataEmployee['nomor_ajuan']}";
+      } else {
+        pesan =
+            "Hallo bu ${namaAtasan}, saya ${getFullName} mengajukan ${dataEmployee['nameType']} dengan nomor ajuan ${dataEmployee['nomor_ajuan']}";
+      }
+      var gabunganPesan = pesan;
       var notujuan = nomorAtasan;
       var filternohp = notujuan.substring(1);
       var kodeNegara = 62;
       var gabungNohp = "$kodeNegara$filternohp";
 
       var whatsappURl_android =
-          "whatsapp://send?phone=" + gabungNohp + "&text=" + gabunganPesan;
+          "whatsapp://send?phone=$gabungNohp&text=${Uri.parse(gabunganPesan)}";
       var whatappURL_ios =
           "https://wa.me/$gabungNohp?text=${Uri.parse(gabunganPesan)}";
 
       if (Platform.isIOS) {
         // for iOS phone only
-        if (await canLaunch(whatappURL_ios)) {
-          await launch(whatappURL_ios, forceSafariVC: false);
-        } else {
-          UtilsAlert.showToast("Whatsapp tidak terinstall");
+        final url = Uri.parse(whatappURL_ios);
+        if (!await launchUrl(
+          url,
+          mode: LaunchMode.externalApplication,
+        )) { 
+          UtilsAlert.showToast('Terjadi kesalahan $whatappURL_ios');
         }
       } else {
         // android , web
-        if (await canLaunch(whatsappURl_android)) {
-          await launch(whatsappURl_android);
-        } else {
-          UtilsAlert.showToast("Whatsapp tidak terinstall");
+        final url = Uri.parse(whatsappURl_android);
+        if (!await launchUrl(
+          url,
+          mode: LaunchMode.externalApplication,
+        )) {
+          UtilsAlert.showToast('Terjadi kesalahan $whatsappURl_android');
         }
       }
     }

@@ -300,168 +300,223 @@ class _HistoryAbsenState extends State<HistoryAbsen> {
           } else {}
 
           return InkWell(
-            onTap: () {
-              controller.showTurunan(
-                  controller.historyAbsenShow.value[index]['atten_date']);
-              if (controller.historyAbsenShow.value[index]['view_turunan'] ==
-                  false) {
-                controller.historySelected(
-                    controller.historyAbsen.value[index].id, 'history');
-              }
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 10,
-                ),
-                controller.historyAbsenShow.value[index]['view_turunan'] == true
-                    ? Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              onTap: () {
+                controller.showTurunan(
+                    controller.historyAbsenShow.value[index]['atten_date']);
+                if (controller.historyAbsenShow.value[index]['view_turunan'] ==
+                    false) {
+                  controller.historySelected(
+                      controller.historyAbsen.value[index].id, 'history');
+                }
+              },
+              child: controller.historyAbsenShow.value[index]['view_turunan'] ==
+                      true
+                  ? tampilan1(controller.historyAbsenShow.value[index])
+                  : tampilan2(controller.historyAbsenShow.value[index]));
+        });
+  }
+
+  Widget tampilan1(index) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          height: 10,
+        ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 90,
+              child: Padding(
+                padding: const EdgeInsets.only(top: 6),
+                child: Text(
+                    "${Constanst.convertDate('${index['atten_date']}')}",
+                    style:
+                        TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+              ),
+            ),
+            Expanded(
+                flex: 10,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 6.0),
+                  child: index['status_view'] == false
+                      ? Icon(
+                          Icons.arrow_forward_ios_rounded,
+                          size: 14,
+                        )
+                      : Icon(
+                          Iconsax.arrow_down,
+                          size: 14,
+                        ),
+                ))
+          ],
+        ),
+        SizedBox(
+          height: 16,
+        ),
+        Divider(
+          height: 3,
+          color: Colors.grey,
+        ),
+        index['status_view'] == false
+            ? SizedBox()
+            : listTurunanHistoryAbsen(index['turunan']),
+      ],
+    );
+  }
+
+  Widget tampilan2(index) {
+    var jamMasuk = index['signin_time'] ?? '';
+    var jamKeluar = index['signout_time'] ?? '';
+    var placeIn = index['place_in'] ?? '';
+    var placeOut = index['place_out'] ?? '';
+    var note = index['signin_note'] ?? '';
+    var signInLongLat = index['signin_longlat'] ?? '';
+    var signOutLongLat = index['signout_longlat'] ?? '';
+    var statusView;
+    if (placeIn != "") {
+      statusView =
+          placeIn == "pengajuan" && placeOut == "pengajuan" ? true : false;
+    }
+    var listJamMasuk = (jamMasuk!.split(':'));
+    var listJamKeluar = (jamKeluar!.split(':'));
+    var perhitunganJamMasuk1 =
+        830 - int.parse("${listJamMasuk[0]}${listJamMasuk[1]}");
+    var perhitunganJamMasuk2 =
+        1800 - int.parse("${listJamKeluar[0]}${listJamKeluar[1]}");
+    var getColorMasuk;
+    var getColorKeluar;
+
+    if (perhitunganJamMasuk1 < 0) {
+      getColorMasuk = Colors.red;
+    } else {
+      getColorMasuk = Colors.black;
+    }
+
+    if (perhitunganJamMasuk2 == 0) {
+      getColorKeluar = Colors.black;
+    } else if (perhitunganJamMasuk2 > 0) {
+      getColorKeluar = Colors.red;
+    } else if (perhitunganJamMasuk2 < 0) {
+      getColorKeluar = Constanst.colorPrimary;
+    }
+    return InkWell(
+      onTap: () {
+        if (statusView == false) {
+          controller.historySelected(index['id'], 'history');
+        }
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            height: 16,
+          ),
+          statusView == false
+              ? Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 40,
+                      child: Text(
+                          "${Constanst.convertDate('${index['atten_date']}')}",
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold)),
+                    ),
+                    Expanded(
+                      flex: 25,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.login_rounded,
+                            color: getColorMasuk,
+                            size: 14,
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 8),
+                            child: Text(
+                              "${jamMasuk}",
+                              style:
+                                  TextStyle(color: getColorMasuk, fontSize: 14),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      flex: 25,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.logout_rounded,
+                            color: getColorKeluar,
+                            size: 14,
+                          ),
+                          Flexible(
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 8),
+                              child: signInLongLat == ""
+                                  ? Text("")
+                                  : Text(
+                                      "${jamKeluar}",
+                                      style: TextStyle(
+                                          color: getColorKeluar, fontSize: 14),
+                                    ),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      flex: 10,
+                      child: Icon(
+                        Icons.arrow_forward_ios_rounded,
+                        size: 14,
+                      ),
+                    ),
+                  ],
+                )
+              : Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Expanded(
-                            flex: 90,
-                            child: Padding(
-                              padding: const EdgeInsets.only(top: 6),
-                              child: Text(
-                                  "${Constanst.convertDate('${controller.historyAbsenShow.value[index]['atten_date']}')}",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold)),
-                            ),
+                            flex: 50,
+                            child: Text(
+                                "${Constanst.convertDate('${index['atten_date']}')}",
+                                style: TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold)),
                           ),
                           Expanded(
-                              flex: 10,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 6.0),
-                                child: controller.historyAbsenShow.value[index]
-                                            ['status_view'] ==
-                                        false
-                                    ? Icon(
-                                        Icons.arrow_forward_ios_rounded,
-                                        size: 14,
-                                      )
-                                    : Icon(
-                                        Iconsax.arrow_down,
-                                        size: 14,
-                                      ),
-                              ))
-                        ],
-                      )
-                    : statusView == false
-                        ? Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 40,
-                                child: Text(
-                                  "${Constanst.convertDate('${controller.historyAbsenShow.value[index]['atten_date']}')}",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 25,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.login_rounded,
-                                      color: getColorMasuk,
-                                      size: 14,
-                                    ),
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 8),
-                                      child: Text(
-                                        jamMasuk,
-                                        style: TextStyle(
-                                            color: getColorMasuk, fontSize: 14),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                flex: 25,
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.logout_rounded,
-                                      color: getColorKeluar,
-                                      size: 14,
-                                    ),
-                                    Flexible(
-                                      child: Padding(
-                                        padding: EdgeInsets.only(left: 8),
-                                        child: controller
-                                                    .historyAbsen
-                                                    .value[index]
-                                                    .signout_longlat ==
-                                                ""
-                                            ? Text("")
-                                            : Text(
-                                                jamKeluar,
-                                                style: TextStyle(
-                                                    color: getColorKeluar,
-                                                    fontSize: 14),
-                                              ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              Expanded(
-                                flex: 10,
-                                child: Icon(
-                                  Icons.arrow_forward_ios_rounded,
-                                  size: 14,
-                                ),
-                              ),
-                            ],
+                            flex: 50,
+                            child: Text(
+                              "${note}".toLowerCase(),
+                              style: TextStyle(color: Constanst.colorText3),
+                            ),
                           )
-                        : Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 40,
-                                child: Text(
-                                  "${Constanst.convertDate('${controller.historyAbsenShow.value[index]['atten_date']}')}",
-                                  style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold),
-                                ),
-                              ),
-                              Expanded(
-                                flex: 60,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "${note}".toLowerCase(),
-                                      style: TextStyle(
-                                          color: Constanst.colorText3),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                SizedBox(
-                  height: 16,
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-                Divider(
-                  height: 3,
-                  color: Colors.grey,
-                ),
-                controller.historyAbsenShow.value[index]['status_view'] == false
-                    ? SizedBox()
-                    : listTurunanHistoryAbsen(
-                        controller.historyAbsenShow.value[index]['turunan']),
-              ],
-            ),
-          );
-        });
+          SizedBox(
+            height: 16,
+          ),
+          Divider(
+            height: 3,
+            color: Colors.grey,
+          ),
+        ],
+      ),
+    );
   }
 
   Widget listTurunanHistoryAbsen(indexData) {

@@ -42,12 +42,35 @@ class LaporanAbsenKaryawanController extends GetxController {
         var valueBody = jsonDecode(res.body);
         if (valueBody['status'] == true) {
           List data = valueBody['data'];
-          data.sort((a, b) {
+
+          List dataAbsen = [];
+          List dataPengajuan = [];
+
+          for (var element in data) {
+            if (element['atttype'] == 0) {
+              dataPengajuan.add(element);
+            } else {
+              dataAbsen.add(element);
+            }
+          }
+          List finalFilterPengajuan = [];
+          if (dataPengajuan.isNotEmpty) {
+            final seen = Set<String>();
+            List unique = dataPengajuan
+                .where((str) => seen.add(str['atten_date']))
+                .toList();
+            finalFilterPengajuan = unique;
+          }
+
+          List finalAllData = new List.from(dataAbsen)
+            ..addAll(finalFilterPengajuan);
+
+          finalAllData.sort((a, b) {
             return DateTime.parse(b['atten_date'])
                 .compareTo(DateTime.parse(a['atten_date']));
           });
-          detailRiwayat.value = valueBody['data'];
-          AlldetailRiwayat.value = valueBody['data'];
+          detailRiwayat.value = finalAllData;
+          AlldetailRiwayat.value = finalAllData;
         }
         this.detailRiwayat.refresh();
         this.AlldetailRiwayat.refresh();
