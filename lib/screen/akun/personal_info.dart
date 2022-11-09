@@ -615,22 +615,82 @@ class PersonalInfo extends StatelessWidget {
                         ),
                         Expanded(
                           flex: 88,
-                          child: Column(
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Text(
-                                "Tanggal Bergabung",
-                                style: TextStyle(color: Constanst.colorText1),
+                              Expanded(
+                                flex: 45,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Bergabung",
+                                      style: TextStyle(
+                                          color: Constanst.colorText1),
+                                    ),
+                                    SizedBox(
+                                      height: 5,
+                                    ),
+                                    Text(
+                                      "${Constanst.convertDate("${controllerDashboard.user.value[0]['em_joining_date']}")}",
+                                      // "${controller.user.value?[0].em_joining_date}",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
                               ),
-                              SizedBox(
-                                height: 5,
+                              Expanded(
+                                flex: 5,
+                                child: Container(
+                                  height: 50,
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    child: Container(
+                                      width: 2,
+                                      color: Color.fromARGB(24, 0, 22, 103),
+                                    ),
+                                  ),
+                                ),
                               ),
-                              Text(
-                                "${Constanst.convertDate("${controllerDashboard.user.value[0]['em_joining_date']}")}",
-                                // "${controller.user.value?[0].em_joining_date}",
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              )
+                              controller.tanggalAkhirKontrak.value == ""
+                                  ? SizedBox()
+                                  : Expanded(
+                                      flex: 10,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(top: 10),
+                                        child: Icon(Iconsax.calendar_circle),
+                                      ),
+                                    ),
+                              controller.tanggalAkhirKontrak.value == ""
+                                  ? SizedBox()
+                                  : Expanded(
+                                      flex: 54,
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(left: 8),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              "Akhir Kontrak",
+                                              style: TextStyle(
+                                                  color: Constanst.colorText1),
+                                            ),
+                                            SizedBox(
+                                              height: 5,
+                                            ),
+                                            Text(
+                                              "${Constanst.convertDate("${controller.tanggalAkhirKontrak.value}")}",
+                                              // "${controller.user.value?[0].em_joining_date}",
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    )
                             ],
                           ),
                         )

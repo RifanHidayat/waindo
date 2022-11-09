@@ -40,6 +40,7 @@ class SettingController extends GetxController {
   var base64fotoUser = "".obs;
   var namaDepartemenTerpilih = "".obs;
   var loading = "Memuat data...".obs;
+  var tanggalAkhirKontrak = "".obs;
 
   var showpasswordLama = false.obs;
   var showpasswordBaru = false.obs;
@@ -65,6 +66,7 @@ class SettingController extends GetxController {
     getPusatBantuan();
     allDepartement();
     getUserInfo();
+    checkSelesaiKontrak();
     super.onReady();
   }
 
@@ -226,6 +228,25 @@ class SettingController extends GetxController {
         this.loading.refresh();
         this.statusLoadingSubmitLaporan.refresh();
         this.infoEmployee.refresh();
+      }
+    });
+  }
+
+  void checkSelesaiKontrak() async {
+    var dataUser = AppData.informasiUser;
+    var getEmid = dataUser![0].em_id;
+    Map<String, dynamic> body = {'val': 'em_id', 'cari': '$getEmid'};
+    var connect = Api.connectionApi("post", body, "whereOnce-employee_history");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        print('status karyawan ${valueBody['data'][0]['description']}');
+        if (valueBody['data'][0]['description'] != "PERMANENT") {
+          tanggalAkhirKontrak.value = valueBody['data'][0]['end_date'];
+        } else {
+          tanggalAkhirKontrak.value = "";
+        }
+        this.tanggalAkhirKontrak.refresh();
       }
     });
   }

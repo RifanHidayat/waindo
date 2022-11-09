@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
+import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/controller/pesan_controller.dart';
 import 'package:siscom_operasional/screen/absen/absen_masuk_keluar.dart';
 import 'package:siscom_operasional/screen/akun/personal_info.dart';
@@ -31,6 +32,7 @@ class _DashboardState extends State<Dashboard> {
   final controller = Get.put(DashboardController());
   final controllerAbsensi = Get.put(AbsenController());
   final controllerPesan = Get.put(PesanController());
+  var controllerGlobal = Get.put(GlobalController());
 
   Future<void> refreshData() async {
     controller.refreshPagesStatus.value = true;
@@ -157,6 +159,52 @@ class _DashboardState extends State<Dashboard> {
                               SizedBox(
                                 height: 8,
                               ),
+                              controllerGlobal.employeeSisaCuti.value.isEmpty
+                                  ? SizedBox()
+                                  : Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                            flex: 70,
+                                            child: Text(
+                                              "Reminder PKWT",
+                                              style: TextStyle(
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Constanst.colorText3),
+                                            )),
+                                        Expanded(
+                                            flex: 30,
+                                            child: InkWell(
+                                              onTap: () =>
+                                                  Get.offAll(Informasi()),
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(
+                                                    top: 4.0),
+                                                child: Text(
+                                                  "Lihat semua",
+                                                  textAlign: TextAlign.end,
+                                                  style: TextStyle(
+                                                      fontSize: 12,
+                                                      color: Constanst
+                                                          .colorPrimary),
+                                                ),
+                                              ),
+                                            ))
+                                      ],
+                                    ),
+                              controllerGlobal.employeeSisaCuti.isEmpty
+                                  ? SizedBox()
+                                  : SizedBox(
+                                      height: 8,
+                                    ),
+                              controllerGlobal.employeeSisaCuti.isEmpty
+                                  ? SizedBox()
+                                  : listReminderPkwt(),
+                              SizedBox(
+                                height: 8,
+                              ),
                               controller.employeeUltah.isEmpty
                                   ? SizedBox()
                                   : Row(
@@ -166,7 +214,7 @@ class _DashboardState extends State<Dashboard> {
                                         Expanded(
                                             flex: 70,
                                             child: Text(
-                                              "Ulang tahun hari ini",
+                                              "Ulang tahun bulan ini",
                                               style: TextStyle(
                                                   fontSize: 18,
                                                   fontWeight: FontWeight.bold,
@@ -1062,6 +1110,97 @@ class _DashboardState extends State<Dashboard> {
                     Center(
                       child: Text(
                         "$jobtitle",
+                        style: TextStyle(
+                            color: Constanst.colorText2, fontSize: 10),
+                      ),
+                    )
+                  ],
+                ),
+              );
+            }));
+  }
+
+  Widget listReminderPkwt() {
+    return SizedBox(
+        width: MediaQuery.of(Get.context!).size.width,
+        height: 120,
+        child: ListView.builder(
+            padding: EdgeInsets.all(0),
+            itemCount: controllerGlobal.employeeSisaCuti.length,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: (context, index) {
+              var fullname =
+                  controllerGlobal.employeeSisaCuti.value[index]['full_name'];
+              var image =
+                  controllerGlobal.employeeSisaCuti.value[index]['em_image'];
+              var sisaKontrak = controllerGlobal.employeeSisaCuti.value[index]
+                  ['sisa_kontrak'];
+              var endDate =
+                  controllerGlobal.employeeSisaCuti.value[index]['end_date'];
+              return Padding(
+                padding: EdgeInsets.only(left: 10, right: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    image == ""
+                        ? Image.asset(
+                            'assets/avatar_default.png',
+                            width: 50,
+                            height: 50,
+                          )
+                        : Center(
+                            child: CircleAvatar(
+                              radius: 25, // Image radius
+                              child: ClipOval(
+                                child: ClipOval(
+                                  child: CachedNetworkImage(
+                                    imageUrl: Api.UrlfotoProfile + "${image}",
+                                    progressIndicatorBuilder:
+                                        (context, url, downloadProgress) =>
+                                            Container(
+                                      alignment: Alignment.center,
+                                      height:
+                                          MediaQuery.of(context).size.height *
+                                              0.5,
+                                      width: MediaQuery.of(context).size.width,
+                                      child: CircularProgressIndicator(
+                                          value: downloadProgress.progress),
+                                    ),
+                                    errorWidget: (context, url, error) =>
+                                        Image.asset(
+                                      'assets/avatar_default.png',
+                                      width: 50,
+                                      height: 50,
+                                    ),
+                                    fit: BoxFit.cover,
+                                    width: 50,
+                                    height: 50,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Center(
+                      child: Text(
+                        "$fullname",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 10),
+                      ),
+                    ),
+                    Center(
+                      child: Text(
+                        "${Constanst.convertDate('$endDate')}",
+                        style: TextStyle(
+                            color: Constanst.colorText2, fontSize: 10),
+                      ),
+                    ),
+                    Center(
+                      child: Text(
+                        "Sisa $sisaKontrak Hari",
                         style: TextStyle(
                             color: Constanst.colorText2, fontSize: 10),
                       ),
