@@ -199,6 +199,9 @@ class _LaporanAbsenTelatState extends State<LaporanAbsenTelat> {
                         print(dateSelect);
                         controller.pilihTanggalTelatAbsen.value = dateSelect;
                         this.controller.pilihTanggalTelatAbsen.refresh();
+                        var format =
+                            "${DateFormat('yyyy-MM-dd').format(controller.pilihTanggalTelatAbsen.value)}";
+                        controller.aksiEmployeeTerlambatAbsen(format);
                       }
                     },
                     child: Padding(

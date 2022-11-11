@@ -345,6 +345,8 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
               controller.listLaporanFilter.value[index]['signin_time'];
           var signoutTime =
               controller.listLaporanFilter.value[index]['signout_time'];
+          var signNote =
+              controller.listLaporanFilter.value[index]['signin_note'];
           return InkWell(
             onTap: () {
               Get.to(LaporanAbsenKaryawan(
@@ -369,11 +371,11 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              namaKaryawan,
+                              '$namaKaryawan',
                               style: TextStyle(fontSize: 14),
                             ),
                             Text(
-                              jobTitle,
+                              '$jobTitle',
                               style: TextStyle(fontSize: 12),
                             ),
                           ],
@@ -389,58 +391,69 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                               "${Constanst.convertDate("$attenDate")}",
                               style: TextStyle(fontSize: 12),
                             ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(left: 3, right: 3),
-                                  child: Row(
+                            signinTime == "00:00:00" || signinTime == "null"
+                                ? Text(
+                                    '$signNote',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                : Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
-                                      Icon(
-                                        Icons.login_rounded,
-                                        color: Constanst.color5,
-                                        size: 14,
-                                      ),
                                       Padding(
-                                        padding: EdgeInsets.only(left: 3),
-                                        child: Text(
-                                          signinTime,
-                                          style: TextStyle(
-                                              fontSize: 12,
-                                              color: Constanst.color5),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                signoutTime == "00:00:00" ||
-                                        signoutTime == "null"
-                                    ? SizedBox()
-                                    : Padding(
                                         padding:
                                             EdgeInsets.only(left: 3, right: 3),
                                         child: Row(
                                           children: [
                                             Icon(
-                                              Icons.logout_rounded,
-                                              color: Constanst.color4,
+                                              Icons.login_rounded,
+                                              color: Constanst.color5,
                                               size: 14,
                                             ),
                                             Padding(
                                               padding: EdgeInsets.only(left: 3),
                                               child: Text(
-                                                signoutTime,
+                                                '$signinTime',
                                                 style: TextStyle(
                                                     fontSize: 12,
-                                                    color: Constanst.color4),
+                                                    color: Constanst.color5),
                                               ),
                                             )
                                           ],
                                         ),
                                       ),
-                              ],
-                            ),
+                                      signoutTime == "00:00:00" ||
+                                              signoutTime == "null"
+                                          ? SizedBox()
+                                          : Padding(
+                                              padding: EdgeInsets.only(
+                                                  left: 3, right: 3),
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.logout_rounded,
+                                                    color: Constanst.color4,
+                                                    size: 14,
+                                                  ),
+                                                  Padding(
+                                                    padding: EdgeInsets.only(
+                                                        left: 3),
+                                                    child: Text(
+                                                      '$signoutTime',
+                                                      style: TextStyle(
+                                                          fontSize: 12,
+                                                          color:
+                                                              Constanst.color4),
+                                                    ),
+                                                  )
+                                                ],
+                                              ),
+                                            ),
+                                    ],
+                                  ),
                           ],
                         ),
                       ),

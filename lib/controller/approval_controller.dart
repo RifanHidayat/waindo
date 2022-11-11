@@ -803,7 +803,6 @@ class ApprovalController extends GetxController {
       var connect = Api.connectionApi("post", body, "edit-emp_leave");
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
-          print('berhasil sampai sini');
           if (pilihan == true) {
             if (valuePolaPersetujuan.value == '1') {
               if (statusPengajuan == 'Approve') {
@@ -815,6 +814,10 @@ class ApprovalController extends GetxController {
               }
             }
           }
+          print('berhasil sampai sini edit emp leave');
+          print('pola persetujuan ${valuePolaPersetujuan.value}');
+          print('pilihan $pilihan');
+          print('status pengajuan $statusPengajuan');
           insertNotifikasi(dataEditFinal, statusPengajuan, tanggalNow, dt,
               pilihan, namaAtasanApprove, url_tujuan, alasanRejectShow);
         }
@@ -846,7 +849,7 @@ class ApprovalController extends GetxController {
       var connect = Api.connectionApi("post", body, "edit-emp_labor");
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
-          print('berhasil sampai sini');
+          print('berhasil sampai sini edit emp labor');
           insertNotifikasi(dataEditFinal, statusPengajuan, tanggalNow, dt,
               pilihan, namaAtasanApprove, url_tujuan, alasanRejectShow);
         }
@@ -974,6 +977,7 @@ class ApprovalController extends GetxController {
     } else if (url_tujuan == 'edit-emp_labor') {
       body['em_id'] = dataEditFinal[0]['em_id'];
     }
+
     var connect = Api.connectionApi("post", body, "insert-notifikasi");
     connect.then((dynamic res) {
       if (res.statusCode == 200) {

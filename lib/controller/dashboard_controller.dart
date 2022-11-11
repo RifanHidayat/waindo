@@ -23,6 +23,9 @@ import 'package:siscom_operasional/screen/absen/tugas_luar.dart';
 import 'package:siscom_operasional/screen/absen/form/form_pengajuan_cuti.dart';
 import 'package:siscom_operasional/screen/absen/riwayat_cuti.dart';
 import 'package:siscom_operasional/screen/absen/izin.dart';
+import 'package:siscom_operasional/screen/diskusi/ruang_diskusi.dart';
+import 'package:siscom_operasional/screen/kandidat/form_kandidat.dart';
+import 'package:siscom_operasional/screen/kandidat/list_kandidat.dart';
 import 'package:siscom_operasional/screen/klaim/form_klaim.dart';
 import 'package:siscom_operasional/screen/klaim/riwayat_klaim.dart';
 import 'package:siscom_operasional/utils/api.dart';
@@ -59,6 +62,7 @@ class DashboardController extends GetxController {
 
   var deviceStatus = false.obs;
   var refreshPagesStatus = false.obs;
+  var viewInformasiSisaKontrak = false.obs;
 
   List sortcardPengajuan = [
     {"id": 1, "nama_pengajuan": "Pengajuan Lembur"},
@@ -66,7 +70,7 @@ class DashboardController extends GetxController {
     {"id": 3, "nama_pengajuan": "Pengajuan Tugas Luar"},
     {"id": 4, "nama_pengajuan": "Pengajuan Izin"},
     {"id": 5, "nama_pengajuan": "Pengajuan Klaim"},
-    {"id": 6, "nama_pengajuan": "Buat Tugas"}
+    {"id": 6, "nama_pengajuan": "Pengajuan Kandidat"},
   ];
 
   @override
@@ -82,6 +86,7 @@ class DashboardController extends GetxController {
     Timer.periodic(Duration(seconds: 1), (Timer t) => _getTime());
     getSizeDevice();
     checkStatusPermission();
+    // checkHakAkses();
     super.onInit();
   }
 
@@ -111,6 +116,19 @@ class DashboardController extends GetxController {
     user.value = userTampung;
     this.user.refresh();
     refreshPagesStatus.value = false;
+  }
+
+  void checkHakAkses() {
+    var dataUser = AppData.informasiUser;
+    var hakAkses = dataUser![0].em_hak_akses;
+    print("ini hak akses $hakAkses");
+    if (hakAkses == "") {
+      viewInformasiSisaKontrak.value = false;
+    } else {
+      viewInformasiSisaKontrak.value = true;
+    }
+    print('ini status sisa kontrak $viewInformasiSisaKontrak');
+    this.viewInformasiSisaKontrak.refresh();
   }
 
   void checkStatusPermission() {
@@ -513,6 +531,14 @@ class DashboardController extends GetxController {
       Get.to(FormKlaim(
         dataForm: [[], false],
       ));
+    } else if (url == "Kandidat") {
+      var dataUser = AppData.informasiUser;
+      var getHakAkses = dataUser![0].em_hak_akses;
+      if (getHakAkses == "" || getHakAkses == null || getHakAkses == "null") {
+        UtilsAlert.showToast('Maaf anda tidak memiliki akses menu ini');
+      } else {
+        Get.offAll(Kandidat());
+      }
     } else if (url == "lainnya") {
       widgetButtomSheetMenuLebihDetail();
     } else {
@@ -541,6 +567,16 @@ class DashboardController extends GetxController {
       Get.to(FormKlaim(
         dataForm: [[], false],
       ));
+    } else if (id == 6) {
+      var dataUser = AppData.informasiUser;
+      var getHakAkses = dataUser![0].em_hak_akses;
+      if (getHakAkses == "" || getHakAkses == null || getHakAkses == "null") {
+        UtilsAlert.showToast('Maaf anda tidak memiliki akses menu ini');
+      } else {
+        Get.to(FormKandidat(
+          dataForm: [[], false],
+        ));
+      }
     } else {
       UtilsAlert.showToast("Tahap Development");
     }
@@ -731,7 +767,8 @@ class DashboardController extends GetxController {
                                                       )
                                                     : id == 6
                                                         ? Icon(
-                                                            Iconsax.task_square,
+                                                            Iconsax
+                                                                .profile_2user,
                                                             color: Constanst
                                                                 .colorPrimary,
                                                           )

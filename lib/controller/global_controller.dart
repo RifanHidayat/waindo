@@ -14,6 +14,7 @@ class GlobalController extends GetxController {
   var valuePolaPersetujuan = "".obs;
   var konfirmasiAtasan = [].obs;
   var sysData = [].obs;
+  var employeeSisaCuti = [].obs;
 
   @override
   void onReady() async {
@@ -29,6 +30,7 @@ class GlobalController extends GetxController {
         sysData.value = valueBody['data'];
         this.sysData.refresh();
         loadAllReportTo();
+        loadAllSisaCuti();
       }
     });
   }
@@ -52,8 +54,30 @@ class GlobalController extends GetxController {
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
-        konfirmasiAtasan.value = valueBody['data'];
+        var data = valueBody['data'];
+        var seen = Set<String>();
+        List filter =
+            data.where((atasan) => seen.add(atasan['full_name'])).toList();
+        konfirmasiAtasan.value = filter;
         this.konfirmasiAtasan.refresh();
+      }
+    });
+  }
+
+  void loadAllSisaCuti() {
+    var statusReminder = "";
+    for (var element in sysData.value) {
+      if (element['kode'] == "015") {
+        statusReminder = "${element['name']}";
+      }
+    }
+    Map<String, dynamic> body = {'reminder': statusReminder};
+    var connect = Api.connectionApi("post", body, "info_sisa_kontrak");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        employeeSisaCuti.value = valueBody['data'];
+        this.employeeSisaCuti.refresh();
       }
     });
   }
@@ -272,7 +296,7 @@ class GlobalController extends GetxController {
         if (!await launchUrl(
           url,
           mode: LaunchMode.externalApplication,
-        )) { 
+        )) {
           UtilsAlert.showToast('Terjadi kesalahan $whatappURL_ios');
         }
       } else {

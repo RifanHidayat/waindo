@@ -98,33 +98,39 @@ class _BerhasilPengajuanState extends State<BerhasilPengajuan> {
               ),
             ),
           ),
-          SizedBox(
-            width: MediaQuery.of(Get.context!).size.width,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 6.0, left: 8, right: 8),
-              child: ElevatedButton(
-                style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.white),
-                    foregroundColor:
-                        MaterialStateProperty.all<Color>(Colors.white),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                            side: BorderSide(color: Constanst.colorPrimary)))),
-                onPressed: () {
-                  controllerGlobal.showDataPilihAtasan(widget.dataBerhasil[3]);
-                },
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 12, bottom: 12),
-                  child: Text(
-                    'Konfirmasi via WA',
-                    style: TextStyle(color: Constanst.colorPrimary),
+          widget.dataBerhasil[3] == false
+              ? SizedBox()
+              : SizedBox(
+                  width: MediaQuery.of(Get.context!).size.width,
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.only(bottom: 6.0, left: 8, right: 8),
+                    child: ElevatedButton(
+                      style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all<Color>(Colors.white),
+                          foregroundColor:
+                              MaterialStateProperty.all<Color>(Colors.white),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      side: BorderSide(
+                                          color: Constanst.colorPrimary)))),
+                      onPressed: () {
+                        controllerGlobal
+                            .showDataPilihAtasan(widget.dataBerhasil[3]);
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 12, bottom: 12),
+                        child: Text(
+                          'Konfirmasi via WA',
+                          style: TextStyle(color: Constanst.colorPrimary),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
-            ),
-          ),
         ],
       ),
     );

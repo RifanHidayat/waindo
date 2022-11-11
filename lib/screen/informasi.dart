@@ -69,79 +69,140 @@ class Informasi extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: controller.selectedInformasiView.value == 0
-                      ? Constanst.colorPrimary
-                      : Constanst.color6,
-                  width: 2.0,
-                ),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Text(
-                "Informasi",
-                textAlign: TextAlign.center,
-                style: TextStyle(
+          child: InkWell(
+            onTap: () {
+              controller.selectedInformasiView.value = 0;
+              controller.informasiController.jumpToPage(0);
+              this.controller.selectedInformasiView.refresh();
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
                     color: controller.selectedInformasiView.value == 0
                         ? Constanst.colorPrimary
-                        : Constanst.colorText2,
-                    fontWeight: FontWeight.bold),
+                        : Constanst.color6,
+                    width: 2.0,
+                  ),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  "Informasi",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: controller.selectedInformasiView.value == 0
+                          ? Constanst.colorPrimary
+                          : Constanst.colorText2,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12),
+                ),
               ),
             ),
           ),
         ),
         Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: controller.selectedInformasiView.value == 1
-                      ? Constanst.colorPrimary
-                      : Constanst.color6,
-                  width: 2.0,
-                ),
-              ),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Text(
-                "Ulang Tahun",
-                textAlign: TextAlign.center,
-                style: TextStyle(
+          child: InkWell(
+            onTap: () {
+              controller.selectedInformasiView.value = 1;
+              controller.informasiController.jumpToPage(1);
+              this.controller.selectedInformasiView.refresh();
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
                     color: controller.selectedInformasiView.value == 1
                         ? Constanst.colorPrimary
-                        : Constanst.colorText2,
-                    fontWeight: FontWeight.bold),
+                        : Constanst.color6,
+                    width: 2.0,
+                  ),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  "Ulang Tahun",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: controller.selectedInformasiView.value == 1
+                          ? Constanst.colorPrimary
+                          : Constanst.colorText2,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12),
+                ),
               ),
             ),
           ),
         ),
         Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              border: Border(
-                bottom: BorderSide(
-                  color: controller.selectedInformasiView.value == 2
-                      ? Constanst.colorPrimary
-                      : Constanst.color6,
-                  width: 2.0,
+          child: InkWell(
+            onTap: () {
+              controller.selectedInformasiView.value = 2;
+              controller.informasiController.jumpToPage(2);
+              this.controller.selectedInformasiView.refresh();
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: controller.selectedInformasiView.value == 2
+                        ? Constanst.colorPrimary
+                        : Constanst.color6,
+                    width: 2.0,
+                  ),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  "Tidak Hadir",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: controller.selectedInformasiView.value == 2
+                          ? Constanst.colorPrimary
+                          : Constanst.colorText2,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12),
                 ),
               ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Text(
-                "Tidak Hadir",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                    color: controller.selectedInformasiView.value == 2
+          ),
+        ),
+        // !controller.viewInformasiSisaKontrak.value
+        //     ? SizedBox()
+        //     :
+        Expanded(
+          child: InkWell(
+            onTap: () {
+              controller.selectedInformasiView.value = 3;
+              controller.informasiController.jumpToPage(3);
+              this.controller.selectedInformasiView.refresh();
+            },
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(
+                    color: controller.selectedInformasiView.value == 3
                         ? Constanst.colorPrimary
-                        : Constanst.colorText2,
-                    fontWeight: FontWeight.bold),
+                        : Constanst.color6,
+                    width: 2.0,
+                  ),
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  "Sisa Kontrak",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      color: controller.selectedInformasiView.value == 3
+                          ? Constanst.colorPrimary
+                          : Constanst.colorText2,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12),
+                ),
               ),
             ),
           ),
@@ -158,7 +219,8 @@ class Informasi extends StatelessWidget {
           controller.selectedInformasiView.value = index;
           this.controller.selectedInformasiView.refresh();
         },
-        itemCount: 3,
+        // itemCount: !controller.viewInformasiSisaKontrak.value ? 3 : 4,
+        itemCount: 4,
         itemBuilder: (context, index) {
           return Padding(
               padding: EdgeInsets.all(0),
@@ -168,7 +230,9 @@ class Informasi extends StatelessWidget {
                       ? screenUltah()
                       : index == 2
                           ? screenTidakHadir()
-                          : SizedBox());
+                          : index == 3
+                              ? screenSisaKontrak()
+                              : SizedBox());
         });
   }
 
@@ -257,7 +321,7 @@ class Informasi extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(left: 30, right: 30),
               child: Text(
-                "Tidak ada karyawan yang berulang tahun pada hari ini",
+                "Tidak ada karyawan yang berulang tahun pada bulan ini",
                 textAlign: TextAlign.center,
               ),
             ),
@@ -482,6 +546,96 @@ class Informasi extends StatelessWidget {
                     ),
                     Text(
                       "$jobtitle",
+                      style: TextStyle(color: Constanst.colorText2),
+                    ),
+                    SizedBox(
+                      height: 8,
+                    ),
+                    Divider(
+                      height: 5,
+                      color: Constanst.colorNonAktif,
+                    ),
+                    SizedBox(
+                      height: 8,
+                    )
+                  ],
+                ),
+              );
+            });
+  }
+
+  Widget screenSisaKontrak() {
+    return controllerGlobal.employeeSisaCuti.value.isEmpty
+        ? Center(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 30, right: 30),
+              child: Text(
+                "Tidak ada data",
+                textAlign: TextAlign.center,
+              ),
+            ),
+          )
+        : ListView.builder(
+            itemCount: controllerGlobal.employeeSisaCuti.value.length,
+            shrinkWrap: true,
+            physics: BouncingScrollPhysics(),
+            scrollDirection: Axis.vertical,
+            itemBuilder: (context, index) {
+              var emId =
+                  controllerGlobal.employeeSisaCuti.value[index]['em_id'];
+              var fullname =
+                  controllerGlobal.employeeSisaCuti.value[index]['full_name'];
+              var deskripsi =
+                  controllerGlobal.employeeSisaCuti.value[index]['description'];
+              var beginDate =
+                  controllerGlobal.employeeSisaCuti.value[index]['begin_date'];
+              var endDate =
+                  controllerGlobal.employeeSisaCuti.value[index]['end_date'];
+              var remark =
+                  controllerGlobal.employeeSisaCuti.value[index]['remark'];
+              var sisaCuti = controllerGlobal.employeeSisaCuti.value[index]
+                  ['sisa_kontrak'];
+
+              return Padding(
+                padding: EdgeInsets.only(left: 8, right: 8, top: 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 70,
+                          child: Text(
+                            "$fullname",
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        Expanded(
+                          flex: 30,
+                          child: Container(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              "$sisaCuti Hari",
+                              style: TextStyle(
+                                  fontSize: 12, color: Constanst.colorText2),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      "$deskripsi",
+                      style: TextStyle(color: Constanst.colorText2),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      "${Constanst.convertDate('$beginDate')}  -  ${Constanst.convertDate('$endDate')}",
                       style: TextStyle(color: Constanst.colorText2),
                     ),
                     SizedBox(

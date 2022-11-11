@@ -18,6 +18,8 @@ class Api {
   static var UrlfileKlaim = basicUrl + "file_klaim/";
   static var UrlfileTidakhadir = basicUrl + "file_tidak_masuk_kerja/";
   static var urlGambarDariFinance = basicUrl + "gambar_banner/";
+  static var urlFilePermintaanKandidat = basicUrl + "file_permintaan_kandidat/";
+  static var urlFileKandidat = basicUrl + "file_kandidat/";
 
   static Future connectionApi(
       String typeConnect, valFormData, String url) async {
