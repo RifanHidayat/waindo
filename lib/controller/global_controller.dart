@@ -54,7 +54,11 @@ class GlobalController extends GetxController {
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
-        konfirmasiAtasan.value = valueBody['data'];
+        var data = valueBody['data'];
+        var seen = Set<String>();
+        List filter =
+            data.where((atasan) => seen.add(atasan['full_name'])).toList();
+        konfirmasiAtasan.value = filter;
         this.konfirmasiAtasan.refresh();
       }
     });

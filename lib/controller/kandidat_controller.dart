@@ -32,6 +32,10 @@ class KandidatController extends GetxController {
   var spesifikasi = TextEditingController().obs;
   var keterangan = TextEditingController().obs;
   var nomorAjuan = TextEditingController().obs;
+  var alasanTerima = TextEditingController().obs;
+  var alasanTolak = TextEditingController().obs;
+  var urlFormSchedule = TextEditingController().obs;
+  var nama_calon_kandidat = TextEditingController().obs;
 
   var filePengajuan = File("").obs;
 
@@ -41,7 +45,17 @@ class KandidatController extends GetxController {
   var namaFileUpload = "".obs;
   var tanggalPermintaan = "".obs;
   var selectedIdDetail = "".obs;
+  var idDepartemenTerpilih = "".obs;
+  var namaDepartemenTerpilih = "".obs;
+  var typeProsesTerpilih = "".obs;
+  var selectedKandidatUntuk = "BARU".obs;
+  var departemen = "".obs;
   var loadingString = "Sedang memuat...".obs;
+
+  Rx<DateTime> pilihTanggalSchedule1 = DateTime.now().obs;
+  Rx<DateTime> pilihTanggalSchedule2 = DateTime.now().obs;
+
+  Rx<List<String>> permintaanKandidatUntuk = Rx<List<String>>([]);
 
   var selectType = 0.obs;
   var selectedInformasiView = 0.obs;
@@ -49,6 +63,7 @@ class KandidatController extends GetxController {
   var statusCari = false.obs;
   var uploadFile = false.obs;
   var loadingUpdateData = false.obs;
+  var viewWidgetPilihDepartement = false.obs;
 
   var listTypeStatus = [].obs;
   var listProsesKandidat = [].obs;
@@ -57,16 +72,25 @@ class KandidatController extends GetxController {
   var detailPermintaan = [].obs;
   var listKandidatProses = [].obs;
   var listKandidatProsesAll = [].obs;
+  var departementAkses = [].obs;
 
   var dumyTypeStatus = ["Semua", "Aktif", "Tidak Aktif"];
-  var dumyTypeProsesKandidat = ["Sortir", "Test", "Interview", "Hasil"];
+  var loadPermintaanUntuk = ["BARU", "PENGGANTI"];
+  var dumyTypeProsesKandidat = [
+    "Sortir",
+    "Schedule 1",
+    "Interview 1",
+    "Schedule 2",
+    "Interview 2",
+    "Hasil"
+  ];
 
   @override
   void startData() async {
     getTimeNow();
     loadTypeStatus();
     loadTypeProsesKandidat();
-    loadPermintaanKandidat();
+    getDepartemen();
   }
 
   void removeAll() {}
@@ -84,6 +108,71 @@ class KandidatController extends GetxController {
     this.bulanDanTahunNow.refresh();
   }
 
+  void getDepartemen() {
+    var connect = Api.connectionApi("get", {}, "all_department");
+    connect.then((dynamic res) {
+      if (res == false) {
+        UtilsAlert.koneksiBuruk();
+      } else {
+        if (res.statusCode == 200) {
+          var valueBody = jsonDecode(res.body);
+          var dataDepartemen = valueBody['data'];
+
+          var dataUser = AppData.informasiUser;
+          var hakAkses = dataUser![0].em_hak_akses;
+
+          if (hakAkses != "" || hakAkses != null) {
+            if (hakAkses == '0') {
+              var data = {
+                'id': 0,
+                'name': 'SEMUA DIVISI',
+                'inisial': 'AD',
+                'parent_id': '',
+                'aktif': '',
+                'pakai': '',
+                'ip': '',
+                'created_by': '',
+                'created_on': '',
+                'modified_by': '',
+                'modified_on': ''
+              };
+              departementAkses.add(data);
+            }
+            var convert = hakAkses!.split(',');
+            if (hakAkses == '0') {
+              viewWidgetPilihDepartement.value = true;
+            } else {
+              viewWidgetPilihDepartement.value =
+                  convert.length > 1 ? true : false;
+            }
+            for (var element in dataDepartemen) {
+              if (hakAkses == '0') {
+                departementAkses.add(element);
+              } else {
+                for (var element1 in convert) {
+                  if ("${element['id']}" == element1) {
+                    departementAkses.add(element);
+                  }
+                }
+              }
+            }
+          }
+          this.departementAkses.refresh();
+          if (departementAkses.value.isNotEmpty) {
+            idDepartemenTerpilih.value = "${departementAkses[0]['id']}";
+            namaDepartemenTerpilih.value = departementAkses[0]['name'];
+            departemen.value = departementAkses[0]['name'];
+            this.idDepartemenTerpilih.refresh();
+            this.namaDepartemenTerpilih.refresh();
+            this.viewWidgetPilihDepartement.refresh();
+            this.departemen.refresh();
+            loadPermintaanKandidat();
+          }
+        }
+      }
+    });
+  }
+
   void loadTypeStatus() {
     List tampung = [];
     int no = 1;
@@ -99,6 +188,11 @@ class KandidatController extends GetxController {
     tampung.firstWhere((element) => element['id'] == 1)['status'] = true;
     listTypeStatus.value = tampung;
     this.listTypeStatus.refresh();
+
+    for (var element in loadPermintaanUntuk) {
+      permintaanKandidatUntuk.value.add(element);
+    }
+    this.permintaanKandidatUntuk.refresh();
   }
 
   void loadTypeProsesKandidat() {
@@ -174,12 +268,10 @@ class KandidatController extends GetxController {
     loadingUpdateData.value = true;
     listPermintaanKandidatAll.value.clear();
     listPermintaanKandidat.value.clear();
-    var dataUser = AppData.informasiUser;
-    var getEmid = dataUser![0].em_id;
     Map<String, dynamic> body = {
-      'em_id': getEmid,
       'bulan': bulanSelectedSearchHistory.value,
       'tahun': tahunSelectedSearchHistory.value,
+      'status': idDepartemenTerpilih.value
     };
     var connect =
         Api.connectionApi("post", body, "history-permintaan_kandidat");
@@ -241,14 +333,17 @@ class KandidatController extends GetxController {
         loadingString.value = listKandidatProses.value.isEmpty
             ? "Belum ada kandidat yang tersedia"
             : "Memuat data...";
-        selectedInformasiView.value = 0;
+
         listKandidatProsesAll.value = valueBody['data'];
         this.loadingString.refresh();
         this.selectedInformasiView.refresh();
         this.listKandidatProses.refresh();
         this.listKandidatProsesAll.refresh();
         if (aksi == 'load_first') {
+          selectedInformasiView.value = 0;
           Get.to(DetailPermintaan());
+        } else {
+          changeProsesRekrut(typeProsesTerpilih.value);
         }
       }
     });
@@ -262,18 +357,28 @@ class KandidatController extends GetxController {
         element['status'] = false;
       }
     });
+    typeProsesTerpilih.value = name;
+    this.typeProsesTerpilih.refresh();
     List tampung = [];
     for (var element in listKandidatProsesAll.value) {
       if (name == "Sortir") {
         if (element['status'] == "Open") {
           tampung.add(element);
         }
-      } else if (name == "Test") {
-        if (element['status'] == "Testing") {
+      } else if (name == "Schedule 1") {
+        if (element['status'] == "Schedule1") {
           tampung.add(element);
         }
-      } else if (name == "Interview") {
-        if (element['status'] == "Interview") {
+      } else if (name == "Interview 1") {
+        if (element['status'] == "Interview1") {
+          tampung.add(element);
+        }
+      } else if (name == "Schedule 2") {
+        if (element['status'] == "Schedule2") {
+          tampung.add(element);
+        }
+      } else if (name == "Interview 2") {
+        if (element['status'] == "Interview2") {
           tampung.add(element);
         }
       } else if (name == "Hasil") {
@@ -288,6 +393,177 @@ class KandidatController extends GetxController {
     this.loadingString.refresh();
     this.listKandidatProses.refresh();
     this.listProsesKandidat.refresh();
+  }
+
+  void showBottomAlasan(status, id, namaKandidat, statusKandidat) {
+    showModalBottomSheet(
+      context: Get.context!,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20.0),
+        ),
+      ),
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 30,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(left: 8, top: 2),
+                        child: status == false
+                            ? Text(
+                                "Keterangan Tolak Kandidat",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 14),
+                              )
+                            : Text(
+                                "Keterangan Terima Kandidat",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 14),
+                              ),
+                      )
+                    ],
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: Constanst.borderStyle1,
+                        border: Border.all(
+                            width: 1.0,
+                            color: Color.fromARGB(255, 211, 205, 205))),
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                          left: 8,
+                          bottom: MediaQuery.of(context).viewInsets.bottom),
+                      child: status == false
+                          ? TextField(
+                              cursorColor: Colors.black,
+                              controller: alasanTolak.value,
+                              maxLines: null,
+                              maxLength: 225,
+                              autofocus: true,
+                              decoration: new InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: "Alasan Tolak Kandidat"),
+                              keyboardType: TextInputType.multiline,
+                              textInputAction: TextInputAction.done,
+                              style: TextStyle(
+                                  fontSize: 12.0,
+                                  height: 2.0,
+                                  color: Colors.black),
+                            )
+                          : TextField(
+                              cursorColor: Colors.black,
+                              controller: alasanTerima.value,
+                              maxLines: null,
+                              maxLength: 225,
+                              autofocus: true,
+                              decoration: new InputDecoration(
+                                  border: InputBorder.none,
+                                  hintText: "Alasan Terima Kandidat"),
+                              keyboardType: TextInputType.multiline,
+                              textInputAction: TextInputAction.done,
+                              style: TextStyle(
+                                  fontSize: 12.0,
+                                  height: 2.0,
+                                  color: Colors.black),
+                            ),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                          child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextButtonWidget(
+                          title: "Kembali",
+                          onTap: () => Navigator.pop(Get.context!),
+                          colorButton: Colors.red,
+                          colortext: Colors.white,
+                          border: BorderRadius.circular(8.0),
+                        ),
+                      )),
+                      Expanded(
+                          child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: status == false
+                            ? TextButtonWidget(
+                                title: "Tolak",
+                                onTap: () {
+                                  if (alasanTolak.value.text != "") {
+                                    Navigator.pop(Get.context!);
+                                    updateStatusKandidat(id, namaKandidat,
+                                        statusKandidat, status);
+                                  } else {
+                                    UtilsAlert.showToast(
+                                        "Harap isi alasan terlebih dahulu");
+                                  }
+                                },
+                                colorButton: Constanst.colorPrimary,
+                                colortext: Colors.white,
+                                border: BorderRadius.circular(8.0),
+                              )
+                            : TextButtonWidget(
+                                title: "Terima",
+                                onTap: () {
+                                  if (alasanTerima.value.text != "") {
+                                    Navigator.pop(Get.context!);
+                                    if (namaKandidat == "" &&
+                                        statusKandidat == "") {
+                                      validasiSebelumAksi(
+                                          "Terima Final",
+                                          "Terima Kandidat ini ketahap akhir/final ?",
+                                          "",
+                                          "terima_final",
+                                          false,
+                                          id);
+                                    } else {
+                                      updateStatusKandidat(id, namaKandidat,
+                                          statusKandidat, status);
+                                    }
+                                  } else {
+                                    UtilsAlert.showToast(
+                                        "Harap isi alasan terlebih dahulu");
+                                  }
+                                },
+                                colorButton: Constanst.colorPrimary,
+                                colortext: Colors.white,
+                                border: BorderRadius.circular(8.0),
+                              ),
+                      ))
+                    ],
+                  )
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 30,
+            )
+          ],
+        );
+      },
+    );
   }
 
   void updateStatusKandidat(id, namaKandidat, statusKandidat, status) {
@@ -350,7 +626,7 @@ class KandidatController extends GetxController {
                   SizedBox(
                     height: 16,
                   ),
-                  status
+                  status == true
                       ? Text(
                           "Terima $namaKandidat ke tahap selanjutnya ?",
                           textAlign: TextAlign.justify,
@@ -370,7 +646,7 @@ class KandidatController extends GetxController {
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.only(right: 5),
-                          child: status
+                          child: status == true
                               ? TextButtonWidget(
                                   title: "Ya, Terima",
                                   onTap: () async {
@@ -433,33 +709,36 @@ class KandidatController extends GetxController {
     UtilsAlert.loadingSimpanData(
         Get.context!, "Proses terima kandidat ke tahap selanjutnya...");
     var status = statusKandidat == "Open"
-        ? "Testing"
-        : statusKandidat == "Testing"
-            ? "Interview"
-            : statusKandidat == "Interview"
-                ? "Accepted"
-                : "Open";
+        ? "Schedule1"
+        : statusKandidat == "Schedule1"
+            ? "Interview1"
+            : statusKandidat == "Interview1"
+                ? "Schedule2"
+                : statusKandidat == "Schedule2"
+                    ? "Interview2"
+                    : statusKandidat == "Interview2"
+                        ? "Accepted"
+                        : "Open";
+
     Map<String, dynamic> body = {
       'id': '$id',
       'status': '$status',
+      'alasan_terima': '${alasanTerima.value.text}',
     };
     var connect = Api.connectionApi("post", body, "edit_status_kandidat");
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
         if (valueBody['status'] == true) {
-          var typeProsesCurent = "";
-          for (var element in listProsesKandidat.value) {
-            if (element['status'] == true) {
-              typeProsesCurent = element['name'];
-            }
-          }
-          if (statusKandidat == "Interview") {
+          selectedInformasiView.value = 2;
+          DetailController.jumpToPage(2);
+          alasanTerima.value.text = "";
+          getKandidatPelemar(selectedIdDetail.value, 'load');
+          Navigator.pop(Get.context!);
+          this.selectedInformasiView.refresh();
+          if (statusKandidat == "Interview2") {
             aksiGantiStatusAkhirKandidat(id, true);
           }
-          getKandidatPelemar(selectedIdDetail.value, 'load');
-          loadTypeProsesKandidat();
-          Navigator.pop(Get.context!);
         }
       }
     });
@@ -489,6 +768,7 @@ class KandidatController extends GetxController {
       'id': '$id',
       'status': 'Accepted',
       'status_akhir': '2',
+      'alasan_tolak': alasanTolak.value.text,
       'status_remaks': '$statusKandidat',
     };
     var connect = Api.connectionApi("post", body, "tolak_kandidat");
@@ -498,8 +778,8 @@ class KandidatController extends GetxController {
         if (valueBody['status'] == true) {
           Navigator.pop(Get.context!);
           UtilsAlert.showToast('Berhasil tolak kandidat...');
+          alasanTolak.value.text = "";
           getKandidatPelemar(selectedIdDetail.value, 'load');
-          loadTypeProsesKandidat();
         }
       }
     });
@@ -607,6 +887,7 @@ class KandidatController extends GetxController {
       'em_id': '$getEmid',
       'nomor_ajuan': '$nomorAjuanTerakhir',
       'position': '${posisi.value.text}',
+      'purpose': '${selectedKandidatUntuk.value}',
       'emp_needs': '${kebutuhan.value.text}',
       'requirements': '${spesifikasi.value.text}',
       'remark': '${keterangan.value.text}',
@@ -642,6 +923,122 @@ class KandidatController extends GetxController {
         }
       }
     });
+  }
+
+  void filterDataArray() {
+    var data = departementAkses.value;
+    var seen = Set<String>();
+    List filter = data.where((divisi) => seen.add(divisi['name'])).toList();
+    departementAkses.value = filter;
+    this.departementAkses.refresh();
+  }
+
+  showDataDepartemenAkses() {
+    filterDataArray();
+    showModalBottomSheet(
+        context: Get.context!,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(20.0),
+          ),
+        ),
+        builder: (context) {
+          return Padding(
+            padding: const EdgeInsets.only(left: 16, right: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 30,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      flex: 90,
+                      child: Text(
+                        "Pilih Divisi",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                    ),
+                    Expanded(
+                        flex: 10,
+                        child: InkWell(
+                            onTap: () => Navigator.pop(Get.context!),
+                            child: Icon(Iconsax.close_circle)))
+                  ],
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+                Flexible(
+                  flex: 3,
+                  child: Padding(
+                      padding: EdgeInsets.only(left: 8, right: 8),
+                      child: ListView.builder(
+                          shrinkWrap: true,
+                          scrollDirection: Axis.vertical,
+                          physics: BouncingScrollPhysics(),
+                          itemCount: departementAkses.value.length,
+                          itemBuilder: (context, index) {
+                            var id = departementAkses.value[index]['id'];
+                            var dep_name =
+                                departementAkses.value[index]['name'];
+                            return InkWell(
+                              onTap: () {
+                                idDepartemenTerpilih.value = "$id";
+                                namaDepartemenTerpilih.value = dep_name;
+                                departemen.value =
+                                    departementAkses.value[index]['name'];
+                                this.idDepartemenTerpilih.refresh();
+                                this.namaDepartemenTerpilih.refresh();
+                                this.departemen.refresh();
+                                Navigator.pop(context);
+                                loadPermintaanKandidat();
+                              },
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.only(top: 5, bottom: 5),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: "$id" == idDepartemenTerpilih.value
+                                          ? Constanst.colorPrimary
+                                          : Colors.transparent,
+                                      borderRadius: Constanst
+                                          .styleBoxDecoration1.borderRadius,
+                                      border: Border.all(
+                                          color: Constanst.colorText2)),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 10, bottom: 10),
+                                    child: Center(
+                                      child: Text(
+                                        dep_name,
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: "$id" ==
+                                                    idDepartemenTerpilih.value
+                                                ? Colors.white
+                                                : Colors.black),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          })),
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+              ],
+            ),
+          );
+        });
   }
 
   void showModalHtmlEditor() {
@@ -772,14 +1169,561 @@ class KandidatController extends GetxController {
     );
   }
 
+  void showBottomFormSchedule(typeSchedule, id) {
+    showModalBottomSheet(
+      context: Get.context!,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20.0),
+        ),
+      ),
+      builder: (BuildContext context) {
+        return StatefulBuilder(builder: (BuildContext context, setState) {
+          return Padding(
+            padding: EdgeInsets.only(
+                left: 16.0,
+                right: 16.0,
+                bottom: MediaQuery.of(context).viewInsets.bottom),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 30,
+                ),
+                typeSchedule == false
+                    ? Text(
+                        "Jadwal Interview 1 *",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 14),
+                      )
+                    : Text(
+                        "Jadwal Interview 2 *",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 14),
+                      ),
+                SizedBox(
+                  height: 5,
+                ),
+                InkWell(
+                  onTap: () async {
+                    var dateSelect = await showDatePicker(
+                      context: Get.context!,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                      initialDate: typeSchedule == false
+                          ? pilihTanggalSchedule1.value
+                          : pilihTanggalSchedule2.value,
+                    );
+                    if (dateSelect == null) {
+                      UtilsAlert.showToast("Tanggal tidak terpilih");
+                    } else {
+                      setState(() {
+                        if (typeSchedule == false) {
+                          pilihTanggalSchedule1.value = dateSelect;
+                        } else {
+                          pilihTanggalSchedule2.value = dateSelect;
+                        }
+                        this.pilihTanggalSchedule1.refresh();
+                        this.pilihTanggalSchedule2.refresh();
+                      });
+                    }
+                  },
+                  child: Container(
+                    height: 40,
+                    width: MediaQuery.of(Get.context!).size.width,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: Constanst.borderStyle5,
+                        border: Border.all(
+                            width: 0.5,
+                            color: Color.fromARGB(255, 211, 205, 205))),
+                    child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: typeSchedule == false
+                            ? Text(
+                                '${Constanst.convertDate("$pilihTanggalSchedule1")}')
+                            : Text(
+                                '${Constanst.convertDate("$pilihTanggalSchedule2")}')),
+                  ),
+                ),
+                SizedBox(
+                  height: 16,
+                ),
+                Text(
+                  "Link url *",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: Constanst.borderStyle5,
+                      border: Border.all(
+                          width: 0.5,
+                          color: Color.fromARGB(255, 211, 205, 205))),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      controller: urlFormSchedule.value,
+                      cursorColor: Colors.black,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                      ),
+                      style: TextStyle(
+                          fontSize: 14.0, height: 2.0, color: Colors.black),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  height: 18,
+                ),
+                TextButtonWidget(
+                  title: "Update Data",
+                  onTap: () {
+                    Navigator.pop(Get.context!);
+                    UtilsAlert.loadingSimpanData(
+                        Get.context!, "Proses update data...");
+                    var typeEdit =
+                        typeSchedule == false ? 'Schedule1' : 'Schedule2';
+                    editTanggalDanUrlSchedule(id, typeEdit);
+                  },
+                  colorButton: Constanst.colorPrimary,
+                  colortext: Constanst.colorWhite,
+                  border: BorderRadius.circular(8.0),
+                ),
+                SizedBox(
+                  height: 30,
+                ),
+              ],
+            ),
+          );
+        });
+      },
+    );
+  }
+
+  void editTanggalDanUrlSchedule(id, typeEdit) {
+    var getTanggalInterviewAll = "";
+    var getTanggalInterviewLast = "";
+    var getBanyakTanggalInterview = 0;
+    for (var element in listKandidatProses.value) {
+      if (element['id'] == id) {
+        if (typeEdit == 'Schedule1') {
+          if (element['interview1_date'] == "" ||
+              element['interview1_date'] == null ||
+              element['interview1_date'] == "0000-00-00") {
+            getBanyakTanggalInterview = 0;
+            getTanggalInterviewLast = "";
+          } else {
+            List convert = element['interview1_date'].split(',');
+            getBanyakTanggalInterview = convert.length;
+            getTanggalInterviewLast = convert.last;
+            getTanggalInterviewAll = element['interview1_date'];
+          }
+        } else {
+          if (element['interview2_date'] == "" ||
+              element['interview2_date'] == null ||
+              element['interview2_date'] == "0000-00-00") {
+            getBanyakTanggalInterview = 0;
+            getTanggalInterviewLast = "";
+          } else {
+            List convert = element['interview2_date'].split(',');
+            getBanyakTanggalInterview = convert.length;
+            getTanggalInterviewLast = convert.last;
+            getTanggalInterviewAll = element['interview2_date'];
+          }
+        }
+      }
+    }
+
+    var convertDate = "";
+    if (getBanyakTanggalInterview == 0) {
+      if (typeEdit == 'Schedule1') {
+        convertDate =
+            "${DateFormat('yyyy-MM-dd').format(pilihTanggalSchedule1.value)}";
+      } else {
+        convertDate =
+            "${DateFormat('yyyy-MM-dd').format(pilihTanggalSchedule2.value)}";
+      }
+    } else {
+      if (typeEdit == 'Schedule1') {
+        convertDate =
+            "$getTanggalInterviewAll,${"${DateFormat('yyyy-MM-dd').format(pilihTanggalSchedule1.value)}"}";
+      } else {
+        convertDate =
+            "$getTanggalInterviewAll,${"${DateFormat('yyyy-MM-dd').format(pilihTanggalSchedule2.value)}"}";
+      }
+    }
+
+    Map<String, dynamic> body = {
+      'id': '$id',
+      'url': '${urlFormSchedule.value.text}',
+    };
+
+    if (typeEdit == 'Schedule1') {
+      body['interview1_date'] = '$convertDate';
+    } else {
+      body['interview2_date'] = '$convertDate';
+    }
+
+    var connect = Api.connectionApi("post", body, "edit_status_kandidat");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == true) {
+          alasanTerima.value.text = "";
+          urlFormSchedule.value.text = "";
+          getKandidatPelemar(selectedIdDetail.value, 'load');
+          Navigator.pop(Get.context!);
+        }
+      }
+    });
+  }
+
+  void showBottomFormInterview(typeInterview, id) {
+    // typeInterview = false -> interview 1 & Schedule 1
+    // typeInterview = true -> interview 2 & Schedule 2
+    showModalBottomSheet(
+      context: Get.context!,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20.0),
+        ),
+      ),
+      builder: (BuildContext context) {
+        return Padding(
+          padding: EdgeInsets.only(
+              left: 18.0,
+              right: 18.0,
+              bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 18,
+              ),
+              InkWell(
+                onTap: () {
+                  validasiSebelumAksi(
+                      "Atur jadwal",
+                      "Atur ulang jadwal interview",
+                      "",
+                      "atur_ulang_jadwal",
+                      typeInterview,
+                      id);
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Iconsax.clock,
+                        color: Colors.orange,
+                        size: 22,
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.only(left: 8),
+                          child: Text("Jadwalkan ulang",
+                              style: TextStyle(fontSize: 16)),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+              ),
+              typeInterview == false
+                  ? SizedBox(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: 8,
+                          ),
+                          InkWell(
+                            onTap: () {
+                              Navigator.pop(Get.context!);
+                              showBottomAlasan(true, id, "", "");
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Icon(
+                                    Iconsax.tick_circle,
+                                    color: Colors.green,
+                                    size: 22,
+                                  ),
+                                  Expanded(
+                                    child: Padding(
+                                      padding: EdgeInsets.only(left: 8),
+                                      child: Text(
+                                        "Terima Final",
+                                        style: TextStyle(fontSize: 16),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  : SizedBox(),
+              SizedBox(
+                height: 30,
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void aksiJadwalUlangSchedule(id, updateStatus) {
+    Map<String, dynamic> body = {
+      'id': '$id',
+      'status': '$updateStatus',
+    };
+    var connect = Api.connectionApi("post", body, "edit_status_kandidat");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == true) {
+          getKandidatPelemar(selectedIdDetail.value, 'load');
+          Navigator.pop(Get.context!);
+        }
+      }
+    });
+  }
+
+  void aksiTerimaFinalKandidat(id) {
+    UtilsAlert.loadingSimpanData(Get.context!, 'Proses terima kandidat');
+    Map<String, dynamic> body = {
+      'id': '$id',
+      'status': 'Accepted',
+      'status_akhir': '1',
+      'status_remaks': 'Interview1',
+      'alasan_terima': '${alasanTerima.value.text}',
+    };
+    var connect = Api.connectionApi("post", body, "edit_status_kandidat");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == true) {
+          alasanTerima.value.text = "";
+          getKandidatPelemar(selectedIdDetail.value, 'load');
+          Navigator.pop(Get.context!);
+        }
+      }
+    });
+  }
+
+  void aksiUploadKandidatBaru() {
+    UtilsAlert.loadingSimpanData(Get.context!, 'Sedang proses...');
+    Map<String, dynamic> body = {
+      'req_id': '${selectedIdDetail.value}',
+      'candidate_name': '${nama_calon_kandidat.value.text}',
+      'nama_file': '${namaFileUpload.value}',
+      'status': 'Open',
+      'status_akhir': '0',
+      'alasan_terima': '${keterangan.value.text}',
+    };
+    var connect = Api.connectionApi("post", body, "insert-candidate");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['status'] == true) {
+          nama_calon_kandidat.value.text = "";
+          keterangan.value.text = "";
+          namaFileUpload.value = "";
+          this.nama_calon_kandidat.refresh();
+          this.keterangan.refresh();
+          this.namaFileUpload.refresh();
+          selectedInformasiView.value = 1;
+          DetailController.jumpToPage(1);
+          getKandidatPelemar(selectedIdDetail.value, 'load');
+          Navigator.pop(Get.context!);
+        }
+      }
+    });
+  }
+
+  void validasiSebelumAksi(pesan1, pesan2, pesan3, typeAksi, statusType, id) {
+    showModalBottomSheet(
+      context: Get.context!,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(10.0),
+        ),
+      ),
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 16,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        flex: 90,
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "$pesan1",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 16),
+                            )
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                          flex: 10,
+                          child: InkWell(
+                            onTap: () => Navigator.pop(Get.context!),
+                            child: Icon(
+                              Iconsax.close_circle,
+                              color: Colors.red,
+                            ),
+                          ))
+                    ],
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Text(
+                    "$pesan2",
+                    textAlign: TextAlign.justify,
+                    style: TextStyle(color: Constanst.colorText2),
+                  ),
+                  SizedBox(
+                    height: 16,
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Padding(
+                            padding: const EdgeInsets.only(right: 5),
+                            child: typeAksi == "atur_ulang_jadwal"
+                                ? TextButtonWidget(
+                                    title: "Ya, atur ulang",
+                                    onTap: () async {
+                                      Navigator.pop(Get.context!);
+                                      var updateStatus = statusType == false
+                                          ? "Schedule1"
+                                          : "Schedule2";
+                                      aksiJadwalUlangSchedule(id, updateStatus);
+                                    },
+                                    colorButton: Constanst.colorButton1,
+                                    colortext: Constanst.colorWhite,
+                                    border: BorderRadius.circular(10.0),
+                                  )
+                                : typeAksi == "terima_final"
+                                    ? TextButtonWidget(
+                                        title: "Ya, Terima Final",
+                                        onTap: () async {
+                                          Navigator.pop(Get.context!);
+                                          aksiTerimaFinalKandidat(id);
+                                        },
+                                        colorButton: Constanst.colorButton1,
+                                        colortext: Constanst.colorWhite,
+                                        border: BorderRadius.circular(10.0),
+                                      )
+                                    : typeAksi == "upload_kandidat"
+                                        ? TextButtonWidget(
+                                            title: "Submit",
+                                            onTap: () async {
+                                              Navigator.pop(Get.context!);
+                                              UtilsAlert.loadingSimpanData(
+                                                  Get.context!,
+                                                  "Sedang Menyimpan File");
+                                              var connectUpload = await Api
+                                                  .connectionApiUploadFile(
+                                                      "upload_file_kandidat",
+                                                      filePengajuan.value);
+                                              var valueBody =
+                                                  jsonDecode(connectUpload);
+                                              if (valueBody['status'] == true) {
+                                                Navigator.pop(Get.context!);
+                                                aksiUploadKandidatBaru();
+                                              } else {
+                                                UtilsAlert.showToast(
+                                                    "Gagal kirim file");
+                                              }
+                                            },
+                                            colorButton: Constanst.colorButton1,
+                                            colortext: Constanst.colorWhite,
+                                            border: BorderRadius.circular(10.0),
+                                          )
+                                        : SizedBox()),
+                      ),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () => Navigator.pop(Get.context!),
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: Constanst.borderStyle2,
+                                  border: Border.all(
+                                      color: Constanst.colorPrimary)),
+                              child: Center(
+                                child: Padding(
+                                  padding: EdgeInsets.only(top: 12, bottom: 12),
+                                  child: Text(
+                                    "Urungkan",
+                                    style: TextStyle(
+                                        color: Constanst.colorPrimary),
+                                  ),
+                                ),
+                              )),
+                        ),
+                      )
+                    ],
+                  )
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 16,
+            )
+          ],
+        );
+      },
+    );
+  }
+
   void viewLampiranPermintaan(value) async {
     var urlViewFile = Api.urlFilePermintaanKandidat + value;
 
     final url = Uri.parse(urlViewFile);
-    if (!await launchUrl(
-      url,
-      mode: LaunchMode.externalApplication,
-    )) {
+    try {
+      await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication,
+      );
+    } on Exception catch (_) {
       UtilsAlert.showToast('Tidak dapat membuka file');
     }
   }
@@ -788,10 +1732,12 @@ class KandidatController extends GetxController {
     var urlViewFile = Api.urlFileKandidat + value;
 
     final url = Uri.parse(urlViewFile);
-    if (!await launchUrl(
-      url,
-      mode: LaunchMode.externalApplication,
-    )) {
+    try {
+      await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication,
+      );
+    } on Exception catch (_) {
       UtilsAlert.showToast('Tidak dapat membuka file');
     }
   }
@@ -800,11 +1746,13 @@ class KandidatController extends GetxController {
     var urlViewFile = value;
 
     final url = Uri.parse(urlViewFile);
-    if (!await launchUrl(
-      url,
-      mode: LaunchMode.externalApplication,
-    )) {
-      UtilsAlert.showToast('Tidak dapat membuka file');
+    try {
+      await launchUrl(
+        url,
+        mode: LaunchMode.externalApplication,
+      );
+    } on Exception catch (_) {
+      UtilsAlert.showToast('Url / Link tidak valid');
     }
   }
 }

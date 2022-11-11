@@ -10,6 +10,7 @@ import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/dashed_rect.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
+
 class FormKandidat extends StatefulWidget {
   List? dataForm;
   FormKandidat({Key? key, this.dataForm}) : super(key: key);
@@ -61,6 +62,10 @@ class _FormKandidatState extends State<FormKandidat> {
                           height: 16,
                         ),
                         posisi(),
+                        SizedBox(
+                          height: 16,
+                        ),
+                        formTipe(),
                         SizedBox(
                           height: 16,
                         ),
@@ -130,12 +135,60 @@ class _FormKandidatState extends State<FormKandidat> {
     );
   }
 
+  Widget formTipe() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Tujuan permintaan *",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        SizedBox(
+          height: 5,
+        ),
+        Container(
+          height: 50,
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: Constanst.borderStyle1,
+              border: Border.all(
+                  width: 0.5, color: Color.fromARGB(255, 211, 205, 205))),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                isDense: true,
+                autofocus: true,
+                focusColor: Colors.grey,
+                items: controller.permintaanKandidatUntuk.value
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(
+                      value,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  );
+                }).toList(),
+                value: controller.selectedKandidatUntuk.value,
+                onChanged: (selectedValue) {
+                  controller.selectedKandidatUntuk.value = selectedValue!;
+                },
+                isExpanded: true,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget kebutuhan() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Kebutuhan *",
+          "Jumlah Kebutuhan Kandidat *",
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
         ),
         SizedBox(

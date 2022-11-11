@@ -532,7 +532,13 @@ class DashboardController extends GetxController {
         dataForm: [[], false],
       ));
     } else if (url == "Kandidat") {
-      Get.offAll(Kandidat());
+      var dataUser = AppData.informasiUser;
+      var getHakAkses = dataUser![0].em_hak_akses;
+      if (getHakAkses == "" || getHakAkses == null || getHakAkses == "null") {
+        UtilsAlert.showToast('Maaf anda tidak memiliki akses menu ini');
+      } else {
+        Get.offAll(Kandidat());
+      }
     } else if (url == "lainnya") {
       widgetButtomSheetMenuLebihDetail();
     } else {
@@ -562,9 +568,15 @@ class DashboardController extends GetxController {
         dataForm: [[], false],
       ));
     } else if (id == 6) {
-      Get.to(FormKandidat(
-        dataForm: [[], false],
-      ));
+      var dataUser = AppData.informasiUser;
+      var getHakAkses = dataUser![0].em_hak_akses;
+      if (getHakAkses == "" || getHakAkses == null || getHakAkses == "null") {
+        UtilsAlert.showToast('Maaf anda tidak memiliki akses menu ini');
+      } else {
+        Get.to(FormKandidat(
+          dataForm: [[], false],
+        ));
+      }
     } else {
       UtilsAlert.showToast("Tahap Development");
     }

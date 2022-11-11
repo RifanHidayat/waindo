@@ -64,6 +64,12 @@ class _KandidatState extends State<Kandidat> {
                   SizedBox(
                     height: 16,
                   ),
+                  !controller.viewWidgetPilihDepartement.value
+                      ? SizedBox()
+                      : cariDepartement(),
+                  SizedBox(
+                    height: 8,
+                  ),
                   pencarianData(),
                   SizedBox(
                     height: 16,
@@ -105,6 +111,51 @@ class _KandidatState extends State<Kandidat> {
                   Iconsax.add,
                   color: Constanst.colorWhite,
                 ))));
+  }
+
+  Widget cariDepartement() {
+    return Container(
+      height: 40,
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: Constanst.borderStyle5,
+          border: Border.all(
+              width: 0.5, color: Color.fromARGB(255, 211, 205, 205))),
+      child: InkWell(
+        onTap: () {
+          controller.showDataDepartemenAkses();
+        },
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 80,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 16, top: 5, bottom: 5),
+                child: Text(
+                  controller.departemen.value,
+                  style: TextStyle(
+                      fontSize: 14.0, height: 2.0, color: Colors.black),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 20,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: IconButton(
+                  onPressed: () async {},
+                  icon: Icon(
+                    Iconsax.arrow_down_14,
+                    size: 20,
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
   }
 
   Widget pencarianData() {
@@ -302,6 +353,10 @@ class _KandidatState extends State<Kandidat> {
               controller.listPermintaanKandidat.value[index]['tgl_ajuan'];
           var posisi =
               controller.listPermintaanKandidat.value[index]['position'];
+          var pengaju =
+              controller.listPermintaanKandidat.value[index]['full_name'];
+          var namaDepartement =
+              controller.listPermintaanKandidat.value[index]['nama_departement'];
           var status = controller.listPermintaanKandidat.value[index]
               ['status_transaksi'];
 
@@ -355,6 +410,20 @@ class _KandidatState extends State<Kandidat> {
                               ),
                               Text(
                                 "$nomorAjuan",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    color: Constanst.colorText2),
+                              ),
+                              Text(
+                                "$pengaju",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 12,
+                                    color: Constanst.colorText2),
+                              ),
+                              Text(
+                                "$namaDepartement",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 12,
