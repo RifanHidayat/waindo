@@ -41,6 +41,7 @@ class _FormLemburState extends State<FormLembur> {
       controller.emIdDelegasi.value = "${widget.dataForm![0]['em_delegation']}";
       controller.nomorAjuan.value.text =
           "${widget.dataForm![0]['nomor_ajuan']}";
+      
     }
     super.initState();
   }
@@ -75,6 +76,14 @@ class _FormLemburState extends State<FormLembur> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
+                        controller.viewTypeLembur.value == false
+                            ? SizedBox()
+                            : SizedBox(
+                                height: 20,
+                              ),
+                        controller.viewTypeLembur.value == false
+                            ? SizedBox()
+                            : formType(),
                         SizedBox(
                           height: 20,
                         ),
@@ -105,6 +114,54 @@ class _FormLemburState extends State<FormLembur> {
             colortext: Constanst.colorWhite,
             border: BorderRadius.circular(20.0),
           )),
+    );
+  }
+
+  Widget formType() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Tipe Lembur *",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        SizedBox(
+          height: 5,
+        ),
+        Container(
+          height: 50,
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: Constanst.borderStyle1,
+              border: Border.all(
+                  width: 0.5, color: Color.fromARGB(255, 211, 205, 205))),
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                isDense: true,
+                autofocus: true,
+                focusColor: Colors.grey,
+                items: controller.typeLembur.value
+                    .map<DropdownMenuItem<String>>((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(
+                      value,
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  );
+                }).toList(),
+                value: controller.selectedTypeLembur.value,
+                onChanged: (selectedValue) {
+                  controller.selectedTypeLembur.value = selectedValue!;
+                },
+                isExpanded: true,
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 

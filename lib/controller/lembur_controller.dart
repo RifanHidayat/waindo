@@ -22,6 +22,7 @@ class LemburController extends GetxController {
   var catatan = TextEditingController().obs;
   var cari = TextEditingController().obs;
 
+  Rx<List<String>> typeLembur = Rx<List<String>>([]);
   Rx<List<String>> allEmployeeDelegasi = Rx<List<String>>([]);
 
   var bulanSelectedSearchHistory = "".obs;
@@ -31,15 +32,18 @@ class LemburController extends GetxController {
   var idpengajuanLembur = "".obs;
   var emIdDelegasi = "".obs;
   var valuePolaPersetujuan = "".obs;
+  var selectedTypeLembur = "".obs;
   var loadingString = "Sedang Memuat...".obs;
 
   var statusForm = false.obs;
   var directStatus = false.obs;
   var showButtonlaporan = false.obs;
   var statusCari = false.obs;
+  var viewTypeLembur = false.obs;
 
   var listLembur = [].obs;
   var listLemburAll = [].obs;
+  var allTypeLembur = [].obs;
   var allEmployee = [].obs;
   var dataTypeAjuan = [].obs;
   var departementAkses = [].obs;
@@ -62,6 +66,7 @@ class LemburController extends GetxController {
     getLoadsysData();
     loadDataLembur();
     loadAllEmployeeDelegasi();
+    getTypeLembur();
     getDepartemen(1, "");
   }
 
@@ -162,6 +167,62 @@ class LemburController extends GetxController {
           .firstWhere((element) => element['nama'] == 'Semua')['status'] = true;
       this.dataTypeAjuan.refresh();
     }
+  }
+
+  void getTypeLembur() {
+    var dataUser = AppData.informasiUser;
+    var getEmid = dataUser![0].em_id;
+    Map<String, dynamic> body = {
+      'val': "em_id",
+      'cari': "$getEmid",
+    };
+    var connect = Api.connectionApi("post", body, "whereOnce-employee");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        var overtimeData = valueBody['data'][0]['overtime_id'];
+        loadDataTypeOvertime(overtimeData);
+      }
+    });
+  }
+
+  void loadDataTypeOvertime(overtimeData) {
+    var connect = Api.connectionApi("get", "", "overtime");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        var data = valueBody['data'];
+        List overtimeUser = overtimeData.split(',');
+        List tampung = [];
+        for (var element in data) {
+          for (var element1 in overtimeUser) {
+            if ("${element['id']}" == element1) {
+              tampung.add(element);
+            }
+          }
+        }
+        if (tampung.isEmpty) {
+          viewTypeLembur.value = false;
+          this.viewTypeLembur.refresh();
+        } else {
+          viewTypeLembur.value = true;
+          for (var element in tampung) {
+            typeLembur.value.add(element['name']);
+            var data = {
+              'id': element['id'],
+              'name': element['name'],
+            };
+            allTypeLembur.value.add(data);
+          }
+          var getFirst = tampung.first;
+          selectedTypeLembur.value = getFirst['name'];
+          this.viewTypeLembur.refresh();
+          this.typeLembur.refresh();
+          this.allTypeLembur.refresh();
+          this.selectedTypeLembur.refresh();
+        }
+      }
+    });
   }
 
   void getTimeNow() {
@@ -267,8 +328,8 @@ class LemburController extends GetxController {
     if (tanggalLembur.value.text == "" ||
         dariJam.value.text == "" ||
         sampaiJam.value.text == "" ||
+        selectedTypeLembur.value == "" ||
         catatan.value.text == "") {
-      print(initialDate.value);
       UtilsAlert.showToast("Lengkapi form *");
     } else {
       if (statusForm.value == false) {
@@ -331,6 +392,8 @@ class LemburController extends GetxController {
   }
 
   void kirimPengajuan(getNomorAjuanTerakhir) {
+    // check id type lembur
+    var finalIdLembur = checkLembur();
     var listTanggal = tanggalLembur.value.text.split(',');
     var getTanggal = listTanggal[1].replaceAll(' ', '');
     var tanggalLemburEditData = Constanst.convertDateSimpan(getTanggal);
@@ -346,6 +409,7 @@ class LemburController extends GetxController {
     var hasilDurasi = hitungDurasi();
     Map<String, dynamic> body = {
       'em_id': getEmid,
+      'typeid': finalIdLembur,
       'nomor_ajuan': getNomorAjuanTerakhir,
       'dari_jam': dariJam.value.text,
       'sampai_jam': sampaiJam.value.text,
@@ -459,6 +523,16 @@ class LemburController extends GetxController {
     } else {
       loadingString.value = "Sedang memuat...";
     }
+  }
+
+  String checkLembur() {
+    var result = "";
+    for (var element in allTypeLembur.value) {
+      if (element['name'] == selectedTypeLembur.value) {
+        result = "${element['id']}";
+      }
+    }
+    return result;
   }
 
   void cariData(value) {

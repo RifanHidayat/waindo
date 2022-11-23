@@ -761,7 +761,7 @@ class _LemburState extends State<Lembur> {
                                                           .colorPrimary)),
                                               child: InkWell(
                                                 onTap: () {
-                                                  Get.offAll(FormLembur(
+                                                  Get.to(FormLembur(
                                                     dataForm: [
                                                       controller.listLembur
                                                           .value[index],
