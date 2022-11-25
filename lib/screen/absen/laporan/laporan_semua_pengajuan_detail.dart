@@ -284,6 +284,7 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
     var get2StringNomor = '${nomorAjuan[0]}${nomorAjuan[1]}';
     var tanggalMasukAjuan = index['atten_date'] ?? "";
     var namaTypeAjuan = index['name'] ?? "";
+    var categoryAjuan = index['category'] ?? "";
     var alasanReject = index['alasan_reject'] ?? "";
     var typeAjuan;
     if (controller.valuePolaPersetujuan.value == "1") {
@@ -317,6 +318,7 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
             height: 8,
           ),
           Container(
+            margin: const EdgeInsets.all(3),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: Constanst.borderStyle1,
@@ -440,6 +442,13 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                       )
                     ],
                   ),
+                  categoryAjuan == ""
+                      ? SizedBox()
+                      : Text(
+                          "$categoryAjuan",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
                   SizedBox(
                     height: 10,
                   ),
@@ -567,6 +576,7 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
           height: 10,
         ),
         Container(
+          margin: const EdgeInsets.all(3),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: Constanst.borderStyle1,
@@ -590,7 +600,7 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Expanded(
-                      flex: 70,
+                      flex: 60,
                       child: Padding(
                         padding: const EdgeInsets.only(top: 5),
                         child: Text(
@@ -601,7 +611,7 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
                       ),
                     ),
                     Expanded(
-                      flex: 30,
+                      flex: 40,
                       child: Container(
                         margin: EdgeInsets.only(right: 8),
                         decoration: BoxDecoration(
@@ -829,6 +839,7 @@ class _LaporanDetailTidakHadirState extends State<LaporanDetailTidakHadir> {
           height: 10,
         ),
         Container(
+          margin: const EdgeInsets.all(3.0),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: Constanst.borderStyle1,

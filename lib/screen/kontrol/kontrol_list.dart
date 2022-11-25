@@ -44,7 +44,7 @@ class _KontrolListState extends State<KontrolList> {
           automaticallyImplyLeading: false,
           elevation: 2,
           flexibleSpace: AppbarMenu1(
-            title: "Kontrol",
+            title: "Tracking",
             colorTitle: Colors.white,
             iconShow: false,
             icon: 2,

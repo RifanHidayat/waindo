@@ -11,7 +11,7 @@ import 'package:siscom_operasional/controller/lembur_controller.dart';
 import 'package:siscom_operasional/controller/pesan_controller.dart';
 import 'package:siscom_operasional/controller/klaim_controller.dart';
 import 'package:siscom_operasional/screen/absen/form/form_lembur.dart';
-import 'package:siscom_operasional/screen/absen/laporan/laporan_tidakMasuk.dart';
+import 'package:siscom_operasional/screen/absen/laporan/laporan_semua_pengajuan.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/screen/klaim/form_klaim.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';

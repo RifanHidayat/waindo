@@ -185,6 +185,8 @@ class PesanController extends GetxController {
                   'waktu_sampai': tanggalSampai,
                   'durasi': element['leave_duration'],
                   'waktu': element['time_plan'],
+                  'waktu2': element['time_plan_to'],
+                  'category': element['category'],
                   'waktu_pengajuan': element['atten_date'],
                   'catatan': element['reason'],
                   'status': element['leave_status'],
@@ -639,6 +641,7 @@ class PesanController extends GetxController {
         dataDetail.add(element);
       }
     });
+    print(dataDetail);
     if (dataDetail.length != 0) {
       showDetailRiwayatApproval(dataDetail);
     } else {
@@ -659,6 +662,13 @@ class PesanController extends GetxController {
     var namaTipe = dataDetail[0]['type'] == "Klaim"
         ? dataDetail[0]['lainnya']['nama_tipe']
         : "";
+    var waktu1 = dataDetail[0]['waktu'] == "" || dataDetail[0]['waktu'] == null
+        ? "00:00:00"
+        : dataDetail[0]['waktu'];
+    var waktu2 =
+        dataDetail[0]['waktu2'] == "" || dataDetail[0]['waktu2'] == null
+            ? "00:00:00"
+            : dataDetail[0]['waktu2'];
 
     showModalBottomSheet(
       context: Get.context!,
@@ -891,7 +901,7 @@ class PesanController extends GetxController {
                       : Padding(
                           padding: EdgeInsets.only(left: 8),
                           child: Text(
-                            "(${dataDetail[0]['nama_tipe']})",
+                            "(${dataDetail[0]['nama_tipe']} - ${dataDetail[0]['category']})",
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         )
@@ -900,24 +910,27 @@ class PesanController extends GetxController {
               SizedBox(
                 height: 10,
               ),
-              dataDetail[0]['waktu'] == ""
+              dataDetail[0]['waktu'] == "" ||
+                      dataDetail[0]['category'] == "FULLDAY"
                   ? SizedBox()
                   : Text(
                       "Waktu",
                       style: TextStyle(color: Constanst.colorText2),
                     ),
-              dataDetail[0]['waktu'] == ""
+              dataDetail[0]['waktu'] == "" ||
+                      dataDetail[0]['category'] == "FULLDAY"
                   ? SizedBox()
                   : SizedBox(
                       height: 5,
                     ),
-              dataDetail[0]['waktu'] == ""
+              dataDetail[0]['waktu'] == "" ||
+                      dataDetail[0]['category'] == "FULLDAY"
                   ? SizedBox()
                   : Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          "${dataDetail[0]['waktu']}",
+                          "$waktu1 sd $waktu2",
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                       ],

@@ -39,6 +39,7 @@ class _FormLemburState extends State<FormLembur> {
       controller.statusForm.value = true;
       controller.idpengajuanLembur.value = "${widget.dataForm![0]['id']}";
       controller.emIdDelegasi.value = "${widget.dataForm![0]['em_delegation']}";
+      controller.checkingDelegation(widget.dataForm![0]['em_delegation']);
       controller.nomorAjuan.value.text =
           "${widget.dataForm![0]['nomor_ajuan']}";
       

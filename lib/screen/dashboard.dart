@@ -561,7 +561,8 @@ class _DashboardState extends State<Dashboard> {
                                       value2 != PermissionStatus.granted) {
                                     UtilsAlert.showToast(
                                         "Anda harus aktifkan kamera dan lokasi anda");
-                                    controller.widgetButtomSheetAktifCamera();
+                                    controller.widgetButtomSheetAktifCamera(
+                                        'loadfirst');
                                   } else {
                                     controllerAbsensi.getPlaceCoordinate();
                                     controllerAbsensi.titleAbsen.value =

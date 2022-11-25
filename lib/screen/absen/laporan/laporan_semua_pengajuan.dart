@@ -5,7 +5,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:siscom_operasional/controller/laporan_tidakHadir_controller.dart';
 import 'package:siscom_operasional/controller/tidak_masuk_kerja_controller.dart';
-import 'package:siscom_operasional/screen/absen/laporan/laporan_detail_tidakMasuk.dart';
+import 'package:siscom_operasional/screen/absen/laporan/laporan_semua_pengajuan_detail.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/month_year_picker.dart';
@@ -187,7 +187,7 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
                                       child:
                                           Text(controller.loadingString.value),
                                     )
-                                  : listAbsensiKaryawan(),
+                                  : listPengajuanKaryawan(),
                         ),
                       )
                     ],
@@ -328,7 +328,7 @@ class _LaporanTidakMasukState extends State<LaporanTidakMasuk> {
     );
   }
 
-  Widget listAbsensiKaryawan() {
+  Widget listPengajuanKaryawan() {
     return ListView.builder(
         physics: controller.allNameLaporanTidakhadir.value.length <= 15
             ? AlwaysScrollableScrollPhysics()

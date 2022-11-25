@@ -904,6 +904,17 @@ class LaporanTidakHadirController extends GetxController {
               ? "Approve 2"
               : detailData['leave_status'];
     }
+    var jamAjuan =
+        detailData['time_plan'] == null || detailData['time_plan'] == ""
+            ? "00:00:00"
+            : detailData['time_plan'];
+    var sampaiJamAjuan =
+        detailData['time_plan_to'] == null || detailData['time_plan_to'] == ""
+            ? "00:00:00"
+            : detailData['time_plan_to'];
+    var leave_files = detailData['leave_files'];
+    var categoryIzin = detailData['category'];
+
     var listTanggalTerpilih = detailData['date_selected'].split(',');
     showModalBottomSheet(
       context: Get.context!,
@@ -946,6 +957,11 @@ class LaporanTidakHadirController extends GetxController {
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold),
                                 ),
+                          Text(
+                            "$categoryIzin",
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
                           SizedBox(
                             height: 8,
                           ),
@@ -1187,6 +1203,45 @@ class LaporanTidakHadirController extends GetxController {
                   )
                 ],
               ),
+              categoryIzin == "HALFDAY"
+                  ? SizedBox(
+                      height: 8,
+                    )
+                  : SizedBox(),
+              categoryIzin == "HALFDAY"
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 30,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("Jam"),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 2,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(":"),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          flex: 68,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text("$jamAjuan sd $sampaiJamAjuan"),
+                            ],
+                          ),
+                        )
+                      ],
+                    )
+                  : SizedBox(),
               SizedBox(
                 height: 8,
               ),

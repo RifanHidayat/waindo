@@ -10,7 +10,7 @@ import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/screen/absen/detail_absen.dart';
 import 'package:siscom_operasional/screen/absen/form/form_tidakMasukKerja.dart';
-import 'package:siscom_operasional/screen/absen/laporan/laporan_tidakMasuk.dart';
+import 'package:siscom_operasional/screen/absen/laporan/laporan_semua_pengajuan.dart';
 import 'package:siscom_operasional/screen/absen/form/form_pengajuan_cuti.dart';
 import 'package:siscom_operasional/screen/dashboard.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
@@ -451,6 +451,7 @@ class _RiwayatCutiState extends State<RiwayatCuti> {
                   height: 8,
                 ),
                 Container(
+                  margin: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: Constanst.borderStyle1,

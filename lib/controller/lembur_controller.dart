@@ -309,12 +309,6 @@ class LemburController extends GetxController {
             var fullName = listFirst['full_name'] ?? "";
             String namaUserPertama = "$fullName";
             selectedDropdownDelegasi.value = namaUserPertama;
-          } else {
-            for (var element in allEmployee) {
-              if (element['em_id'] == emIdDelegasi.value) {
-                selectedDropdownDelegasi.value = element['full_name'];
-              }
-            }
           }
           this.allEmployee.refresh();
           this.allEmployeeDelegasi.refresh();
@@ -322,6 +316,13 @@ class LemburController extends GetxController {
         }
       }
     });
+  }
+
+  void checkingDelegation(em_id) {
+    var getData =
+        allEmployee.value.firstWhere((element) => element["em_id"] == em_id);
+    selectedDropdownDelegasi.value = getData['full_name'];
+    this.selectedDropdownDelegasi.refresh();
   }
 
   void validasiKirimPengajuan() {

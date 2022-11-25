@@ -36,6 +36,7 @@ class _FormPengajuanCutiState extends State<FormPengajuanCuti> {
       controller.idEditFormCuti.value = "${widget.dataForm![0]['id']}";
       controller.emDelegationEdit.value =
           "${widget.dataForm![0]['em_delegation']}";
+      controller.checkingDelegation(widget.dataForm![0]['em_delegation']);
       controller.durasiIzin.value =
           int.parse(widget.dataForm![0]['leave_duration']);
       controller.nomorAjuan.value.text =

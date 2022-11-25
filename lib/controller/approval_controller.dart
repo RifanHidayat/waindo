@@ -121,6 +121,7 @@ class ApprovalController extends GetxController {
             'waktu_pengajuan': element['atten_date'],
             'catatan': element['reason'],
             'type': 'Cuti',
+            'category': element['category'],
             'lainnya': "",
             'file': element['leave_files']
           };
@@ -177,6 +178,7 @@ class ApprovalController extends GetxController {
             'waktu_pengajuan': element['atten_date'],
             'catatan': element['uraian'],
             'type': 'Lembur',
+            'category': "",
             'lainnya': "",
             'file': ""
           };
@@ -236,6 +238,9 @@ class ApprovalController extends GetxController {
             'waktu_pengajuan': element['atten_date'],
             'catatan': element['reason'],
             'type': element['nama_tipe'],
+            'category': element['category'],
+            'jamAjuan': element['time_plan'],
+            'sampaiJamAjaun': element['time_plan_to'],
             'lainnya': "",
             'file': element['leave_files']
           };
@@ -292,6 +297,7 @@ class ApprovalController extends GetxController {
             'waktu_pengajuan': element['atten_date'],
             'catatan': element['uraian'],
             'type': 'Tugas Luar',
+            'category': "",
             'lainnya': "",
             'file': ''
           };
@@ -351,6 +357,7 @@ class ApprovalController extends GetxController {
             'waktu_pengajuan': element['atten_date'],
             'catatan': element['reason'],
             'type': "Dinas Luar",
+            'category': "",
             'lainnya': "",
             'file': element['leave_files']
           };
@@ -411,6 +418,7 @@ class ApprovalController extends GetxController {
             'waktu_pengajuan': tanggalPembuatan,
             'catatan': element['description'],
             'type': "Klaim",
+            'category': "",
             'lainnya': element,
             'file': element['nama_file']
           };

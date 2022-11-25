@@ -10,7 +10,7 @@ import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/controller/tidak_masuk_kerja_controller.dart';
 import 'package:siscom_operasional/screen/absen/detail_absen.dart';
 import 'package:siscom_operasional/screen/absen/form/form_tidakMasukKerja.dart';
-import 'package:siscom_operasional/screen/absen/laporan/laporan_tidakMasuk.dart';
+import 'package:siscom_operasional/screen/absen/laporan/laporan_semua_pengajuan.dart';
 import 'package:siscom_operasional/screen/dashboard.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';

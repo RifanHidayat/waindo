@@ -318,12 +318,6 @@ class TugasLuarController extends GetxController {
             var fullName = listFirst['full_name'] ?? "";
             String namaUserPertama = "$fullName";
             selectedDropdownDelegasi.value = namaUserPertama;
-          } else {
-            for (var element in allEmployee) {
-              if (element['em_id'] == emDelegation.value) {
-                selectedDropdownDelegasi.value = element['full_name'];
-              }
-            }
           }
           this.allEmployee.refresh();
           this.allEmployeeDelegasi.refresh();
@@ -331,6 +325,13 @@ class TugasLuarController extends GetxController {
         }
       }
     });
+  }
+
+  void checkDelegation(em_id) {
+    var getData =
+        allEmployee.value.firstWhere((element) => element["em_id"] == em_id);
+    selectedDropdownDelegasi.value = getData["full_name"];
+    this.selectedDropdownDelegasi.refresh();
   }
 
   void changeTypeAjuan(name) {
