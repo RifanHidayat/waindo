@@ -35,6 +35,7 @@ class _FormTugasLuarState extends State<FormTugasLuar> {
       controller.idpengajuanTugasLuar.value = "${widget.dataForm![0]['id']}";
       controller.statusForm.value = true;
       controller.emDelegation.value = "${widget.dataForm![0]['em_delegation']}";
+      controller.checkDelegation(widget.dataForm![0]['em_delegation']);
       controller.tanggalTugasLuar.value.text =
           Constanst.convertDate("${widget.dataForm![0]['atten_date']}");
       if (controller.viewTugasLuar.value) {

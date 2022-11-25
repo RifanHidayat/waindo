@@ -12,7 +12,7 @@ import 'package:siscom_operasional/controller/pesan_controller.dart';
 import 'package:siscom_operasional/controller/ruang_diskusi_controller.dart';
 import 'package:siscom_operasional/screen/absen/form/form_izin.dart';
 import 'package:siscom_operasional/screen/absen/form/form_lembur.dart';
-import 'package:siscom_operasional/screen/absen/laporan/laporan_tidakMasuk.dart';
+import 'package:siscom_operasional/screen/absen/laporan/laporan_semua_pengajuan.dart';
 import 'package:siscom_operasional/screen/diskusi/buat_project.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';

@@ -41,9 +41,12 @@ class _BerhasilPengajuanState extends State<BerhasilPengajuan> {
                     SizedBox(
                       height: 10,
                     ),
-                    Text("${widget.dataBerhasil[0]}",
-                        textAlign: TextAlign.center,
-                        style: Constanst.boldType1),
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Text("${widget.dataBerhasil[0]}",
+                          textAlign: TextAlign.center,
+                          style: Constanst.boldType1),
+                    ),
                     SizedBox(
                       height: 10,
                     ),

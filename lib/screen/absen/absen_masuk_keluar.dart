@@ -145,7 +145,10 @@ class AbsenMasukKeluar extends StatelessWidget {
                                   RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8.0),
                                       side: BorderSide(color: Colors.white)))),
-                      onPressed: () => controller.kirimDataAbsensi(),
+                      onPressed: () {
+                        controllerDashboard
+                            .widgetButtomSheetAktifCamera('checkTracking');
+                      },
                       child: Padding(
                         padding: const EdgeInsets.only(top: 12, bottom: 12),
                         child: Text('OK, Absen sekarang'),

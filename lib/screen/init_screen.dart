@@ -53,7 +53,7 @@ class _InitScreenState extends State<InitScreen> {
       PersistentBottomNavBarItem(
         icon: ImageIcon(AssetImage("assets/kontrol_fill.png")),
         inactiveIcon: ImageIcon(AssetImage("assets/kontrol.png")),
-        title: "Kontrol",
+        title: "Tracking",
         activeColorPrimary: Constanst.colorButton1,
         inactiveColorPrimary: Constanst.color1,
       ),

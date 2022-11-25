@@ -226,6 +226,10 @@ class _DetailApprovalState extends State<DetailApproval> {
                             SizedBox(
                               height: 10,
                             ),
+                            controller.detailData[0]['title_ajuan'] ==
+                                    "Pengajuan Tidak Hadir"
+                                ? informasiIzinJam()
+                                : SizedBox(),
                             Text(
                               "Tipe",
                               style: TextStyle(color: Constanst.colorText2),
@@ -486,6 +490,46 @@ class _DetailApprovalState extends State<DetailApproval> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget informasiIzinJam() {
+    return SizedBox(
+      child: controller.detailData[0]['category'] == "HALFDAY"
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Kategori",
+                  style: TextStyle(color: Constanst.colorText2),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  "${controller.detailData[0]['category']}",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  "Jam",
+                  style: TextStyle(color: Constanst.colorText2),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Text(
+                  "${controller.detailData[0]['jamAjuan']} sd ${controller.detailData[0]['sampaiJamAjaun']}",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+              ],
+            )
+          : SizedBox(),
     );
   }
 }

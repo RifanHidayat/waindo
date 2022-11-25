@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/model/menu_dashboard_model.dart';
 import 'package:google_maps_utils/google_maps_utils.dart';
 import 'package:siscom_operasional/model/user_model.dart';
@@ -39,6 +40,8 @@ class DashboardController extends GetxController {
   CarouselController corouselDashboard = CarouselController();
   PageController menuController = PageController(initialPage: 0);
   PageController informasiController = PageController(initialPage: 0);
+
+  var controllerAbsensi = Get.put(AbsenController());
 
   var user = [].obs;
   var menuDashboard = <MenuDashboardModel>[].obs;
@@ -135,12 +138,12 @@ class DashboardController extends GetxController {
     var statusCamera = Permission.camera.status;
     statusCamera.then((value) {
       if (value != PermissionStatus.granted) {
-        widgetButtomSheetAktifCamera();
+        widgetButtomSheetAktifCamera('loadfirst');
       } else {
         var statusLokasi = Permission.location.status;
         statusLokasi.then((value) {
           if (value != PermissionStatus.granted) {
-            widgetButtomSheetAktifCamera();
+            widgetButtomSheetAktifCamera('loadfirst');
           }
         });
       }
@@ -582,7 +585,7 @@ class DashboardController extends GetxController {
     }
   }
 
-  void widgetButtomSheetAktifCamera() {
+  void widgetButtomSheetAktifCamera(type) {
     showModalBottomSheet(
       context: Get.context!,
       shape: const RoundedRectangleBorder(
@@ -612,10 +615,14 @@ class DashboardController extends GetxController {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.only(left: 5, right: 5),
-                              child: Image.asset("assets/vector_camera.png"),
-                            ),
+                            type == "checkTracking"
+                                ? SizedBox()
+                                : Padding(
+                                    padding: const EdgeInsets.only(
+                                        left: 5, right: 5),
+                                    child:
+                                        Image.asset("assets/vector_camera.png"),
+                                  ),
                             Padding(
                               padding: const EdgeInsets.only(left: 5, right: 5),
                               child: Image.asset("assets/vector_map.png"),
@@ -625,27 +632,56 @@ class DashboardController extends GetxController {
                         SizedBox(
                           height: 20,
                         ),
-                        Text(
-                          "Aktifkan Kamera",
-                          style: TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 16),
-                        ),
+                        type == "checkTracking"
+                            ? SizedBox(
+                                child: Column(
+                                  children: [
+                                    Text(
+                                      "Aktifkan Lokasi",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16),
+                                    ),
+                                    Text(
+                                      "Di latar belakang",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16),
+                                    ),
+                                  ],
+                                ),
+                              )
+                            : Text(
+                                "Aktifkan Kamera dan Lokasi",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 16),
+                              ),
                         SizedBox(
                           height: 15,
                         ),
-                        Text(
-                          "Aplikasi ini memerlukan akses pada kamera dan lokasi pada perangkat Anda",
-                          textAlign: TextAlign.center,
-                        ),
+                        type == "checkTracking"
+                            ? Text(
+                                "SISCOM HRIS mengumpulkan data lokasi untuk mengaktifkan Absensi & Tracking bahkan jika aplikasi ditutup atau tidak digunakan.",
+                                textAlign: TextAlign.center,
+                              )
+                            : Text(
+                                "Aplikasi ini memerlukan akses pada kamera dan lokasi pada perangkat Anda",
+                                textAlign: TextAlign.center,
+                              ),
                         SizedBox(
                           height: 30,
                         ),
                         TextButtonWidget(
                           title: "Lanjutkan",
                           onTap: () async {
-                            Navigator.pop(context);
-                            await Permission.camera.request();
-                            await Permission.location.request();
+                            if (type == "checkTracking") {
+                              print('kesini');
+                              controllerAbsensi.kirimDataAbsensi();
+                            } else {
+                              Navigator.pop(context);
+                              await Permission.camera.request();
+                              await Permission.location.request();
+                            }
                           },
                           colorButton: Constanst.colorButton1,
                           colortext: Constanst.colorWhite,

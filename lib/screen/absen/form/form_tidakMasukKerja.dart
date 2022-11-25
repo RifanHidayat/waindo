@@ -27,12 +27,14 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
 
   @override
   void initState() {
-    print(widget.dataForm![0]);
     if (widget.dataForm![1] == true) {
       var convertDariTanggal = widget.dataForm![0]['start_date'];
       var convertSampaiTanggal = widget.dataForm![0]['end_date'];
       controller.dariTanggal.value.text = "$convertDariTanggal";
       controller.sampaiTanggal.value.text = "$convertSampaiTanggal";
+      controller.jamAjuan.value.text = widget.dataForm![0]['time_plan'];
+      controller.sampaiJamAjuan.value.text =
+          widget.dataForm![0]['time_plan_to'];
       controller.alasan.value.text = "${widget.dataForm![0]['reason']}";
       controller.namaFileUpload.value = "${widget.dataForm![0]['leave_files']}";
       controller.validasiTypeWhenEdit("${widget.dataForm![0]['name']}");
@@ -42,6 +44,8 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
           "${widget.dataForm![0]['id']}";
       controller.emDelegationEdit.value =
           "${widget.dataForm![0]['em_delegation']}";
+      controller
+          .validasiEmdelegation("${widget.dataForm![0]['em_delegation']}");
       controller.nomorAjuan.value.text =
           "${widget.dataForm![0]['nomor_ajuan']}";
       controller.durasiIzin.value =
@@ -209,7 +213,8 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
         widget.dataForm![1] == true
             ? customTanggalDariSampaiDari()
             : SizedBox(),
-        controller.screenTanggalSelected.value == true
+        controller.screenTanggalSelected.value == true ||
+                widget.dataForm![1] == false
             ? Card(
                 margin: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                 shape: RoundedRectangleBorder(
@@ -295,66 +300,139 @@ class _FormTidakMasukKerjaState extends State<FormTidakMasukKerja> {
   }
 
   Widget formAjuanWaktu() {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      SizedBox(
-        height: 8,
-      ),
-      Text(
-        "Waktu *",
-        style: TextStyle(fontWeight: FontWeight.bold),
-      ),
-      SizedBox(
-        height: 6,
-      ),
-      Padding(
-        padding: const EdgeInsets.only(right: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              height: 45,
-              width: MediaQuery.of(Get.context!).size.width,
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: Constanst.borderStyle1,
-                  border: Border.all(
-                      width: 0.5, color: Color.fromARGB(255, 211, 205, 205))),
-              child: Padding(
-                  padding: const EdgeInsets.all(6.0),
-                  child: InkWell(
-                      onTap: () {
-                        showTimePicker(
-                          context: Get.context!,
-                          initialTime: TimeOfDay.now(),
-                          initialEntryMode: TimePickerEntryMode.dial,
-                        ).then((value) {
-                          if (value == null) {
-                            UtilsAlert.showToast('gagal pilih jam');
-                          } else {
-                            var convertJam = value.hour <= 9
-                                ? "0${value.hour}"
-                                : "${value.hour}";
-                            var convertMenit = value.minute <= 9
-                                ? "0${value.minute}"
-                                : "${value.minute}";
-                            controller.jamAjuan.value.text =
-                                "$convertJam:$convertMenit";
-                            this.controller.jamAjuan.refresh();
-                          }
-                        });
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8, top: 5),
-                        child: Text(
-                          "${controller.jamAjuan.value.text}",
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ))),
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            SizedBox(
+              height: 8,
             ),
-          ],
+            Text(
+              "Dari jam *",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(
+              height: 6,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 45,
+                    width: MediaQuery.of(Get.context!).size.width,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: Constanst.borderStyle1,
+                        border: Border.all(
+                            width: 0.5,
+                            color: Color.fromARGB(255, 211, 205, 205))),
+                    child: Padding(
+                        padding: const EdgeInsets.all(6.0),
+                        child: InkWell(
+                            onTap: () {
+                              showTimePicker(
+                                context: Get.context!,
+                                initialTime: TimeOfDay.now(),
+                                initialEntryMode: TimePickerEntryMode.dial,
+                              ).then((value) {
+                                if (value == null) {
+                                  UtilsAlert.showToast('gagal pilih jam');
+                                } else {
+                                  var convertJam = value.hour <= 9
+                                      ? "0${value.hour}"
+                                      : "${value.hour}";
+                                  var convertMenit = value.minute <= 9
+                                      ? "0${value.minute}"
+                                      : "${value.minute}";
+                                  controller.jamAjuan.value.text =
+                                      "$convertJam:$convertMenit";
+                                  this.controller.jamAjuan.refresh();
+                                }
+                              });
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8, top: 5),
+                              child: Text(
+                                "${controller.jamAjuan.value.text}",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ))),
+                  ),
+                ],
+              ),
+            ),
+          ]),
         ),
-      ),
-    ]);
+        Expanded(
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            SizedBox(
+              height: 8,
+            ),
+            Text(
+              "Sampai Jam *",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(
+              height: 6,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 45,
+                    width: MediaQuery.of(Get.context!).size.width,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: Constanst.borderStyle1,
+                        border: Border.all(
+                            width: 0.5,
+                            color: Color.fromARGB(255, 211, 205, 205))),
+                    child: Padding(
+                        padding: const EdgeInsets.all(6.0),
+                        child: InkWell(
+                            onTap: () {
+                              showTimePicker(
+                                context: Get.context!,
+                                initialTime: TimeOfDay.now(),
+                                initialEntryMode: TimePickerEntryMode.dial,
+                              ).then((value) {
+                                if (value == null) {
+                                  UtilsAlert.showToast('gagal pilih jam');
+                                } else {
+                                  var convertJam = value.hour <= 9
+                                      ? "0${value.hour}"
+                                      : "${value.hour}";
+                                  var convertMenit = value.minute <= 9
+                                      ? "0${value.minute}"
+                                      : "${value.minute}";
+                                  controller.sampaiJamAjuan.value.text =
+                                      "$convertJam:$convertMenit";
+                                  this.controller.sampaiJamAjuan.refresh();
+                                }
+                              });
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 8, top: 5),
+                              child: Text(
+                                "${controller.sampaiJamAjuan.value.text}",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ))),
+                  ),
+                ],
+              ),
+            ),
+          ]),
+        ),
+      ],
+    );
   }
 
   Widget formDelegasiKepada() {

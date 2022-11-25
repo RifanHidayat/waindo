@@ -363,12 +363,6 @@ class CutiController extends GetxController {
             var fullName = listFirst['full_name'] ?? "";
             String namaUserPertama = "$fullName";
             selectedDelegasi.value = namaUserPertama;
-          } else {
-            var listFirst = allEmployee.value.firstWhere(
-                (element) => element['em_id'] == emDelegationEdit.value);
-            var fullName = listFirst['full_name'] ?? "";
-            String namaUserPertama = "$fullName";
-            selectedDelegasi.value = namaUserPertama;
           }
           this.allEmployee.refresh();
           this.allEmployeeDelegasi.refresh();
@@ -376,6 +370,13 @@ class CutiController extends GetxController {
         }
       }
     });
+  }
+
+  void checkingDelegation(em_id) {
+    var getData =
+        allEmployee.value.firstWhere((element) => element["em_id"] = em_id);
+    selectedDelegasi.value = getData["full_name"];
+    this.selectedDelegasi.refresh();
   }
 
   void loadCutiUser() {

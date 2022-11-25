@@ -641,19 +641,22 @@ class PersonalInfo extends StatelessWidget {
                                   ],
                                 ),
                               ),
-                              Expanded(
-                                flex: 5,
-                                child: Container(
-                                  height: 50,
-                                  child: Container(
-                                    alignment: Alignment.center,
-                                    child: Container(
-                                      width: 2,
-                                      color: Color.fromARGB(24, 0, 22, 103),
+                              controller.tanggalAkhirKontrak.value == ""
+                                  ? SizedBox()
+                                  : Expanded(
+                                      flex: 5,
+                                      child: Container(
+                                        height: 50,
+                                        child: Container(
+                                          alignment: Alignment.center,
+                                          child: Container(
+                                            width: 2,
+                                            color:
+                                                Color.fromARGB(24, 0, 22, 103),
+                                          ),
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ),
                               controller.tanggalAkhirKontrak.value == ""
                                   ? SizedBox()
                                   : Expanded(
