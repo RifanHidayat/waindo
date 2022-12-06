@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "90235107077",
+    "project_id": "siscom-hris",
+    "storage_bucket": "siscom-hris.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:90235107077:android:3634bae0f6adb5a0ba296c",
+        "android_client_info": {
+          "package_name": "com.siscom.siscomhris"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "90235107077-n24hsml3mcpts99mfea61ek1vhui45vr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.siscom.siscomhris",
+            "certificate_hash": "706edbacd28a4e21c39f8706547e92eae557b08a"
+          }
+        },
+        {
+          "client_id": "90235107077-j4q7agk35mir40pltfperc5hr90fnnk3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjde4QH5ewSM01qSkvkobtmoFoFFuu1XA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "90235107077-j4q7agk35mir40pltfperc5hr90fnnk3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

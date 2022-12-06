@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -64,7 +65,10 @@ class AuthController extends GetxController {
     }
   }
 
-  void loginUser() {
+  Future<void> loginUser() async {
+    var fcm_registration_token = await FirebaseMessaging.instance.getToken();
+    print("token ${fcm_registration_token}");
+
     UtilsAlert.showLoadingIndicator(Get.context!);
     Map<String, dynamic> body = {
       'email': email.value.text,
