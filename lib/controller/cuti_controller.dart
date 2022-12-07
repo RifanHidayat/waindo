@@ -83,6 +83,8 @@ class CutiController extends GetxController {
     "Pending"
   ];
 
+  GlobalController globalCt = Get.put(GlobalController());
+
   @override
   void onReady() async {
     getTimeNow();
@@ -649,6 +651,14 @@ class CutiController extends GetxController {
               'nameType': '${selectedTypeCuti.value}',
               'nomor_ajuan': '${getNomorAjuanTerakhir}',
             };
+            var pesan4 = "";
+            var data = jsonDecode(globalCt.konfirmasiAtasan.toString());
+            var newList = [];
+            for (var e in data) {
+              newList.add(e.values.join('token'));
+            }
+            globalCt.kirimNotifikasiFcm(
+                title: "Lembur", message: pesan4, tokens: newList);
 
             Get.offAll(BerhasilPengajuan(
               dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],

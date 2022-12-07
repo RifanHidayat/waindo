@@ -10,6 +10,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:siscom_operasional/controller/global_controller.dart';
+import 'package:siscom_operasional/model/atasan_model.dart';
 import 'package:siscom_operasional/screen/absen/form/berhasil_pengajuan.dart';
 import 'package:siscom_operasional/screen/absen/form/form_tidakMasukKerja.dart';
 import 'package:siscom_operasional/utils/api.dart';
@@ -302,7 +303,7 @@ class TidakMasukKerjaController extends GetxController {
             String namaUserPertama = "$fullName";
             selectedDropdownFormTidakMasukKerjaDelegasi.value = namaUserPertama;
           }
-          print('kesini 2');
+
           this.allEmployee.refresh();
           this.allEmployeeDelegasi.refresh();
           this.selectedDropdownFormTidakMasukKerjaDelegasi.refresh();
@@ -570,7 +571,6 @@ class TidakMasukKerjaController extends GetxController {
         UtilsAlert.showToast("Gagal kirim file");
       }
     } else {
-      print("data pengajuan 1 ${globalCt.konfirmasiAtasan.value}");
       if (status == false) {
         UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan Data");
         checkNomorAjuan(status);
@@ -704,6 +704,7 @@ class TidakMasukKerjaController extends GetxController {
     var validasiTipeSelected = validasiSelectedType();
     var getAjuanType = validasiTypeAjuan();
     var validasiDelegasiSelected = validasiSelectedDelegasi();
+    var validasiDelegasiSelectedToken = validasiSelectedDelegasiToken();
     var timeValue =
         viewFormWaktu.value == false ? "00:00:00" : "${jamAjuan.value.text}:00";
     var timeValue2 = viewFormWaktu.value == false
@@ -741,12 +742,18 @@ class TidakMasukKerjaController extends GetxController {
       var connect = Api.connectionApi("post", body, "kirimPengajuanTMK");
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
+          var typeNotifFcm = "Izin";
           var valueBody = jsonDecode(res.body);
           if (valueBody['status'] == true) {
             var stringTanggal =
                 "${dariTanggal.value.text} sd ${sampaiTanggal.value.text}";
-            kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
-                validasiDelegasiSelected, stringTanggal);
+            kirimNotifikasiToDelegasi(
+                getFullName,
+                convertTanggalBikinPengajuan,
+                validasiDelegasiSelected,
+                validasiDelegasiSelectedToken,
+                stringTanggal,
+                typeNotifFcm);
             kirimNotifikasiToReportTo(getFullName, convertTanggalBikinPengajuan,
                 getEmid, stringTanggal);
 
@@ -761,13 +768,22 @@ class TidakMasukKerjaController extends GetxController {
               'nameType': '${selectedDropdownFormTidakMasukKerjaTipe.value}',
               'nomor_ajuan': '${getNomorAjuanTerakhir}',
             };
-            var data = jsonDecode(globalCt.konfirmasiAtasan.toString());
-            var newList = [];
-            for (var e in data) {
-              newList.add(e.values.join('token'));
+
+            for (var i = 0; i < globalCt.konfirmasiAtasan.value.length; i++) {
+              print(globalCt.konfirmasiAtasan.value[i]['token_notif']);
+              var pesan;
+              if (globalCt.konfirmasiAtasan.value[i]['em_gender'] == "PRIA") {
+                pesan =
+                    "Hallo pak ${globalCt.konfirmasiAtasan.value[i]['full_name']}, saya ${getFullName} mengajukan ${getAjuanType} dengan nomor ajuan ${getNomorAjuanTerakhir}";
+              } else {
+                pesan =
+                    "Hallo bu ${globalCt.konfirmasiAtasan.value[i]['full_name']}, saya ${getFullName} mengajukan ${getAjuanType} dengan nomor ajuan ${getNomorAjuanTerakhir}";
+              }
+              globalCt.kirimNotifikasiFcm(
+                  title: typeNotifFcm,
+                  message: pesan,
+                  tokens: globalCt.konfirmasiAtasan.value[i]['token_notif']);
             }
-            globalCt.kirimNotifikasi(
-                title: "Izin", message: pesan1, tokens: newList);
 
             Get.offAll(BerhasilPengajuan(
               dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
@@ -817,14 +833,15 @@ class TidakMasukKerjaController extends GetxController {
   }
 
   void kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
-      validasiDelegasiSelected, stringTanggal) {
+      validasiDelegasiSelected, fcmTokenDelegasi, stringTanggal, typeNotifFcm) {
     var dt = DateTime.now();
     var jamSekarang = DateFormat('HH:mm:ss').format(dt);
+    var description =
+        'Anda mendapatkan delegasi pekerjaan dari $getFullName untuk pengajuan $selectedDropdownFormTidakMasukKerjaTipe, tanggal pengajuan $stringTanggal';
     Map<String, dynamic> body = {
       'em_id': validasiDelegasiSelected,
       'title': 'Delegasi Pengajuan Tidak Hadir',
-      'deskripsi':
-          'Anda mendapatkan delegasi pekerjaan dari $getFullName untuk pengajuan $selectedDropdownFormTidakMasukKerjaTipe, tanggal pengajuan $stringTanggal',
+      'deskripsi': description,
       'url': '',
       'atten_date': convertTanggalBikinPengajuan,
       'jam': jamSekarang,
@@ -834,6 +851,10 @@ class TidakMasukKerjaController extends GetxController {
     var connect = Api.connectionApi("post", body, "insert-notifikasi");
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
+        globalCt.kirimNotifikasiFcm(
+            title: typeNotifFcm,
+            message: description,
+            tokens: fcmTokenDelegasi);
         UtilsAlert.showToast("Berhasil kirim delegasi");
       }
     });
@@ -898,6 +919,18 @@ class TidakMasukKerjaController extends GetxController {
       }
     }
     return "${result[0]['em_id']}";
+  }
+
+  String validasiSelectedDelegasiToken() {
+    var result = [];
+    for (var element in allEmployee.value) {
+      var fullName = element['full_name'] ?? "";
+      var namaElement = "$fullName";
+      if (namaElement == selectedDropdownFormTidakMasukKerjaDelegasi.value) {
+        result.add(element);
+      }
+    }
+    return "${result[0]['em_token']}";
   }
 
   String validasiHitungIzin() {

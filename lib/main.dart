@@ -12,6 +12,8 @@ import 'package:siscom_operasional/controller/kontrol_controller.dart';
 import 'package:siscom_operasional/fireabase_option.dart';
 import 'package:siscom_operasional/model/notification_model.dart';
 import 'package:siscom_operasional/screen/absen/izin.dart';
+import 'package:siscom_operasional/screen/init_screen.dart';
+import 'package:siscom_operasional/screen/pesan/pesan.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/local_storage.dart';
@@ -127,19 +129,14 @@ Future<void> setupInteractedMessage() async {
     print("onMessage data: ${message.data}");
   });
   FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
-  //_firebaseMessagingBackgroundHandler(re)
-  // FirebaseMessaging.onBackgroundMessage((message) {
-  //   print("_messaging onBackgroundMessage: $message");
-  //   var info = '';
-
-  //   return;
-  // });
+ 
 }
 
 void _handleMessage(RemoteMessage message) {}
 
 Future onSelectNotification(var payload) async {
-  //Get.to(Izin());
+  // Get.to(Izin());
+  Get.offAll(InitScreen());
 }
 
 class MyApp extends StatelessWidget {

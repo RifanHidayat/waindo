@@ -10,6 +10,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:siscom_operasional/controller/api_controller.dart';
+import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/screen/absen/form/berhasil_pengajuan.dart';
 import 'package:siscom_operasional/screen/absen/form/form_lembur.dart';
 import 'package:siscom_operasional/screen/kandidat/detail_permintaan.dart';
@@ -84,6 +85,8 @@ class KandidatController extends GetxController {
     "Interview 2",
     "Hasil"
   ];
+
+  GlobalController globalCt = Get.put(GlobalController());
 
   @override
   void startData() async {
@@ -907,6 +910,15 @@ class KandidatController extends GetxController {
           var pesan2 =
               "Silakan menunggu HRD untuk meninjau pengajuan yang telah dibuat";
           var pesan3 = "";
+
+          var pesan4 = "";
+          var data = jsonDecode(globalCt.konfirmasiAtasan.toString());
+          var newList = [];
+          for (var e in data) {
+            newList.add(e.values.join('token'));
+          }
+          globalCt.kirimNotifikasiFcm(
+              title: "Lembur", message: pesan4, tokens: newList);
 
           Get.offAll(BerhasilPengajuan(
             dataBerhasil: [pesan1, pesan2, pesan3, false],

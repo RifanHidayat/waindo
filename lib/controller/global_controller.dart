@@ -348,18 +348,24 @@ class GlobalController extends GetxController {
     }
   }
 
-  void kirimNotifikasi({title, message, tokens, bulan, tahun}) {
+  void kirimNotifikasiFcm({title, message, tokens, bulan, tahun}) {
+    // print()
     Map<String, dynamic> body = {
       'title': title,
-      'body': message,
-      'token': tokens,
-   
+      'message': message,
+      'token_notif': tokens.toString(),
     };
-    var connect = Api.connectionApi("post", body, "push-notification");
-    connect.then((dynamic res) {
-      if (res.statusCode == 200) {
-        var valueBody = jsonDecode(res.body);
-      }
-    });
+    try {
+      var connect = Api.connectionApi("post", body, "push_notification");
+      connect.then((dynamic res) {
+        if (res.statusCode == 200) {
+          // print()
+          var valueBody = jsonDecode(res.body);
+          print("response notif ${valueBody.toString()}");
+        }
+      });
+    } catch (e) {
+      print("errpr ${e}");
+    }
   }
 }
