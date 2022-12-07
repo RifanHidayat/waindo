@@ -88,7 +88,7 @@ class TidakMasukKerjaController extends GetxController {
     "Rejected",
     "Pending"
   ];
-
+  var globalCt = Get.put(GlobalController());
   @override
   void onReady() async {
     getTimeNow();
@@ -570,6 +570,7 @@ class TidakMasukKerjaController extends GetxController {
         UtilsAlert.showToast("Gagal kirim file");
       }
     } else {
+      print("data pengajuan 1 ${globalCt.konfirmasiAtasan.value}");
       if (status == false) {
         UtilsAlert.loadingSimpanData(Get.context!, "Sedang Menyimpan Data");
         checkNomorAjuan(status);
@@ -748,6 +749,7 @@ class TidakMasukKerjaController extends GetxController {
                 validasiDelegasiSelected, stringTanggal);
             kirimNotifikasiToReportTo(getFullName, convertTanggalBikinPengajuan,
                 getEmid, stringTanggal);
+
             Navigator.pop(Get.context!);
 
             var pesan1 =
@@ -759,6 +761,13 @@ class TidakMasukKerjaController extends GetxController {
               'nameType': '${selectedDropdownFormTidakMasukKerjaTipe.value}',
               'nomor_ajuan': '${getNomorAjuanTerakhir}',
             };
+            var data = jsonDecode(globalCt.konfirmasiAtasan.toString());
+            var newList = [];
+            for (var e in data) {
+              newList.add(e.values.join('token'));
+            }
+            globalCt.kirimNotifikasi(
+                title: "Izin", message: pesan1, tokens: newList);
 
             Get.offAll(BerhasilPengajuan(
               dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],

@@ -10,6 +10,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:siscom_operasional/controller/init_controller.dart';
 import 'package:siscom_operasional/controller/kontrol_controller.dart';
 import 'package:siscom_operasional/fireabase_option.dart';
+import 'package:siscom_operasional/model/notification_model.dart';
+import 'package:siscom_operasional/screen/absen/izin.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/local_storage.dart';
@@ -89,6 +91,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 //       onSelectNotification: onSelectNotification);
 //   // Get any messages which caused the application to open from
 //   // a terminated state.
+
 //   RemoteMessage? initialMessage =
 //       await FirebaseMessaging.instance.getInitialMessage();
 
@@ -119,8 +122,9 @@ Future<void> setupInteractedMessage() async {
 
   // Also handle any interaction when the app is in the background via a
   // Stream listener
-  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
     showNotification(message);
+    print("onMessage data: ${message.data}");
   });
   FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
   //_firebaseMessagingBackgroundHandler(re)
@@ -128,18 +132,15 @@ Future<void> setupInteractedMessage() async {
   //   print("_messaging onBackgroundMessage: $message");
   //   var info = '';
 
-  //   showNotification("", message);
   //   return;
-
   // });
 }
 
-void _handleMessage(RemoteMessage message) {
-  var info = ''
-      '';
-}
+void _handleMessage(RemoteMessage message) {}
 
-Future onSelectNotification(var payload) async {}
+Future onSelectNotification(var payload) async {
+  //Get.to(Izin());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);

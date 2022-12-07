@@ -10,7 +10,7 @@ class Api {
       base64Encode(utf8
           .encode('aplikasioperasionalsiscom:siscom@ptshaninformasi#2022@'));
 
-  static var basicUrl = "http://kantor.membersis.com:3000/";
+  static var basicUrl = "http://kantor.membersis.com:2627/";
   static var UrlfotoAbsen = basicUrl + "foto_absen/";
   static var UrlfotoProfile = basicUrl + "foto_profile/";
   static var UrlgambarDashboard = basicUrl + "gambar_dashboard/";
@@ -55,6 +55,7 @@ class Api {
       'Authorization': basicAuth,
       'Content-type': 'application/json',
       'Accept': 'application/json',
+      
     };
     try {
       final url = Uri.parse(getUrl);

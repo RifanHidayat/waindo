@@ -72,7 +72,8 @@ class AuthController extends GetxController {
     UtilsAlert.showLoadingIndicator(Get.context!);
     Map<String, dynamic> body = {
       'email': email.value.text,
-      'password': password.value.text
+      'password': password.value.text,
+      'token_notif': fcm_registration_token.toString()
     };
     var connect = Api.connectionApi("post", body, "validasiLogin");
     connect.then((dynamic res) {

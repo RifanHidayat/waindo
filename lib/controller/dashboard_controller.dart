@@ -93,6 +93,10 @@ class DashboardController extends GetxController {
     super.onInit();
   }
 
+  void kirimNotification({title,body,token,bulan,tahun,})async {
+
+  }
+
   void getUserInfo() {
     var userTampung = AppData.informasiUser!
         .map((element) => {
