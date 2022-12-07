@@ -66,6 +66,7 @@ class KlaimController extends GetxController {
     "Rejected",
     "Pending"
   ];
+  GlobalController globalCt = Get.put(GlobalController());
 
   @override
   void onReady() async {
@@ -449,6 +450,7 @@ class KlaimController extends GetxController {
       'created_by': getEmid,
       'menu_name': 'Klaim'
     };
+     var typeNotifFcm = "Pengajuan Klaim";
     if (statusForm.value == false) {
       body['activity_name'] =
           "Membuat Pengajuan Klaim. alasan = ${catatan.value.text}";
@@ -468,6 +470,23 @@ class KlaimController extends GetxController {
               'nameType': 'KLAIM',
               'nomor_ajuan': '${getNomorAjuanTerakhir}',
             };
+            for (var item in globalCt.konfirmasiAtasan) {
+              print(item['token_notif']);
+              var pesan;
+              if (item['em_gender'] == "PRIA") {
+                pesan =
+                    "Hallo pak ${item['full_name']}, saya ${getFullName} mengajukan Klaim dengan nomor ajuan ${getNomorAjuanTerakhir}";
+              } else {
+                pesan =
+                    "Hallo bu ${item['full_name']}, saya ${getFullName} mengajukan Klaim dengan nomor ajuan ${getNomorAjuanTerakhir}";
+              }
+              if (item['token_notif'] != null) {
+                globalCt.kirimNotifikasiFcm(
+                    title: typeNotifFcm,
+                    message: pesan,
+                    tokens: item['token_notif']);
+              }
+            }
             Get.offAll(BerhasilPengajuan(
               dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
             ));

@@ -545,21 +545,23 @@ class Aktifitas extends StatelessWidget {
       () => Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-              flex: 30,
-              child: Container(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 14),
-                  child: Text(
-                    "Aktivitas",
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-              )),
+          controller.statusFormPencarian.value == false
+              ? Expanded(
+                  flex: 30,
+                  child: Container(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: Text(
+                        "Aktivitas",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ))
+              : Container(),
           Expanded(
               flex: 70,
               child: Container(
@@ -589,11 +591,11 @@ class Aktifitas extends StatelessWidget {
                                                 .statusFormPencarian
                                                 .refresh();
                                           },
-                                          child: Icon(
-                                            Iconsax.close_circle,
-                                            color: Colors.white,
-                                            size: 18,
-                                          ),
+                                          // child: Icon(
+                                          //   Iconsax.close_circle,
+                                          //   color: Colors.white,
+                                          //   size: 18,
+                                          // ),
                                         ),
                                       )),
                                   Expanded(
@@ -602,7 +604,15 @@ class Aktifitas extends StatelessWidget {
                                       height: 30,
                                       child: TextField(
                                         controller: controller.cari.value,
-                                        decoration: InputDecoration(
+                                        decoration: const InputDecoration(
+                                            suffixIcon: Icon(
+                                              Iconsax.close_circle,
+                                              color: Colors.grey,
+                                            ),
+                                            prefixIcon: Icon(
+                                              Icons.search,
+                                              color: Colors.grey,
+                                            ),
                                             hintStyle:
                                                 TextStyle(color: Colors.white),
                                             enabledBorder: UnderlineInputBorder(
@@ -613,8 +623,9 @@ class Aktifitas extends StatelessWidget {
                                               borderSide: BorderSide(
                                                   color: Colors.white),
                                             ),
+                                            fillColor: Colors.white,
                                             hintText: "Cari judul aktifitas"),
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontSize: 14.0,
                                             height: 1.0,
                                             color: Colors.white),
@@ -651,10 +662,14 @@ class Aktifitas extends StatelessWidget {
                                                   .pencarianDataAktifitas();
                                             }
                                           },
-                                          child: Icon(
-                                            Iconsax.search_normal,
-                                            color: Colors.white,
-                                          ),
+                                          child: controller.statusFormPencarian
+                                                      .value ==
+                                                  false
+                                              ? Icon(
+                                                  Iconsax.search_normal,
+                                                  color: Colors.white,
+                                                )
+                                              : Container(),
                                         ),
                                       ))
                                 ],

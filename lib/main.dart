@@ -23,6 +23,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'dart:io';
 
 import 'utils/app_data.dart';
@@ -54,8 +55,6 @@ void main() async {
 }
 
 Future showNotification(message) async {
-  //flutterTts.speak(info);
-  // print("data notif ${message}");
   RemoteNotification notification = message.notification;
   AndroidNotification android = message.notification?.android;
 
@@ -63,8 +62,9 @@ Future showNotification(message) async {
       0,
       notification.title,
       notification.body,
-      const NotificationDetails(
-        android: AndroidNotificationDetails("0", "",
+      NotificationDetails(
+        android: AndroidNotificationDetails(
+            DateTime.now().millisecondsSinceEpoch.toString(), "",
             playSound: true,
             priority: Priority.high,
             importance: Importance.high,
@@ -79,38 +79,23 @@ Future showNotification(message) async {
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   var info = message.data['body'];
-  showNotification(message);
-
+  // showNotification(message);
+  FlutterRingtonePlayer.playNotification();
   await Firebase.initializeApp();
 }
-
-// Future<void> setupInteractedMessage() async {
-//   flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
-//   var android = new AndroidInitializationSettings('@mipmap/ic_launcher');
-//   var iOS = new IOSInitializationSettings();
-//   var initSetttings = new InitializationSettings(android: android, iOS: iOS);
-//   flutterLocalNotificationsPlugin.initialize(initSetttings,
-//       onSelectNotification: onSelectNotification);
-//   // Get any messages which caused the application to open from
-//   // a terminated state.
-
-//   RemoteMessage? initialMessage =
-//       await FirebaseMessaging.instance.getInitialMessage();
-
-//   // If the message also contains a data property with a "type" of "chat",
-//   // navigate to a chat screen
-//   if (initialMessage != null) {
-//     _handleMessage(initialMessage);
-//   }
-// }
 
 Future<void> setupInteractedMessage() async {
   flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   var android = new AndroidInitializationSettings('@mipmap/ic_launcher');
-  var iOS = new IOSInitializationSettings();
+  var iOS = const IOSInitializationSettings(
+    requestSoundPermission: false,
+    requestBadgePermission: false,
+    requestAlertPermission: false,
+  );
   var initSetttings = new InitializationSettings(android: android, iOS: iOS);
   flutterLocalNotificationsPlugin.initialize(initSetttings,
       onSelectNotification: onSelectNotification);
+
   // Get any messages which caused the application to open from
   // a terminated state.
   RemoteMessage? initialMessage =
@@ -126,16 +111,14 @@ Future<void> setupInteractedMessage() async {
   // Stream listener
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
     showNotification(message);
-    print("onMessage data: ${message.data}");
+    FlutterRingtonePlayer.playNotification();
   });
   FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
- 
 }
 
 void _handleMessage(RemoteMessage message) {}
 
 Future onSelectNotification(var payload) async {
-  // Get.to(Izin());
   Get.offAll(InitScreen());
 }
 
@@ -187,7 +170,7 @@ class _SplashScreenState extends State<SplashScreen> {
           Container(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
                 image: DecorationImage(
                     alignment: Alignment.topCenter,
                     image: AssetImage('assets/Splash.png'),

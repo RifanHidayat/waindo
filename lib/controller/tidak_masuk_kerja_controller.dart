@@ -742,7 +742,7 @@ class TidakMasukKerjaController extends GetxController {
       var connect = Api.connectionApi("post", body, "kirimPengajuanTMK");
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
-          var typeNotifFcm = "Izin";
+          var typeNotifFcm = "Pengajuan Izin";
           var valueBody = jsonDecode(res.body);
           if (valueBody['status'] == true) {
             var stringTanggal =
@@ -768,21 +768,24 @@ class TidakMasukKerjaController extends GetxController {
               'nameType': '${selectedDropdownFormTidakMasukKerjaTipe.value}',
               'nomor_ajuan': '${getNomorAjuanTerakhir}',
             };
-
-            for (var i = 0; i < globalCt.konfirmasiAtasan.value.length; i++) {
-              print(globalCt.konfirmasiAtasan.value[i]['token_notif']);
+        
+          
+            for (var item in globalCt.konfirmasiAtasan) {
+              print(item['token_notif']);
               var pesan;
-              if (globalCt.konfirmasiAtasan.value[i]['em_gender'] == "PRIA") {
+              if (item['em_gender'] == "PRIA") {
                 pesan =
-                    "Hallo pak ${globalCt.konfirmasiAtasan.value[i]['full_name']}, saya ${getFullName} mengajukan ${getAjuanType} dengan nomor ajuan ${getNomorAjuanTerakhir}";
+                    "Hallo pak ${item['full_name']}, saya ${getFullName} mengajukan ${selectedDropdownFormTidakMasukKerjaTipe.value} dengan nomor ajuan ${getNomorAjuanTerakhir}";
               } else {
                 pesan =
-                    "Hallo bu ${globalCt.konfirmasiAtasan.value[i]['full_name']}, saya ${getFullName} mengajukan ${getAjuanType} dengan nomor ajuan ${getNomorAjuanTerakhir}";
+                    "Hallo bu ${item['full_name']}, saya ${getFullName} mengajukan ${selectedDropdownFormTidakMasukKerjaTipe.value} dengan nomor ajuan ${getNomorAjuanTerakhir}";
               }
-              globalCt.kirimNotifikasiFcm(
-                  title: typeNotifFcm,
-                  message: pesan,
-                  tokens: globalCt.konfirmasiAtasan.value[i]['token_notif']);
+              if (item['token_notif'] != null) {
+                globalCt.kirimNotifikasiFcm(
+                    title: typeNotifFcm,
+                    message: pesan,
+                    tokens: item['token_notif']);
+              }
             }
 
             Get.offAll(BerhasilPengajuan(
@@ -930,7 +933,7 @@ class TidakMasukKerjaController extends GetxController {
         result.add(element);
       }
     }
-    return "${result[0]['em_token']}";
+    return "${result[0]['token_notif']}";
   }
 
   String validasiHitungIzin() {

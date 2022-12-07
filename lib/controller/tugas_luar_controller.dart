@@ -659,6 +659,7 @@ class TugasLuarController extends GetxController {
     var getEmid = dataUser![0].em_id;
     var getFullName = dataUser[0].full_name;
     var validasiDelegasiSelected = validasiSelectedDelegasi();
+    var validasiDelegasiSelectedToken = validasiSelectedDelegasiToken();
     var polaFormat = DateFormat('yyyy-MM-dd');
     var tanggalPengajuanInsert = polaFormat.format(initialDate.value);
     var finalTanggalPengajuan = statusForm.value == false
@@ -687,11 +688,18 @@ class TugasLuarController extends GetxController {
       connect.then((dynamic res) {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
+          var typeNotifFcm = "Pengajuan Tugas Luar";
           if (valueBody['status'] == true) {
             var stringWaktu =
                 "${dariJam.value.text} sd ${sampaiJam.value.text}";
-            kirimNotifikasiToDelegasi(getFullName, finalTanggalPengajuan,
-                validasiDelegasiSelected, stringWaktu, 1);
+            kirimNotifikasiToDelegasi(
+                getFullName,
+                finalTanggalPengajuan,
+                validasiDelegasiSelected,
+                validasiDelegasiSelectedToken,
+                stringWaktu,
+                1,
+                typeNotifFcm);
             kirimNotifikasiToReportTo(getFullName, finalTanggalPengajuan,
                 getEmid, "Tugas Luar", stringWaktu);
             Navigator.pop(Get.context!);
@@ -704,14 +712,23 @@ class TugasLuarController extends GetxController {
               'nomor_ajuan': '${getNomorAjuanTerakhir}',
             };
 
-            var pesan4 = "";
-            var data = jsonDecode(globalCt.konfirmasiAtasan.toString());
-            var newList = [];
-            for (var e in data) {
-              newList.add(e.values.join('token'));
+            for (var item in globalCt.konfirmasiAtasan) {
+              print(item['token_notif']);
+              var pesan;
+              if (item['em_gender'] == "PRIA") {
+                pesan =
+                    "Hallo pak ${item['full_name']}, saya ${getFullName} mengajukan TUGAS LUAR dengan nomor ajuan ${getNomorAjuanTerakhir}";
+              } else {
+                pesan =
+                    "Hallo bu ${item['full_name']}, saya ${getFullName} mengajukan TUGAS LUAR dengan nomor ajuan ${getNomorAjuanTerakhir}";
+              }
+              if (item['token_notif'] != null) {
+                globalCt.kirimNotifikasiFcm(
+                    title: typeNotifFcm,
+                    message: pesan,
+                    tokens: item['token_notif']);
+              }
             }
-            globalCt.kirimNotifikasiFcm(
-                title: "Lembur", message: pesan4, tokens: newList);
             Get.offAll(BerhasilPengajuan(
               dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
             ));
@@ -759,6 +776,7 @@ class TugasLuarController extends GetxController {
     var getEmid = "${dataUser![0].em_id}";
     var getFullName = "${dataUser[0].full_name}";
     var validasiDelegasiSelected = validasiSelectedDelegasi();
+    var validasiDelegasiSelectedToken = validasiSelectedDelegasiToken();
 
     var listTanggal = tanggalTugasLuar.value.text.split(',');
     var getTanggal = listTanggal[1].replaceAll(' ', '');
@@ -789,6 +807,7 @@ class TugasLuarController extends GetxController {
       'leave_files': "",
       'ajuan': "4",
     };
+    var typeNotifFcm = "Pengajuan Dinas Luar";
     if (status == false) {
       body['created_by'] = getEmid;
       body['menu_name'] = "Dinas Luar";
@@ -801,8 +820,14 @@ class TugasLuarController extends GetxController {
           if (valueBody['status'] == true) {
             var stringWaktu =
                 "${dariTanggal.value.text} sd ${sampaiTanggal.value.text}";
-            kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
-                validasiDelegasiSelected, stringWaktu, 2);
+            kirimNotifikasiToDelegasi(
+                getFullName,
+                convertTanggalBikinPengajuan,
+                validasiDelegasiSelected,
+                validasiDelegasiSelected,
+                stringWaktu,
+                2,
+                typeNotifFcm);
             kirimNotifikasiToReportTo(getFullName, convertTanggalBikinPengajuan,
                 getEmid, "Dinas Luar", stringWaktu);
             Navigator.pop(Get.context!);
@@ -815,6 +840,23 @@ class TugasLuarController extends GetxController {
               'nameType': 'Dinas Luar',
               'nomor_ajuan': '${getNomorAjuanTerakhir}',
             };
+            for (var item in globalCt.konfirmasiAtasan) {
+              print(item['token_notif']);
+              var pesan;
+              if (item['em_gender'] == "PRIA") {
+                pesan =
+                    "Hallo pak ${item['full_name']}, saya ${getFullName} mengajukan DINAS LUAR dengan nomor ajuan ${getNomorAjuanTerakhir}";
+              } else {
+                pesan =
+                    "Hallo bu ${item['full_name']}, saya ${getFullName} mengajukan DINAS LUAR dengan nomor ajuan ${getNomorAjuanTerakhir}";
+              }
+              if (item['token_notif'] != null) {
+                globalCt.kirimNotifikasiFcm(
+                    title: typeNotifFcm,
+                    message: pesan,
+                    tokens: item['token_notif']);
+              }
+            }
 
             Get.offAll(BerhasilPengajuan(
               dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
@@ -862,10 +904,17 @@ class TugasLuarController extends GetxController {
     }
   }
 
-  void kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
-      validasiDelegasiSelected, stringWaktu, type) {
+  void kirimNotifikasiToDelegasi(
+      getFullName,
+      convertTanggalBikinPengajuan,
+      validasiDelegasiSelected,
+      fcmTokenDelegasi,
+      stringWaktu,
+      type,
+      typeNotifFcm) {
     var dt = DateTime.now();
     var jamSekarang = DateFormat('HH:mm:ss').format(dt);
+
     var title_ct = type == 1
         ? "Delegasi Pengajuan Tugas Luar"
         : "Delegasi Pengajuan Dinas Luar";
@@ -885,6 +934,8 @@ class TugasLuarController extends GetxController {
     var connect = Api.connectionApi("post", body, "insert-notifikasi");
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
+        globalCt.kirimNotifikasiFcm(
+            title: typeNotifFcm, message: desk_ct, tokens: fcmTokenDelegasi);
         UtilsAlert.showToast("Berhasil kirim delegasi");
       }
     });
@@ -927,6 +978,18 @@ class TugasLuarController extends GetxController {
       }
     }
     return "${result[0]['em_id']}";
+  }
+
+  String validasiSelectedDelegasiToken() {
+    var result = [];
+    for (var element in allEmployee.value) {
+      var fullName = element['full_name'] ?? "";
+      var namaElement = "$fullName";
+      if (namaElement == selectedDropdownDelegasi.value) {
+        result.add(element);
+      }
+    }
+    return "${result[0]['token_notif']}";
   }
 
   String hitungDurasi() {

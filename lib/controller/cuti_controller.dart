@@ -602,6 +602,7 @@ class CutiController extends GetxController {
     var getFullName = dataUser[0].full_name;
     var validasiTipeSelected = validasiSelectedType();
     var validasiDelegasiSelected = validasiSelectedDelegasi();
+    var validasiDelegasiSelectedToken = validasiSelectedDelegasiToken();
     var dt = DateTime.now();
     var dateString = "${dt.year}-${dt.month}-${dt.day}";
     var afterConvert = Constanst.convertDate1(dateString);
@@ -627,6 +628,7 @@ class CutiController extends GetxController {
       'created_by': getEmid,
       'menu_name': 'Cuti'
     };
+    var typeNotifFcm = "Pengajuan Cuti";
     if (statusForm.value == false) {
       body['activity_name'] =
           "Membuat Pengajuan Cuti. alasan = ${alasan.value.text}";
@@ -637,8 +639,13 @@ class CutiController extends GetxController {
           if (valueBody['status'] == true) {
             var stringTanggal =
                 "${dariTanggal.value.text} sd ${sampaiTanggal.value.text}";
-            kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
-                validasiDelegasiSelected, stringTanggal);
+            kirimNotifikasiToDelegasi(
+                getFullName,
+                convertTanggalBikinPengajuan,
+                validasiDelegasiSelected,
+                validasiDelegasiSelectedToken,
+                stringTanggal,
+                typeNotifFcm);
             kirimNotifikasiToReportTo(getFullName, convertTanggalBikinPengajuan,
                 getEmid, "Cuti", stringTanggal);
             Navigator.pop(Get.context!);
@@ -651,14 +658,22 @@ class CutiController extends GetxController {
               'nameType': '${selectedTypeCuti.value}',
               'nomor_ajuan': '${getNomorAjuanTerakhir}',
             };
-            var pesan4 = "";
-            var data = jsonDecode(globalCt.konfirmasiAtasan.toString());
-            var newList = [];
-            for (var e in data) {
-              newList.add(e.values.join('token'));
+            for (var item in globalCt.konfirmasiAtasan) {
+              var pesan;
+              if (item['em_gender'] == "PRIA") {
+                pesan =
+                    "Hallo pak ${item['full_name']}, saya ${getFullName} mengajukan ${selectedTypeCuti.value} dengan nomor ajuan ${getNomorAjuanTerakhir}";
+              } else {
+                pesan =
+                    "Hallo bu ${item['full_name']}, saya ${getFullName} mengajukan ${selectedTypeCuti.value} dengan nomor ajuan ${getNomorAjuanTerakhir}";
+              }
+              if (item['token_notif'] != null) {
+                globalCt.kirimNotifikasiFcm(
+                    title: typeNotifFcm,
+                    message: pesan,
+                    tokens: item['token_notif']);
+              }
             }
-            globalCt.kirimNotifikasiFcm(
-                title: "Lembur", message: pesan4, tokens: newList);
 
             Get.offAll(BerhasilPengajuan(
               dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
@@ -705,14 +720,15 @@ class CutiController extends GetxController {
   }
 
   void kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
-      validasiDelegasiSelected, stringTanggal) {
+      validasiDelegasiSelected, fcmTokenDelegasi, stringTanggal, typeNotifFcm) {
     var dt = DateTime.now();
+    var description =
+        'Anda mendapatkan delegasi pekerjaan dari $getFullName untuk pengajuan $selectedTypeCuti, tanggal pengajuan $stringTanggal';
     var jamSekarang = DateFormat('HH:mm:ss').format(dt);
     Map<String, dynamic> body = {
       'em_id': validasiDelegasiSelected,
       'title': 'Delegasi Pengajuan Cuti',
-      'deskripsi':
-          'Anda mendapatkan delegasi pekerjaan dari $getFullName untuk pengajuan $selectedTypeCuti, tanggal pengajuan $stringTanggal',
+      'deskripsi': description,
       'url': '',
       'atten_date': convertTanggalBikinPengajuan,
       'jam': jamSekarang,
@@ -722,6 +738,10 @@ class CutiController extends GetxController {
     var connect = Api.connectionApi("post", body, "insert-notifikasi");
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
+        globalCt.kirimNotifikasiFcm(
+            title: typeNotifFcm,
+            message: description,
+            tokens: fcmTokenDelegasi);
         UtilsAlert.showToast("Berhasil kirim delegasi");
       }
     });
@@ -770,6 +790,18 @@ class CutiController extends GetxController {
       }
     }
     return "${result[0]['em_id']}";
+  }
+
+  String validasiSelectedDelegasiToken() {
+    var result = [];
+    for (var element in allEmployee.value) {
+      var fullName = element['full_name'] ?? "";
+      var namaElement = "$fullName";
+      if (namaElement == selectedDelegasi.value) {
+        result.add(element);
+      }
+    }
+    return "${result[0]['token_notif']}";
   }
 
   String validasiHitungIzin() {

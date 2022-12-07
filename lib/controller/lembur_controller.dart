@@ -404,6 +404,7 @@ class LemburController extends GetxController {
     var getEmid = dataUser![0].em_id;
     var getFullName = dataUser[0].full_name;
     var validasiDelegasiSelected = validasiSelectedDelegasi();
+     var validasiDelegasiSelectedToken= validasiSelectedDelegasiToken();
     var polaFormat = DateFormat('yyyy-MM-dd');
     var tanggalPengajuanInsert = polaFormat.format(initialDate.value);
     var finalTanggalPengajuan = statusForm.value == false
@@ -426,6 +427,7 @@ class LemburController extends GetxController {
       'created_by': getEmid,
       'menu_name': 'Lembur'
     };
+    var typeNotifFcm = "Pengajuan Lembur";
     if (statusForm.value == false) {
       print("sampe sini input");
       body['activity_name'] =
@@ -438,7 +440,7 @@ class LemburController extends GetxController {
             var stringWaktu =
                 "${dariJam.value.text} sd ${sampaiJam.value.text}";
             kirimNotifikasiToDelegasi(getFullName, finalTanggalPengajuan,
-                validasiDelegasiSelected, stringWaktu);
+                validasiDelegasiSelected,validasiDelegasiSelectedToken, stringWaktu,typeNotifFcm);
             kirimNotifikasiToReportTo(getFullName, finalTanggalPengajuan,
                 getEmid, "Lembur", stringWaktu);
             Navigator.pop(Get.context!);
@@ -450,14 +452,24 @@ class LemburController extends GetxController {
               'nameType': 'LEMBUR',
               'nomor_ajuan': '${getNomorAjuanTerakhir}',
             };
-            var pesan4 = "";
-            var data = jsonDecode(globalCt.konfirmasiAtasan.toString());
-            var newList = [];
-            for (var e in data) {
-              newList.add(e.values.join('token'));
+               for (var item in globalCt.konfirmasiAtasan) {
+              print(item['token_notif']);
+              var pesan;
+              if (item['em_gender'] == "PRIA") {
+                pesan =
+                    "Hallo pak ${item['full_name']}, saya ${getFullName} mengajukan LEMBUR dengan nomor ajuan ${getNomorAjuanTerakhir}";
+              } else {
+                pesan =
+                    "Hallo bu ${item['full_name']}, saya ${getFullName} mengajukan LEMBUR dengan nomor ajuan ${getNomorAjuanTerakhir}";
+              }
+              if (item['token_notif'] != null) {
+                globalCt.kirimNotifikasiFcm(
+                    title: typeNotifFcm,
+                    message: pesan,
+                    tokens: item['token_notif']);
+              }
             }
-            globalCt.kirimNotifikasiFcm(
-                title: "Lembur", message: pesan4, tokens: newList);
+            
                 
             Get.offAll(BerhasilPengajuan(
               dataBerhasil: [pesan1, pesan2, pesan3, dataPengajuan],
@@ -567,14 +579,15 @@ class LemburController extends GetxController {
   }
 
   void kirimNotifikasiToDelegasi(getFullName, convertTanggalBikinPengajuan,
-      validasiDelegasiSelected, stringWaktu) {
+      validasiDelegasiSelected,fcmTokenDelegasi, stringWaktu,typeNotifFcm) {
     var dt = DateTime.now();
     var jamSekarang = DateFormat('HH:mm:ss').format(dt);
+    var description='Anda mendapatkan delegasi pekerjaan dari $getFullName untuk Pengajuan Lembur, waktu pengajuan $stringWaktu';
     Map<String, dynamic> body = {
       'em_id': validasiDelegasiSelected,
       'title': 'Delegasi Pengajuan Lembur',
       'deskripsi':
-          'Anda mendapatkan delegasi pekerjaan dari $getFullName untuk Pengajuan Lembur, waktu pengajuan $stringWaktu',
+          description,
       'url': '',
       'atten_date': convertTanggalBikinPengajuan,
       'jam': jamSekarang,
@@ -584,6 +597,10 @@ class LemburController extends GetxController {
     var connect = Api.connectionApi("post", body, "insert-notifikasi");
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
+         globalCt.kirimNotifikasiFcm(
+            title: typeNotifFcm,
+            message: description,
+            tokens: fcmTokenDelegasi);
         UtilsAlert.showToast("Berhasil kirim delegasi");
       }
     });
@@ -622,6 +639,17 @@ class LemburController extends GetxController {
       }
     }
     return "${result[0]['em_id']}";
+  }
+ String validasiSelectedDelegasiToken() {
+    var result = [];
+    for (var element in allEmployee.value) {
+      var fullName = element['full_name'] ?? "";
+      var namaElement = "$fullName";
+      if (namaElement == selectedDropdownDelegasi.value) {
+        result.add(element);
+      }
+    }
+    return "${result[0]['token_notif']}";
   }
 
   String hitungDurasi() {
