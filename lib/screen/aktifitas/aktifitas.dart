@@ -547,7 +547,7 @@ class Aktifitas extends StatelessWidget {
         children: [
           controller.statusFormPencarian.value == false
               ? Expanded(
-                  flex: 30,
+                  flex: 10,
                   child: Container(
                     alignment: Alignment.bottomCenter,
                     child: Padding(
@@ -563,7 +563,7 @@ class Aktifitas extends StatelessWidget {
                   ))
               : Container(),
           Expanded(
-              flex: 70,
+              flex: 20,
               child: Container(
                   alignment: Alignment.bottomRight,
                   child: Padding(
@@ -571,7 +571,7 @@ class Aktifitas extends StatelessWidget {
                     child: controller.statusFormPencarian.value
                         ? Container(
                             width: MediaQuery.of(Get.context!).size.width,
-                            margin: EdgeInsets.all(0),
+                            margin: EdgeInsets.only(top: 20),
                             padding: EdgeInsets.all(0),
                             child: Padding(
                               padding: EdgeInsets.only(top: 12),
@@ -579,7 +579,7 @@ class Aktifitas extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Expanded(
-                                      flex: 10,
+                                      flex: 15,
                                       child: Padding(
                                         padding: const EdgeInsets.only(top: 6),
                                         child: InkWell(
@@ -599,49 +599,62 @@ class Aktifitas extends StatelessWidget {
                                         ),
                                       )),
                                   Expanded(
-                                    flex: 80,
-                                    child: SizedBox(
-                                      height: 30,
-                                      child: TextField(
-                                        controller: controller.cari.value,
-                                        decoration: const InputDecoration(
-                                            suffixIcon: Icon(
+                                    flex: 200,
+                                    child: TextField(
+                                      controller: controller.cari.value,
+                                      decoration: InputDecoration(
+                                          border: InputBorder.none,
+                                          contentPadding: const EdgeInsets.only(
+                                               bottom: 5),
+                                          filled: true,
+                                          suffixIcon: InkWell(
+                                            onTap: () {
+                                              controller.statusFormPencarian
+                                                  .value = false;
+                                              this
+                                                  .controller
+                                                  .statusFormPencarian
+                                                  .refresh();
+                                            },
+                                            child: const Icon(
                                               Iconsax.close_circle,
                                               color: Colors.grey,
                                             ),
-                                            prefixIcon: Icon(
-                                              Icons.search,
-                                              color: Colors.grey,
+                                          ),
+                                          prefixIcon: const Icon(
+                                            Icons.search,
+                                            color: Colors.grey,
+                                          ),
+                                          hintStyle: const TextStyle(
+                                              color: Colors.grey),
+                                          focusedBorder:
+                                              const OutlineInputBorder(
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(5.0),
                                             ),
-                                            hintStyle:
-                                                TextStyle(color: Colors.white),
-                                            enabledBorder: UnderlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Colors.white),
-                                            ),
-                                            focusedBorder: UnderlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Colors.white),
-                                            ),
-                                            fillColor: Colors.white,
-                                            hintText: "Cari judul aktifitas"),
-                                        style: const TextStyle(
-                                            fontSize: 14.0,
-                                            height: 1.0,
-                                            color: Colors.white),
-                                        onSubmitted: (value) {
-                                          if (controller.cari.value.text ==
-                                              "") {
-                                            UtilsAlert.showToast(
-                                                "Isi form cari terlebih dahulu");
-                                          } else {
-                                            UtilsAlert.loadingSimpanData(
-                                                Get.context!,
-                                                "Mencari Data...");
-                                            controller.pencarianDataAktifitas();
-                                          }
-                                        },
-                                      ),
+                                          ),
+                                          enabledBorder:
+                                              const OutlineInputBorder(
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                            Radius.circular(5.0),
+                                          )),
+                                          fillColor: Colors.white,
+                                          hintText: "Cari.."),
+                                      style: const TextStyle(
+                                          fontSize: 14.0,
+                                          height: 1.0,
+                                          color: Colors.black),
+                                      onSubmitted: (value) {
+                                        if (controller.cari.value.text == "") {
+                                          UtilsAlert.showToast(
+                                              "Isi form cari terlebih dahulu");
+                                        } else {
+                                          UtilsAlert.loadingSimpanData(
+                                              Get.context!, "Mencari Data...");
+                                          controller.pencarianDataAktifitas();
+                                        }
+                                      },
                                     ),
                                   ),
                                   Expanded(

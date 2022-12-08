@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:intl/intl.dart';
 
 class Constanst {
@@ -26,6 +27,8 @@ class Constanst {
   static Color color3 = Color(0xffF2AA0D);
   static Color color4 = Color(0xffFF463D);
   static Color color5 = Color(0xff14B156);
+  static Color infoLight = HexColor('#2F80ED');
+   static Color infoLight1 = HexColor('#E9F5FE');
   static Color color6 = Color.fromARGB(88, 230, 230, 230);
 
   static BorderRadius borderStyle1 = BorderRadius.only(

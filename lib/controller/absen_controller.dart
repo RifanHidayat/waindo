@@ -72,7 +72,7 @@ class AbsenController extends GetxController {
   var idDepartemenTerpilih = "".obs;
   var testingg = "".obs;
   var filterLokasiKoordinate = "Lokasi".obs;
-
+  Rx<AbsenModel> absenModel = AbsenModel().obs;
   var jumlahData = 0.obs;
   var selectedViewFilterAbsen = 0.obs;
 
@@ -323,7 +323,6 @@ class AbsenController extends GetxController {
           this.jumlahData.refresh();
           this.listLaporanBelumAbsen.refresh();
           this.allListLaporanBelumAbsen.refresh();
-
           statusLoadingSubmitLaporan.value = false;
           this.statusLoadingSubmitLaporan.refresh();
           if (listLaporanBelumAbsen.isEmpty) {
@@ -801,6 +800,50 @@ class AbsenController extends GetxController {
     }
   }
 
+  void historySelected1(id_absen, status, index, index1) {
+    //  print(listLaporanFilter[index]['data'].toList());
+    var getSelected = listLaporanFilter[index]['data'][index1];
+    print(getSelected);
+
+    print(getSelected);
+    if (getSelected['signin_longlat'] == null ||
+        getSelected['signin_longlat'] == "") {
+      UtilsAlert.showToast("Terjadi kesalahan terhadap data absen ini");
+    } else {
+      Get.to(DetailAbsen(
+        absenSelected: [getSelected],
+        status: true,
+      ));
+    }
+  }
+
+  void loadAbsenDetail(emId, attenDate, fullName) {
+    Map<String, dynamic> body = {'id_absen': emId, 'atten_date': attenDate};
+    var connect = Api.connectionApi("post", body, "whereOnce-attendance");
+    connect.then((dynamic res) {
+      if (res.statusCode == 200) {
+        var valueBody = jsonDecode(res.body);
+        if (valueBody['data'].isNotEmpty) {
+          //  print(listLaporanFilter[index]['data'].toList());
+          var getSelected = valueBody['data'][0];
+
+          print(getSelected);
+          if (getSelected['signin_longlat'] == null ||
+              getSelected['signin_longlat'] == "") {
+            UtilsAlert.showToast("Terjadi kesalahan terhadap data absen ini");
+          } else {
+            Get.to(DetailAbsen(
+              absenSelected: [getSelected],
+              status: true,
+              fullName: fullName,
+            ));
+          }
+          // absenModel.value = AbsenModel.fromMap(valueBody);
+        } else {}
+      }
+    });
+  }
+
   showDetailImage() {
     showDialog(
       context: Get.context!,
@@ -898,6 +941,11 @@ class AbsenController extends GetxController {
                                 departementAkses.value[index]['name'];
                             return InkWell(
                               onTap: () {
+                                filterLokasiKoordinate.value = "Lokasi";
+                                selectedViewFilterAbsen.value = 0;
+                                Rx<AbsenModel> absenModel = AbsenModel().obs;
+                                var jumlahData = 0.obs;
+
                                 idDepartemenTerpilih.value = "$id";
                                 namaDepartemenTerpilih.value = dep_name;
                                 departemen.value.text =
@@ -1050,6 +1098,7 @@ class AbsenController extends GetxController {
   }
 
   void filterLokasiAbsenBulan(place) {
+    print("tes");
     Navigator.pop(Get.context!);
     statusLoadingSubmitLaporan.value = true;
     listLaporanFilter.value.clear();
@@ -1077,6 +1126,7 @@ class AbsenController extends GetxController {
         listLaporanFilter.value = listFilterLokasi;
         allListLaporanFilter.value = listFilterLokasi;
         filterLokasiKoordinate.value = place;
+
         this.listLaporanFilter.refresh();
         this.filterLokasiKoordinate.refresh();
         loading.value = listLaporanFilter.value.length == 0
@@ -1421,6 +1471,8 @@ class AbsenController extends GetxController {
               onConfirm: (time) {
                 if (time != null) {
                   print("$time");
+                  filterLokasiKoordinate.value = "Lokasi";
+                  selectedViewFilterAbsen.value = 0;
                   var filter = DateFormat('yyyy-MM').format(time);
                   var array = filter.split('-');
                   var bulan = array[1];
@@ -1479,6 +1531,8 @@ class AbsenController extends GetxController {
         padding: const EdgeInsets.only(right: 5),
         child: InkWell(
           onTap: () {
+            filterLokasiKoordinate.value = "Lokasi";
+            selectedViewFilterAbsen.value = 0;
             DatePicker.showDatePicker(Get.context!,
                 showTitleActions: true,
                 minTime: DateTime(2000, 1, 1),

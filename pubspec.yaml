@@ -55,6 +55,8 @@ dependencies:
   double_back_to_close_app: ^2.1.0
   flutter_local_notifications: ^9.3.2
   flutter_ringtone_player: ^3.2.0
+  grouped_list: ^5.1.2
+  hexcolor: ^3.0.1
 
   firebase_core: ^2.3.0
 
