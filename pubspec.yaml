@@ -38,6 +38,7 @@ dependencies:
 
   font_awesome_flutter: ^10.3.0
   intl_utils: ^2.6.1
+  google_maps_flutter: ^2.2.1
   intl: ^0.17.0
   path_provider: ^2.0.8
   image_picker: ^0.8.4+4
@@ -88,6 +89,7 @@ dependencies:
   location: ^4.2.0
   currency_text_input_formatter: ^2.1.8
   html_editor_enhanced: ^2.0.0
+  draggable_home: ^1.0.4
 
   # system_alert_window: ^1.1.2
 

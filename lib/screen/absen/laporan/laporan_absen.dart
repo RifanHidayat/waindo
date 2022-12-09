@@ -37,6 +37,48 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
     controller.onReady();
   }
 
+  void groupData() async {
+    controller.listLaporanFilter.value = controller.listLaporanFilter
+        .fold(Map<String, List<dynamic>>(), (Map<String, List<dynamic>> a, b) {
+          a.putIfAbsent(b['em_id'], () => []).add(b);
+          return a;
+        })
+        .values
+        .where((l) => l.isNotEmpty)
+        .map((l) => {
+              'full_name': l.first['full_name'],
+              'job_title': l.first['job_title'],
+              'em_id': l.first['em_id'],
+              'atten_date': l.first['atten_date'],
+              'signin_time': l.first['signin_time'],
+              'signout_time': l.first['signout_time'],
+              'signin_note': l.first['signin_note'],
+              'place_in': l.first['place_in'],
+              'place_out': l.first['place_out'],
+              'signin_longlat': l.first['signin_longlat'],
+              'id': l.first['id_absen'],
+              'signout_longlat': l.first['signout_longlat'],
+              'is_open': true,
+              'data': l
+                  .map((e) => {
+                        'full_name': e['full_name'],
+                        'id': e['id_absen'],
+                        'job_title': e['job_title'],
+                        'em_id': e['em_id'],
+                        'atten_date': e['atten_date'],
+                        'signin_time': e['signin_time'],
+                        'signout_time': e['signout_time'],
+                        'signin_note': e['signin_note'],
+                        'place_in': l.first['place_in'],
+                        'place_out': l.first['place_out'],
+                        'signin_longlat': l.first['signin_longlat'],
+                        'signout_longlat': l.first['signout_longlat'],
+                      })
+                  .toList()
+            })
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -251,9 +293,7 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                           )
                         : Container(),
             InkWell(
-              onTap: () {
-                
-              },
+              onTap: () {},
               child: Container(
                 child: InkWell(
                   onTap: () {
@@ -509,73 +549,26 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
   }
 
   Widget listAbsensiKaryawan() {
-    controller.listLaporanFilter.value = controller.listLaporanFilter
-        .fold(Map<String, List<dynamic>>(), (Map<String, List<dynamic>> a, b) {
-          a.putIfAbsent(b['em_id'], () => []).add(b);
-          return a;
-        })
-        .values
-        .where((l) => l.isNotEmpty)
-        .map((l) => {
-              'full_name': l.first['full_name'],
-              'job_title': l.first['job_title'],
-              'em_id': l.first['em_id'],
-              'atten_date': l.first['atten_date'],
-              'signin_time': l.first['signin_time'],
-              'signout_time': l.first['signout_time'],
-              'signin_note': l.first['signin_note'],
-              'place_in': l.first['place_in'],
-              'place_out': l.first['place_out'],
-              'signin_longlat': l.first['signin_longlat'],
-              'id': l.first['id_absen'],
-              'signout_longlat': l.first['signout_longlat'],
-              'is_open': true,
-              'data': l
-                  .map((e) => {
-                        'full_name': e['full_name'],
-                        'id': e['id_absen'],
-                        'job_title': e['job_title'],
-                        'em_id': e['em_id'],
-                        'atten_date': e['atten_date'],
-                        'signin_time': e['signin_time'],
-                        'signout_time': e['signout_time'],
-                        'signin_note': e['signin_note'],
-                        'place_in': l.first['place_in'],
-                        'place_out': l.first['place_out'],
-                        'signin_longlat': l.first['signin_longlat'],
-                        'signout_longlat': l.first['signout_longlat'],
-                      })
-                  .toList()
-            })
-        .toList();
-    print(controller.listLaporanFilter.value);
-
+    groupData();
     return ListView.builder(
-        physics: controller.listLaporanFilter.value.length <= 15
+        physics: controller.listLaporanFilter.length <= 15
             ? AlwaysScrollableScrollPhysics()
             : BouncingScrollPhysics(),
-        itemCount: controller.listLaporanFilter.value.length,
+        itemCount: controller.listLaporanFilter.length,
         itemBuilder: (context, index) {
-          var fullName =
-              controller.listLaporanFilter.value[index]['full_name'] ?? "";
+          var fullName = controller.listLaporanFilter[index]['full_name'] ?? "";
           var namaKaryawan = "$fullName";
-          var jobTitle = controller.listLaporanFilter.value[index]['job_title'];
-          var emId = controller.listLaporanFilter.value[index]['em_id'];
-          var attenDate =
-              controller.listLaporanFilter.value[index]['atten_date'];
-          var signinTime =
-              controller.listLaporanFilter.value[index]['signin_time'];
-          var signoutTime =
-              controller.listLaporanFilter.value[index]['signout_time'];
-          var signNote =
-              controller.listLaporanFilter.value[index]['signin_note'];
-          print(controller.listLaporanFilter.value[index]['data']
+          var jobTitle = controller.listLaporanFilter[index]['job_title'];
+          var emId = controller.listLaporanFilter[index]['em_id'];
+          var attenDate = controller.listLaporanFilter[index]['atten_date'];
+          var signinTime = controller.listLaporanFilter[index]['signin_time'];
+          var signoutTime = controller.listLaporanFilter[index]['signout_time'];
+          var signNote = controller.listLaporanFilter[index]['signin_note'];
+          print(controller.listLaporanFilter[index]['data']
               .toList()
               .length
               .toString());
-          return controller.listLaporanFilter.value[index]['data']
-                      .toList()
-                      .length <=
+          return controller.listLaporanFilter[index]['data'].toList().length <=
                   1
               ? InkWell(
                   onTap: () {

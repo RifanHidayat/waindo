@@ -21,7 +21,8 @@
         android:label="SISCOM HRIS"
         android:name="${applicationName}"
         android:icon="@mipmap/logo">
-   
+
+       
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -48,6 +49,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+             <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyDll7fuFD_F2ohgFFi1jO8hJxhvWydP4EI"/>
+   
         <service android:name="com.pravera.flutter_foreground_task.service.ForegroundService" />
         
     </application>

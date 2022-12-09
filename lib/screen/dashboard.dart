@@ -564,12 +564,8 @@ class _DashboardState extends State<Dashboard> {
                                     controller.widgetButtomSheetAktifCamera(
                                         'loadfirst');
                                   } else {
-                                    controllerAbsensi.getPlaceCoordinate();
-                                    controllerAbsensi.titleAbsen.value =
-                                        "Absen Masuk";
-                                    controllerAbsensi.typeAbsen.value = 1;
                                     Get.offAll(AbsenMasukKeluar());
-                                    controllerAbsensi.absenSelfie();
+                                    //  controllerAbsensi.absenSelfie();
                                     // var validasiAbsenMasukUser =
                                     //     controller.validasiAbsenMasukUser();
                                     // if (!validasiAbsenMasukUser) {

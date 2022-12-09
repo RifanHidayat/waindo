@@ -10,12 +10,15 @@ class Constanst {
   static Color coloBackgroundScreen = Colors.white;
   static Color colorWhite = Colors.white;
   static Color colorBlack = Colors.black;
+  static Color radiusColor = HexColor('#3d889c');
   static Color colorBGApprove = Color(0xffE6FCE6);
   static Color colorBGRejected = Color(0xffFFF2EB);
   static Color colorBGPending = Color(0xffFEF9E6);
   static Color colorText1 = Color(0xff687182);
   static Color colorText2 = Color(0xff868FA0);
   static Color colorText3 = Color(0xff333B4A);
+  static Color colorText4 = HexColor('#333B4A');
+
   static Color colorNonAktif = Color(0xffD5DBE5);
   static Color colorButton1 = Color(0xff001767);
   static Color colorButton2 = Color(0xffE9F5FE);
@@ -28,7 +31,9 @@ class Constanst {
   static Color color4 = Color(0xffFF463D);
   static Color color5 = Color(0xff14B156);
   static Color infoLight = HexColor('#2F80ED');
-   static Color infoLight1 = HexColor('#E9F5FE');
+  static Color infoLight1 = HexColor('#E9F5FE');
+  static Color grey = HexColor('#E9EDF5');
+
   static Color color6 = Color.fromARGB(88, 230, 230, 230);
 
   static BorderRadius borderStyle1 = BorderRadius.only(

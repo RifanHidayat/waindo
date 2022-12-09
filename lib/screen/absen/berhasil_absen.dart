@@ -9,13 +9,9 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/berhasil_controller.dart';
-import 'package:siscom_operasional/screen/dashboard.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
-
-import 'dart:io';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:location/location.dart';
 
 // The callback function should always be a top-level function.
