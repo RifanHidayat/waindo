@@ -13,6 +13,7 @@ import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
+import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class AbsenMasukKeluar extends StatefulWidget {
   var type, status;
@@ -37,6 +38,11 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
 
   int minExtent = 150;
   int maxExtend = 250;
+  final double _initFabHeight = 120.0;
+  double _fabHeight = 0;
+  double _panelHeightOpen = 0;
+  double _panelHeightClosed = 95.0;
+  final panelController = PanelController();
 
   @override
   void initState() {
@@ -296,7 +302,7 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
                           InkWell(
                             onTap: () {
                               setState(() {
-                                isCollapse = false;
+                                panelController.open();
                               });
                             },
                             child: Center(
@@ -359,24 +365,89 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
 
   Widget screenAbsenMasuk1() {
     getMarker();
-    return DraggableBottomSheet(
-      minExtent: 250,
-      barrierDismissible: false,
-      useSafeArea: true,
-      barrierColor: Colors.transparent,
-      curve: Curves.easeIn,
-      previewWidget: _previewWidget(),
-      expandedWidget: Expanded(child: _expandedWidget()),
-      backgroundWidget: _backgroundWidget(),
-      maxExtent: MediaQuery.of(context).size.height * 0.8,
-      collapsed: false,
-      onDragging: (pos) {
-        if (pos > 400) {
-          isCollapse = true;
-          print("pos ${pos.toString()}");
-        }
-      },
+    return Stack(
+      alignment: Alignment.topCenter,
+      children: <Widget>[
+        SlidingUpPanel(
+          maxHeight: _panelHeightOpen,
+          minHeight: _panelHeightClosed,
+          controller: panelController,
+          backdropTapClosesPanel: true,
+          parallaxEnabled: true,
+          parallaxOffset: .5,
+          defaultPanelState: PanelState.CLOSED,
+          body: _backgroundWidget(),
+          panelBuilder: (sc) => _panel(sc),
+          borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(18.0), topRight: Radius.circular(18.0)),
+          onPanelSlide: (double pos) => setState(() {
+            _fabHeight =
+                pos * (_panelHeightOpen - _panelHeightClosed) + _initFabHeight;
+          }),
+        ),
+
+        // the fab
+        // Positioned(
+        //   right: 20.0,
+        //   bottom: _fabHeight,
+        //   child: FloatingActionButton(
+        //     child: Icon(
+        //       Icons.gps_fixed,
+        //       color: Theme.of(context).primaryColor,
+        //     ),
+        //     onPressed: () {},
+        //     backgroundColor: Colors.white,
+        //   ),
+        // ),
+
+        // Positioned(
+        //     top: 0,
+        //     child: ClipRRect(
+        //         child: BackdropFilter(
+        //             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        //             child: Container(
+        //               width: MediaQuery.of(context).size.width,
+        //               height: MediaQuery.of(context).padding.top,
+        //               color: Colors.transparent,
+        //             )))),
+
+        //the SlidingUpPanel Title
+        // Positioned(
+        //   top: 52.0,
+        //   child: Container(
+        //     padding: const EdgeInsets.fromLTRB(24.0, 18.0, 24.0, 18.0),
+        //     child: Text(
+        //       "SlidingUpPanel Example",
+        //       style: TextStyle(fontWeight: FontWeight.w500),
+        //     ),
+        //     decoration: BoxDecoration(
+        //       color: Colors.white,
+        //       borderRadius: BorderRadius.circular(24.0),
+        //       boxShadow: [
+        //         BoxShadow(
+        //             color: Color.fromRGBO(0, 0, 0, .25), blurRadius: 16.0)
+        //       ],
+        //     ),
+        //   ),
+        // ),
+      ],
     );
+  }
+
+  Widget _panel(ScrollController sc) {
+    print(panelController.panelPosition.toString());
+
+    return MediaQuery.removePadding(
+        context: context,
+        removeTop: true,
+        child: ListView(
+          controller: sc,
+          children: <Widget>[
+            panelController.panelPosition > 0.4
+                ? _expandedWidget()
+                : _previewWidget()
+          ],
+        ));
   }
 
   Widget screenAbsenMasuk() {
@@ -518,14 +589,14 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
                             InkWell(
                               onTap: () {
                                 setState(() {
-                                  isCollapse = true;
+                                  panelController.close();
                                 });
                               },
                               child: Center(
                                 child: InkWell(
                                   onTap: () {
                                     setState(() {
-                                      isCollapse = true;
+                                      panelController.close();
                                     });
                                   },
                                   child: Icon(Icons.keyboard_arrow_down,
