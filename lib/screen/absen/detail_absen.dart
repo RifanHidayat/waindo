@@ -5,7 +5,9 @@ import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/model/absen_model.dart';
 import 'package:siscom_operasional/screen/absen/history_absen.dart';
+import 'package:siscom_operasional/screen/absen/photo_absent.dart';
 import 'package:siscom_operasional/screen/dashboard.dart';
+import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
@@ -99,7 +101,209 @@ class DetailAbsen extends StatelessWidget {
         ));
   }
 
+  // Widget descMasuk() {
+  //   var jamMasuk = status == false
+  //       ? absenSelected![0].signin_time ?? ""
+  //       : absenSelected![0]['signin_time'] ?? "";
+  //   var gambarMasuk = status == false
+  //       ? absenSelected![0].signin_pict ?? ""
+  //       : absenSelected![0]['signin_pict'] ?? "";
+  //   var alamatMasuk = status == false
+  //       ? absenSelected![0].signin_addr ?? ""
+  //       : absenSelected![0]['signin_addr'] ?? "";
+  //   var catatanMasuk = status == false
+  //       ? absenSelected![0].signin_note ?? ""
+  //       : absenSelected![0]['signin_note'] ?? "";
+  //   var placeIn = status == false
+  //       ? absenSelected![0].place_in ?? ""
+  //       : absenSelected![0]['place_in'] ?? "";
+  //   return Container(
+  //     decoration: Constanst.styleBoxDecoration1,
+  //     child: Padding(
+  //       padding: EdgeInsets.only(left: 10, right: 10),
+  //       child: Column(
+  //         crossAxisAlignment: CrossAxisAlignment.start,
+  //         children: [
+  //           SizedBox(
+  //             height: 10,
+  //           ),
+  //           Row(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Expanded(
+  //                 child: Row(
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   children: [
+  //                     Icon(
+  //                       Iconsax.login,
+  //                       color: Colors.green,
+  //                       size: 24,
+  //                     ),
+  //                     Padding(
+  //                       padding: EdgeInsets.only(left: 8),
+  //                       child: Text(
+  //                         jamMasuk ?? '',
+  //                         style: TextStyle(fontSize: 16),
+  //                       ),
+  //                     )
+  //                   ],
+  //                 ),
+  //               ),
+  //               Expanded(
+  //                   child: Container(
+  //                 decoration: Constanst.styleBoxDecoration2(
+  //                     Color.fromARGB(156, 223, 253, 223)),
+  //                 margin: EdgeInsets.only(left: 10, right: 10),
+  //                 child: Padding(
+  //                   padding: EdgeInsets.only(left: 10, right: 10),
+  //                   child: Text(
+  //                     "Absen Masuk",
+  //                     textAlign: TextAlign.center,
+  //                     style: Constanst.colorGreenBold,
+  //                   ),
+  //                 ),
+  //               ))
+  //             ],
+  //           ),
+  //           SizedBox(
+  //             height: 16,
+  //           ),
+  //           Padding(
+  //             padding: EdgeInsets.only(left: 18),
+  //             child: Column(
+  //               crossAxisAlignment: CrossAxisAlignment.start,
+  //               children: [
+  //                 gambarMasuk == ''
+  //                     ? SizedBox()
+  //                     : Row(
+  //                         crossAxisAlignment: CrossAxisAlignment.start,
+  //                         children: [
+  //                           Expanded(
+  //                               flex: 10,
+  //                               child: Icon(
+  //                                 Iconsax.gallery,
+  //                                 size: 24,
+  //                                 color: Constanst.colorPrimary,
+  //                               )
+  //                               // Image.asset("assets/ic_galery.png")
+  //                               ),
+  //                           Expanded(
+  //                             flex: 90,
+  //                             child: Padding(
+  //                               padding: const EdgeInsets.only(top: 2, left: 3),
+  //                               child: Text(gambarMasuk ?? ''),
+  //                             ),
+  //                           )
+  //                         ],
+  //                       ),
+  //                 gambarMasuk == ''
+  //                     ? SizedBox()
+  //                     : Row(
+  //                         crossAxisAlignment: CrossAxisAlignment.start,
+  //                         children: [
+  //                           Expanded(flex: 10, child: SizedBox()),
+  //                           Expanded(
+  //                             flex: 90,
+  //                             child: Padding(
+  //                               padding: const EdgeInsets.only(top: 3, left: 3),
+  //                               child: Row(
+  //                                 crossAxisAlignment: CrossAxisAlignment.start,
+  //                                 children: [
+  //                                   InkWell(
+  //                                     onTap: () {
+  //                                       controller.stringImageSelected.value =
+  //                                           "";
+  //                                       controller.stringImageSelected.value =
+  //                                           gambarMasuk ?? '';
+  //                                       controller.showDetailImage();
+  //                                     },
+  //                                     child: Text(
+  //                                       "Lihat Foto",
+  //                                       style: TextStyle(
+  //                                         color: Constanst.colorPrimary,
+  //                                         decoration: TextDecoration.underline,
+  //                                       ),
+  //                                     ),
+  //                                   ),
+  //                                   Padding(
+  //                                       padding:
+  //                                           EdgeInsets.only(left: 8, top: 3),
+  //                                       child: Icon(
+  //                                         Iconsax.export_3,
+  //                                         size: 16,
+  //                                         color: Constanst.color1,
+  //                                       )
+  //                                       // Image.asset("assets/ic_lihat_foto.png"),
+  //                                       )
+  //                                 ],
+  //                               ),
+  //                             ),
+  //                           )
+  //                         ],
+  //                       ),
+  //                 SizedBox(
+  //                   height: 10,
+  //                 ),
+  //                 Row(
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   children: [
+  //                     Expanded(
+  //                         flex: 10,
+  //                         child: Icon(
+  //                           Iconsax.location_tick,
+  //                           size: 24,
+  //                           color: Constanst.colorPrimary,
+  //                         )
+  //                         // Image.asset("assets/ic_location_black.png")
+  //                         ),
+  //                     Expanded(
+  //                       flex: 90,
+  //                       child: Padding(
+  //                           padding: const EdgeInsets.only(top: 3, left: 3),
+  //                           child: Text(
+  //                             "${alamatMasuk ?? ''}  (${placeIn ?? ''})",
+  //                           )),
+  //                     )
+  //                   ],
+  //                 ),
+  //                 SizedBox(
+  //                   height: 10,
+  //                 ),
+  //                 Row(
+  //                   crossAxisAlignment: CrossAxisAlignment.start,
+  //                   children: [
+  //                     Expanded(
+  //                         flex: 10,
+  //                         child: Icon(
+  //                           Iconsax.note_text,
+  //                           size: 24,
+  //                           color: Constanst.colorPrimary,
+  //                         )
+  //                         // Image.asset("assets/ic_note_black.png")
+  //                         ),
+  //                     Expanded(
+  //                       flex: 90,
+  //                       child: Padding(
+  //                         padding: const EdgeInsets.only(top: 3, left: 3),
+  //                         child: Text(catatanMasuk ?? ''),
+  //                       ),
+  //                     )
+  //                   ],
+  //                 ),
+  //               ],
+  //             ),
+  //           ),
+  //           SizedBox(
+  //             height: 18,
+  //           ),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
+
   Widget descMasuk() {
+    print("ts");
     var jamMasuk = status == false
         ? absenSelected![0].signin_time ?? ""
         : absenSelected![0]['signin_time'] ?? "";
@@ -115,187 +319,138 @@ class DetailAbsen extends StatelessWidget {
     var placeIn = status == false
         ? absenSelected![0].place_in ?? ""
         : absenSelected![0]['place_in'] ?? "";
+    var alamat = (alamatMasuk + placeIn).toString().substring(0, 50) + "...";
     return Container(
       decoration: Constanst.styleBoxDecoration1,
-      child: Padding(
-        padding: EdgeInsets.only(left: 10, right: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 10,
-            ),
-            Row(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: () {
+              Get.to(PhotoAbsen(
+                image: Api.UrlfotoAbsen + gambarMasuk,
+                type: "masuk",
+                time: jamMasuk,
+                alamat: alamatMasuk + placeIn,
+                note: catatanMasuk,
+              ));
+            },
+            child: gambarMasuk != ''
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(6.0),
+                    child: Container(
+                        width: MediaQuery.of(Get.context!).size.width / 3,
+                        child: Image.network(
+                          Api.UrlfotoAbsen + gambarMasuk,
+                        )),
+                  )
+                : ClipRRect(
+                    child: Container(
+                        width: MediaQuery.of(Get.context!).size.width / 3,
+                        child: Image.asset(
+                          'assets/foto.png',
+                        )),
+                  ),
+          ),
+          Container(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Iconsax.login,
+                          color: Colors.green,
+                          size: 24,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 8),
+                          child: Text(
+                            jamMasuk ?? '',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        )
+                      ],
+                    ),
+                    Container(
+                      decoration: Constanst.styleBoxDecoration2(
+                          Color.fromARGB(156, 223, 253, 223)),
+                      margin: EdgeInsets.only(left: 10, right: 10),
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 10, right: 10),
+                        child: Text(
+                          "Absen Masuk",
+                          textAlign: TextAlign.center,
+                          style: Constanst.colorGreenBold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Iconsax.location_tick,
+                      size: 24,
+                      color: Constanst.colorPrimary,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                            padding: const EdgeInsets.only(top: 3, left: 3),
+                            child: Text(
+                              "Lokasi",
+                            )),
+                        Container(
+                          width: MediaQuery.of(Get.context!).size.width / 2,
+                          child: Padding(
+                              padding: const EdgeInsets.only(top: 3, left: 3),
+                              child: Text(
+                                "$alamat",
+                                style: TextStyle(fontSize: 10),
+                              )),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.only(left: 10, right: 10, bottom: 20),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(
-                        Iconsax.login,
-                        color: Colors.green,
+                        Iconsax.note_text,
                         size: 24,
+                        color: Constanst.colorPrimary,
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 8),
-                        child: Text(
-                          jamMasuk ?? '',
-                          style: TextStyle(fontSize: 16),
+                      Container(
+                        width: MediaQuery.of(Get.context!).size.width / 2 - 20,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 3, left: 3),
+                          child: Text(catatanMasuk ?? '-'),
                         ),
                       )
                     ],
                   ),
                 ),
-                Expanded(
-                    child: Container(
-                  decoration: Constanst.styleBoxDecoration2(
-                      Color.fromARGB(156, 223, 253, 223)),
-                  margin: EdgeInsets.only(left: 10, right: 10),
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 10, right: 10),
-                    child: Text(
-                      "Absen Masuk",
-                      textAlign: TextAlign.center,
-                      style: Constanst.colorGreenBold,
-                    ),
-                  ),
-                ))
               ],
             ),
-            SizedBox(
-              height: 16,
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  gambarMasuk == ''
-                      ? SizedBox()
-                      : Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                                flex: 10,
-                                child: Icon(
-                                  Iconsax.gallery,
-                                  size: 24,
-                                  color: Constanst.colorPrimary,
-                                )
-                                // Image.asset("assets/ic_galery.png")
-                                ),
-                            Expanded(
-                              flex: 90,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 2, left: 3),
-                                child: Text(gambarMasuk ?? ''),
-                              ),
-                            )
-                          ],
-                        ),
-                  gambarMasuk == ''
-                      ? SizedBox()
-                      : Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(flex: 10, child: SizedBox()),
-                            Expanded(
-                              flex: 90,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 3, left: 3),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        controller.stringImageSelected.value =
-                                            "";
-                                        controller.stringImageSelected.value =
-                                            gambarMasuk ?? '';
-                                        controller.showDetailImage();
-                                      },
-                                      child: Text(
-                                        "Lihat Foto",
-                                        style: TextStyle(
-                                          color: Constanst.colorPrimary,
-                                          decoration: TextDecoration.underline,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                        padding:
-                                            EdgeInsets.only(left: 8, top: 3),
-                                        child: Icon(
-                                          Iconsax.export_3,
-                                          size: 16,
-                                          color: Constanst.color1,
-                                        )
-                                        // Image.asset("assets/ic_lihat_foto.png"),
-                                        )
-                                  ],
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                          flex: 10,
-                          child: Icon(
-                            Iconsax.location_tick,
-                            size: 24,
-                            color: Constanst.colorPrimary,
-                          )
-                          // Image.asset("assets/ic_location_black.png")
-                          ),
-                      Expanded(
-                        flex: 90,
-                        child: Padding(
-                            padding: const EdgeInsets.only(top: 3, left: 3),
-                            child: Text(
-                              "${alamatMasuk ?? ''}  (${placeIn ?? ''})",
-                            )),
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                          flex: 10,
-                          child: Icon(
-                            Iconsax.note_text,
-                            size: 24,
-                            color: Constanst.colorPrimary,
-                          )
-                          // Image.asset("assets/ic_note_black.png")
-                          ),
-                      Expanded(
-                        flex: 90,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 3, left: 3),
-                          child: Text(catatanMasuk ?? ''),
-                        ),
-                      )
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 18,
-            ),
-          ],
-        ),
+          )
+        ],
       ),
     );
   }
@@ -316,188 +471,322 @@ class DetailAbsen extends StatelessWidget {
     var placeOut = status == false
         ? absenSelected![0].place_out ?? ""
         : absenSelected![0]['place_out'] ?? "";
+    var alamat = (alamatKeluar + placeOut).toString().substring(0, 50) + "...";
     return Container(
       decoration: Constanst.styleBoxDecoration1,
-      child: Padding(
-        padding: EdgeInsets.only(left: 10, right: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              height: 10,
-            ),
-            Row(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          InkWell(
+            onTap: () {
+              Get.to(PhotoAbsen(
+                image: Api.UrlfotoAbsen + gambarKeluar,
+                type: "keluar",
+                time: jamKeluar,
+                alamat: alamatKeluar + placeOut,
+                note: catatanKeluar,
+              ));
+            },
+            child: gambarKeluar != ''
+                ? ClipRRect(
+                    borderRadius: BorderRadius.circular(6.0),
+                    child: Container(
+                        width: MediaQuery.of(Get.context!).size.width / 3,
+                        child: Image.network(
+                          Api.UrlfotoAbsen + gambarKeluar,
+                        )),
+                  )
+                : ClipRRect(
+                    child: Container(
+                        width: MediaQuery.of(Get.context!).size.width / 3,
+                        child: Image.asset(
+                          'assets/foto.png',
+                        )),
+                  ),
+          ),
+          Container(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Iconsax.logout,
+                          color: Colors.red,
+                          size: 24,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(left: 8),
+                          child: Text(
+                            jamKeluar ?? '',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        )
+                      ],
+                    ),
+                    Container(
+                      decoration: Constanst.styleBoxDecoration2(
+                          Color.fromARGB(156, 223, 253, 223)),
+                      margin: EdgeInsets.only(left: 10, right: 10),
+                      child: Padding(
+                        padding: EdgeInsets.only(left: 10, right: 10),
+                        child: Text(
+                          "Absen Keluar",
+                          textAlign: TextAlign.center,
+                          style: Constanst.colorRedBold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Iconsax.location_tick,
+                      size: 24,
+                      color: Constanst.colorPrimary,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                            padding: const EdgeInsets.only(top: 3, left: 3),
+                            child: Text(
+                              "Lokasi",
+                            )),
+                        Container(
+                          width: MediaQuery.of(Get.context!).size.width / 2,
+                          child: Padding(
+                              padding: const EdgeInsets.only(top: 3, left: 3),
+                              child: Text(
+                                "$alamat",
+                                style: TextStyle(fontSize: 10),
+                              )),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.only(left: 10, right: 10, bottom: 20),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Icon(
-                        Iconsax.logout,
-                        color: Colors.red,
+                        Iconsax.note_text,
                         size: 24,
+                        color: Constanst.colorPrimary,
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 8),
-                        child: Text(
-                          jamKeluar ?? '',
-                          style: TextStyle(fontSize: 16),
+                      Container(
+                        width: MediaQuery.of(Get.context!).size.width / 2 - 20,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 3, left: 3),
+                          child: Text(catatanKeluar ?? '-'),
                         ),
                       )
                     ],
                   ),
                 ),
-                Expanded(
-                    child: Container(
-                  decoration: Constanst.styleBoxDecoration2(
-                      Color.fromARGB(156, 241, 171, 171)),
-                  margin: EdgeInsets.only(left: 10, right: 10),
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 10, right: 10),
-                    child: Text(
-                      "Absen Keluar",
-                      textAlign: TextAlign.center,
-                      style: Constanst.colorRedBold,
-                    ),
-                  ),
-                ))
               ],
             ),
-            SizedBox(
-              height: 16,
-            ),
-            Padding(
-              padding: EdgeInsets.only(left: 18),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  gambarKeluar == ''
-                      ? SizedBox()
-                      : Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                                flex: 10,
-                                child: Icon(
-                                  Iconsax.gallery,
-                                  size: 24,
-                                  color: Constanst.colorPrimary,
-                                )
-                                // Image.asset("assets/ic_galery.png")
-                                ),
-                            Expanded(
-                              flex: 90,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 3, left: 3),
-                                child: Text(gambarKeluar ?? ''),
-                              ),
-                            )
-                          ],
-                        ),
-                  gambarKeluar == ''
-                      ? SizedBox()
-                      : Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(flex: 10, child: SizedBox()),
-                            Expanded(
-                              flex: 90,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 3, left: 3),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        controller.stringImageSelected.value =
-                                            "";
-                                        controller.stringImageSelected.value =
-                                            gambarKeluar ?? '';
-                                        controller.showDetailImage();
-                                      },
-                                      child: Text(
-                                        "Lihat Foto",
-                                        style: TextStyle(
-                                          color: Constanst.colorPrimary,
-                                          decoration: TextDecoration.underline,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                        padding:
-                                            EdgeInsets.only(left: 8, top: 3),
-                                        child: Icon(
-                                          Iconsax.export_3,
-                                          size: 16,
-                                          color: Constanst.color1,
-                                        )
-                                        // Image.asset("assets/ic_lihat_foto.png"),
-                                        )
-                                  ],
-                                ),
-                              ),
-                            )
-                          ],
-                        ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                          flex: 10,
-                          child: Icon(
-                            Iconsax.location_tick,
-                            size: 24,
-                            color: Constanst.colorPrimary,
-                          )
-                          // Image.asset("assets/ic_location_black.png")
-                          ),
-                      Expanded(
-                        flex: 90,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 3, left: 3),
-                          child: Text(
-                              "${alamatKeluar ?? ''}  (${placeOut ?? ''})"),
-                        ),
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                          flex: 10,
-                          child: Icon(
-                            Iconsax.note_text,
-                            size: 24,
-                            color: Constanst.colorPrimary,
-                          )
-                          // Image.asset("assets/ic_note_black.png")
-                          ),
-                      Expanded(
-                        flex: 90,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 3, left: 3),
-                          child: Text(catatanKeluar ?? ''),
-                        ),
-                      )
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 18,
-            ),
-          ],
-        ),
+          )
+        ],
       ),
     );
+    // return Container(
+    //   decoration: Constanst.styleBoxDecoration1,
+    //   child: Padding(
+    //     padding: EdgeInsets.only(left: 10, right: 10),
+    //     child: Column(
+    //       crossAxisAlignment: CrossAxisAlignment.start,
+    //       children: [
+    //         SizedBox(
+    //           height: 10,
+    //         ),
+    //         Row(
+    //           crossAxisAlignment: CrossAxisAlignment.start,
+    //           children: [
+    //             Expanded(
+    //               child: Row(
+    //                 crossAxisAlignment: CrossAxisAlignment.start,
+    //                 children: [
+    //                   Icon(
+    //                     Iconsax.logout,
+    //                     color: Colors.red,
+    //                     size: 24,
+    //                   ),
+    //                   Padding(
+    //                     padding: EdgeInsets.only(left: 8),
+    //                     child: Text(
+    //                       jamKeluar ?? '',
+    //                       style: TextStyle(fontSize: 16),
+    //                     ),
+    //                   )
+    //                 ],
+    //               ),
+    //             ),
+    //             Expanded(
+    //                 child: Container(
+    //               decoration: Constanst.styleBoxDecoration2(
+    //                   Color.fromARGB(156, 241, 171, 171)),
+    //               margin: EdgeInsets.only(left: 10, right: 10),
+    //               child: Padding(
+    //                 padding: EdgeInsets.only(left: 10, right: 10),
+    //                 child: Text(
+    //                   "Absen Keluar",
+    //                   textAlign: TextAlign.center,
+    //                   style: Constanst.colorRedBold,
+    //                 ),
+    //               ),
+    //             ))
+    //           ],
+    //         ),
+    //         SizedBox(
+    //           height: 16,
+    //         ),
+    //         Padding(
+    //           padding: EdgeInsets.only(left: 18),
+    //           child: Column(
+    //             crossAxisAlignment: CrossAxisAlignment.start,
+    //             children: [
+    //               gambarKeluar == ''
+    //                   ? SizedBox()
+    //                   : Row(
+    //                       crossAxisAlignment: CrossAxisAlignment.start,
+    //                       children: [
+    //                         Expanded(
+    //                             flex: 10,
+    //                             child: Icon(
+    //                               Iconsax.gallery,
+    //                               size: 24,
+    //                               color: Constanst.colorPrimary,
+    //                             )
+    //                             // Image.asset("assets/ic_galery.png")
+    //                             ),
+    //                         Expanded(
+    //                           flex: 90,
+    //                           child: Padding(
+    //                             padding: const EdgeInsets.only(top: 3, left: 3),
+    //                             child: Text(gambarKeluar ?? ''),
+    //                           ),
+    //                         )
+    //                       ],
+    //                     ),
+    //               gambarKeluar == ''
+    //                   ? SizedBox()
+    //                   : Row(
+    //                       crossAxisAlignment: CrossAxisAlignment.start,
+    //                       children: [
+    //                         Expanded(flex: 10, child: SizedBox()),
+    //                         Expanded(
+    //                           flex: 90,
+    //                           child: Padding(
+    //                             padding: const EdgeInsets.only(top: 3, left: 3),
+    //                             child: Row(
+    //                               crossAxisAlignment: CrossAxisAlignment.start,
+    //                               children: [
+    //                                 InkWell(
+    //                                   onTap: () {
+    //                                     controller.stringImageSelected.value =
+    //                                         "";
+    //                                     controller.stringImageSelected.value =
+    //                                         gambarKeluar ?? '';
+    //                                     controller.showDetailImage();
+    //                                   },
+    //                                   child: Text(
+    //                                     "Lihat Foto",
+    //                                     style: TextStyle(
+    //                                       color: Constanst.colorPrimary,
+    //                                       decoration: TextDecoration.underline,
+    //                                     ),
+    //                                   ),
+    //                                 ),
+    //                                 Padding(
+    //                                     padding:
+    //                                         EdgeInsets.only(left: 8, top: 3),
+    //                                     child: Icon(
+    //                                       Iconsax.export_3,
+    //                                       size: 16,
+    //                                       color: Constanst.color1,
+    //                                     )
+    //                                     // Image.asset("assets/ic_lihat_foto.png"),
+    //                                     )
+    //                               ],
+    //                             ),
+    //                           ),
+    //                         )
+    //                       ],
+    //                     ),
+    //               SizedBox(
+    //                 height: 10,
+    //               ),
+    //               Row(
+    //                 crossAxisAlignment: CrossAxisAlignment.start,
+    //                 children: [
+    //                   Expanded(
+    //                       flex: 10,
+    //                       child: Icon(
+    //                         Iconsax.location_tick,
+    //                         size: 24,
+    //                         color: Constanst.colorPrimary,
+    //                       )
+    //                       // Image.asset("assets/ic_location_black.png")
+    //                       ),
+    //                   Expanded(
+    //                     flex: 90,
+    //                     child: Padding(
+    //                       padding: const EdgeInsets.only(top: 3, left: 3),
+    //                       child: Text(
+    //                           "${alamatKeluar ?? ''}  (${placeOut ?? ''})"),
+    //                     ),
+    //                   )
+    //                 ],
+    //               ),
+    //               SizedBox(
+    //                 height: 10,
+    //               ),
+    //               Row(
+    //                 crossAxisAlignment: CrossAxisAlignment.start,
+    //                 children: [
+    //                   Expanded(
+    //                       flex: 10,
+    //                       child: Icon(
+    //                         Iconsax.note_text,
+    //                         size: 24,
+    //                         color: Constanst.colorPrimary,
+    //                       )
+    //                       // Image.asset("assets/ic_note_black.png")
+    //                       ),
+    //                   Expanded(
+    //                     flex: 90,
+    //                     child: Padding(
+    //                       padding: const EdgeInsets.only(top: 3, left: 3),
+    //                       child: Text(catatanKeluar ?? ''),
+    //                     ),
+    //                   )
+    //                 ],
+    //               ),
+    //             ],
+    //           ),
+    //         ),
+    //         SizedBox(
+    //           height: 18,
+    //         ),
+    //       ],
+    //     ),
+    //   ),
+    // );
   }
 }

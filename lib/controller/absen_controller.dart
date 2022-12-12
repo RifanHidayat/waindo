@@ -54,6 +54,7 @@ class AbsenController extends GetxController {
   var listEmployeeTelat = [].obs;
   var alllistEmployeeTelat = [].obs;
   var sysData = [].obs;
+  var isCollapse = true.obs;
 
   var absenSelected;
 

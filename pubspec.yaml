@@ -90,6 +90,7 @@ dependencies:
   currency_text_input_formatter: ^2.1.8
   html_editor_enhanced: ^2.0.0
   draggable_home: ^1.0.4
+  draggable_bottom_sheet: ^1.0.2
 
   # system_alert_window: ^1.1.2
 

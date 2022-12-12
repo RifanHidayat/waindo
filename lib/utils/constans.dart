@@ -73,9 +73,9 @@ class Constanst {
   static TextStyle boldType2 =
       TextStyle(fontWeight: FontWeight.bold, fontSize: 14);
   static TextStyle colorGreenBold =
-      TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 14);
+      TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 12);
   static TextStyle colorRedBold =
-      TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 14);
+      TextStyle(color: Colors.red, fontWeight: FontWeight.bold, fontSize: 12);
 
   static BoxDecoration styleBoxDecoration1 = BoxDecoration(
       color: Colors.white,

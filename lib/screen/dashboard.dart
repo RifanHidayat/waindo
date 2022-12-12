@@ -564,7 +564,10 @@ class _DashboardState extends State<Dashboard> {
                                     controller.widgetButtomSheetAktifCamera(
                                         'loadfirst');
                                   } else {
-                                    Get.offAll(AbsenMasukKeluar());
+                                    Get.offAll(AbsenMasukKeluar(
+                                      status: "Absen Masuk",
+                                      type: 1,
+                                    ));
                                     //  controllerAbsensi.absenSelfie();
                                     // var validasiAbsenMasukUser =
                                     //     controller.validasiAbsenMasukUser();
@@ -618,8 +621,11 @@ class _DashboardState extends State<Dashboard> {
                               controllerAbsensi.titleAbsen.value =
                                   "Absen Keluar";
                               controllerAbsensi.typeAbsen.value = 2;
-                              Get.offAll(AbsenMasukKeluar());
-                              controllerAbsensi.absenSelfie();
+                              Get.offAll(AbsenMasukKeluar(
+                                status: "Absen Keluar",
+                                type: 2,
+                              ));
+                              // controllerAbsensi.absenSelfie();
                               // var validasiAbsenMasukUser =
                               //     controller.validasiAbsenMasukUser();
                               // print(validasiAbsenMasukUser);
