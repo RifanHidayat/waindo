@@ -570,154 +570,21 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
               .toString());
           return controller.listLaporanFilter[index]['data'].toList().length <=
                   1
-              ? InkWell(
-                  onTap: () {
-                    Get.to(LaporanAbsenKaryawan(
-                      em_id: emId,
-                      bulan: controller.bulanDanTahunNow.value,
-                      full_name: namaKaryawan,
-                    ));
-                  },
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: 10,
-                      ),
-                      IntrinsicHeight(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              flex: 50,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    '$namaKaryawan',
-                                    style: TextStyle(fontSize: 14),
-                                  ),
-                                  Text(
-                                    '$jobTitle',
-                                    style: TextStyle(fontSize: 12),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              flex: 40,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Text(
-                                    "${Constanst.convertDate("$attenDate")}",
-                                    style: TextStyle(fontSize: 12),
-                                  ),
-                                  signinTime == "00:00:00" ||
-                                          signinTime == "null"
-                                      ? Text(
-                                          '$signNote',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.bold),
-                                        )
-                                      : Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: [
-                                            Padding(
-                                              padding: EdgeInsets.only(
-                                                  left: 3, right: 3),
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons.login_rounded,
-                                                    color: Constanst.color5,
-                                                    size: 14,
-                                                  ),
-                                                  Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: 3),
-                                                    child: Text(
-                                                      '$signinTime',
-                                                      style: TextStyle(
-                                                          fontSize: 12,
-                                                          color:
-                                                              Constanst.color5),
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                            signoutTime == "00:00:00" ||
-                                                    signoutTime == "null"
-                                                ? SizedBox()
-                                                : Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: 3, right: 3),
-                                                    child: Row(
-                                                      children: [
-                                                        Icon(
-                                                          Icons.logout_rounded,
-                                                          color:
-                                                              Constanst.color4,
-                                                          size: 14,
-                                                        ),
-                                                        Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  left: 3),
-                                                          child: Text(
-                                                            '$signoutTime',
-                                                            style: TextStyle(
-                                                                fontSize: 12,
-                                                                color: Constanst
-                                                                    .color4),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
-                                          ],
-                                        ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              flex: 10,
-                              child: Center(
-                                child: Icon(
-                                  Icons.arrow_forward_ios_rounded,
-                                  size: 14,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 8,
-                      ),
-                      Divider(
-                        height: 3,
-                        color: Colors.grey,
-                      ),
-                    ],
-                  ),
-                )
-              : Column(
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        controller.listLaporanFilter.value[index]['is_open'] =
-                            !controller.listLaporanFilter.value[index]
-                                ['is_open'];
-                        controller.listLaporanFilter.refresh();
-                      },
+              ? Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: InkWell(
+                    onTap: () {
+                      Get.to(LaporanAbsenKaryawan(
+                        em_id: emId,
+                        bulan: controller.bulanDanTahunNow.value,
+                        full_name: namaKaryawan,
+                      ));
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(width: 1, color: Constanst.grey)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -729,28 +596,142 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Expanded(
-                                  flex: 50,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        '$namaKaryawan',
-                                        style: TextStyle(fontSize: 14),
-                                      ),
-                                      Text(
-                                        '$jobTitle',
-                                        style: TextStyle(fontSize: 12),
-                                      ),
-                                    ],
-                                  ),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      '$namaKaryawan',
+                                      style: TextStyle(fontSize: 12),
+                                    ),
+                                    Text(
+                                      '$jobTitle',
+                                      style: TextStyle(fontSize: 10),
+                                    ),
+                                  ],
                                 ),
-                                const Center(
-                                  child: Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    size: 14,
-                                  ),
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        Text(
+                                          "${Constanst.convertDate("$attenDate")}",
+                                          style: TextStyle(fontSize: 12),
+                                        ),
+                                        SizedBox(
+                                          height: 5,
+                                        ),
+                                        signinTime == "00:00:00" ||
+                                                signinTime == "null"
+                                            ? Text(
+                                                '$signNote',
+                                                textAlign: TextAlign.center,
+                                                style: TextStyle(
+                                                    fontSize: 10,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              )
+                                            : Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: [
+                                                  Padding(
+                                                    padding: EdgeInsets.only(
+                                                        left: 3, right: 3),
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.all(5),
+                                                      decoration: BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                          color:
+                                                              Constanst.grey),
+                                                      child: Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons.login_rounded,
+                                                            color: Constanst
+                                                                .color2,
+                                                            size: 14,
+                                                          ),
+                                                          Padding(
+                                                            padding:
+                                                                EdgeInsets.only(
+                                                                    left: 3),
+                                                            child: Text(
+                                                              '$signinTime',
+                                                              style: TextStyle(
+                                                                  fontSize: 10,
+                                                                  color: Constanst
+                                                                      .color2),
+                                                            ),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  signoutTime == "00:00:00" ||
+                                                          signoutTime == "null"
+                                                      ? SizedBox()
+                                                      : Padding(
+                                                          padding:
+                                                              EdgeInsets.only(
+                                                                  left: 3,
+                                                                  right: 3),
+                                                          child: Container(
+                                                            padding:
+                                                                EdgeInsets.all(
+                                                                    5),
+                                                            decoration: BoxDecoration(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10),
+                                                                color: Constanst
+                                                                    .grey),
+                                                            child: Row(
+                                                              children: [
+                                                                Icon(
+                                                                  Icons
+                                                                      .logout_rounded,
+                                                                  color: Constanst
+                                                                      .color2,
+                                                                  size: 12,
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets
+                                                                      .only(
+                                                                          left:
+                                                                              3),
+                                                                  child: Text(
+                                                                    '$signoutTime',
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            12,
+                                                                        color: Constanst
+                                                                            .color2),
+                                                                  ),
+                                                                )
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                ],
+                                              ),
+                                      ],
+                                    ),
+                                    Icon(
+                                      Icons.arrow_forward_ios_rounded,
+                                      size: 14,
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
@@ -758,239 +739,382 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                           SizedBox(
                             height: 8,
                           ),
-                          Divider(
-                            height: 3,
-                            color: Colors.grey,
-                          ),
                         ],
                       ),
                     ),
-                    controller.listLaporanFilter.value[index]['is_open'] == true
-                        ? Container(
-                            padding: EdgeInsets.only(left: 20, right: 0),
-                            child: Column(
-                              children: List.generate(
-                                  controller
-                                      .listLaporanFilter.value[index]['data']
-                                      .toList()
-                                      .length, (index1) {
-                                var idAbsen = controller.listLaporanFilter
-                                    .value[index]['data'][index1]['id'];
-                                var jamMasuk =
-                                    controller.listLaporanFilter.value[index]
-                                        ['data'][index1]['signin_time'];
-                                var jamKeluar =
-                                    controller.listLaporanFilter.value[index]
-                                        ['data'][index1]['signout_time'];
-                                var tanggal = controller.listLaporanFilter
-                                    .value[index]['data'][index1]['atten_date'];
-                                var longLatAbsenKeluar =
-                                    controller.listLaporanFilter.value[index]
-                                        ['data'][index1]['signout_longlat'];
-
-                                var placeIn = controller.listLaporanFilter
-                                    .value[index]['data'][index1]['place_in'];
-                                var placeOut = controller.listLaporanFilter
-                                    .value[index]['data'][index1]['place_out'];
-
-                                var note =
-                                    controller.listLaporanFilter.value[index]
-                                        ['data'][index1]['signin_note'];
-
-                                var signInLongLat =
-                                    controller.listLaporanFilter.value[index]
-                                        ['data'][index1]['signin_longlat'];
-
-                                var signOutLongLat =
-                                    controller.listLaporanFilter.value[index]
-                                        ['data'][index1]['signout_longlat'];
-
-                                var statusView = placeIn == "pengajuan" &&
-                                        placeOut == "pengajuan" &&
-                                        signInLongLat == "pengajuan" &&
-                                        signOutLongLat == "pengajuan"
-                                    ? true
-                                    : false;
-
-                                var listJamMasuk = (jamMasuk!.split(':'));
-                                var listJamKeluar = (jamKeluar!.split(':'));
-                                var perhitunganJamMasuk1 = 830 -
-                                    int.parse(
-                                        "${listJamMasuk[0]}${listJamMasuk[1]}");
-                                var perhitunganJamMasuk2 = 1800 -
-                                    int.parse(
-                                        "${listJamKeluar[0]}${listJamKeluar[1]}");
-
-                                var getColorMasuk;
-                                var getColorKeluar;
-
-                                if (perhitunganJamMasuk1 < 0) {
-                                  getColorMasuk = Colors.red;
-                                } else {
-                                  getColorMasuk = Colors.black;
-                                }
-                                if (perhitunganJamMasuk2 == 0) {
-                                  getColorKeluar = Colors.black;
-                                } else if (perhitunganJamMasuk2 > 0) {
-                                  getColorKeluar = Colors.red;
-                                } else if (perhitunganJamMasuk2 < 0) {
-                                  getColorKeluar = Constanst.colorPrimary;
-                                }
-                                return InkWell(
-                                  onTap: () {
-                                    controller.loadAbsenDetail(
-                                        idAbsen, attenDate, fullName);
-                                    print(idAbsen);
-                                    // controller.historySelected1(
-                                    //     idAbsen.toString(),
-                                    //     "laporan",
-                                    //     index,
-                                    //     index1);
-
-                                    // if (statusView == false) {
-                                    //   controller.historySelected(
-                                    //       idAbsen.toString(), "laporan");
-                                    // }
-                                  },
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(
-                                        height: 10,
-                                      ),
-                                      statusView == false
-                                          ? Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Expanded(
-                                                  flex: 40,
-                                                  child: Text(
-                                                    "${Constanst.convertDate(tanggal)}",
-                                                    style:
-                                                        TextStyle(fontSize: 14),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 25,
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.login_rounded,
-                                                        color: getColorMasuk,
-                                                        size: 14,
-                                                      ),
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsets.only(
-                                                                left: 8),
-                                                        child: Text(
-                                                          jamMasuk,
-                                                          style: TextStyle(
-                                                              color:
-                                                                  getColorMasuk,
-                                                              fontSize: 14),
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 25,
-                                                  child: Row(
-                                                    children: [
-                                                      Icon(
-                                                        Icons.logout_rounded,
-                                                        color: getColorKeluar,
-                                                        size: 14,
-                                                      ),
-                                                      Flexible(
-                                                        child: Padding(
-                                                          padding:
-                                                              EdgeInsets.only(
-                                                                  left: 8),
-                                                          child:
-                                                              longLatAbsenKeluar ==
-                                                                      ""
-                                                                  ? Text("")
-                                                                  : Text(
-                                                                      jamKeluar,
-                                                                      style: TextStyle(
-                                                                          color:
-                                                                              getColorKeluar,
-                                                                          fontSize:
-                                                                              14),
-                                                                    ),
-                                                        ),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                                // Expanded(
-                                                //   flex: 10,
-                                                //   child: Padding(
-                                                //     padding:
-                                                //         const EdgeInsets.only(
-                                                //             top: 4),
-                                                //     child: Icon(
-                                                //       Icons
-                                                //           .arrow_forward_ios_rounded,
-                                                //       size: 14,
-                                                //     ),
-                                                //   ),
-                                                // ),
-                                              ],
-                                            )
-                                          : Row(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Expanded(
-                                                  flex: 40,
-                                                  child: Text(
-                                                    "${Constanst.convertDate(tanggal ?? '')}",
-                                                    style:
-                                                        TextStyle(fontSize: 14),
-                                                  ),
-                                                ),
-                                                Expanded(
-                                                  flex: 60,
-                                                  child: Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .center,
-                                                    children: [
-                                                      Text(
-                                                        "$note",
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
-                                                      )
-                                                    ],
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                      SizedBox(
-                                        height: 8,
-                                      ),
-                                      Divider(
-                                        height: 3,
-                                        color: Colors.grey,
-                                      ),
-                                    ],
+                  ),
+                )
+              : Padding(
+                  padding: EdgeInsets.only(top: 10),
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(top: 10),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  bottomLeft:
+                                      controller.listLaporanFilter[index]
+                                                  ['is_open'] ==
+                                              true
+                                          ? Radius.circular(0)
+                                          : Radius.circular(10),
+                                  bottomRight:
+                                      controller.listLaporanFilter[index]
+                                                  ['is_open'] ==
+                                              true
+                                          ? Radius.circular(0)
+                                          : Radius.circular(10),
+                                  topLeft: Radius.circular(10),
+                                  topRight: Radius.circular(0)),
+                              border:
+                                  Border.all(width: 1, color: Constanst.grey)),
+                          child: Padding(
+                            padding: EdgeInsets.all(5),
+                            child: InkWell(
+                              onTap: () {
+                                controller.listLaporanFilter.value[index]
+                                        ['is_open'] =
+                                    !controller.listLaporanFilter.value[index]
+                                        ['is_open'];
+                                controller.listLaporanFilter.refresh();
+                              },
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    height: 10,
                                   ),
-                                );
-                              }),
+                                  IntrinsicHeight(
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              '$namaKaryawan',
+                                              style: TextStyle(fontSize: 14),
+                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(
+                                              '$jobTitle',
+                                              style: TextStyle(fontSize: 12),
+                                            ),
+                                            SizedBox(
+                                              width: 20,
+                                            ),
+                                            Center(
+                                              child: Transform.rotate(
+                                                angle: -math.pi / 2,
+                                                child: Icon(
+                                                  Icons
+                                                      .arrow_back_ios_new_rounded,
+                                                  size: 12,
+                                                ),
+                                              ),
+                                              // child: Icon(
+                                              //   Icons.arrow_forward_ios_rounded,
+                                              //   size: 14,
+                                              // ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 8,
+                                  ),
+                                ],
+                              ),
                             ),
-                          )
-                        : Container(),
-                  ],
+                          ),
+                        ),
+                      ),
+                      controller.listLaporanFilter[index]['is_open'] == true
+                          ? Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.only(
+                                      bottomLeft: Radius.circular(10),
+                                      bottomRight: Radius.circular(10)),
+                                  border: Border.all(
+                                      width: 1, color: Constanst.grey)),
+                              child: Column(
+                                children: List.generate(
+                                    controller
+                                        .listLaporanFilter.value[index]['data']
+                                        .toList()
+                                        .length, (index1) {
+                                  var idAbsen = controller.listLaporanFilter
+                                      .value[index]['data'][index1]['id'];
+                                  var jamMasuk =
+                                      controller.listLaporanFilter.value[index]
+                                          ['data'][index1]['signin_time'];
+                                  var jamKeluar =
+                                      controller.listLaporanFilter.value[index]
+                                          ['data'][index1]['signout_time'];
+                                  var tanggal =
+                                      controller.listLaporanFilter.value[index]
+                                          ['data'][index1]['atten_date'];
+                                  var longLatAbsenKeluar =
+                                      controller.listLaporanFilter.value[index]
+                                          ['data'][index1]['signout_longlat'];
+
+                                  var placeIn = controller.listLaporanFilter
+                                      .value[index]['data'][index1]['place_in'];
+                                  var placeOut =
+                                      controller.listLaporanFilter.value[index]
+                                          ['data'][index1]['place_out'];
+
+                                  var note =
+                                      controller.listLaporanFilter.value[index]
+                                          ['data'][index1]['signin_note'];
+
+                                  var signInLongLat =
+                                      controller.listLaporanFilter.value[index]
+                                          ['data'][index1]['signin_longlat'];
+
+                                  var signOutLongLat =
+                                      controller.listLaporanFilter.value[index]
+                                          ['data'][index1]['signout_longlat'];
+
+                                  var statusView = placeIn == "pengajuan" &&
+                                          placeOut == "pengajuan" &&
+                                          signInLongLat == "pengajuan" &&
+                                          signOutLongLat == "pengajuan"
+                                      ? true
+                                      : false;
+
+                                  var listJamMasuk = (jamMasuk!.split(':'));
+                                  var listJamKeluar = (jamKeluar!.split(':'));
+                                  var perhitunganJamMasuk1 = 830 -
+                                      int.parse(
+                                          "${listJamMasuk[0]}${listJamMasuk[1]}");
+                                  var perhitunganJamMasuk2 = 1800 -
+                                      int.parse(
+                                          "${listJamKeluar[0]}${listJamKeluar[1]}");
+
+                                  var getColorMasuk;
+                                  var getColorKeluar;
+
+                                  if (perhitunganJamMasuk1 < 0) {
+                                    getColorMasuk = Colors.red;
+                                  } else {
+                                    getColorMasuk = Colors.black;
+                                  }
+                                  if (perhitunganJamMasuk2 == 0) {
+                                    getColorKeluar = Colors.black;
+                                  } else if (perhitunganJamMasuk2 > 0) {
+                                    getColorKeluar = Colors.red;
+                                  } else if (perhitunganJamMasuk2 < 0) {
+                                    getColorKeluar = Constanst.colorPrimary;
+                                  }
+                                  return Container(
+                                    padding: EdgeInsets.all(5),
+                                    child: InkWell(
+                                      onTap: () {
+                                        controller.loadAbsenDetail(
+                                            idAbsen, attenDate, fullName);
+                                        print(idAbsen);
+                                        // controller.historySelected1(
+                                        //     idAbsen.toString(),
+                                        //     "laporan",
+                                        //     index,
+                                        //     index1);
+
+                                        // if (statusView == false) {
+                                        //   controller.historySelected(
+                                        //       idAbsen.toString(), "laporan");
+                                        // }
+                                      },
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          statusView == false
+                                              ? Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Expanded(
+                                                      flex: 40,
+                                                      child: Text(
+                                                        "${Constanst.convertDate(tanggal)}",
+                                                        style: TextStyle(
+                                                            fontSize: 12),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 25,
+                                                      child: Container(
+                                                        padding:
+                                                            EdgeInsets.all(5),
+                                                        decoration: BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            color:
+                                                                Constanst.grey),
+                                                        child: Row(
+                                                          children: [
+                                                            Icon(
+                                                              Icons
+                                                                  .login_rounded,
+                                                              color:
+                                                                  Colors.black,
+                                                              size: 14,
+                                                            ),
+                                                            Padding(
+                                                              padding: EdgeInsets
+                                                                  .only(
+                                                                      left: 8),
+                                                              child: Text(
+                                                                jamMasuk,
+                                                                style: TextStyle(
+                                                                    color: Colors
+                                                                        .black,
+                                                                    fontSize:
+                                                                        12),
+                                                              ),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      width: 5,
+                                                    ),
+                                                    Expanded(
+                                                      flex: 25,
+                                                      child: Container(
+                                                        padding:
+                                                            EdgeInsets.all(5),
+                                                        decoration: BoxDecoration(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10),
+                                                            color:
+                                                                Constanst.grey),
+                                                        child: Row(
+                                                          children: [
+                                                            Icon(
+                                                              Icons
+                                                                  .logout_rounded,
+                                                              color:
+                                                                  Colors.black,
+                                                              size: 14,
+                                                            ),
+                                                            Flexible(
+                                                              child: Padding(
+                                                                padding: EdgeInsets
+                                                                    .only(
+                                                                        left:
+                                                                            8),
+                                                                child:
+                                                                    longLatAbsenKeluar ==
+                                                                            ""
+                                                                        ? Text(
+                                                                            "")
+                                                                        : Text(
+                                                                            jamKeluar,
+                                                                            style:
+                                                                                TextStyle(
+                                                                              color: Colors.black,
+                                                                              fontSize: 12,
+                                                                            ),
+                                                                          ),
+                                                              ),
+                                                            )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    // Expanded(
+                                                    //   flex: 10,
+                                                    //   child: Padding(
+                                                    //     padding:
+                                                    //         const EdgeInsets.only(
+                                                    //             top: 4),
+                                                    //     child: Icon(
+                                                    //       Icons
+                                                    //           .arrow_forward_ios_rounded,
+                                                    //       size: 14,
+                                                    //     ),
+                                                    //   ),
+                                                    // ),
+                                                  ],
+                                                )
+                                              : Row(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Expanded(
+                                                      flex: 40,
+                                                      child: Text(
+                                                        "${Constanst.convertDate(tanggal ?? '')}",
+                                                        style: TextStyle(
+                                                            fontSize: 14),
+                                                      ),
+                                                    ),
+                                                    Expanded(
+                                                      flex: 60,
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .center,
+                                                        crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .center,
+                                                        children: [
+                                                          Text(
+                                                            "$note",
+                                                            style: TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                          SizedBox(
+                                            height: 8,
+                                          ),
+                                          index1 <=
+                                                  controller.listLaporanFilter
+                                                          .value[index]['data']
+                                                          .toList()
+                                                          .length -
+                                                      2
+                                              ? Divider(
+                                                  height: 3,
+                                                  color: Constanst.grey,
+                                                )
+                                              : Container(),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                }),
+                              ),
+                            )
+                          : Container(),
+                    ],
+                  ),
                 );
         });
   }
