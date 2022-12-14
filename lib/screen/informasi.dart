@@ -23,7 +23,7 @@ class Informasi extends StatelessWidget {
   Widget build(BuildContext context) {
     print("index${index}");
 
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.selectedInformasiView.value = index ?? 0;
       controller.informasiController.jumpToPage(index ?? 0);
       controller.selectedInformasiView.refresh();
