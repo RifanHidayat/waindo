@@ -70,9 +70,18 @@ class PhotoAbsen extends StatelessWidget {
                       ? Image.network(
                           image,
                           fit: BoxFit.fill,
+                          errorBuilder: (context, exception, stackTrace) {
+                            return ClipRRect(
+                              child: Container(
+                                  child: Image.asset(
+                                'assets/Foto.png',
+                                fit: BoxFit.fill,
+                              )),
+                            );
+                          },
                         )
                       : Image.asset(
-                          'assets/foto.png',
+                          'assets/Foto.png',
                           fit: BoxFit.fill,
                         )),
             ),
@@ -83,136 +92,157 @@ class PhotoAbsen extends StatelessWidget {
   }
 
   Widget _expandedWidget() {
-    return Container(
-      color: HexColor('#11151E').withOpacity(0.25),
-      child: Container(
-        padding: EdgeInsets.all(10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: MediaQuery.of(Get.context!).size.width / 4,
-                height: 5,
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(2),
-                    color: Colors.white),
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    type == 'keluar'
-                        ? Icon(
-                            Iconsax.logout,
-                            color: Colors.red,
-                            size: 24,
-                          )
-                        : Icon(
-                            Iconsax.login,
-                            color: Colors.green,
-                            size: 24,
-                          ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 8),
-                      child: Text(
-                        time ?? '',
-                        style: TextStyle(fontSize: 12, color: Colors.white),
+    return MediaQuery.removePadding(
+        context: Get.context!,
+        removeTop: true,
+        child: Container(
+          color: HexColor('#11151E').withOpacity(0.25),
+          child: ListView(
+            children: <Widget>[
+              Container(
+                color: HexColor('#11151E').withOpacity(0.25),
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: MediaQuery.of(Get.context!).size.width / 4,
+                          height: 5,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(2),
+                              color: Colors.white),
+                        ),
                       ),
-                    )
-                  ],
-                ),
-                Container(
-                  decoration: Constanst.styleBoxDecoration2(Colors.white),
-                  margin: EdgeInsets.only(left: 10, right: 10),
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 10, right: 10),
-                    child: Text(
-                      type == 'keluar' ? "Absen Keluar" : "Absen Masuk",
-                      textAlign: TextAlign.center,
-                      style: type == "keluar"
-                          ? Constanst.colorRedBold
-                          : Constanst.colorGreenBold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  Iconsax.location_tick,
-                  size: 24,
-                  color: Colors.white,
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                        padding: const EdgeInsets.only(top: 3, left: 3),
-                        child: Text(
-                          "Lokasi",
-                          style: TextStyle(color: Colors.white),
-                        )),
-                    Container(
-                      width: MediaQuery.of(Get.context!).size.width - 100,
-                      child: Padding(
-                          padding: const EdgeInsets.only(top: 3, left: 3),
-                          child: Text(
-                            "$alamat",
-                            style: TextStyle(fontSize: 10, color: Colors.white),
-                          )),
-                    ),
-                  ],
-                )
-              ],
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 10, right: 10, bottom: 20),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Iconsax.note_text,
-                    size: 24,
-                    color: Colors.white,
-                  ),
-                  Container(
-                    width: MediaQuery.of(Get.context!).size.width - 100,
-                    child: Padding(
-                      padding: const EdgeInsets.only(top: 3, left: 3),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            "Catatan",
-                            style: TextStyle(color: Colors.white),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              type == 'keluar'
+                                  ? Icon(
+                                      Iconsax.logout,
+                                      color: Colors.red,
+                                      size: 24,
+                                    )
+                                  : Icon(
+                                      Iconsax.login,
+                                      color: Colors.green,
+                                      size: 24,
+                                    ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 8),
+                                child: Text(
+                                  time ?? '',
+                                  style: TextStyle(
+                                      fontSize: 12, color: Colors.white),
+                                ),
+                              )
+                            ],
                           ),
-                          Text(
-                            note ?? '-',
-                            style: TextStyle(color: Colors.white, fontSize: 10),
+                          Container(
+                            decoration:
+                                Constanst.styleBoxDecoration2(Colors.white),
+                            margin: EdgeInsets.only(left: 10, right: 10),
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 10, right: 10),
+                              child: Text(
+                                type == 'keluar'
+                                    ? "Absen Keluar"
+                                    : "Absen Masuk",
+                                textAlign: TextAlign.center,
+                                style: type == "keluar"
+                                    ? Constanst.colorRedBold
+                                    : Constanst.colorGreenBold,
+                              ),
+                            ),
                           ),
                         ],
                       ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Iconsax.location_tick,
+                            size: 24,
+                            color: Colors.white,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                  padding:
+                                      const EdgeInsets.only(top: 3, left: 3),
+                                  child: Text(
+                                    "Lokasi",
+                                    style: TextStyle(color: Colors.white),
+                                  )),
+                              Container(
+                                width: MediaQuery.of(Get.context!).size.width -
+                                    100,
+                                child: Padding(
+                                    padding:
+                                        const EdgeInsets.only(top: 3, left: 3),
+                                    child: Text(
+                                      "$alamat",
+                                      style: TextStyle(
+                                          fontSize: 10, color: Colors.white),
+                                    )),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 10, right: 10, bottom: 20),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(
+                              Iconsax.note_text,
+                              size: 24,
+                              color: Colors.white,
+                            ),
+                            Container(
+                              width:
+                                  MediaQuery.of(Get.context!).size.width - 100,
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 3, left: 3),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Catatan",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    Text(
+                                      note ?? '-',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 10),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ));
   }
 
   Widget _previewWidget() {
