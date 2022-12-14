@@ -131,8 +131,9 @@ class _DashboardState extends State<Dashboard> {
                                         Expanded(
                                             flex: 30,
                                             child: InkWell(
-                                              onTap: () =>
-                                                  Get.offAll(Informasi()),
+                                              onTap: () => Get.offAll(Informasi(
+                                                index: 0,
+                                              )),
                                               child: Padding(
                                                 padding: const EdgeInsets.only(
                                                     top: 6.0),
@@ -177,8 +178,9 @@ class _DashboardState extends State<Dashboard> {
                                         Expanded(
                                             flex: 30,
                                             child: InkWell(
-                                              onTap: () =>
-                                                  Get.offAll(Informasi()),
+                                              onTap: () => Get.offAll(Informasi(
+                                                index: 3,
+                                              )),
                                               child: Padding(
                                                 padding: const EdgeInsets.only(
                                                     top: 4.0),
@@ -223,8 +225,9 @@ class _DashboardState extends State<Dashboard> {
                                         Expanded(
                                             flex: 30,
                                             child: InkWell(
-                                              onTap: () =>
-                                                  Get.offAll(Informasi()),
+                                              onTap: () => Get.offAll(
+                                                Informasi(index: 1),
+                                              ),
                                               child: Padding(
                                                 padding: const EdgeInsets.only(
                                                     top: 4.0),

@@ -303,7 +303,6 @@ class DetailAbsen extends StatelessWidget {
   // }
 
   Widget descMasuk() {
-    print("ts");
     var jamMasuk = status == false
         ? absenSelected![0].signin_time ?? ""
         : absenSelected![0]['signin_time'] ?? "";
@@ -342,13 +341,23 @@ class DetailAbsen extends StatelessWidget {
                         width: MediaQuery.of(Get.context!).size.width / 3,
                         child: Image.network(
                           Api.UrlfotoAbsen + gambarMasuk,
+                          errorBuilder: (context, exception, stackTrace) {
+                            return ClipRRect(
+                              child: Container(
+                                  child: Image.asset(
+                                'assets/Foto.png',
+                                fit: BoxFit.fill,
+                              )),
+                            );
+                          },
+                          fit: BoxFit.fill,
                         )),
                   )
                 : ClipRRect(
                     child: Container(
                         width: MediaQuery.of(Get.context!).size.width / 3,
                         child: Image.asset(
-                          'assets/foto.png',
+                          'assets/Foto.png',
                         )),
                   ),
           ),
@@ -494,13 +503,23 @@ class DetailAbsen extends StatelessWidget {
                         width: MediaQuery.of(Get.context!).size.width / 3,
                         child: Image.network(
                           Api.UrlfotoAbsen + gambarKeluar,
+                          errorBuilder: (context, exception, stackTrace) {
+                            return ClipRRect(
+                              child: Container(
+                                  child: Image.asset(
+                                'assets/Foto.png',
+                                fit: BoxFit.fill,
+                              )),
+                            );
+                          },
+                          fit: BoxFit.fill,
                         )),
                   )
                 : ClipRRect(
                     child: Container(
                         width: MediaQuery.of(Get.context!).size.width / 3,
                         child: Image.asset(
-                          'assets/foto.png',
+                          'assets/Foto.png',
                         )),
                   ),
           ),

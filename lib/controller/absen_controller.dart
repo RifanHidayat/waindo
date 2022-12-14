@@ -1136,6 +1136,7 @@ class AbsenController extends GetxController {
 
         statusLoadingSubmitLaporan.value = false;
         this.statusLoadingSubmitLaporan.refresh();
+        groupData();
       }
     });
   }
@@ -1155,6 +1156,7 @@ class AbsenController extends GetxController {
         ? "Data tidak tersedia"
         : "Memuat data...";
     Navigator.pop(Get.context!);
+    groupData();
   }
 
   void refreshFilterKoordinate() {
@@ -1219,6 +1221,7 @@ class AbsenController extends GetxController {
           this.allListLaporanFilter.refresh();
           statusLoadingSubmitLaporan.value = false;
           this.statusLoadingSubmitLaporan.refresh();
+          groupData();
         }
       }
     });
@@ -1253,6 +1256,7 @@ class AbsenController extends GetxController {
           filterLaporanAbsenTanggal.value = true;
           this.filterLaporanAbsenTanggal.refresh();
           this.statusLoadingSubmitLaporan.refresh();
+          groupData();
         }
       }
     });
@@ -1268,6 +1272,50 @@ class AbsenController extends GetxController {
     statusCari.value = true;
     this.listLaporanFilter.refresh();
     this.statusCari.refresh();
+    groupData();
+  }
+
+  void groupData() async {
+    listLaporanFilter.value = listLaporanFilter
+        .fold(Map<String, List<dynamic>>(), (Map<String, List<dynamic>> a, b) {
+          a.putIfAbsent(b['em_id'], () => []).add(b);
+          return a;
+        })
+        .values
+        .where((l) => l.isNotEmpty)
+        .map((l) => {
+              'full_name': l.first['full_name'],
+              'job_title': l.first['job_title'],
+              'em_id': l.first['em_id'],
+              'atten_date': l.first['atten_date'],
+              'signin_time': l.first['signin_time'],
+              'signout_time': l.first['signout_time'],
+              'signin_note': l.first['signin_note'],
+              'place_in': l.first['place_in'],
+              'place_out': l.first['place_out'],
+              'signin_longlat': l.first['signin_longlat'],
+              'id': l.first['id_absen'],
+              'signout_longlat': l.first['signout_longlat'],
+              'is_open': false,
+              'data': l
+                  .map((e) => {
+                        'full_name': e['full_name'],
+                        'id': e['id_absen'],
+                        'job_title': e['job_title'],
+                        'em_id': e['em_id'],
+                        'atten_date': e['atten_date'],
+                        'signin_time': e['signin_time'],
+                        'signout_time': e['signout_time'],
+                        'signin_note': e['signin_note'],
+                        'place_in': l.first['place_in'],
+                        'place_out': l.first['place_out'],
+                        'signin_longlat': l.first['signin_longlat'],
+                        'signout_longlat': l.first['signout_longlat'],
+                      })
+                  .toList()
+                ..sort((a, b) => b['atten_date'].compareTo(a['atten_date']))
+            })
+        .toList();
   }
 
   void pencarianNamaKaryawanTelat(value) {
@@ -1280,6 +1328,7 @@ class AbsenController extends GetxController {
     statusCari.value = true;
     this.listLaporanFilter.refresh();
     this.statusCari.refresh();
+    groupData();
   }
 
   void pencarianNamaKaryawanBelumAbsen(value) {

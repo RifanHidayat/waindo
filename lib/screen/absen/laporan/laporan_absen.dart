@@ -37,48 +37,6 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
     controller.onReady();
   }
 
-  void groupData() async {
-    controller.listLaporanFilter.value = controller.listLaporanFilter
-        .fold(Map<String, List<dynamic>>(), (Map<String, List<dynamic>> a, b) {
-          a.putIfAbsent(b['em_id'], () => []).add(b);
-          return a;
-        })
-        .values
-        .where((l) => l.isNotEmpty)
-        .map((l) => {
-              'full_name': l.first['full_name'],
-              'job_title': l.first['job_title'],
-              'em_id': l.first['em_id'],
-              'atten_date': l.first['atten_date'],
-              'signin_time': l.first['signin_time'],
-              'signout_time': l.first['signout_time'],
-              'signin_note': l.first['signin_note'],
-              'place_in': l.first['place_in'],
-              'place_out': l.first['place_out'],
-              'signin_longlat': l.first['signin_longlat'],
-              'id': l.first['id_absen'],
-              'signout_longlat': l.first['signout_longlat'],
-              'is_open': true,
-              'data': l
-                  .map((e) => {
-                        'full_name': e['full_name'],
-                        'id': e['id_absen'],
-                        'job_title': e['job_title'],
-                        'em_id': e['em_id'],
-                        'atten_date': e['atten_date'],
-                        'signin_time': e['signin_time'],
-                        'signout_time': e['signout_time'],
-                        'signin_note': e['signin_note'],
-                        'place_in': l.first['place_in'],
-                        'place_out': l.first['place_out'],
-                        'signin_longlat': l.first['signin_longlat'],
-                        'signout_longlat': l.first['signout_longlat'],
-                      })
-                  .toList()
-            })
-        .toList();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -549,7 +507,8 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
   }
 
   Widget listAbsensiKaryawan() {
-    groupData();
+    // groupData();
+
     return ListView.builder(
         physics: controller.listLaporanFilter.length <= 15
             ? AlwaysScrollableScrollPhysics()
@@ -564,10 +523,7 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
           var signinTime = controller.listLaporanFilter[index]['signin_time'];
           var signoutTime = controller.listLaporanFilter[index]['signout_time'];
           var signNote = controller.listLaporanFilter[index]['signin_note'];
-          print(controller.listLaporanFilter[index]['data']
-              .toList()
-              .length
-              .toString());
+          print(controller.listLaporanFilter[index]['data']);
           return controller.listLaporanFilter[index]['data'].toList().length <=
                   1
               ? Padding(
@@ -714,7 +670,7 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                                                                     '$signoutTime',
                                                                     style: TextStyle(
                                                                         fontSize:
-                                                                            12,
+                                                                            10,
                                                                         color: Constanst
                                                                             .color2),
                                                                   ),
@@ -766,18 +722,23 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                                           ? Radius.circular(0)
                                           : Radius.circular(10),
                                   topLeft: Radius.circular(10),
-                                  topRight: Radius.circular(0)),
+                                  topRight: Radius.circular(10)),
                               border:
                                   Border.all(width: 1, color: Constanst.grey)),
                           child: Padding(
                             padding: EdgeInsets.all(5),
                             child: InkWell(
                               onTap: () {
-                                controller.listLaporanFilter.value[index]
-                                        ['is_open'] =
-                                    !controller.listLaporanFilter.value[index]
+                                // groupData();
+                                // setState(() {
+                                controller.listLaporanFilter[index]['is_open'] =
+                                    !controller.listLaporanFilter[index]
                                         ['is_open'];
+                                //  });
+
+                                // this.listLaporanFilter.refresh();
                                 controller.listLaporanFilter.refresh();
+                                controller.statusCari.refresh();
                               },
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -787,45 +748,77 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                                   ),
                                   IntrinsicHeight(
                                     child: Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
                                       mainAxisAlignment:
                                           MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              '$namaKaryawan',
-                                              style: TextStyle(fontSize: 14),
-                                            ),
-                                          ],
+                                        Container(
+                                          width: MediaQuery.of(Get.context!)
+                                                      .size
+                                                      .width /
+                                                  2 -
+                                              60,
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                '$namaKaryawan',
+                                                style: TextStyle(fontSize: 12),
+                                              ),
+                                            ],
+                                          ),
                                         ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              '$jobTitle',
-                                              style: TextStyle(fontSize: 12),
-                                            ),
-                                            SizedBox(
-                                              width: 20,
-                                            ),
-                                            Center(
-                                              child: Transform.rotate(
-                                                angle: -math.pi / 2,
-                                                child: Icon(
-                                                  Icons
-                                                      .arrow_back_ios_new_rounded,
-                                                  size: 12,
+                                        Container(
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                width:
+                                                    MediaQuery.of(Get.context!)
+                                                            .size
+                                                            .width /
+                                                        3,
+                                                child: Text(
+                                                  '$jobTitle',
+                                                  style:
+                                                      TextStyle(fontSize: 12),
+                                                  textAlign: TextAlign.right,
                                                 ),
                                               ),
-                                              // child: Icon(
-                                              //   Icons.arrow_forward_ios_rounded,
-                                              //   size: 14,
-                                              // ),
-                                            ),
-                                          ],
+                                              SizedBox(
+                                                width: 20,
+                                              ),
+                                              controller.listLaporanFilter[
+                                                      index]['is_open']
+                                                  ? Center(
+                                                      child: Transform.rotate(
+                                                        angle: -math.pi / 2,
+                                                        child: Icon(
+                                                          Icons
+                                                              .arrow_back_ios_new_rounded,
+                                                          size: 12,
+                                                        ),
+                                                      ),
+                                                      // child: Icon(
+                                                      //   Icons.arrow_forward_ios_rounded,
+                                                      //   size: 14,
+                                                      // ),
+                                                    )
+                                                  : Center(
+                                                      child: Transform.rotate(
+                                                        angle: -math.pi / 2,
+                                                        child: Icon(
+                                                          Icons
+                                                              .arrow_forward_ios_rounded,
+                                                          size: 12,
+                                                        ),
+                                                      ),
+                                                      // child: Icon(
+                                                      //   Icons.arrow_forward_ios_rounded,
+                                                      //   size: 14,
+                                                      // ),
+                                                    ),
+                                            ],
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -945,7 +938,7 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                                           statusView == false
                                               ? Row(
                                                   crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
+                                                      CrossAxisAlignment.end,
                                                   children: [
                                                     Expanded(
                                                       flex: 40,
@@ -986,7 +979,7 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                                                                     color: Colors
                                                                         .black,
                                                                     fontSize:
-                                                                        12),
+                                                                        10),
                                                               ),
                                                             )
                                                           ],
@@ -996,52 +989,63 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                                                     SizedBox(
                                                       width: 5,
                                                     ),
-                                                    Expanded(
-                                                      flex: 25,
-                                                      child: Container(
-                                                        padding:
-                                                            EdgeInsets.all(5),
-                                                        decoration: BoxDecoration(
-                                                            borderRadius:
-                                                                BorderRadius
-                                                                    .circular(
-                                                                        10),
-                                                            color:
-                                                                Constanst.grey),
-                                                        child: Row(
-                                                          children: [
-                                                            Icon(
-                                                              Icons
-                                                                  .logout_rounded,
-                                                              color:
-                                                                  Colors.black,
-                                                              size: 14,
-                                                            ),
-                                                            Flexible(
-                                                              child: Padding(
-                                                                padding: EdgeInsets
-                                                                    .only(
-                                                                        left:
-                                                                            8),
+                                                    longLatAbsenKeluar == ""
+                                                        ? Container(
+                                                            child: Expanded(
+                                                                flex: 25,
                                                                 child:
-                                                                    longLatAbsenKeluar ==
-                                                                            ""
-                                                                        ? Text(
-                                                                            "")
-                                                                        : Text(
-                                                                            jamKeluar,
-                                                                            style:
-                                                                                TextStyle(
-                                                                              color: Colors.black,
-                                                                              fontSize: 12,
+                                                                    Container()),
+                                                          )
+                                                        : Expanded(
+                                                            flex: 25,
+                                                            child: Container(
+                                                              padding:
+                                                                  EdgeInsets
+                                                                      .all(5),
+                                                              decoration: BoxDecoration(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              10),
+                                                                  color:
+                                                                      Constanst
+                                                                          .grey),
+                                                              child: Row(
+                                                                children: [
+                                                                  Icon(
+                                                                    Icons
+                                                                        .logout_rounded,
+                                                                    color: Colors
+                                                                        .black,
+                                                                    size: 14,
+                                                                  ),
+                                                                  Flexible(
+                                                                    child:
+                                                                        Padding(
+                                                                      padding: EdgeInsets.only(
+                                                                          left:
+                                                                              8),
+                                                                      child: longLatAbsenKeluar ==
+                                                                              ""
+                                                                          ? Text(
+                                                                              "",
+                                                                              style: TextStyle(
+                                                                                color: Colors.black,
+                                                                                fontSize: 10,
+                                                                              ))
+                                                                          : Text(
+                                                                              jamKeluar,
+                                                                              style: TextStyle(
+                                                                                color: Colors.black,
+                                                                                fontSize: 10,
+                                                                              ),
                                                                             ),
-                                                                          ),
+                                                                    ),
+                                                                  )
+                                                                ],
                                                               ),
-                                                            )
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ),
+                                                            ),
+                                                          ),
                                                     // Expanded(
                                                     //   flex: 10,
                                                     //   child: Padding(

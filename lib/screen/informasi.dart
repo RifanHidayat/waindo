@@ -14,11 +14,21 @@ import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 
 class Informasi extends StatelessWidget {
+  final index;
+  Informasi({this.index});
   final controller = Get.put(DashboardController());
   var controllerGlobal = Get.put(GlobalController());
 
   @override
   Widget build(BuildContext context) {
+    print("index${index}");
+
+    WidgetsBinding.instance!.addPostFrameCallback((_) {
+      controller.selectedInformasiView.value = index ?? 0;
+      controller.informasiController.jumpToPage(index ?? 0);
+      controller.selectedInformasiView.refresh();
+    });
+
     return Scaffold(
       backgroundColor: Constanst.coloBackgroundScreen,
       appBar: AppBar(
