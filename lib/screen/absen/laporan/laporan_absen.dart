@@ -493,6 +493,7 @@ class _LaporanAbsenState extends State<LaporanAbsen> {
                                 controller.listLaporanFilter.value =
                                     controller.allListLaporanFilter.value;
                                 this.controller.listLaporanFilter.refresh();
+                                controller.groupData();
                               },
                             ),
                           )

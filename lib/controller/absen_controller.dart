@@ -781,7 +781,7 @@ class AbsenController extends GetxController {
     if (status == 'history') {
       var getSelected =
           historyAbsen.value.firstWhere((element) => element.id == id_absen);
-      print(getSelected);
+      // print(getSelected);
       Get.to(DetailAbsen(
         absenSelected: [getSelected],
         status: false,
@@ -804,9 +804,9 @@ class AbsenController extends GetxController {
   void historySelected1(id_absen, status, index, index1) {
     //  print(listLaporanFilter[index]['data'].toList());
     var getSelected = listLaporanFilter[index]['data'][index1];
-    print(getSelected);
+    // print(getSelected);
 
-    print(getSelected);
+    // print(getSelected);
     if (getSelected['signin_longlat'] == null ||
         getSelected['signin_longlat'] == "") {
       UtilsAlert.showToast("Terjadi kesalahan terhadap data absen ini");
@@ -828,7 +828,7 @@ class AbsenController extends GetxController {
           //  print(listLaporanFilter[index]['data'].toList());
           var getSelected = valueBody['data'][0];
 
-          print(getSelected);
+          // print(getSelected);
           if (getSelected['signin_longlat'] == null ||
               getSelected['signin_longlat'] == "") {
             UtilsAlert.showToast("Terjadi kesalahan terhadap data absen ini");
