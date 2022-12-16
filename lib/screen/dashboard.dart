@@ -1,8 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
+
+import 'package:new_version_plus/new_version_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
@@ -1215,5 +1218,35 @@ class _DashboardState extends State<Dashboard> {
                 ),
               );
             }));
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _checkversion();
+  }
+
+  void _checkversion() async {
+    print("check version");
+    final newVersion = NewVersionPlus(
+      androidId: 'com.siscom.siscomhris',
+    );
+
+    final status = await newVersion.getVersionStatus();
+    newVersion.showUpdateDialog(
+        context: context,
+        versionStatus: status!,
+        dialogTitle: "Update SISCOM HRIS",
+        dialogText: "Update versi SISCOM HRIS dari versi" +
+            status.localVersion +
+            " ke versi " +
+            status.storeVersion,
+        dismissAction: () {
+          Get.back();
+        },
+        updateButtonText: "Update Sekarang",
+        dismissButtonText: "Skip");
+    print("status ${status.localVersion}");
   }
 }
