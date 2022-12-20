@@ -66,6 +66,7 @@ class AuthController extends GetxController {
   }
 
   Future<void> loginUser() async {
+    FirebaseMessaging.instance.requestPermission();
     var fcm_registration_token = await FirebaseMessaging.instance.getToken();
     print("token ${fcm_registration_token}");
 

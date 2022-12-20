@@ -60,8 +60,8 @@ class DefaultFirebaseOptions {
     storageBucket: 'siscom-hris.appspot.com',
   );
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCjde4QH5ewSM01qSkvkobtmoFoFFuu1XA',
-    appId: '1:90235107077:android:3634bae0f6adb5a0ba296c',
+    apiKey: 'AIzaSyC9s5juB7LHmteq7EKunhCodywTVwd0mPo',
+    appId: '1:90235107077:ios:eac72270016c94b6ba296c',
     messagingSenderId: '90235107077',
     projectId: 'siscom-hris',
     storageBucket: 'siscom-hris.appspot.com',

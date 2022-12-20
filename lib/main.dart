@@ -25,6 +25,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_ringtone_player/flutter_ringtone_player.dart';
 import 'dart:io';
+import 'package:get/get.dart';
 
 import 'utils/app_data.dart';
 
@@ -42,6 +43,7 @@ void main() async {
       options: DefaultFirebaseOptions.android,
     );
   }
+  // FirebaseMessaging.instance.requestPermission();
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
@@ -50,11 +52,51 @@ void main() async {
     sound: true,
   );
   setupInteractedMessage();
+
+  FirebaseMessaging messaging = FirebaseMessaging.instance;
+
+  NotificationSettings settings = await messaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: true,
+      criticalAlert: false,
+      provisional: true,
+      sound: true);
+  if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+    print('User granted permission');
+  } else if (settings.authorizationStatus == AuthorizationStatus.provisional) {
+    print('User granted provisional permission');
+  } else {
+    print(
+        'User declined or has not accepted permission ${settings.authorizationStatus}');
+  }
+
+  // flutterLocalNotificationsPlugin.show(
+  //     0,
+  //     "title",
+  //     "Subtitle",
+  //     NotificationDetails(
+  //         android: AndroidNotificationDetails(
+  //             DateTime.now().millisecondsSinceEpoch.toString(), "",
+  //             playSound: true,
+  //             priority: Priority.high,
+  //             importance: Importance.high,
+  //             icon: '@mipmap/ic_launcher'
+
+  //             // TODO add a proper drawable resource to android, for now using
+  //             //      one that already exists in example app.
+  //             ),
+  //         iOS: iosNotificationDetails),
+  //     payload: "");
   // AppData.clearAllData();
   runApp(const MyApp());
 }
 
 Future showNotification(message) async {
+  IOSNotificationDetails iosNotificationDetails = IOSNotificationDetails(
+    threadIdentifier: "thread1",
+  );
   RemoteNotification notification = message.notification;
   AndroidNotification android = message.notification?.android;
 
@@ -73,25 +115,27 @@ Future showNotification(message) async {
             // TODO add a proper drawable resource to android, for now using
             //      one that already exists in example app.
             ),
+        iOS: iosNotificationDetails,
       ),
       payload: "${message}");
 }
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   var info = message.data['body'];
+  print("tes");
   // showNotification(message);
   FlutterRingtonePlayer.playNotification();
-  await Firebase.initializeApp();
+  // await Firebase.initializeApp();
 }
 
 Future<void> setupInteractedMessage() async {
   flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   var android = new AndroidInitializationSettings('@mipmap/ic_launcher');
   var iOS = const IOSInitializationSettings(
-    requestSoundPermission: false,
-    requestBadgePermission: false,
-    requestAlertPermission: false,
-  );
+      requestSoundPermission: true,
+      requestBadgePermission: true,
+      requestAlertPermission: true,
+      onDidReceiveLocalNotification: onDidReceiveLocalNotification);
   var initSetttings = new InitializationSettings(android: android, iOS: iOS);
   flutterLocalNotificationsPlugin.initialize(initSetttings,
       onSelectNotification: onSelectNotification);
@@ -107,10 +151,12 @@ Future<void> setupInteractedMessage() async {
     _handleMessage(initialMessage);
   }
 
-  // Also handle any interaction when the app is in the background via a
+  // Also handle any interaction when the aprRp is in the background via a
   // Stream listener
   FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
     showNotification(message);
+    print("ees");
+
     FlutterRingtonePlayer.playNotification();
   });
   FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
@@ -120,6 +166,11 @@ void _handleMessage(RemoteMessage message) {}
 
 Future onSelectNotification(var payload) async {
   Get.offAll(InitScreen());
+}
+
+void onDidReceiveLocalNotification(
+    int id, String? title, String? body, String? payload) {
+  print('id $id');
 }
 
 class MyApp extends StatelessWidget {
