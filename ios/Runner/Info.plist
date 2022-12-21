@@ -10,6 +10,8 @@
 	<string>SISCOM HRIS</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleGetInfoString</key>
+	<string></string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -22,8 +24,21 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.90235107077-ghl3lgba803pjbcctcqvvifbe5egcqso</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>FirebaseAppDelegateProxyEnabled</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppleMusicUsageDescription</key>
@@ -39,9 +54,17 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Lokasi dibutuhkan untuk mendapatkan koordinat posisi absensi dan laporan anda</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Izin dibutuhkan untuk mendapatkan foto untuk absen dan laporan anda</string> 
+	<string>Izin dibutuhkan untuk mendapatkan foto untuk absen dan laporan anda</string>
+	<key>NSUserNotificationsUsageDescription</key>
+	<string>Hi ,We need user notification for approval permission</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+		<string>remote-notification</string>
+	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

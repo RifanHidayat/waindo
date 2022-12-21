@@ -318,148 +318,162 @@ class DetailAbsen extends StatelessWidget {
     var placeIn = status == false
         ? absenSelected![0].place_in ?? ""
         : absenSelected![0]['place_in'] ?? "";
-    var alamat = (alamatMasuk + placeIn).toString().substring(0, 50) + "...";
+    // var alamat = (alamatMasuk + placeIn).toString().substring(0, 50) + "...";
     return Container(
       decoration: Constanst.styleBoxDecoration1,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          InkWell(
-            onTap: () {
-              Get.to(PhotoAbsen(
-                image: Api.UrlfotoAbsen + gambarMasuk,
-                type: "masuk",
-                time: jamMasuk,
-                alamat: alamatMasuk + placeIn,
-                note: catatanMasuk,
-              ));
-            },
-            child: gambarMasuk != ''
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(6.0),
-                    child: Container(
-                        width: MediaQuery.of(Get.context!).size.width / 3,
-                        child: Image.network(
-                          Api.UrlfotoAbsen + gambarMasuk,
-                          errorBuilder: (context, exception, stackTrace) {
-                            return ClipRRect(
-                              child: Container(
-                                  child: Image.asset(
-                                'assets/Foto.png',
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 30,
+              child: Center(
+                child: InkWell(
+                  onTap: () {
+                    Get.to(PhotoAbsen(
+                      image: Api.UrlfotoAbsen + gambarMasuk,
+                      type: "masuk",
+                      time: jamMasuk,
+                      alamat: alamatMasuk + placeIn,
+                      note: catatanMasuk,
+                    ));
+                  },
+                  child: gambarMasuk != ''
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(6.0),
+                          child: SizedBox(
+                              width: MediaQuery.of(Get.context!).size.width / 3,
+                              child: Image.network(
+                                Api.UrlfotoAbsen + gambarMasuk,
+                                errorBuilder: (context, exception, stackTrace) {
+                                  return ClipRRect(
+                                    child: SizedBox(
+                                        child: Image.asset(
+                                      'assets/Foto.png',
+                                      fit: BoxFit.fill,
+                                    )),
+                                  );
+                                },
                                 fit: BoxFit.fill,
                               )),
-                            );
-                          },
-                          fit: BoxFit.fill,
-                        )),
-                  )
-                : ClipRRect(
-                    child: Container(
-                        width: MediaQuery.of(Get.context!).size.width / 3,
-                        child: Image.asset(
-                          'assets/Foto.png',
-                        )),
-                  ),
-          ),
-          Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Iconsax.login,
-                          color: Colors.green,
-                          size: 24,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 8),
-                          child: Text(
-                            jamMasuk ?? '',
-                            style: TextStyle(fontSize: 12),
-                          ),
                         )
-                      ],
-                    ),
-                    Container(
-                      decoration: Constanst.styleBoxDecoration2(
-                          Color.fromARGB(156, 223, 253, 223)),
-                      margin: EdgeInsets.only(left: 10, right: 10),
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 10, right: 10),
-                        child: Text(
-                          "Absen Masuk",
-                          textAlign: TextAlign.center,
-                          style: Constanst.colorGreenBold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Iconsax.location_tick,
-                      size: 24,
-                      color: Constanst.colorPrimary,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                            padding: const EdgeInsets.only(top: 3, left: 3),
-                            child: Text(
-                              "Lokasi",
-                            )),
-                        Container(
-                          width: MediaQuery.of(Get.context!).size.width / 2,
-                          child: Padding(
-                              padding: const EdgeInsets.only(top: 3, left: 3),
-                              child: Text(
-                                "$alamat",
-                                style: TextStyle(fontSize: 10),
+                      : ClipRRect(
+                          child: SizedBox(
+                              width: MediaQuery.of(Get.context!).size.width / 3,
+                              child: Image.asset(
+                                'assets/Foto.png',
                               )),
                         ),
-                      ],
-                    )
-                  ],
                 ),
-                SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.only(left: 10, right: 10, bottom: 20),
-                  child: Row(
+              ),
+            ),
+            Expanded(
+              flex: 70,
+              child: SizedBox(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        Iconsax.note_text,
-                        size: 24,
-                        color: Constanst.colorPrimary,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Iconsax.login,
+                                color: Colors.green,
+                                size: 24,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 8),
+                                child: Text(
+                                  jamMasuk ?? '',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              )
+                            ],
+                          ),
+                          Container(
+                            decoration: Constanst.styleBoxDecoration2(
+                                Color.fromARGB(156, 223, 253, 223)),
+                            margin: EdgeInsets.only(left: 10, right: 10),
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 10, right: 10),
+                              child: Text(
+                                "Absen Masuk",
+                                textAlign: TextAlign.center,
+                                style: Constanst.colorGreenBold,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      Container(
-                        width: MediaQuery.of(Get.context!).size.width / 2 - 20,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 3, left: 3),
-                          child: Text(catatanMasuk ?? '-'),
-                        ),
-                      )
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Iconsax.location_tick,
+                            size: 24,
+                            color: Constanst.colorPrimary,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                  padding:
+                                      const EdgeInsets.only(top: 3, left: 3),
+                                  child: Text(
+                                    "Lokasi",
+                                  )),
+                              Container(
+                                width:
+                                    MediaQuery.of(Get.context!).size.width / 2,
+                                child: Padding(
+                                    padding:
+                                        const EdgeInsets.only(top: 3, left: 3),
+                                    child: Text(
+                                      "$alamatMasuk ( $placeIn )",
+                                      style: TextStyle(fontSize: 10),
+                                    )),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Iconsax.note_text,
+                            size: 24,
+                            color: Constanst.colorPrimary,
+                          ),
+                          Container(
+                            width:
+                                MediaQuery.of(Get.context!).size.width / 2 -
+                                    20,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 3, left: 3),
+                              child: Text(catatanMasuk ?? '-'),
+                            ),
+                          )
+                        ],
+                      ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          )
-        ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -480,148 +494,161 @@ class DetailAbsen extends StatelessWidget {
     var placeOut = status == false
         ? absenSelected![0].place_out ?? ""
         : absenSelected![0]['place_out'] ?? "";
-    var alamat = (alamatKeluar + placeOut).toString().substring(0, 50) + "...";
+    // var alamat = (alamatKeluar + placeOut).toString().substring(0, 50) + "...";
     return Container(
       decoration: Constanst.styleBoxDecoration1,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          InkWell(
-            onTap: () {
-              Get.to(PhotoAbsen(
-                image: Api.UrlfotoAbsen + gambarKeluar,
-                type: "keluar",
-                time: jamKeluar,
-                alamat: alamatKeluar + placeOut,
-                note: catatanKeluar,
-              ));
-            },
-            child: gambarKeluar != ''
-                ? ClipRRect(
-                    borderRadius: BorderRadius.circular(6.0),
-                    child: Container(
-                        width: MediaQuery.of(Get.context!).size.width / 3,
-                        child: Image.network(
-                          Api.UrlfotoAbsen + gambarKeluar,
-                          errorBuilder: (context, exception, stackTrace) {
-                            return ClipRRect(
-                              child: Container(
-                                  child: Image.asset(
-                                'assets/Foto.png',
-                                fit: BoxFit.fill,
-                              )),
-                            );
-                          },
-                          fit: BoxFit.fill,
-                        )),
-                  )
-                : ClipRRect(
-                    child: Container(
-                        width: MediaQuery.of(Get.context!).size.width / 3,
-                        child: Image.asset(
-                          'assets/Foto.png',
-                        )),
-                  ),
-          ),
-          Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Iconsax.logout,
-                          color: Colors.red,
-                          size: 24,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(left: 8),
-                          child: Text(
-                            jamKeluar ?? '',
-                            style: TextStyle(fontSize: 12),
-                          ),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              flex: 30,
+              child: Center(
+                child: InkWell(
+                  onTap: () {
+                    Get.to(PhotoAbsen(
+                      image: Api.UrlfotoAbsen + gambarKeluar,
+                      type: "keluar",
+                      time: jamKeluar,
+                      alamat: alamatKeluar + placeOut,
+                      note: catatanKeluar,
+                    ));
+                  },
+                  child: gambarKeluar != ''
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(6.0),
+                          child: SizedBox(
+                              // width: MediaQuery.of(Get.context!).size.width / 3,
+                              child: Image.network(
+                            Api.UrlfotoAbsen + gambarKeluar,
+                            errorBuilder: (context, exception, stackTrace) {
+                              return ClipRRect(
+                                child: SizedBox(
+                                    child: Image.asset(
+                                  'assets/Foto.png',
+                                  fit: BoxFit.fitHeight,
+                                )),
+                              );
+                            },
+                            fit: BoxFit.fitHeight,
+                          )),
                         )
-                      ],
-                    ),
-                    Container(
-                      decoration: Constanst.styleBoxDecoration2(
-                          Color.fromARGB(156, 223, 253, 223)),
-                      margin: EdgeInsets.only(left: 10, right: 10),
-                      child: Padding(
-                        padding: EdgeInsets.only(left: 10, right: 10),
-                        child: Text(
-                          "Absen Keluar",
-                          textAlign: TextAlign.center,
-                          style: Constanst.colorRedBold,
+                      : ClipRRect(
+                          child: SizedBox(
+                              // width: MediaQuery.of(Get.context!).size.width / 3,
+                              child: Image.asset(
+                            'assets/Foto.png',
+                          )),
                         ),
-                      ),
-                    ),
-                  ],
                 ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Iconsax.location_tick,
-                      size: 24,
-                      color: Constanst.colorPrimary,
-                    ),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                            padding: const EdgeInsets.only(top: 3, left: 3),
-                            child: Text(
-                              "Lokasi",
-                            )),
-                        Container(
-                          width: MediaQuery.of(Get.context!).size.width / 2,
-                          child: Padding(
-                              padding: const EdgeInsets.only(top: 3, left: 3),
-                              child: Text(
-                                "$alamat",
-                                style: TextStyle(fontSize: 10),
-                              )),
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Padding(
-                  padding:
-                      const EdgeInsets.only(left: 10, right: 10, bottom: 20),
-                  child: Row(
+              ),
+            ),
+            Expanded(
+              flex: 70,
+              child: SizedBox(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(
-                        Iconsax.note_text,
-                        size: 24,
-                        color: Constanst.colorPrimary,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Iconsax.logout,
+                                color: Colors.red,
+                                size: 24,
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 8),
+                                child: Text(
+                                  jamKeluar ?? '',
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                              )
+                            ],
+                          ),
+                          Container(
+                            decoration: Constanst.styleBoxDecoration2(
+                                Color.fromARGB(156, 223, 253, 223)),
+                            margin: EdgeInsets.only(left: 10, right: 10),
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 10, right: 10),
+                              child: Text(
+                                "Absen Keluar",
+                                textAlign: TextAlign.center,
+                                style: Constanst.colorRedBold,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      Container(
-                        width: MediaQuery.of(Get.context!).size.width / 2 - 20,
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 3, left: 3),
-                          child: Text(catatanKeluar ?? '-'),
-                        ),
-                      )
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Iconsax.location_tick,
+                            size: 24,
+                            color: Constanst.colorPrimary,
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                  padding:
+                                      const EdgeInsets.only(top: 3, left: 3),
+                                  child: Text(
+                                    "Lokasi",
+                                  )),
+                              SizedBox(
+                                width:
+                                    MediaQuery.of(Get.context!).size.width / 2,
+                                child: Padding(
+                                    padding:
+                                        const EdgeInsets.only(top: 3, left: 3),
+                                    child: Text(
+                                      "$alamatKeluar ( $placeOut )",
+                                      style: TextStyle(fontSize: 10),
+                                    )),
+                              ),
+                            ],
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(
+                            Iconsax.note_text,
+                            size: 24,
+                            color: Constanst.colorPrimary,
+                          ),
+                          Container(
+                            width:
+                                MediaQuery.of(Get.context!).size.width / 2 - 20,
+                            child: Padding(
+                              padding: const EdgeInsets.only(top: 3, left: 3),
+                              child: Text(catatanKeluar ?? '-'),
+                            ),
+                          )
+                        ],
+                      ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          )
-        ],
+              ),
+            )
+          ],
+        ),
       ),
     );
     // return Container(

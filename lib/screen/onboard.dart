@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:siscom_operasional/controller/onboard_controller.dart';
@@ -11,6 +12,27 @@ import 'package:siscom_operasional/utils/widget_utils.dart';
 
 class Onboard extends StatelessWidget {
   final controller = Get.put(OnboardController());
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+      FlutterLocalNotificationsPlugin();
+
+  Future<void> setupInteractedMessage() async {
+    flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+    var android = new AndroidInitializationSettings('@mipmap/ic_launcher');
+    var iOS = const IOSInitializationSettings(
+      requestSoundPermission: true,
+      requestBadgePermission: true,
+      requestAlertPermission: true,
+    );
+    var initSetttings = new InitializationSettings(android: android, iOS: iOS);
+    flutterLocalNotificationsPlugin.initialize(
+      initSetttings,
+    );
+  }
+
+  void onDidReceiveLocalNotification(
+      int id, String? title, String? body, String? payload) {
+    print('id $id');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -140,8 +162,35 @@ class Onboard extends StatelessWidget {
                         RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ))),
-                onPressed: () {
+                onPressed: () async {
                   controller.validasiToNextRoute();
+                  // print("tes");
+                  // try {
+                  //   const NotificationDetails platformChannelSpecifics =
+                  //       NotificationDetails(
+                  //           iOS: IOSNotificationDetails(
+                  //     presentAlert:
+                  //         true, // Present an alert when the notification is displayed and the application is in the foreground (only from iOS 10 onwards)
+                  //     presentBadge:
+                  //         true, // Present the badge number when the notification is displayed and the application is in the foreground (only from iOS 10 onwards)
+                  //     presentSound:
+                  //         true, // Play a sound when the notification is displayed and the application is in the foreground (only from iOS 10 onwards)
+                  //     // Specifics the file path to play (only from iOS 10 onwards)
+                  //     badgeNumber: 1, // The application's icon badge number
+
+                  //     subtitle:
+                  //         "ios", //Secondary description  (only from iOS 10 onwards)
+                  //   ));
+
+                  //   await flutterLocalNotificationsPlugin.show(
+                  //       12345,
+                  //       "A Notification From My Application",
+                  //       "This notification was sent using Flutter Local Notifcations Package",
+                  //       platformChannelSpecifics,
+                  //       payload: 'data');
+                  // } catch (e) {
+                  //   print(e);
+                  // }
                 },
                 child: !controller.loading.value
                     ? Row(
