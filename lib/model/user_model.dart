@@ -21,6 +21,7 @@ class UserModel {
   int? em_control_acess;
   int? emp_att_working;
   String? em_hak_akses;
+  var face_recog;
 
   UserModel(
       {this.em_id,
@@ -42,6 +43,7 @@ class UserModel {
       this.em_control,
       this.em_control_acess,
       this.emp_att_working,
+      this.face_recog,
       this.em_hak_akses});
 
   Map<String, dynamic> toMap() {
@@ -65,7 +67,8 @@ class UserModel {
       'em_control': em_control,
       'em_control_acess': em_control_acess,
       'emp_att_working': emp_att_working,
-      'em_hak_akses': em_hak_akses
+      'em_hak_akses': em_hak_akses,
+      'face_recog': face_recog
     };
   }
 
@@ -90,6 +93,7 @@ class UserModel {
         em_control: map['em_control'],
         em_control_acess: map['em_control_acess'],
         emp_att_working: map['emp_att_working'],
+        face_recog: map['face_recog'],
         em_hak_akses: map['em_hak_akses']);
   }
 

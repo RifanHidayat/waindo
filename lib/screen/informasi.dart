@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/global_controller.dart';
+import 'package:siscom_operasional/screen/absen/absen_masuk_keluar.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
@@ -660,5 +661,10 @@ class Informasi extends StatelessWidget {
                 ),
               );
             });
+  }
+
+  void moveeToAbsen() {
+    
+    Get.off(AbsenMasukKeluar());
   }
 }

@@ -55,13 +55,15 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
       destinationIcon = onValue;
     });
     setState(() {
-      controller.getPlaceCoordinate();
       controller.titleAbsen.value = widget.status;
       controller.typeAbsen.value = widget.type;
-      controller.absenSelfie();
+      // controller.absenSelfie();
     });
+    controller.getPlaceCoordinate();
+    controller.absenSelfie();
+//    controller.getPosisition();
+
     _fabHeight = _initFabHeight;
-    // controller.getPosisition();
   }
 
   void getMarker() {
@@ -97,61 +99,61 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 2,
-        flexibleSpace: Container(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 10, right: 10, top: 15),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      controller.removeAll();
-                      controllerDashboard.onInit();
-                      Get.offAll(InitScreen());
-                    },
-                    icon: Icon(
-                      Icons.arrow_back_ios,
-                      color: Constanst.colorText2,
-                    ),
+        actions: [
+          Container(
+            width: MediaQuery.of(context).size.width,
+            padding: EdgeInsets.only(left: 10, right: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  onPressed: () {
+                    controller.removeAll();
+                    controllerDashboard.onInit();
+                    Get.offAll(InitScreen());
+                  },
+                  icon: Icon(
+                    Icons.arrow_back_ios,
+                    color: Constanst.colorText2,
                   ),
-                  Container(
-                    decoration: BoxDecoration(
-                        color: Constanst.grey,
-                        borderRadius: BorderRadius.circular(25)),
-                    child: Padding(
-                      padding: const EdgeInsets.only(
-                          left: 15, right: 15, top: 5, bottom: 5),
-                      child: InkWell(
-                        onTap: () {
-                          controller.getPosisition();
-                          mapController?.animateCamera(
-                              CameraUpdate.newCameraPosition(CameraPosition(
-                                      target: LatLng(controller.latUser.value,
-                                          controller.langUser.value),
-                                      zoom: 20)
-                                  //17 is new zoom level
-                                  ));
-                        },
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              "Refresh",
-                              style: TextStyle(color: Constanst.colorText4),
-                            ),
-                            Icon(Icons.refresh, color: Constanst.colorText4)
-                          ],
-                        ),
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                      color: Constanst.grey,
+                      borderRadius: BorderRadius.circular(25)),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        left: 15, right: 15, top: 5, bottom: 5),
+                    child: InkWell(
+                      onTap: () {
+                        controller.getPosisition();
+                        mapController?.animateCamera(
+                            CameraUpdate.newCameraPosition(
+                                CameraPosition(
+                                    target: LatLng(controller.latUser.value,
+                                        controller.langUser.value),
+                                    zoom: 20)
+                                //17 is new zoom level
+                                ));
+                      },
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "Refresh",
+                            style: TextStyle(color: Constanst.colorText4),
+                          ),
+                          Icon(Icons.refresh, color: Constanst.colorText4)
+                        ],
                       ),
                     ),
-                  )
-                ],
-              ),
+                  ),
+                )
+              ],
             ),
           ),
-        ),
+        ],
       ),
       body: Obx(() {
         return controller.latUser.value == 0.0 ||

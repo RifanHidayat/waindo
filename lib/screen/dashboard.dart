@@ -3,6 +3,8 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:iconsax/iconsax.dart';
 
 import 'package:new_version_plus/new_version_plus.dart';
@@ -13,10 +15,13 @@ import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/controller/pesan_controller.dart';
 import 'package:siscom_operasional/screen/absen/absen_masuk_keluar.dart';
+import 'package:siscom_operasional/screen/absen/face_id_registration.dart';
+import 'package:siscom_operasional/screen/absen/facee_id_detection.dart';
 import 'package:siscom_operasional/screen/akun/personal_info.dart';
 import 'package:siscom_operasional/screen/informasi.dart';
 import 'package:siscom_operasional/screen/pesan/pesan.dart';
 import 'package:siscom_operasional/utils/api.dart';
+import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
@@ -83,7 +88,11 @@ class _DashboardState extends State<Dashboard> {
                   SizedBox(
                     height: 20,
                   ),
-                  cardInfoAbsen(),
+                  InkWell(
+                      onTap: () {
+                        widgetButtomSheetFaceRegistrattion();
+                      },
+                      child: cardInfoAbsen()),
                   SizedBox(
                     height: 20,
                   ),
@@ -559,43 +568,58 @@ class _DashboardState extends State<Dashboard> {
                               UtilsAlert.showToast(
                                   "Anda harus absen keluar terlebih dahulu");
                             } else {
-                              var statusCamera = Permission.camera.status;
-                              statusCamera.then((value) {
-                                var statusLokasi = Permission.location.status;
-                                statusLokasi.then((value2) {
-                                  if (value != PermissionStatus.granted ||
-                                      value2 != PermissionStatus.granted) {
-                                    UtilsAlert.showToast(
-                                        "Anda harus aktifkan kamera dan lokasi anda");
-                                    controller.widgetButtomSheetAktifCamera(
-                                        'loadfirst');
-                                  } else {
-                                    Get.offAll(AbsenMasukKeluar(
-                                      status: "Absen Masuk",
-                                      type: 1,
-                                    ));
-                                    //  controllerAbsensi.absenSelfie();
-                                    // var validasiAbsenMasukUser =
-                                    //     controller.validasiAbsenMasukUser();
-                                    // if (!validasiAbsenMasukUser) {
+                              var dataUser = AppData.informasiUser;
+                              var faceRecog = dataUser![0].face_recog;
+                              print("facee recog ${faceRecog}");
+                              if (GetStorage().read('face_recog') == true) {
+                                var statusCamera = Permission.camera.status;
+                                statusCamera.then((value) {
+                                  var statusLokasi = Permission.location.status;
+                                  statusLokasi.then((value2) {
+                                    if (value != PermissionStatus.granted ||
+                                        value2 != PermissionStatus.granted) {
+                                      UtilsAlert.showToast(
+                                          "Anda harus aktifkan kamera dan lokasi anda");
+                                      controller.widgetButtomSheetAktifCamera(
+                                          'loadfirst');
+                                    } else {
+                                      // Get.offAll(AbsenMasukKeluar(
+                                      //   status: "Absen Masuk",
+                                      //   type: 1,
+                                      // ));
+                                      //  controllerAbsensi.absenSelfie();
 
-                                    // } else {
-                                    //   var kalkulasiRadius =
-                                    //       controller.radiusNotOpen();
-                                    //   kalkulasiRadius.then((value) {
-                                    //     print(value);
-                                    //     if (value) {
-                                    //       controllerAbsensi.titleAbsen.value =
-                                    //           "Absen Masuk";
-                                    //       controllerAbsensi.typeAbsen.value = 1;
-                                    //       Get.offAll(AbsenMasukKeluar());
-                                    //       controllerAbsensi.absenSelfie();
-                                    //     }
-                                    //   });
-                                    // }
-                                  }
+                                      var validasiAbsenMasukUser =
+                                          controller.validasiAbsenMasukUser();
+                                      if (!validasiAbsenMasukUser) {
+                                      } else {
+                                        controllerAbsensi.getPlaceCoordinate();
+                                        controllerAbsensi.titleAbsen.value =
+                                            "Absen masuk";
+
+                                        controllerAbsensi.typeAbsen.value = 1;
+                                        // var kalkulasiRadius =
+                                        //     controller.radiusNotOpen();
+                                        Get.to(faceDetectionPage(
+                                          status: "masuk",
+                                        ));
+                                        // kalkulasiRadius.then((value) {
+                                        //   print(value);
+                                        //   // if (value) {
+                                        //   //   controllerAbsensi.titleAbsen.value =
+                                        //   //       "Absen Masuk";
+                                        //   //   controllerAbsensi.typeAbsen.value = 1;
+                                        //   //   Get.offAll(faceDetectionPage());
+                                        //   //   // controllerAbsensi.absenSelfie();
+                                        //   // }
+                                        // });
+                                      }
+                                    }
+                                  });
                                 });
-                              });
+                              } else {
+                                widgetButtomSheetFaceRegistrattion();
+                              }
                             }
                           },
                           colorButton: !controllerAbsensi.absenStatus.value
@@ -623,33 +647,47 @@ class _DashboardState extends State<Dashboard> {
                               UtilsAlert.showToast(
                                   "Absen Masuk terlebih dahulu");
                             } else {
-                              controllerAbsensi.getPlaceCoordinate();
-                              controllerAbsensi.titleAbsen.value =
-                                  "Absen Keluar";
-                              controllerAbsensi.typeAbsen.value = 2;
-                              Get.offAll(AbsenMasukKeluar(
-                                status: "Absen Keluar",
-                                type: 2,
-                              ));
-                              // controllerAbsensi.absenSelfie();
-                              // var validasiAbsenMasukUser =
-                              //     controller.validasiAbsenMasukUser();
-                              // print(validasiAbsenMasukUser);
-                              // if (validasiAbsenMasukUser == false) {
+                              var dataUser = AppData.informasiUser;
+                              var faceRecog = dataUser![0].face_recog;
+                              print("face recog ${faceRecog}");
+                              print(
+                                  "face recog status ${GetStorage().read('face_recog')}");
+                              if (GetStorage().read('face_recog') == true) {
+                                controllerAbsensi.absenSelfie();
+                                controllerAbsensi.getPlaceCoordinate();
+                                controllerAbsensi.titleAbsen.value =
+                                    "Absen Keluar";
 
-                              // } else {
-                              //   var kalkulasiRadius =
-                              //       controller.radiusNotOpen();
-                              //   kalkulasiRadius.then((value) {
-                              //     if (value) {
-                              //       controllerAbsensi.titleAbsen.value =
-                              //           "Absen Keluar";
-                              //       controllerAbsensi.typeAbsen.value = 2;
-                              //       Get.offAll(AbsenMasukKeluar());
-                              //       controllerAbsensi.absenSelfie();
-                              //     }
-                              //   });
-                              // }
+                                controllerAbsensi.typeAbsen.value = 2;
+                                Get.to(faceDetectionPage(
+                                  status: "keluar",
+                                ));
+                                // Get.offAll(AbsenMasukKeluar(
+                                //   status: "Absen Keluar",
+                                //   type: 2,
+                                // ));
+                                // controllerAbsensi.absenSelfie();
+                                // var validasiAbsenMasukUser =
+                                //     controller.validasiAbsenMasukUser();
+                                // print(validasiAbsenMasukUser);
+                                // if (validasiAbsenMasukUser == false) {
+
+                                // } else {
+                                //   var kalkulasiRadius =
+                                //       controller.radiusNotOpen();
+                                //   kalkulasiRadius.then((value) {
+                                //     if (value) {
+                                //       controllerAbsensi.titleAbsen.value =
+                                //           "Absen Keluar";
+                                //       controllerAbsensi.typeAbsen.value = 2;
+                                //       Get.offAll(AbsenMasukKeluar());
+                                //       controllerAbsensi.absenSelfie();
+                                //     }
+                                //   });
+                                // }
+                              } else {
+                                widgetButtomSheetFaceRegistrattion();
+                              }
                             }
                           },
                           colorButton: controllerAbsensi.absenStatus.value
@@ -1224,7 +1262,11 @@ class _DashboardState extends State<Dashboard> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    _checkversion();
+    // _checkversion();
+    new Future.delayed(Duration(seconds: 5), () {
+      // deleayed code here
+      // widgetButtomSheetFaceRegistrattion();
+    });
   }
 
   void _checkversion() async {
@@ -1248,5 +1290,126 @@ class _DashboardState extends State<Dashboard> {
         updateButtonText: "Update Sekarang",
         dismissButtonText: "Skip");
     print("status ${status.localVersion}");
+  }
+
+  void widgetButtomSheetFaceRegistrattion() {
+    showModalBottomSheet(
+      context: Get.context!,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(5.0),
+        ),
+      ),
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 30,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Tambahkan Data Wajah",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      InkWell(
+                          onTap: () {
+                            Get.back();
+                          },
+                          child: Icon(Icons.close))
+                    ],
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    "Pastikan wajah Kamu tidak tertutup dan terlihat jelas. Kamu juga harus berada di ruangan dengan penerangan yang cukup.",
+                    style: TextStyle(fontSize: 11),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Image.asset(
+                    "assets/face-recognition-icon.png",
+                    width: 50,
+                    height: 50,
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                        color: HexColor('#E9F5FE'),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          width: 1,
+                          color: HexColor('#2F80ED'),
+                        )),
+                    padding:
+                        EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: Icon(
+                            Icons.info_outline,
+                            color: HexColor('#2F80ED'),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        Expanded(
+                          flex: 60,
+                          child: Text(
+                            "Aplikasi ini memerlukan akses pada kamera dan lokasi pada perangkat Anda",
+                            textAlign: TextAlign.left,
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  TextButtonWidget(
+                    title: "Mulai",
+                    onTap: () async {
+                      Get.to(FaceRecognitionView());
+                      // if (type == "checkTracking") {
+                      //   print('kesini');
+                      //   controllerAbsensi.kirimDataAbsensi();
+                      // } else {
+                      //   Navigator.pop(context);
+                      //   await Permission.camera.request();
+                      //   await Permission.location.request();
+                      // }
+                    },
+                    colorButton: Constanst.colorButton1,
+                    colortext: Constanst.colorWhite,
+                    border: BorderRadius.circular(15.0),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 30,
+            )
+          ],
+        );
+      },
+    );
   }
 }

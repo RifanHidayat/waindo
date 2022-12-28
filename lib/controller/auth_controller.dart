@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:siscom_operasional/model/user_model.dart';
 import 'package:siscom_operasional/screen/dashboard.dart';
@@ -66,6 +67,7 @@ class AuthController extends GetxController {
   }
 
   Future<void> loginUser() async {
+    final box = GetStorage();
     var fcm_registration_token = await FirebaseMessaging.instance.getToken();
     print("token ${fcm_registration_token}");
 
@@ -88,31 +90,38 @@ class AuthController extends GetxController {
         var getAktif = "";
         for (var element in valueBody['data']) {
           var data = UserModel(
-            em_id: element['em_id'] ?? "",
-            des_id: element['des_id'] ?? 0,
-            dep_id: element['dep_id'] ?? 0,
-            dep_group: element['dep_group'] ?? 0,
-            full_name: element['full_name'] ?? "",
-            em_email: element['em_email'] ?? "",
-            em_phone: element['em_phone'] ?? "",
-            em_birthday: element['em_birthday'] ?? "1999-09-09",
-            em_gender: element['em_gender'] ?? "",
-            em_image: element['em_image'] ?? "",
-            em_joining_date: element['em_joining_date'] ?? "1999-09-09",
-            em_status: element['em_status'] ?? "",
-            em_blood_group: element['em_blood_group'] ?? "",
-            posisi: element['posisi'] ?? "",
-            emp_jobTitle: element['emp_jobTitle'] ?? "",
-            emp_departmen: element['emp_departmen'] ?? "",
-            em_control: element['em_control'] ?? 0,
-            em_control_acess: element['em_control_access'] ?? 0,
-            emp_att_working: element['emp_att_working'] ?? 0,
-            em_hak_akses: element['em_hak_akses'] ?? "",
-          );
+              em_id: element['em_id'] ?? "",
+              des_id: element['des_id'] ?? 0,
+              dep_id: element['dep_id'] ?? 0,
+              dep_group: element['dep_group'] ?? 0,
+              full_name: element['full_name'] ?? "",
+              em_email: element['em_email'] ?? "",
+              em_phone: element['em_phone'] ?? "",
+              em_birthday: element['em_birthday'] ?? "1999-09-09",
+              em_gender: element['em_gender'] ?? "",
+              em_image: element['em_image'] ?? "",
+              em_joining_date: element['em_joining_date'] ?? "1999-09-09",
+              em_status: element['em_status'] ?? "",
+              em_blood_group: element['em_blood_group'] ?? "",
+              posisi: element['posisi'] ?? "",
+              emp_jobTitle: element['emp_jobTitle'] ?? "",
+              emp_departmen: element['emp_departmen'] ?? "",
+              em_control: element['em_control'] ?? 0,
+              em_control_acess: element['em_control_access'] ?? 0,
+              emp_att_working: element['emp_att_working'] ?? 0,
+              em_hak_akses: element['em_hak_akses'] ?? "",
+              face_recog: element['face_recog']);
+
+          if ((element['face_recog'] != "")) {
+            box.write("face_recog", true);
+          } else {
+            box.write("face_recog", false);
+          }
           getData.add(data);
           lastLoginUser = "${element['last_login']}";
           getEmId = "${element['em_id']}";
           getAktif = "${element['status_aktif']}";
+          print(element.toString());
         }
         print(lastLoginUser);
         if (getAktif == "ACTIVE") {
