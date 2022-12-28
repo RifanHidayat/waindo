@@ -5,6 +5,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:iconsax/iconsax.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -17,6 +18,7 @@ import 'package:intl/intl.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/model/absen_model.dart';
 import 'package:siscom_operasional/screen/absen/berhasil_absen.dart';
+import 'package:siscom_operasional/screen/absen/berhasil_registrasi.dart';
 import 'package:siscom_operasional/screen/absen/detail_absen.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
@@ -27,6 +29,7 @@ import 'package:siscom_operasional/utils/widget_utils.dart';
 import 'package:google_maps_utils/google_maps_utils.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:trust_location/trust_location.dart';
+import 'package:http/http.dart' as http;
 
 class AbsenController extends GetxController {
   PageController? pageViewFilterAbsen;
@@ -355,29 +358,29 @@ class AbsenController extends GetxController {
   }
 
   void absenSelfie() async {
-    final getFoto = await ImagePicker().pickImage(
-        source: ImageSource.camera,
-        preferredCameraDevice: CameraDevice.front,
-        imageQuality: 100,
-        maxHeight: 350,
-        maxWidth: 350);
-    if (getFoto == null) {
-      UtilsAlert.showToast("Gagal mengambil gambar");
-    } else {
-      fotoUser.value = File(getFoto.path);
-      var bytes = File(getFoto.path).readAsBytesSync();
-      base64fotoUser.value = base64Encode(bytes);
-      timeString.value = formatDateTime(DateTime.now());
-      dateNow.value = dateNoww(DateTime.now());
-      imageStatus.value = true;
-      tanggalUserFoto.value = dateNoww2(DateTime.now());
-      this.imageStatus.refresh();
-      this.timeString.refresh();
-      this.dateNow.refresh();
-      this.base64fotoUser.refresh();
-      this.fotoUser.refresh();
-      getPosisition();
-    }
+    // final getFoto = await ImagePicker().pickImage(
+    //     source: ImageSource.camera,
+    //     preferredCameraDevice: CameraDevice.front,
+    //     imageQuality: 100,
+    //     maxHeight: 350,
+    //     maxWidth: 350);
+    // if (getFoto == null) {
+    //   UtilsAlert.showToast("Gagal mengambil gambar");
+    // } else {
+    // fotoUser.value = File(getFoto.path);
+    // var bytes = File(getFoto.path).readAsBytesSync();
+    // base64fotoUser.value = base64Encode(bytes);
+    timeString.value = formatDateTime(DateTime.now());
+    dateNow.value = dateNoww(DateTime.now());
+    imageStatus.value = true;
+    tanggalUserFoto.value = dateNoww2(DateTime.now());
+    this.imageStatus.refresh();
+    this.timeString.refresh();
+    this.dateNow.refresh();
+    // this.base64fotoUser.refresh();
+    // this.fotoUser.refresh();
+    getPosisition();
+    // }
   }
 
   String formatDateTime(DateTime dateTime) {
@@ -424,72 +427,13 @@ class AbsenController extends GetxController {
   }
 
   void kirimDataAbsensi() async {
-    if (base64fotoUser.value == "") {
-      UtilsAlert.showToast("Silahkan Absen");
-    } else {
-      if (Platform.isAndroid) {
-        TrustLocation.start(1);
-        getCheckMock();
-        if (!mockLocation.value) {
-          var statusPosisi = await validasiRadius();
-          if (statusPosisi == true) {
-            var latLangAbsen = "${latUser.value},${langUser.value}";
-            var dataUser = AppData.informasiUser;
-            var getEmpId = dataUser![0].em_id;
-            var getSettingAppSaveImageAbsen =
-                settingAppInfo.value![0].saveimage_attend;
-            var validasiGambar =
-                getSettingAppSaveImageAbsen == "NO" ? "" : base64fotoUser.value;
-            if (typeAbsen.value == 1) {
-              absenStatus.value = true;
-              AppData.statusAbsen = true;
-              AppData.dateLastAbsen = tanggalUserFoto.value;
-            } else {
-              absenStatus.value = false;
-              AppData.statusAbsen = false;
-              AppData.dateLastAbsen = tanggalUserFoto.value;
-            }
-            Map<String, dynamic> body = {
-              'em_id': getEmpId,
-              'tanggal_absen': tanggalUserFoto.value,
-              'waktu': timeString.value,
-              'gambar': validasiGambar,
-              'lokasi': alamatUserFoto.value,
-              'latLang': latLangAbsen,
-              'catatan': deskripsiAbsen.value.text,
-              'typeAbsen': typeAbsen.value,
-              'place': selectedType.value,
-              'kategori': "1"
-            };
-
-            var connect = Api.connectionApi("post", body, "kirimAbsen");
-            connect.then((dynamic res) {
-              if (res.statusCode == 200) {
-                var valueBody = jsonDecode(res.body);
-                print(res.body);
-                for (var element in sysData.value) {
-                  if (element['kode'] == '006') {
-                    intervalControl.value = int.parse(element['name']);
-                  }
-                }
-                this.intervalControl.refresh();
-                print("dapat interval ${intervalControl.value}");
-                Navigator.pop(Get.context!);
-                Get.offAll(BerhasilAbsensi(
-                  dataBerhasil: [
-                    titleAbsen.value,
-                    timeString.value,
-                    typeAbsen.value,
-                    intervalControl.value
-                  ],
-                ));
-              }
-            });
-          }
-        } else {
-          UtilsAlert.showToast("Periksa GPS anda");
-        }
-      } else if (Platform.isIOS) {
+    // if (base64fotoUser.value == "") {
+    //   UtilsAlert.showToast("Silahkan Absen");
+    // } else {
+    if (Platform.isAndroid) {
+      TrustLocation.start(1);
+      getCheckMock();
+      if (!mockLocation.value) {
         var statusPosisi = await validasiRadius();
         if (statusPosisi == true) {
           var latLangAbsen = "${latUser.value},${langUser.value}";
@@ -545,8 +489,67 @@ class AbsenController extends GetxController {
             }
           });
         }
+      } else {
+        UtilsAlert.showToast("Periksa GPS anda");
+      }
+    } else if (Platform.isIOS) {
+      var statusPosisi = await validasiRadius();
+      if (statusPosisi == true) {
+        var latLangAbsen = "${latUser.value},${langUser.value}";
+        var dataUser = AppData.informasiUser;
+        var getEmpId = dataUser![0].em_id;
+        var getSettingAppSaveImageAbsen =
+            settingAppInfo.value![0].saveimage_attend;
+        var validasiGambar =
+            getSettingAppSaveImageAbsen == "NO" ? "" : base64fotoUser.value;
+        if (typeAbsen.value == 1) {
+          absenStatus.value = true;
+          AppData.statusAbsen = true;
+          AppData.dateLastAbsen = tanggalUserFoto.value;
+        } else {
+          absenStatus.value = false;
+          AppData.statusAbsen = false;
+          AppData.dateLastAbsen = tanggalUserFoto.value;
+        }
+        Map<String, dynamic> body = {
+          'em_id': getEmpId,
+          'tanggal_absen': tanggalUserFoto.value,
+          'waktu': timeString.value,
+          'gambar': validasiGambar,
+          'lokasi': alamatUserFoto.value,
+          'latLang': latLangAbsen,
+          'catatan': deskripsiAbsen.value.text,
+          'typeAbsen': typeAbsen.value,
+          'place': selectedType.value,
+          'kategori': "1"
+        };
+
+        var connect = Api.connectionApi("post", body, "kirimAbsen");
+        connect.then((dynamic res) {
+          if (res.statusCode == 200) {
+            var valueBody = jsonDecode(res.body);
+            print(res.body);
+            for (var element in sysData.value) {
+              if (element['kode'] == '006') {
+                intervalControl.value = int.parse(element['name']);
+              }
+            }
+            this.intervalControl.refresh();
+            print("dapat interval ${intervalControl.value}");
+            Navigator.pop(Get.context!);
+            Get.offAll(BerhasilAbsensi(
+              dataBerhasil: [
+                titleAbsen.value,
+                timeString.value,
+                typeAbsen.value,
+                intervalControl.value
+              ],
+            ));
+          }
+        });
       }
     }
+    //  }
   }
 
   void getCheckMock() async {
@@ -1628,5 +1631,67 @@ class AbsenController extends GetxController {
             ),
           ),
         ));
+  }
+
+  void faceIdRegistration({faceId, emId}) async {
+    try {
+      final box = GetStorage();
+      UtilsAlert.showLoadingIndicator(Get.context!);
+
+      Map<String, dynamic> body = {"em_id": emId, "face": faceId};
+      Map<String, String> headers = {
+        'Authorization': Api.basicAuth,
+        'Content-type': 'application/json',
+        'Accept': 'application/json',
+      };
+      print("body" + body.toString());
+
+      final response = await http.post(
+          Uri.parse('http://kantor.membersis.com:2627/edit_face'),
+          body: jsonEncode(body),
+          headers: headers);
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+        print(data.toString());
+        Get.back();
+        box.write("face_recog", true);
+
+        // print("body " + jsonDecode(response.body.toString()).toString());
+        Get.to(BerhasilRegistration());
+      }
+
+      // var data = jsonDecode(response.body);
+
+      // if (response.statusCode == 200) {
+      //   UtilsAlert.showToast(data['message']);
+      //   Navigator.pop(Get.context!);
+      // } else {
+      //   Navigator.pop(Get.context!);
+      //   UtilsAlert.showToast(data['message']);
+      // }
+    } catch (e) {
+      Navigator.pop(Get.context!);
+      UtilsAlert.showToast(e.toString());
+    }
+    // UtilsAlert.showLoadingIndicator(Get.context!);
+    // Map<String, dynamic> body = {'face': faceId, 'em_id': emId};
+
+    // var connect = Api.connectionApi("post", body, "edit_face");
+    // connect.then((dynamic res) {
+    //   if (res.statusCode == 200) {
+    //     var valueBody = jsonDecode(res.body);
+    //     if (valueBody['status'] == false) {
+    //       Navigator.pop(Get.context!);
+    //       UtilsAlert.showToast("Data has been saved");
+    //     } else {
+    //       UtilsAlert.showToast("Eerror");
+    //       Navigator.pop(Get.context!);
+    //       sysData.value = valueBody['data'];
+    //       this.sysData.refresh();
+    //     }
+    //   }
+    // }).catchError((e) {
+    //   UtilsAlert.showToast('${e}');
+    // });
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,10 +30,14 @@ import 'package:get/get.dart';
 
 import 'utils/app_data.dart';
 
+import 'package:percent_indicator/percent_indicator.dart';
+
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
 void main() async {
+  await GetStorage.init();
+
   WidgetsFlutterBinding.ensureInitialized();
   LocalStorage.prefs = await SharedPreferences.getInstance();
 
