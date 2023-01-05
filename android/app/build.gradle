@@ -35,10 +35,7 @@ if (keystorePropertiesFile.exists()) {
 
 
 android {
-      aaptOptions {
-        noCompress 'tflite'
-        noCompress 'lite'
-    }
+    
     compileSdkVersion 33
     ndkVersion flutter.ndkVersion
 
@@ -96,7 +93,6 @@ flutter {
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
-        implementation 'org.tensorflow:tensorflow-lite:2.3.0'
-    implementation 'org.tensorflow:tensorflow-lite-gpu:2.3.0'
+      
 }
 apply plugin: 'com.google.gms.google-services'

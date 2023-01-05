@@ -68,7 +68,7 @@ class BerhasilRegistration extends StatelessWidget {
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(top: 16, bottom: 16),
-                  child: Text('Selsai'),
+                  child: Text('Selesai'),
                 ),
               ),
             ),

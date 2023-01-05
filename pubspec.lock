@@ -85,20 +85,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
-  camera:
-    dependency: "direct main"
-    description:
-      name: camera
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.8.1+7"
-  camera_platform_interface:
-    dependency: transitive
-    description:
-      name: camera_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.3.2"
   carousel_slider:
     dependency: "direct main"
     description:
@@ -527,13 +513,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_vpn:
-    dependency: "direct main"
-    description:
-      name: flutter_vpn
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.12.0"
   flutter_web_plugins:
     dependency: transitive
     description: flutter
@@ -672,13 +651,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.5.0+0"
-  google_ml_kit:
-    dependency: "direct main"
-    description:
-      name: google_ml_kit
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.7.3"
   grouped_list:
     dependency: "direct main"
     description:
@@ -896,13 +868,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.2"
-  openvpn_flutter:
-    dependency: "direct main"
-    description:
-      name: openvpn_flutter
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.2.2"
   package_config:
     dependency: transitive
     description:
@@ -1321,22 +1286,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.4.12"
-  tflite_flutter:
-    dependency: "direct main"
-    description:
-      name: tflite_flutter
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.9.0"
-  tflite_flutter_helper:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: "783f15e5a87126159147d8ea30b98eea9207ac70"
-      resolved-ref: "783f15e5a87126159147d8ea30b98eea9207ac70"
-      url: "https://github.com/filofan1/tflite_flutter_helper.git"
-    source: git
-    version: "0.3.0"
   timezone:
     dependency: transitive
     description:

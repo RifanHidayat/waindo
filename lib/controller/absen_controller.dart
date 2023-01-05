@@ -17,6 +17,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/model/absen_model.dart';
+import 'package:siscom_operasional/screen/absen/absen_masuk_keluar.dart';
 import 'package:siscom_operasional/screen/absen/berhasil_absen.dart';
 import 'package:siscom_operasional/screen/absen/berhasil_registrasi.dart';
 import 'package:siscom_operasional/screen/absen/detail_absen.dart';
@@ -30,6 +31,7 @@ import 'package:google_maps_utils/google_maps_utils.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:trust_location/trust_location.dart';
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 class AbsenController extends GetxController {
   PageController? pageViewFilterAbsen;
@@ -210,12 +212,14 @@ class AbsenController extends GetxController {
   }
 
   void getPlaceCoordinate() {
+    placeCoordinate.clear();
     var connect = Api.connectionApi("get", {}, "places_coordinate");
     connect.then((dynamic res) {
       if (res == false) {
         UtilsAlert.koneksiBuruk();
       } else {
         if (res.statusCode == 200) {
+          print("Place cordinate 200" + res.body.toString());
           var valueBody = jsonDecode(res.body);
           selectedType.value = valueBody['data'][0]['place'];
           for (var element in valueBody['data']) {
@@ -227,9 +231,13 @@ class AbsenController extends GetxController {
               filter.add(element);
             }
           }
+
           placeCoordinate.value = filter;
-          this.placeCoordinate.refresh();
-          this.placeCoordinate.refresh();
+          placeCoordinate.refresh();
+          placeCoordinate.refresh();
+        } else {
+          print("Place cordinate !=200" + res.body.toString());
+          print(res.body.toString());
         }
       }
     });
@@ -381,6 +389,145 @@ class AbsenController extends GetxController {
     // this.fotoUser.refresh();
     getPosisition();
     // }
+    Get.to(AbsenMasukKeluar());
+  }
+
+  void facedDetection({required status, absenStatus, type}) async {
+    final getFoto = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.front,
+        imageQuality: 100,
+        maxHeight: 350,
+        maxWidth: 350);
+    if (getFoto == null) {
+      UtilsAlert.showToast("Gagal mengambil gambar");
+    } else {
+      // fotoUser.value = File(getFoto.toString());
+      if (status == "registration") {
+        print("registration");
+        saveFaceregistration(getFoto.path);
+      } else {
+        detection(file: getFoto.path, status: absenStatus, type: type);
+      }
+    }
+  }
+
+  void saveFaceregistration(file) async {
+    final box = GetStorage();
+
+    UtilsAlert.showLoadingIndicator(Get.context!);
+    try {
+      var dataUser = AppData.informasiUser;
+      var getEmpId = dataUser![0].em_id;
+      Map<String, String> headers = {
+        'Authorization': Api.basicAuth,
+        'Content-type': 'application/json',
+        'Accept': 'application/json',
+      };
+      Map<String, String> body = {
+        'em_id': getEmpId.toString(),
+      };
+      var request = http.MultipartRequest(
+        "POST",
+        Uri.parse(Api.basicUrl + "edit_face"),
+      );
+
+      request.fields.addAll(body);
+
+      request.headers.addAll(headers);
+
+      // if (fotoUser.value != null) {
+      var picture = await http.MultipartFile.fromPath('file', file,
+          contentType: MediaType('image', 'jpg'));
+      request.files.add(picture);
+      // }
+      var response = await request.send();
+      final respStr = await response.stream.bytesToString();
+      final res = jsonDecode(respStr.toString());
+      print(respStr.toString());
+      if (res['status'] == true) {
+        box.write("face_recog", true);
+        Get.to(BerhasilRegistration());
+      } else {
+        Get.back();
+        UtilsAlert.showToast(res['message']);
+      }
+    } on Exception catch (e) {
+      print(e.toString());
+      Get.back();
+      UtilsAlert.showToast(e.toString());
+      throw e;
+    }
+  }
+
+  void detection({file, type, status}) async {
+    print("detection");
+    UtilsAlert.showLoadingIndicator(Get.context!);
+
+    try {
+      var dataUser = AppData.informasiUser;
+      var getEmpId = dataUser![0].em_id;
+      print(getEmpId.toString());
+      Map<String, String> body = {
+        'em_id': getEmpId.toString(),
+      };
+      Map<String, String> headers = {
+        'Authorization': Api.basicAuth,
+        'Content-type': 'application/json',
+        'Accept': 'application/json',
+      };
+      var request = http.MultipartRequest(
+        "POST",
+        Uri.parse(Api.basicUrl + "get_face"),
+      );
+
+      request.fields.addAll(body);
+      request.headers.addAll(headers);
+
+      // if (fotoUser.value != null) {
+      var picture = await http.MultipartFile.fromPath('file', file,
+          contentType: MediaType('image', 'jpg'));
+      request.files.add(picture);
+      //  }
+      var response = await request.send();
+      final respStr = await response.stream.bytesToString();
+      final res = jsonDecode(respStr.toString());
+
+      if (res['status'] == true) {
+        print("berhasil");
+
+        // // absenSelfie();
+        timeString.value = formatDateTime(DateTime.now());
+        dateNow.value = dateNoww(DateTime.now());
+        tanggalUserFoto.value = dateNoww2(DateTime.now());
+        imageStatus.refresh();
+        timeString.refresh();
+        dateNow.refresh();
+        getPosisition();
+
+        // Get.to(AbsenMasukKeluar(
+        //   status: status,
+        //   type: type.toString(),
+        // ));
+        Get.back();
+        Navigator.push(
+          Get.context!,
+          MaterialPageRoute(
+              builder: (context) => AbsenMasukKeluar(
+                    status: status,
+                    type: type.toString(),
+                  )),
+        );
+
+        UtilsAlert.showToast(res['message']);
+      } else {
+        Get.back();
+        UtilsAlert.showToast(res['message']);
+      }
+    } on Exception catch (e) {
+      UtilsAlert.showToast(e.toString());
+      throw e;
+    }
   }
 
   String formatDateTime(DateTime dateTime) {
@@ -1636,9 +1783,10 @@ class AbsenController extends GetxController {
   void faceIdRegistration({faceId, emId}) async {
     try {
       final box = GetStorage();
+      box.write("face_recog", true);
       UtilsAlert.showLoadingIndicator(Get.context!);
 
-      Map<String, dynamic> body = {"em_id": emId, "face": faceId};
+      Map<String, dynamic> body = {"em_id": emId, "": faceId};
       Map<String, String> headers = {
         'Authorization': Api.basicAuth,
         'Content-type': 'application/json',
@@ -1646,15 +1794,12 @@ class AbsenController extends GetxController {
       };
       print("body" + body.toString());
 
-      final response = await http.post(
-          Uri.parse('http://kantor.membersis.com:2627/edit_face'),
-          body: jsonEncode(body),
-          headers: headers);
+      final response = await http.post(Uri.parse('${Api.basicUrl}edit_face'),
+          body: jsonEncode(body), headers: headers);
       if (response.statusCode == 200) {
         var data = jsonDecode(response.body);
         print(data.toString());
         Get.back();
-        box.write("face_recog", true);
 
         // print("body " + jsonDecode(response.body.toString()).toString());
         Get.to(BerhasilRegistration());

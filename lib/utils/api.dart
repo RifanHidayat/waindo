@@ -56,7 +56,6 @@ class Api {
       'Authorization': basicAuth,
       'Content-type': 'application/json',
       'Accept': 'application/json',
-      
     };
     try {
       final url = Uri.parse(getUrl);
