@@ -598,11 +598,16 @@ class _DashboardState extends State<Dashboard> {
                                             "Absen masuk";
 
                                         controllerAbsensi.typeAbsen.value = 1;
+                                        controllerAbsensi.facedDetection(
+                                            status: "detection",
+                                            absenStatus: "Absen Masuk",
+                                            type: "1");
+
                                         // var kalkulasiRadius =
                                         //     controller.radiusNotOpen();
-                                        Get.to(faceDetectionPage(
-                                          status: "masuk",
-                                        ));
+                                        // Get.to(faceDetectionPage(
+                                        //   status: "masuk",
+                                        // ));
                                         // kalkulasiRadius.then((value) {
                                         //   print(value);
                                         //   // if (value) {
@@ -649,19 +654,23 @@ class _DashboardState extends State<Dashboard> {
                             } else {
                               var dataUser = AppData.informasiUser;
                               var faceRecog = dataUser![0].face_recog;
-                              print("face recog ${faceRecog}");
+                             
                               print(
                                   "face recog status ${GetStorage().read('face_recog')}");
                               if (GetStorage().read('face_recog') == true) {
-                                controllerAbsensi.absenSelfie();
+                              
                                 controllerAbsensi.getPlaceCoordinate();
                                 controllerAbsensi.titleAbsen.value =
                                     "Absen Keluar";
 
                                 controllerAbsensi.typeAbsen.value = 2;
-                                Get.to(faceDetectionPage(
-                                  status: "keluar",
-                                ));
+                                controllerAbsensi.facedDetection(
+                                    status: "detection",
+                                    type: "2",
+                                    absenStatus: "Absen Keluar");
+                                // Get.to(faceDetectionPage(
+                                //   status: "keluar",
+                                // ));
                                 // Get.offAll(AbsenMasukKeluar(
                                 //   status: "Absen Keluar",
                                 //   type: 2,
@@ -1387,7 +1396,8 @@ class _DashboardState extends State<Dashboard> {
                   TextButtonWidget(
                     title: "Mulai",
                     onTap: () async {
-                      Get.to(FaceRecognitionView());
+                      controllerAbsensi.facedDetection(status: "registration");
+                      // Get.to(FaceRecognitionView());
                       // if (type == "checkTracking") {
                       //   print('kesini');
                       //   controllerAbsensi.kirimDataAbsensi();

@@ -13,8 +13,7 @@ import 'package:siscom_operasional/screen/dashboard.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
-import 'package:siscom_operasional/utils/widget_textButton.dart';
-import 'package:siscom_operasional/utils/widget_utils.dart';
+
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class AbsenMasukKeluar extends StatefulWidget {
@@ -54,14 +53,9 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
     ).then((onValue) {
       destinationIcon = onValue;
     });
-    setState(() {
-      controller.titleAbsen.value = widget.status;
-      controller.typeAbsen.value = widget.type;
-      // controller.absenSelfie();
-    });
+
     controller.getPlaceCoordinate();
-    controller.absenSelfie();
-//    controller.getPosisition();
+    print(widget.type.toString());
 
     _fabHeight = _initFabHeight;
   }
@@ -126,10 +120,12 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
                         left: 15, right: 15, top: 5, bottom: 5),
                     child: InkWell(
                       onTap: () {
+                        print(controller.placeCoordinateDropdown.value
+                            .toSet()
+                            .toList());
                         controller.getPosisition();
                         mapController?.animateCamera(
-                            CameraUpdate.newCameraPosition(
-                                CameraPosition(
+                            CameraUpdate.SinewCameraPosition(CameraPosition(
                                     target: LatLng(controller.latUser.value,
                                         controller.langUser.value),
                                     zoom: 20)
@@ -296,13 +292,13 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
                 child: InkWell(
                   onTap: () {
                     controller.getPosisition();
-                    mapController?.animateCamera(CameraUpdate.newCameraPosition(
-                        CameraPosition(
-                            target: LatLng(controller.latUser.value,
-                                controller.langUser.value),
-                            zoom: 20)
-                        //17 is new zoom level
-                        ));
+                    mapController?.animateCamera(
+                        CameraUpdate.SinewCameraPosition(CameraPosition(
+                                target: LatLng(controller.latUser.value,
+                                    controller.langUser.value),
+                                zoom: 20)
+                            //17 is new zoom level
+                            ));
                   },
                   child: Card(
                     shape: RoundedRectangleBorder(
@@ -441,7 +437,7 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
                                                 fontWeight: FontWeight.bold)),
                                       ),
                                       Expanded(
-                                          child: controller.typeAbsen.value == 1
+                                          child: widget.type == "1"
                                               ? Container(
                                                   decoration: BoxDecoration(
                                                     color: Color.fromARGB(
@@ -455,8 +451,7 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
                                                     padding: EdgeInsets.only(
                                                         left: 10, right: 10),
                                                     child: Text(
-                                                      controller
-                                                          .titleAbsen.value,
+                                                      widget.status,
                                                       textAlign:
                                                           TextAlign.center,
                                                       style: Constanst
@@ -567,6 +562,8 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
                                         isDense: true,
                                         items: controller
                                             .placeCoordinateDropdown.value
+                                            .toSet()
+                                            .toList()
                                             .map<DropdownMenuItem<String>>(
                                                 (String value) {
                                           return DropdownMenuItem<String>(
@@ -700,7 +697,7 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
             child: InkWell(
               onTap: () {
                 controller.getPosisition();
-                mapController?.animateCamera(CameraUpdate.newCameraPosition(
+                mapController?.animateCamera(CameraUpdate.SinewCameraPosition(
                     CameraPosition(
                         target: LatLng(controller.latUser.value,
                             controller.langUser.value),
