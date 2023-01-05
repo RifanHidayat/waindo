@@ -125,7 +125,8 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
                             .toList());
                         controller.getPosisition();
                         mapController?.animateCamera(
-                            CameraUpdate.SinewCameraPosition(CameraPosition(
+                            CameraUpdate.newCameraPosition(
+                                CameraPosition(
                                     target: LatLng(controller.latUser.value,
                                         controller.langUser.value),
                                     zoom: 20)
@@ -292,13 +293,13 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
                 child: InkWell(
                   onTap: () {
                     controller.getPosisition();
-                    mapController?.animateCamera(
-                        CameraUpdate.SinewCameraPosition(CameraPosition(
-                                target: LatLng(controller.latUser.value,
-                                    controller.langUser.value),
-                                zoom: 20)
-                            //17 is new zoom level
-                            ));
+                    mapController?.animateCamera(CameraUpdate.newCameraPosition(
+                        CameraPosition(
+                            target: LatLng(controller.latUser.value,
+                                controller.langUser.value),
+                            zoom: 20)
+                        //17 is new zoom level
+                        ));
                   },
                   child: Card(
                     shape: RoundedRectangleBorder(
@@ -697,7 +698,7 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
             child: InkWell(
               onTap: () {
                 controller.getPosisition();
-                mapController?.animateCamera(CameraUpdate.SinewCameraPosition(
+                mapController?.animateCamera(CameraUpdate.newCameraPosition(
                     CameraPosition(
                         target: LatLng(controller.latUser.value,
                             controller.langUser.value),
