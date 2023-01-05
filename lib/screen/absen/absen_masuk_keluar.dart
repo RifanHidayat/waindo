@@ -300,8 +300,7 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
                     onTap: () {
                       controller.getPosisition();
                       mapController?.animateCamera(
-                          CameraUpdate.SinewCameraPosition(
-                              CameraPosition(
+                          CameraUpdate.newCameraPosition(CameraPosition(
                                   target: LatLng(controller.latUser.value,
                                       controller.langUser.value),
                                   zoom: 20)
