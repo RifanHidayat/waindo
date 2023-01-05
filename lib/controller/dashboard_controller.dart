@@ -680,6 +680,7 @@ class DashboardController extends GetxController {
                           onTap: () async {
                             if (type == "checkTracking") {
                               print('kesini');
+                              Get.back();
                               controllerAbsensi.kirimDataAbsensi();
                             } else {
                               Navigator.pop(context);

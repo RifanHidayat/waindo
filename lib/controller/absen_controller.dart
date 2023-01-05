@@ -461,7 +461,7 @@ class AbsenController extends GetxController {
   }
 
   void detection({file, type, status}) async {
-    print("detection");
+   
     UtilsAlert.showLoadingIndicator(Get.context!);
 
     try {
@@ -624,8 +624,8 @@ class AbsenController extends GetxController {
               }
               this.intervalControl.refresh();
               print("dapat interval ${intervalControl.value}");
-              Navigator.pop(Get.context!);
-              Get.offAll(BerhasilAbsensi(
+             Navigator.pop(Get.context!);
+              Get.to(BerhasilAbsensi(
                 dataBerhasil: [
                   titleAbsen.value,
                   timeString.value,
@@ -683,7 +683,7 @@ class AbsenController extends GetxController {
             }
             this.intervalControl.refresh();
             print("dapat interval ${intervalControl.value}");
-            Navigator.pop(Get.context!);
+            Get.back();
             Get.offAll(BerhasilAbsensi(
               dataBerhasil: [
                 titleAbsen.value,
