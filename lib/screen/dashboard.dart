@@ -88,11 +88,7 @@ class _DashboardState extends State<Dashboard> {
                   SizedBox(
                     height: 20,
                   ),
-                  InkWell(
-                      onTap: () {
-                        widgetButtomSheetFaceRegistrattion();
-                      },
-                      child: cardInfoAbsen()),
+                  cardInfoAbsen(),
                   SizedBox(
                     height: 20,
                   ),
@@ -654,11 +650,10 @@ class _DashboardState extends State<Dashboard> {
                             } else {
                               var dataUser = AppData.informasiUser;
                               var faceRecog = dataUser![0].face_recog;
-                             
+
                               print(
                                   "face recog status ${GetStorage().read('face_recog')}");
                               if (GetStorage().read('face_recog') == true) {
-                              
                                 controllerAbsensi.getPlaceCoordinate();
                                 controllerAbsensi.titleAbsen.value =
                                     "Absen Keluar";

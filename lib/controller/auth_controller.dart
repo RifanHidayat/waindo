@@ -112,10 +112,10 @@ class AuthController extends GetxController {
               em_hak_akses: element['em_hak_akses'] ?? "",
               face_recog: element['face_recog']);
 
-          if ((element['face_recog'] != "")) {
-            box.write("face_recog", true);
-          } else {
+          if (element['face_recog'] == "" || element['face_recog'] == null) {
             box.write("face_recog", false);
+          } else {
+            box.write("face_recog", true);
           }
           getData.add(data);
           lastLoginUser = "${element['last_login']}";
