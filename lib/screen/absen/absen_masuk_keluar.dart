@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_html/shims/dart_ui_real.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
@@ -281,416 +282,429 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
   Widget _expandedWidget() {
     return Container(
       width: MediaQuery.of(Get.context!).size.width,
-      height: MediaQuery.of(Get.context!).size.height,
-      child: Column(
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Container(
-                padding: EdgeInsets.only(right: 10),
-                alignment: Alignment.centerRight,
-                child: InkWell(
-                  onTap: () {
-                    controller.getPosisition();
-                    mapController?.animateCamera(CameraUpdate.newCameraPosition(
-                        CameraPosition(
-                            target: LatLng(controller.latUser.value,
-                                controller.langUser.value),
-                            zoom: 20)
-                        //17 is new zoom level
-                        ));
-                  },
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Padding(
-                        padding: EdgeInsets.all(5),
-                        child: Image.asset(
-                          "assets/radar.png",
-                          width: 25,
-                          height: 25,
-                        )),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 10, right: 10),
-            child: Container(
-              width: MediaQuery.of(Get.context!).size.width,
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                          alignment: Alignment.topCenter,
-                          child: Icon(
-                            Iconsax.location_tick,
-                            size: 24,
-                            color: Constanst.colorPrimary,
-                          )
-                          // Image.asset(
-                          //     "assets/ic_location.png"),
-                          ),
-                      SizedBox(
-                        width: 10,
+      height: MediaQuery.of(Get.context!).size.height * .8,
+      alignment: Alignment.bottomCenter,
+      child: Padding(
+        padding: EdgeInsets.only(bottom: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  padding: EdgeInsets.only(right: 10),
+                  alignment: Alignment.centerRight,
+                  child: InkWell(
+                    onTap: () {
+                      controller.getPosisition();
+                      mapController?.animateCamera(
+                          CameraUpdate.SinewCameraPosition(
+                              CameraPosition(
+                                  target: LatLng(controller.latUser.value,
+                                      controller.langUser.value),
+                                  zoom: 20)
+                              //17 is new zoom level
+                              ));
+                    },
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "Lokasi kamu saat ini",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Container(
-                            width: MediaQuery.of(Get.context!).size.width * 0.7,
-                            child: Text(
-                              controller.alamatUserFoto.value
-                                      .toString()
-                                      .substring(0, 50) +
-                                  '...',
-                              style: TextStyle(
-                                  fontSize: 12, color: Constanst.colorText2),
-                            ),
-                          ),
-                        ],
-                      )
-                    ],
+                      child: Padding(
+                          padding: EdgeInsets.all(5),
+                          child: Icon(
+                            Iconsax.gps,
+                            color: HexColor('#868FA0'),
+                          )),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 10, right: 10),
-            child: Container(
-              width: MediaQuery.of(Get.context!).size.width,
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Obx(
-                  () => Padding(
-                    padding: const EdgeInsets.only(
-                        bottom: 20, left: 20, right: 20, top: 5),
-                    child: Column(
+            Padding(
+              padding: EdgeInsets.only(left: 10, right: 10),
+              child: Container(
+                width: MediaQuery.of(Get.context!).size.width,
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        InkWell(
-                          onTap: () {
-                            print("tes");
-                            setState(() {
-                              panelController.close();
-                            });
-                          },
-                          child: Center(
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  panelController.close();
-                                });
-                              },
-                              child: Icon(Icons.keyboard_arrow_down,
-                                  size: 30, color: Colors.grey),
+                        Container(
+                            alignment: Alignment.topCenter,
+                            child: Icon(
+                              Iconsax.location_tick,
+                              size: 24,
+                              color: Constanst.colorPrimary,
+                            )
+                            // Image.asset(
+                            //     "assets/ic_location.png"),
                             ),
-                          ),
-                        ),
                         SizedBox(
-                          height: 10,
+                          width: 10,
                         ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              flex: 10,
-                              child: Container(
-                                  alignment: Alignment.topCenter,
-                                  child: Icon(
-                                    Iconsax.clock,
-                                    size: 24,
-                                    color: Constanst.colorPrimary,
-                                  )),
-                            ),
-                            Expanded(
-                              flex: 90,
-                              child: Padding(
-                                  padding: EdgeInsets.only(left: 8, top: 3),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Text(controller.timeString.value,
-                                            style: TextStyle(
-                                                fontWeight: FontWeight.bold)),
-                                      ),
-                                      Expanded(
-                                          child: widget.type == "1"
-                                              ? Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Color.fromARGB(
-                                                        156, 223, 253, 223),
-                                                    borderRadius:
-                                                        Constanst.borderStyle1,
-                                                  ),
-                                                  margin:
-                                                      EdgeInsets.only(left: 8),
-                                                  child: Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: 10, right: 10),
-                                                    child: Text(
-                                                      widget.status,
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: Constanst
-                                                          .colorGreenBold,
-                                                    ),
-                                                  ),
-                                                )
-                                              : Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Color.fromARGB(
-                                                        156, 241, 171, 171),
-                                                    borderRadius:
-                                                        Constanst.borderStyle1,
-                                                  ),
-                                                  margin:
-                                                      EdgeInsets.only(left: 8),
-                                                  child: Padding(
-                                                    padding: EdgeInsets.only(
-                                                        left: 10, right: 10),
-                                                    child: Text(
-                                                      controller
-                                                          .titleAbsen.value,
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: Constanst
-                                                          .colorRedBold,
-                                                    ),
-                                                  ),
-                                                ))
-                                    ],
-                                  )),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Row(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              flex: 10,
-                              child: Container(
-                                  alignment: Alignment.topCenter,
-                                  child: Icon(
-                                    Iconsax.calendar_2,
-                                    size: 24,
-                                    color: Constanst.colorPrimary,
-                                  )
-                                  // Image.asset(
-                                  //     "assets/ic_calender.png"),
-                                  ),
-                            ),
-                            Expanded(
-                              flex: 90,
-                              child: Padding(
-                                padding: EdgeInsets.only(left: 8, top: 3),
-                                child: Text(controller.dateNow.value,
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              flex: 20,
-                              child: Container(
-                                  alignment: Alignment.topCenter,
-                                  child: Icon(
-                                    Iconsax.location_tick,
-                                    size: 24,
-                                    color: Constanst.colorPrimary,
-                                  )
-                                  // Image.asset(
-                                  //     "assets/ic_location.png"),
-                                  ),
-                            ),
-                            Expanded(
-                                flex: 90,
-                                child: Padding(
-                                  padding:
-                                      const EdgeInsets.only(left: 8, top: 3),
-                                  child: Text("Tipe lokasi",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold)),
-                                )),
-                            Expanded(
-                              flex: 90,
-                              child: Padding(
-                                padding: EdgeInsets.only(left: 8),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                      borderRadius: Constanst.borderStyle2,
-                                      border: Border.all(
-                                          color: Constanst.colorText1)),
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(
-                                        left: 16, right: 16, top: 8, bottom: 8),
-                                    child: DropdownButtonHideUnderline(
-                                      child: DropdownButton<String>(
-                                        isDense: true,
-                                        items: controller
-                                            .placeCoordinateDropdown.value
-                                            .toSet()
-                                            .toList()
-                                            .map<DropdownMenuItem<String>>(
-                                                (String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(
-                                              value,
-                                              style: TextStyle(fontSize: 10),
-                                            ),
-                                          );
-                                        }).toList(),
-                                        value: controller.selectedType.value,
-                                        onChanged: (selectedValue) {
-                                          controller.selectedType.value =
-                                              selectedValue!;
-                                        },
-                                        isExpanded: true,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Expanded(
-                              flex: 25,
-                              child: Container(
-                                  alignment: Alignment.topCenter,
-                                  child: Icon(
-                                    Iconsax.note_1,
-                                    size: 24,
-                                    color: Constanst.colorPrimary,
-                                  )
-                                  // Image.asset("assets/ic_note.png"),
-                                  ),
-                            ),
-                            Expanded(
-                              flex: 90,
-                              child: Text("Catatan",
-                                  style:
-                                      TextStyle(fontWeight: FontWeight.bold)),
+                            Text(
+                              "Lokasi kamu saat ini",
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             SizedBox(
-                              height: 90,
+                              height: 10,
                             ),
-                            Expanded(
-                              flex: 90,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: Constanst.borderStyle2,
-                                    border: Border.all(
-                                        width: 1.0,
-                                        color: Color.fromARGB(
-                                            255, 211, 205, 205))),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 8),
-                                  child: TextField(
-                                    cursorColor: Colors.black,
-                                    controller: controller.deskripsiAbsen,
-                                    maxLines: null,
-                                    decoration: new InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: "Tambahkan Catatan"),
-                                    keyboardType: TextInputType.multiline,
-                                    textInputAction: TextInputAction.done,
-                                    style: TextStyle(
-                                        fontSize: 10.0,
-                                        height: 2.0,
-                                        color: Colors.black),
-                                  ),
-                                ),
+                            Container(
+                              width:
+                                  MediaQuery.of(Get.context!).size.width * 0.7,
+                              child: Text(
+                                controller.alamatUserFoto.value
+                                        .toString()
+                                        .substring(0, 50) +
+                                    '...',
+                                style: TextStyle(
+                                    fontSize: 12, color: Constanst.colorText2),
                               ),
                             ),
                           ],
-                        ),
-                        Container(
-                          width: MediaQuery.of(Get.context!).size.width,
-                          child: ElevatedButton(
-                            style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        Constanst.colorPrimary),
-                                foregroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        Colors.white),
-                                shape: MaterialStateProperty.all<
-                                        RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        side:
-                                            BorderSide(color: Colors.white)))),
-                            onPressed: () {
-                              controllerDashboard.widgetButtomSheetAktifCamera(
-                                  'checkTracking');
-                            },
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 12, bottom: 12),
-                              child: Text('OK, Absen sekarang'),
-                            ),
-                          ),
-                        ),
+                        )
                       ],
                     ),
                   ),
                 ),
               ),
             ),
-          )
-        ],
+            Padding(
+              padding: EdgeInsets.only(left: 10, right: 10),
+              child: Container(
+                width: MediaQuery.of(Get.context!).size.width,
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Obx(
+                    () => Padding(
+                      padding: const EdgeInsets.only(
+                          bottom: 20, left: 20, right: 20, top: 5),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              setState(() {
+                                panelController.close();
+                              });
+                            },
+                            child: Center(
+                              child: InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    panelController.close();
+                                  });
+                                },
+                                child: Icon(Icons.keyboard_arrow_down,
+                                    size: 30, color: Colors.grey),
+                              ),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 10,
+                                child: Container(
+                                    alignment: Alignment.topCenter,
+                                    child: Icon(
+                                      Iconsax.clock,
+                                      size: 24,
+                                      color: Constanst.colorPrimary,
+                                    )),
+                              ),
+                              Expanded(
+                                flex: 90,
+                                child: Padding(
+                                    padding: EdgeInsets.only(left: 8, top: 3),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                              controller.timeString.value,
+                                              style: TextStyle(
+                                                  fontWeight: FontWeight.bold)),
+                                        ),
+                                        Expanded(
+                                            child: widget.type == "1"
+                                                ? Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Color.fromARGB(
+                                                          156, 223, 253, 223),
+                                                      borderRadius: Constanst
+                                                          .borderStyle1,
+                                                    ),
+                                                    margin: EdgeInsets.only(
+                                                        left: 8),
+                                                    child: Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: 10, right: 10),
+                                                      child: Text(
+                                                        widget.status,
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: Constanst
+                                                            .colorGreenBold,
+                                                      ),
+                                                    ),
+                                                  )
+                                                : Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Color.fromARGB(
+                                                          156, 241, 171, 171),
+                                                      borderRadius: Constanst
+                                                          .borderStyle1,
+                                                    ),
+                                                    margin: EdgeInsets.only(
+                                                        left: 8),
+                                                    child: Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: 10, right: 10),
+                                                      child: Text(
+                                                        controller
+                                                            .titleAbsen.value,
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: Constanst
+                                                            .colorRedBold,
+                                                      ),
+                                                    ),
+                                                  ))
+                                      ],
+                                    )),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 10,
+                                child: Container(
+                                    alignment: Alignment.topCenter,
+                                    child: Icon(
+                                      Iconsax.calendar_2,
+                                      size: 24,
+                                      color: Constanst.colorPrimary,
+                                    )
+                                    // Image.asset(
+                                    //     "assets/ic_calender.png"),
+                                    ),
+                              ),
+                              Expanded(
+                                flex: 90,
+                                child: Padding(
+                                  padding: EdgeInsets.only(left: 8, top: 3),
+                                  child: Text(controller.dateNow.value,
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 20,
+                                child: Container(
+                                    alignment: Alignment.topCenter,
+                                    child: Icon(
+                                      Iconsax.location_tick,
+                                      size: 24,
+                                      color: Constanst.colorPrimary,
+                                    )
+                                    // Image.asset(
+                                    //     "assets/ic_location.png"),
+                                    ),
+                              ),
+                              Expanded(
+                                  flex: 90,
+                                  child: Padding(
+                                    padding:
+                                        const EdgeInsets.only(left: 8, top: 3),
+                                    child: Text("Tipe lokasi",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold)),
+                                  )),
+                              Expanded(
+                                flex: 90,
+                                child: Padding(
+                                  padding: EdgeInsets.only(left: 8),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                        borderRadius: Constanst.borderStyle2,
+                                        border: Border.all(
+                                            color: Constanst.colorText1)),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 16,
+                                          right: 16,
+                                          top: 8,
+                                          bottom: 8),
+                                      child: DropdownButtonHideUnderline(
+                                        child: DropdownButton<String>(
+                                          isDense: true,
+                                          items: controller
+                                              .placeCoordinateDropdown.value
+                                              .toSet()
+                                              .toList()
+                                              .map<DropdownMenuItem<String>>(
+                                                  (String value) {
+                                            return DropdownMenuItem<String>(
+                                              value: value,
+                                              child: Text(
+                                                value,
+                                                style: TextStyle(fontSize: 10),
+                                              ),
+                                            );
+                                          }).toList(),
+                                          value: controller.selectedType.value,
+                                          onChanged: (selectedValue) {
+                                            controller.selectedType.value =
+                                                selectedValue!;
+                                          },
+                                          isExpanded: true,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 25,
+                                child: Container(
+                                    alignment: Alignment.topCenter,
+                                    child: Icon(
+                                      Iconsax.note_1,
+                                      size: 24,
+                                      color: Constanst.colorPrimary,
+                                    )
+                                    // Image.asset("assets/ic_note.png"),
+                                    ),
+                              ),
+                              Expanded(
+                                flex: 90,
+                                child: Text("Catatan",
+                                    style:
+                                        TextStyle(fontWeight: FontWeight.bold)),
+                              ),
+                              SizedBox(
+                                height: 90,
+                              ),
+                              Expanded(
+                                flex: 90,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: Constanst.borderStyle2,
+                                      border: Border.all(
+                                          width: 1.0,
+                                          color: Color.fromARGB(
+                                              255, 211, 205, 205))),
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: TextField(
+                                      cursorColor: Colors.black,
+                                      controller: controller.deskripsiAbsen,
+                                      maxLines: null,
+                                      decoration: new InputDecoration(
+                                          border: InputBorder.none,
+                                          hintText: "Tambahkan Catatan"),
+                                      keyboardType: TextInputType.multiline,
+                                      textInputAction: TextInputAction.done,
+                                      style: TextStyle(
+                                          fontSize: 10.0,
+                                          height: 2.0,
+                                          color: Colors.black),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          Container(
+                            width: MediaQuery.of(Get.context!).size.width,
+                            child: ElevatedButton(
+                              style: ButtonStyle(
+                                  backgroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Constanst.colorPrimary),
+                                  foregroundColor:
+                                      MaterialStateProperty.all<Color>(
+                                          Colors.white),
+                                  shape: MaterialStateProperty.all<
+                                          RoundedRectangleBorder>(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                          side: BorderSide(
+                                              color: Colors.white)))),
+                              onPressed: () {
+                                controllerDashboard
+                                    .widgetButtomSheetAktifCamera(
+                                        'checkTracking');
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                    top: 12, bottom: 12, left: 20, right: 20),
+                                child: Text('OK, Absen sekarang'),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
 
   Widget _previewWidget() {
     return Container(
+      padding: EdgeInsets.only(bottom: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Container(
             padding: EdgeInsets.only(right: 10),
@@ -707,17 +721,15 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
                     ));
               },
               child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8.0),
-                ),
-                child: Padding(
-                    padding: EdgeInsets.all(5),
-                    child: Image.asset(
-                      "assets/radar.png",
-                      width: 25,
-                      height: 25,
-                    )),
-              ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8.0),
+                  ),
+                  child: Padding(
+                      padding: EdgeInsets.all(5),
+                      child: Icon(
+                        Iconsax.gps,
+                        color: HexColor('#868FA0'),
+                      ))),
             ),
           ),
           Padding(
@@ -780,72 +792,60 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
             child: Column(
               children: [
                 Card(
-                  child: Padding(
-                    padding: EdgeInsets.all(10),
-                    child: Column(
-                      children: [
-                        InkWell(
+                  child: Column(
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          panelController.open();
+                        },
+                        child: InkWell(
                           onTap: () {
                             panelController.open();
                           },
-                          child: InkWell(
-                            onTap: () {
-                              panelController.open();
-                            },
-                            child: Container(
-                              width: MediaQuery.of(context).size.width,
-                              child: Center(
-                                child: InkWell(
-                                  onTap: () {
-                                    panelController.open();
-                                  },
-                                  child: Container(
-                                    width:
-                                        MediaQuery.of(context).size.width / 4,
-                                    height: 5,
-                                    decoration: BoxDecoration(
-                                        color: Constanst.grey,
-                                        borderRadius:
-                                            BorderRadius.circular(20)),
-                                  ),
-                                ),
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            child: Center(
+                              child: InkWell(
+                                onTap: () {
+                                  panelController.open();
+                                },
+                                child: Icon(Icons.keyboard_arrow_up,
+                                    size: 30, color: Colors.grey),
                               ),
                             ),
                           ),
                         ),
-                        SizedBox(
-                          height: 10,
-                        ),
-                        Container(
-                          width: MediaQuery.of(Get.context!).size.width,
-                          child: ElevatedButton(
-                            style: ButtonStyle(
-                                backgroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        Constanst.colorPrimary),
-                                foregroundColor:
-                                    MaterialStateProperty.all<Color>(
-                                        Colors.white),
-                                shape: MaterialStateProperty.all<
-                                        RoundedRectangleBorder>(
-                                    RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        side:
-                                            BorderSide(color: Colors.white)))),
-                            onPressed: () {
-                              controllerDashboard.widgetButtomSheetAktifCamera(
-                                  'checkTracking');
-                            },
-                            child: Padding(
-                              padding:
-                                  const EdgeInsets.only(top: 12, bottom: 12),
-                              child: Text('OK, Absen sekarang'),
-                            ),
+                      ),
+                      // SizedBox(
+                      //   height: 10,
+                      // ),
+                      Container(
+                        padding:
+                            EdgeInsets.only(left: 20, right: 20, bottom: 10),
+                        width: MediaQuery.of(Get.context!).size.width,
+                        child: ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(
+                                  Constanst.colorPrimary),
+                              foregroundColor: MaterialStateProperty.all<Color>(
+                                  Colors.white),
+                              shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      side: BorderSide(color: Colors.white)))),
+                          onPressed: () {
+                            controllerDashboard
+                                .widgetButtomSheetAktifCamera('checkTracking');
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                top: 12, bottom: 12, left: 20, right: 20),
+                            child: Text('OK, Absen sekarang'),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
               ],
