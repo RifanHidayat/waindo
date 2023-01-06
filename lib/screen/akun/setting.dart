@@ -2,10 +2,12 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/setting_controller.dart';
 import 'package:siscom_operasional/screen/akun/edit_password.dart';
+import 'package:siscom_operasional/screen/akun/face_recognigration.dart';
 import 'package:siscom_operasional/screen/akun/info_karyawan.dart';
 import 'package:siscom_operasional/screen/akun/personal_info.dart';
 import 'package:siscom_operasional/screen/akun/pusat_bantuan.dart';
@@ -93,7 +95,7 @@ class _SettingState extends State<Setting> {
                                   child: lineInfoPengguna(),
                                 ),
                                 Text(
-                                  "Keamanan",
+                                  "Pengaturan",
                                   style: TextStyle(
                                       fontSize: 14,
                                       color: Constanst.colorText1),
@@ -102,6 +104,11 @@ class _SettingState extends State<Setting> {
                                   padding: EdgeInsets.only(
                                       left: 8, right: 5, top: 15),
                                   child: lineKeamananAkun(),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 8, right: 5, top: 15),
+                                  child: faceRegistration(),
                                 ),
                                 Text(
                                   "Lainnya",
@@ -413,6 +420,85 @@ class _SettingState extends State<Setting> {
                             "Ubah Kata Sandi",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 12),
+                          ),
+                        ),
+                      )
+                    ],
+                  )),
+              Expanded(
+                flex: 10,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 5),
+                  child: Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    size: 16,
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Divider(
+          height: 10,
+          color: Constanst.colorNonAktif,
+        ),
+        SizedBox(
+          height: 15,
+        ),
+      ],
+    );
+  }
+
+  Widget faceRegistration() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        InkWell(
+          onTap: () => Get.to(FaceRecognition()),
+          highlightColor: Colors.white,
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                  flex: 90,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Image.asset(
+                        "assets/face-recognition-hitam.png",
+                        width: 20,
+                        height: 20,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(left: 10),
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 5),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Data Wajah",
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 12),
+                              ),
+                              SizedBox(
+                                height: 5,
+                              ),
+                              GetStorage().read('face_reco') == false
+                                  ? Text(
+                                      "Belum Registrasi",
+                                      style: TextStyle(
+                                          fontSize: 12, color: Colors.red),
+                                    )
+                                  : Text(
+                                      "Sudah Registrasi",
+                                      style: TextStyle(
+                                          fontSize: 12, color: Colors.blue),
+                                    ),
+                            ],
                           ),
                         ),
                       )

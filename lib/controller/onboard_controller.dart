@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/screen/login.dart';
 import 'package:siscom_operasional/utils/api.dart';
@@ -10,6 +12,8 @@ import 'package:siscom_operasional/utils/widget_utils.dart';
 
 class OnboardController extends GetxController {
   var deviceStatus = false.obs;
+
+  final AbsenController abseController = Get.put(AbsenController());
 
   var loading = false.obs;
 
@@ -22,6 +26,7 @@ class OnboardController extends GetxController {
   void onInit() async {
     getSizeDevice();
     super.onInit();
+    iniFaceRecog(); 
   }
 
   void getSizeDevice() {
@@ -94,5 +99,13 @@ class OnboardController extends GetxController {
         }
       }
     });
+  }
+
+  void iniFaceRecog() async {
+    final box = GetStorage();
+    if (box.read('face_recog') == false) {
+    } else {
+      abseController.widgetButtomSheetFaceRegistrattion();
+    }
   }
 }
