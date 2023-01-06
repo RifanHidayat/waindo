@@ -46,6 +46,7 @@ class _DashboardState extends State<Dashboard> {
     controller.refreshPagesStatus.value = true;
     await Future.delayed(Duration(seconds: 2));
     setState(() {
+      controllerAbsensi.employeDetail();
       controller.updateInformasiUser();
       controller.onInit();
     });
@@ -88,7 +89,11 @@ class _DashboardState extends State<Dashboard> {
                   SizedBox(
                     height: 20,
                   ),
-                  cardInfoAbsen(),
+                  InkWell(
+                      onTap: () {
+                        // widgetButtomSheetFaceRegistrattion();
+                      },
+                      child: cardInfoAbsen()),
                   SizedBox(
                     height: 20,
                   ),
@@ -619,7 +624,8 @@ class _DashboardState extends State<Dashboard> {
                                   });
                                 });
                               } else {
-                                widgetButtomSheetFaceRegistrattion();
+                                controllerAbsensi
+                                    .widgetButtomSheetFaceRegistrattion();
                               }
                             }
                           },
@@ -690,7 +696,8 @@ class _DashboardState extends State<Dashboard> {
                                 //   });
                                 // }
                               } else {
-                                widgetButtomSheetFaceRegistrattion();
+                                controllerAbsensi
+                                    .widgetButtomSheetFaceRegistrattion();
                               }
                             }
                           },
@@ -1294,127 +1301,5 @@ class _DashboardState extends State<Dashboard> {
         updateButtonText: "Update Sekarang",
         dismissButtonText: "Skip");
     print("status ${status.localVersion}");
-  }
-
-  void widgetButtomSheetFaceRegistrattion() {
-    showModalBottomSheet(
-      context: Get.context!,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(5.0),
-        ),
-      ),
-      builder: (context) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              height: 30,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 16, right: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Text(
-                        "Tambahkan Data Wajah",
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      InkWell(
-                          onTap: () {
-                            Get.back();
-                          },
-                          child: Icon(Icons.close))
-                    ],
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Text(
-                    "Pastikan wajah Kamu tidak tertutup dan terlihat jelas. Kamu juga harus berada di ruangan dengan penerangan yang cukup.",
-                    style: TextStyle(fontSize: 11),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Image.asset(
-                    "assets/face-recognition-icon.png",
-                    width: 50,
-                    height: 50,
-                  ),
-                  SizedBox(
-                    height: 15,
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                        color: HexColor('#E9F5FE'),
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          width: 1,
-                          color: HexColor('#2F80ED'),
-                        )),
-                    padding:
-                        EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 5,
-                          child: Icon(
-                            Icons.info_outline,
-                            color: HexColor('#2F80ED'),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 15,
-                        ),
-                        Expanded(
-                          flex: 60,
-                          child: Text(
-                            "Aplikasi ini memerlukan akses pada kamera dan lokasi pada perangkat Anda",
-                            textAlign: TextAlign.left,
-                            style: TextStyle(fontSize: 12),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(
-                    height: 10,
-                  ),
-                  TextButtonWidget(
-                    title: "Mulai",
-                    onTap: () async {
-                      controllerAbsensi.facedDetection(status: "registration");
-                      // Get.to(FaceRecognitionView());
-                      // if (type == "checkTracking") {
-                      //   print('kesini');
-                      //   controllerAbsensi.kirimDataAbsensi();
-                      // } else {
-                      //   Navigator.pop(context);
-                      //   await Permission.camera.request();
-                      //   await Permission.location.request();
-                      // }
-                    },
-                    colorButton: Constanst.colorButton1,
-                    colortext: Constanst.colorWhite,
-                    border: BorderRadius.circular(15.0),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(
-              height: 30,
-            )
-          ],
-        );
-      },
-    );
   }
 }

@@ -341,6 +341,8 @@ class CutiController extends GetxController {
     var dataUser = AppData.informasiUser;
     var getDepGroup = dataUser![0].dep_group;
     var full_name = dataUser[0].full_name;
+
+    
     Map<String, dynamic> body = {'val': 'dep_group_id', 'cari': getDepGroup};
     var connect = Api.connectionApi("post", body, "whereOnce-employee");
     connect.then((dynamic res) {

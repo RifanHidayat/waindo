@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:iconsax/iconsax.dart';
 import 'dart:async';
 import 'dart:convert';
@@ -26,6 +27,7 @@ import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/custom_dialog.dart';
 import 'package:siscom_operasional/utils/month_year_picker.dart';
+import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 import 'package:google_maps_utils/google_maps_utils.dart';
 import 'package:syncfusion_flutter_datepicker/datepicker.dart';
@@ -461,7 +463,6 @@ class AbsenController extends GetxController {
   }
 
   void detection({file, type, status}) async {
-   
     UtilsAlert.showLoadingIndicator(Get.context!);
 
     try {
@@ -624,7 +625,7 @@ class AbsenController extends GetxController {
               }
               this.intervalControl.refresh();
               print("dapat interval ${intervalControl.value}");
-             Navigator.pop(Get.context!);
+              Navigator.pop(Get.context!);
               Get.to(BerhasilAbsensi(
                 dataBerhasil: [
                   titleAbsen.value,
@@ -1838,5 +1839,154 @@ class AbsenController extends GetxController {
     // }).catchError((e) {
     //   UtilsAlert.showToast('${e}');
     // });
+  }
+
+  void employeDetail() {
+    UtilsAlert.showLoadingIndicator(Get.context!);
+    var dataUser = AppData.informasiUser;
+    final box = GetStorage();
+
+    var id = dataUser![0].em_id;
+
+    Map<String, dynamic> body = {'val': 'em_id', 'cari': id};
+    var connect = Api.connectionApi("post", body, "whereOnce-employee");
+    connect.then((dynamic res) {
+      if (res == false) {
+        UtilsAlert.koneksiBuruk();
+      } else {
+        if (res.statusCode == 200) {
+          var valueBody = jsonDecode(res.body);
+          var data = valueBody['data'];
+          if (data[0]['face_recog'] == "" || data[0]['face_recog'] == null) {
+            box.write("face_recog", false);
+          } else {
+            box.write("face_recog", true);
+          }
+        }
+        Get.back();
+      }
+    });
+  }
+
+    void widgetButtomSheetFaceRegistrattion() {
+    showModalBottomSheet(
+      context: Get.context!,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(5.0),
+        ),
+      ),
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 30,
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 16, right: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        "Tambahkan Data Wajah",
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      InkWell(
+                          onTap: () {
+                            Get.back();
+                          },
+                          child: Icon(Icons.close))
+                    ],
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  Text(
+                    "Pastikan wajah Kamu tidak tertutup dan terlihat jelas. Kamu juga harus berada di ruangan dengan penerangan yang cukup.",
+                    style: TextStyle(fontSize: 11),
+                    textAlign: TextAlign.center,
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Image.asset(
+                    "assets/face-recognition-icon.png",
+                    width: 50,
+                    height: 50,
+                  ),
+                  SizedBox(
+                    height: 15,
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                        color: HexColor('#E9F5FE'),
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          width: 1,
+                          color: HexColor('#2F80ED'),
+                        )),
+                    padding:
+                        EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: Icon(
+                            Icons.info_outline,
+                            color: HexColor('#2F80ED'),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 15,
+                        ),
+                        Expanded(
+                          flex: 60,
+                          child: Text(
+                            "Aplikasi ini memerlukan akses pada kamera dan lokasi pada perangkat Anda",
+                            textAlign: TextAlign.left,
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  ),
+                  TextButtonWidget(
+                    title: "Mulai",
+                    onTap: () async {
+                      facedDetection(status: "registration");
+                      // Get.to(FaceRecognitionView());
+                      // if (type == "checkTracking") {
+                      //   print('kesini');
+                      //   controllerAbsensi.kirimDataAbsensi();
+                      // } else {
+                      //   Navigator.pop(context);
+                      //   await Permission.camera.request();
+                      //   await Permission.location.request();
+                      // }
+                    },
+                    colorButton: Constanst.colorButton1,
+                    colortext: Constanst.colorWhite,
+                    border: BorderRadius.circular(15.0),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 30,
+            )
+          ],
+        );
+      },
+    );
   }
 }

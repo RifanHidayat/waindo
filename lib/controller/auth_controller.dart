@@ -196,4 +196,26 @@ class AuthController extends GetxController {
       }
     });
   }
+
+  // Future<bool>? verifyPassword() async {
+  //   final box = GetStorage();
+
+  //   UtilsAlert.showLoadingIndicator(Get.context!);
+  //   Map<String, dynamic> body = {
+  //     'email': email.value.text,
+  //     'password': password.value.text,
+  //   };
+  //   var connect = Api.connectionApi("post", body, "validasiLogin");
+  //   connect.then((dynamic res) {
+  //     var valueBody = jsonDecode(res.body);
+  //     if (valueBody['status'] == false) {
+  //       UtilsAlert.showToast(valueBody['message']);
+  //       Navigator.pop(Get.context!);
+  //       return false;
+  //     } else {
+  //       return true;
+  //     }
+  //   });
+  //   return false;
+  // }
 }
