@@ -107,7 +107,7 @@ class _SettingState extends State<Setting> {
                                 ),
                                 Padding(
                                   padding: EdgeInsets.only(
-                                      left: 8, right: 5, top: 15),
+                                      left: 8, right: 5, top: 0),
                                   child: faceRegistration(),
                                 ),
                                 Text(
@@ -469,8 +469,8 @@ class _SettingState extends State<Setting> {
                     children: [
                       Image.asset(
                         "assets/face-recognition-hitam.png",
-                        width: 20,
-                        height: 20,
+                        width: 24,
+                        height: 24,
                       ),
                       Padding(
                         padding: EdgeInsets.only(left: 10),
@@ -487,7 +487,7 @@ class _SettingState extends State<Setting> {
                               SizedBox(
                                 height: 5,
                               ),
-                              GetStorage().read('face_reco') == false
+                              GetStorage().read('face_recog') == false
                                   ? Text(
                                       "Belum Registrasi",
                                       style: TextStyle(
