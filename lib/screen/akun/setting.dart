@@ -107,7 +107,7 @@ class _SettingState extends State<Setting> {
                                 ),
                                 Padding(
                                   padding: EdgeInsets.only(
-                                      left: 8, right: 5, top: 15),
+                                      left: 8, right: 5, top: 0),
                                   child: faceRegistration(),
                                 ),
                                 Text(
@@ -460,7 +460,7 @@ class _SettingState extends State<Setting> {
           onTap: () => Get.to(FaceRecognition()),
           highlightColor: Colors.white,
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
                   flex: 90,
@@ -469,25 +469,25 @@ class _SettingState extends State<Setting> {
                     children: [
                       Image.asset(
                         "assets/face-recognition-hitam.png",
-                        width: 20,
-                        height: 20,
+                        width: 24,
+                        height: 24,
                       ),
                       Padding(
                         padding: EdgeInsets.only(left: 10),
                         child: Padding(
-                          padding: const EdgeInsets.only(top: 5),
+                          padding: const EdgeInsets.only(top: 0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                "Data Wajah",
+                                "Data Pengenalan Wajah",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 12),
                               ),
                               SizedBox(
-                                height: 5,
+                                height: 3,
                               ),
-                              GetStorage().read('face_reco') == false
+                              GetStorage().read('face_recog') == false
                                   ? Text(
                                       "Belum Registrasi",
                                       style: TextStyle(

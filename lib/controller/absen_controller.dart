@@ -1868,7 +1868,7 @@ class AbsenController extends GetxController {
     });
   }
 
-    void widgetButtomSheetFaceRegistrattion() {
+  void widgetButtomSheetFaceRegistrattion() {
     showModalBottomSheet(
       context: Get.context!,
       shape: const RoundedRectangleBorder(
@@ -1949,7 +1949,7 @@ class AbsenController extends GetxController {
                         Expanded(
                           flex: 60,
                           child: Text(
-                            "Aplikasi ini memerlukan akses pada kamera dan lokasi pada perangkat Anda",
+                            "Data wajah ini akan digunakan setiap kali Kamu melakukan Absen Masuk dan Keluar.",
                             textAlign: TextAlign.left,
                             style: TextStyle(fontSize: 12),
                           ),
