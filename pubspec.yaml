@@ -70,7 +70,10 @@ dependencies:
   persistent_bottom_nav_bar: ^4.0.2
   dots_indicator: ^2.1.0
   geocoding: ^2.0.2
+  google_mlkit_face_detection: ^0.5.0
   geolocator: ^9.0.2
+
+  camera: ^0.9.4+21
   trust_location: ^2.0.13
   modal_bottom_sheet: ^2.0.0
   cached_network_image: ^3.2.1
@@ -91,6 +94,9 @@ dependencies:
   html_editor_enhanced: ^2.0.0
   draggable_home: ^1.0.4
   draggable_bottom_sheet: ^1.0.2
+  native_screenshot: ^1.0.0
+  screen_capture_event: ^1.1.1
+  screenshot:
   new_version_plus:
 
   # system_alert_window: ^1.1.2

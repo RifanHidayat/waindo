@@ -126,7 +126,8 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
                             .toList());
                         controller.getPosisition();
                         mapController?.animateCamera(
-                            CameraUpdate.SinewCameraPosition(CameraPosition(
+                            CameraUpdate.newCameraPosition(
+                                CameraPosition(
                                     target: LatLng(controller.latUser.value,
                                         controller.langUser.value),
                                     zoom: 20)
@@ -299,8 +300,7 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
                     onTap: () {
                       controller.getPosisition();
                       mapController?.animateCamera(
-                          CameraUpdate.SinewCameraPosition(
-                              CameraPosition(
+                          CameraUpdate.newCameraPosition(CameraPosition(
                                   target: LatLng(controller.latUser.value,
                                       controller.langUser.value),
                                   zoom: 20)
@@ -711,7 +711,7 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
             child: InkWell(
               onTap: () {
                 controller.getPosisition();
-                mapController?.animateCamera(CameraUpdate.SinewCameraPosition(
+                mapController?.animateCamera(CameraUpdate.newCameraPosition(
                     CameraPosition(
                         target: LatLng(controller.latUser.value,
                             controller.langUser.value),

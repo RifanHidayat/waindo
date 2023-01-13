@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:geolocator/geolocator.dart';
@@ -33,9 +34,11 @@ import 'package:percent_indicator/percent_indicator.dart';
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
+ late List<CameraDescription> cameras;
 
 void main() async {
   await GetStorage.init();
+  cameras = await availableCameras();
 
   WidgetsFlutterBinding.ensureInitialized();
   LocalStorage.prefs = await SharedPreferences.getInstance();

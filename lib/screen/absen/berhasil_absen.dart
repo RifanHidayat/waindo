@@ -199,6 +199,8 @@ class _BerhasilAbsensiState extends State<BerhasilAbsensi> {
         _userLocation = await location.getLocation();
         print(
             'lat ${_userLocation!.latitude} long ${_userLocation!.longitude}');
+
+            
         controllerBerhasil.getPosisition(AppData.informasiUser![0].em_id,
             getJam, tanggal, _userLocation!.latitude, _userLocation!.longitude);
 

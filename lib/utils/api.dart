@@ -16,7 +16,7 @@ class Api {
   static var UrlgambarDashboard = basicUrl + "gambar_dashboard/";
   static var UrlfileCuti = basicUrl + "file_cuti/";
   static var UrlfileKlaim = basicUrl + "file_klaim/";
-  static var UrlfileTidakhadir = basicUrl + "file_tidak_masuk_kerja/";
+  static var UrlfileTidakhadir = basicUrl + "file_tidak_masuk_ke rja/";
   static var urlGambarDariFinance = basicUrl + "gambar_banner/";
   static var urlFilePermintaanKandidat = basicUrl + "file_permintaan_kandidat/";
   static var urlFileKandidat = basicUrl + "file_kandidat/";
