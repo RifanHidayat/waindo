@@ -19,9 +19,12 @@ import 'package:intl/intl.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/model/absen_model.dart';
 import 'package:siscom_operasional/screen/absen/absen_masuk_keluar.dart';
+import 'package:siscom_operasional/screen/absen/absen_verify_password.dart';
 import 'package:siscom_operasional/screen/absen/berhasil_absen.dart';
 import 'package:siscom_operasional/screen/absen/berhasil_registrasi.dart';
 import 'package:siscom_operasional/screen/absen/detail_absen.dart';
+import 'package:siscom_operasional/screen/absen/face_id_registration.dart';
+import 'package:siscom_operasional/screen/absen/facee_id_detection.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
@@ -101,6 +104,7 @@ class AbsenController extends GetxController {
   var filterLaporanAbsenTanggal = false.obs;
 
   var absenStatus = false.obs;
+  var gagalAbsen = 0.obs;
 
   @override
   void onReady() async {
@@ -368,6 +372,53 @@ class AbsenController extends GetxController {
   }
 
   void absenSelfie() async {
+    // // absenSelfie();
+    timeString.value = formatDateTime(DateTime.now());
+    dateNow.value = dateNoww(DateTime.now());
+    tanggalUserFoto.value = dateNoww2(DateTime.now());
+    imageStatus.refresh();
+    timeString.refresh();
+    dateNow.refresh();
+    getPosisition();
+
+    // Get.to(AbsenMasukKeluar(
+    //   status: status,
+    //   type: type.toString(),
+    // ));
+    gagalAbsen.value = 0;
+    // // final getFoto = await ImagePicker().pickImage(
+    // //     source: ImageSource.camera,
+    // //     preferredCameraDevice: CameraDevice.front,
+    // //     imageQuality: 100,
+    // //     maxHeight: 350,
+    // //     maxWidth: 350);
+    // // if (getFoto == null) {
+    // //   UtilsAlert.showToast("Gagal mengambil gambar");
+    // // } else {
+    // // fotoUser.value = File(getFoto.path);
+    // // var bytes = File(getFoto.path).readAsBytesSync();
+    // // base64fotoUser.value = base64Encode(bytes);
+    // timeString.value = formatDateTime(DateTime.now());
+    // dateNow.value = dateNoww(DateTime.now());
+    // imageStatus.value = true;
+    // tanggalUserFoto.value = dateNoww2(DateTime.now());
+    // this.imageStatus.refresh();
+    // this.timeString.refresh();
+    // this.dateNow.refresh();
+    // // this.base64fotoUser.refresh();
+    // // this.fotoUser.refresh();
+    // getPosisition();
+    // // }
+    // Get.to(AbsenMasukKeluar());
+  }
+
+  void facedDetection({required status, absenStatus, type, img}) async {
+    if (status == "registration") {
+      print("registration");
+      saveFaceregistration(img);
+    } else {
+      detection(file: img, status: absenStatus, type: type);
+    }
     // final getFoto = await ImagePicker().pickImage(
     //     source: ImageSource.camera,
     //     preferredCameraDevice: CameraDevice.front,
@@ -377,41 +428,19 @@ class AbsenController extends GetxController {
     // if (getFoto == null) {
     //   UtilsAlert.showToast("Gagal mengambil gambar");
     // } else {
-    // fotoUser.value = File(getFoto.path);
-    // var bytes = File(getFoto.path).readAsBytesSync();
-    // base64fotoUser.value = base64Encode(bytes);
-    timeString.value = formatDateTime(DateTime.now());
-    dateNow.value = dateNoww(DateTime.now());
-    imageStatus.value = true;
-    tanggalUserFoto.value = dateNoww2(DateTime.now());
-    this.imageStatus.refresh();
-    this.timeString.refresh();
-    this.dateNow.refresh();
-    // this.base64fotoUser.refresh();
-    // this.fotoUser.refresh();
-    getPosisition();
+    //   print(getFoto.path);
+    //   // fotoUser.value = File(getFoto.toString());
+    //   if (status == "registration") {
+    //     print("registration");
+    //     var bytes = File(getFoto.path).readAsBytesSync();
+    //     base64fotoUser.value = base64Encode(bytes);
+    //     saveFaceregistration(base64fotoUser.value);
+    //   } else {
+    //     var bytes = File(getFoto.path).readAsBytesSync();
+    //     base64fotoUser.value = base64Encode(bytes);
+    //     detection(file: base64fotoUser.value, status: absenStatus, type: type);
+    //   }
     // }
-    Get.to(AbsenMasukKeluar());
-  }
-
-  void facedDetection({required status, absenStatus, type}) async {
-    final getFoto = await ImagePicker().pickImage(
-        source: ImageSource.camera,
-        preferredCameraDevice: CameraDevice.front,
-        imageQuality: 100,
-        maxHeight: 350,
-        maxWidth: 350);
-    if (getFoto == null) {
-      UtilsAlert.showToast("Gagal mengambil gambar");
-    } else {
-      // fotoUser.value = File(getFoto.toString());
-      if (status == "registration") {
-        print("registration");
-        saveFaceregistration(getFoto.path);
-      } else {
-        detection(file: getFoto.path, status: absenStatus, type: type);
-      }
-    }
   }
 
   void saveFaceregistration(file) async {
@@ -428,6 +457,7 @@ class AbsenController extends GetxController {
       };
       Map<String, String> body = {
         'em_id': getEmpId.toString(),
+        // 'image': file.toString()
       };
       var request = http.MultipartRequest(
         "POST",
@@ -439,7 +469,7 @@ class AbsenController extends GetxController {
       request.headers.addAll(headers);
 
       // if (fotoUser.value != null) {
-      var picture = await http.MultipartFile.fromPath('file', file,
+      var picture = await http.MultipartFile.fromPath('file', file.toString(),
           contentType: MediaType('image', 'jpg'));
       request.files.add(picture);
       // }
@@ -449,6 +479,8 @@ class AbsenController extends GetxController {
       print(respStr.toString());
       if (res['status'] == true) {
         box.write("face_recog", true);
+        gagalAbsen.value = gagalAbsen.value;
+
         Get.to(BerhasilRegistration());
       } else {
         Get.back();
@@ -465,12 +497,16 @@ class AbsenController extends GetxController {
   void detection({file, type, status}) async {
     UtilsAlert.showLoadingIndicator(Get.context!);
 
+    print("fil path ${file}");
+
     try {
       var dataUser = AppData.informasiUser;
       var getEmpId = dataUser![0].em_id;
+      print(getEmpId);
       print(getEmpId.toString());
       Map<String, String> body = {
-        'em_id': getEmpId.toString(),
+        'em_id': "SIS202210039",
+        // 'image': file.toString()
       };
       Map<String, String> headers = {
         'Authorization': Api.basicAuth,
@@ -487,7 +523,7 @@ class AbsenController extends GetxController {
 
       // if (fotoUser.value != null) {
       var picture = await http.MultipartFile.fromPath('file', file,
-          contentType: MediaType('image', 'jpg'));
+          contentType: MediaType('image', 'jpeg'));
       request.files.add(picture);
       //  }
       var response = await request.send();
@@ -510,6 +546,7 @@ class AbsenController extends GetxController {
         //   status: status,
         //   type: type.toString(),
         // ));
+        gagalAbsen.value = 0;
         Get.back();
         Navigator.push(
           Get.context!,
@@ -522,10 +559,26 @@ class AbsenController extends GetxController {
 
         UtilsAlert.showToast(res['message']);
       } else {
-        Get.back();
+        gagalAbsen.value = gagalAbsen.value + 1;
         UtilsAlert.showToast(res['message']);
+        print("status ${titleAbsen.value}");
+        if (gagalAbsen.value > 3) {
+          Get.back();
+          Get.off(AbsenVrifyPassword(
+            status: status,
+            type: type.toString(),
+          ));
+        } else {
+          print("titleAbsen.value");
+          UtilsAlert.showToast(res['message']);
+          Get.to(FaceDetectorView(
+            status: status == "Absent Masuk" ? "masuk" : "keluar",
+          ));
+        }
       }
     } on Exception catch (e) {
+      print(e.toString());
+      Get.back();
       UtilsAlert.showToast(e.toString());
       throw e;
     }
@@ -1963,7 +2016,10 @@ class AbsenController extends GetxController {
                   TextButtonWidget(
                     title: "Mulai",
                     onTap: () async {
-                      facedDetection(status: "registration");
+                      Get.to(FaceidRegistration(
+                        status: "registration",
+                      ));
+                      // facedDetection(status: "registration");
                       // Get.to(FaceRecognitionView());
                       // if (type == "checkTracking") {
                       //   print('kesini');
