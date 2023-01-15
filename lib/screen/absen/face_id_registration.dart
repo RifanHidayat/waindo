@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 
 import 'package:siscom_operasional/controller/absen_controller.dart';
+import 'package:siscom_operasional/screen/absen/camera_view_register.dart';
 
 import 'camera_view.dart';
 
@@ -38,6 +39,8 @@ class _FaceidRegistrationState extends State<FaceidRegistration> {
   var isSent = false;
   ScreenshotController screenshotController = ScreenshotController();
 
+  var isCompatible=true;
+
   File? img;
 
   @override
@@ -45,6 +48,7 @@ class _FaceidRegistrationState extends State<FaceidRegistration> {
     _canProcess = false;
     _faceDetector.close();
     super.dispose();
+   
   }
 
   @override
@@ -56,14 +60,13 @@ class _FaceidRegistrationState extends State<FaceidRegistration> {
           )
         : Screenshot(
             controller: screenshotController,
-            child: CameraView(
+            child: CameraViewRegister(
               percentIndicator: blinkEye,
               title: 'Face Detector',
               customPaint: _customPaint,
               status: widget.status,
               text: _text,
               onImage: (inputImage) {
-                print(inputImage.filePath);
                 processImage(inputImage);
               },
               initialDirection: CameraLensDirection.front,
@@ -72,13 +75,23 @@ class _FaceidRegistrationState extends State<FaceidRegistration> {
   }
 
   Future<void> processImage(InputImage inputImage) async {
-    if (!_canProcess) return;
-    if (_isBusy) return;
+    if (!_canProcess) {
+      
+  
+    }
+    ;
+    if (_isBusy) {
+     
+      return;
+    }
+    ;
     _isBusy = true;
-
     final List<Face> faces = await _faceDetector.processImage(inputImage);
     if (faces.isNotEmpty) {
-      _isBusy = false;
+    setState(() {
+            isCompatible=false;
+            });
+   
     }
     for (Face face in faces) {
       // If classification was enabled with FaceDetectorOptions:

@@ -13,15 +13,14 @@ import 'package:screenshot/screenshot.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 
 import 'package:siscom_operasional/main.dart';
-import 'package:siscom_operasional/screen/absen/absen_verify_password.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 
 enum ScreenMode { liveFeed, gallery }
 
 final AbsenController absenControllre = Get.put(AbsenController());
 
-class CameraView extends StatefulWidget {
-  CameraView(
+class CameraViewRegister extends StatefulWidget {
+  CameraViewRegister(
       {Key? key,
       required this.title,
       required this.customPaint,
@@ -30,8 +29,9 @@ class CameraView extends StatefulWidget {
       this.onScreenModeChanged,
       this.status,
       required this.percentIndicator,
-      this.isCompatible=true,
+       this.isCompatible=true,
       this.initialDirection = CameraLensDirection.back})
+     
       : super(key: key);
 
   final String title;
@@ -46,10 +46,10 @@ class CameraView extends StatefulWidget {
   var isCompatible;
 
   @override
-  State<CameraView> createState() => _CameraViewState();
+  State<CameraViewRegister> createState() => _CameraViewState();
 }
 
-class _CameraViewState extends State<CameraView> {
+class _CameraViewState extends State<CameraViewRegister> {
   ScreenMode _mode = ScreenMode.liveFeed;
   CameraController? _controller;
   File? _image;
@@ -249,7 +249,7 @@ class _CameraViewState extends State<CameraView> {
                     progressColor: Constanst.colorPrimary,
                   ),
                 ),
-               widget.isCompatible==true? Positioned(
+              widget.isCompatible==true?  Positioned(
                     bottom: 10,
                     child: Container(
                       width: MediaQuery.of(context).size.width - 20,
@@ -272,7 +272,7 @@ class _CameraViewState extends State<CameraView> {
                               Expanded(
                                 flex: 50,
                                 child: Text(
-                                  "Hpmu tidak kompatibel dengan fitur ini",
+                                  "Hpmu tidak kompatibel dengan fitur ini,ambil foto untuk melakukan reegistrasi",
                                   style: TextStyle(
                                       color: Colors.white, fontSize: 12),
                                 ),
@@ -288,16 +288,18 @@ class _CameraViewState extends State<CameraView> {
                           InkWell(
                             onTap: () {
                               Get.back();
-                              Get.to(AbsenVrifyPassword(
-                                status: widget.status,
-                                type: widget.status == "masuk" ? "1" : "2",
-                              ));
+                              _controller!.dispose();
+                              _controller!.stopImageStream();
+                              absenControllre.facedDetection(
+                                  status: "registration",
+                                  absenStatus: widget.status,
+                                  takePicturer: "1");
                             },
                             child: Container(
                               padding: EdgeInsets.only(left: 10, right: 10),
                               child: Center(
                                 child: Text(
-                                  "Absen Dengan Password",
+                                  "Ambil Photo",
                                   style: TextStyle(color: Colors.white),
                                 ),
                               ),

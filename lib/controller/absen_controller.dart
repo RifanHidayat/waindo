@@ -412,35 +412,37 @@ class AbsenController extends GetxController {
     // Get.to(AbsenMasukKeluar());
   }
 
-  void facedDetection({required status, absenStatus, type, img}) async {
-    if (status == "registration") {
-      print("registration");
-      saveFaceregistration(img);
+  void facedDetection(
+      {required status, absenStatus, type, img, takePicturer = 0}) async {
+    if (takePicturer == "0") {
+      if (status == "registration") {
+        print("registration");
+        saveFaceregistration(img);
+      } else {
+        detection(file: img, status: absenStatus, type: type);
+      }
     } else {
-      detection(file: img, status: absenStatus, type: type);
+      //  Get.back();
+      final getFoto = await ImagePicker().pickImage(
+          source: ImageSource.camera,
+          preferredCameraDevice: CameraDevice.front,
+          imageQuality: 100,
+          maxHeight: 350,
+          maxWidth: 350);
+      if (getFoto == null) {
+        UtilsAlert.showToast("Gagal mengambil gambar");
+      } else {
+        print(getFoto.path);
+        // fotoUser.value = File(getFoto.toString());
+        if (status == "registration") {
+          print("registration");
+
+          saveFaceregistration(getFoto.path);
+        } else {
+          detection(file: getFoto.path, status: absenStatus, type: type);
+        }
+      }
     }
-    // final getFoto = await ImagePicker().pickImage(
-    //     source: ImageSource.camera,
-    //     preferredCameraDevice: CameraDevice.front,
-    //     imageQuality: 100,
-    //     maxHeight: 350,
-    //     maxWidth: 350);
-    // if (getFoto == null) {
-    //   UtilsAlert.showToast("Gagal mengambil gambar");
-    // } else {
-    //   print(getFoto.path);
-    //   // fotoUser.value = File(getFoto.toString());
-    //   if (status == "registration") {
-    //     print("registration");
-    //     var bytes = File(getFoto.path).readAsBytesSync();
-    //     base64fotoUser.value = base64Encode(bytes);
-    //     saveFaceregistration(base64fotoUser.value);
-    //   } else {
-    //     var bytes = File(getFoto.path).readAsBytesSync();
-    //     base64fotoUser.value = base64Encode(bytes);
-    //     detection(file: base64fotoUser.value, status: absenStatus, type: type);
-    //   }
-    // }
   }
 
   void saveFaceregistration(file) async {
@@ -569,6 +571,7 @@ class AbsenController extends GetxController {
             type: type.toString(),
           ));
         } else {
+          Get.back();
           print("titleAbsen.value");
           UtilsAlert.showToast(res['message']);
           Get.to(FaceDetectorView(

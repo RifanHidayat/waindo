@@ -594,6 +594,7 @@ class _DashboardState extends State<Dashboard> {
                                           controller.validasiAbsenMasukUser();
                                       if (!validasiAbsenMasukUser) {
                                       } else {
+                                        controllerAbsensi.typeAbsen.value = 1;
                                         Get.to(FaceDetectorView(
                                           status: "masuk",
                                         ));
@@ -664,10 +665,9 @@ class _DashboardState extends State<Dashboard> {
                                 controllerAbsensi.getPlaceCoordinate();
                                 controllerAbsensi.titleAbsen.value =
                                     "Absen Keluar";
-
                                 controllerAbsensi.typeAbsen.value = 2;
                                 Get.to(FaceDetectorView(
-                                  status: "masuk",
+                                  status: "keluar",
                                 ));
 
                                 // controllerAbsensi.facedDetection(
