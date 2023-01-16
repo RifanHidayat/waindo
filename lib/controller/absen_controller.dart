@@ -413,7 +413,7 @@ class AbsenController extends GetxController {
   }
 
   void facedDetection(
-      {required status, absenStatus, type, img, takePicturer = 0}) async {
+      {required status, absenStatus, type, img, takePicturer = "0"}) async {
     if (takePicturer == "0") {
       if (status == "registration") {
         print("registration");

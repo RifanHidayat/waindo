@@ -30,7 +30,7 @@ class CameraView extends StatefulWidget {
       this.onScreenModeChanged,
       this.status,
       required this.percentIndicator,
-      this.isCompatible=true,
+      this.isCompatible = true,
       this.initialDirection = CameraLensDirection.back})
       : super(key: key);
 
@@ -116,6 +116,7 @@ class _CameraViewState extends State<CameraView> {
           if (widget.status == "registration") {
             Get.back();
             controllerAbsensi.facedDetection(
+                takePicturer: "0",
                 status: "registration",
                 absenStatus:
                     widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
@@ -125,6 +126,7 @@ class _CameraViewState extends State<CameraView> {
             Get.back();
             controllerAbsensi.facedDetection(
                 status: "detection",
+                takePicturer: "0",
                 absenStatus:
                     widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
                 img: image.path,
@@ -249,70 +251,72 @@ class _CameraViewState extends State<CameraView> {
                     progressColor: Constanst.colorPrimary,
                   ),
                 ),
-               widget.isCompatible==true? Positioned(
-                    bottom: 10,
-                    child: Container(
-                      width: MediaQuery.of(context).size.width - 20,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(width: 1, color: Colors.red)),
-                      padding: EdgeInsets.all(10),
-                      child: Column(
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                widget.isCompatible == true
+                    ? Positioned(
+                        bottom: 10,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width - 20,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(width: 1, color: Colors.red)),
+                          padding: EdgeInsets.all(10),
+                          child: Column(
                             children: [
-                              Expanded(
-                                flex: 10,
-                                child: Icon(
-                                  Iconsax.info_circle,
-                                  color: Constanst.colorWhite,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 50,
-                                child: Text(
-                                  "Hpmu tidak kompatibel dengan fitur ini",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 12),
-                                ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    flex: 10,
+                                    child: Icon(
+                                      Iconsax.info_circle,
+                                      color: Constanst.colorWhite,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 50,
+                                    child: Text(
+                                      "Hpmu tidak kompatibel dengan fitur ini",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 12),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 20,
+                                  ),
+                                ],
                               ),
                               SizedBox(
                                 height: 20,
                               ),
+                              InkWell(
+                                onTap: () {
+                                  Get.back();
+                                  Get.to(AbsenVrifyPassword(
+                                    status: widget.status,
+                                    type: widget.status == "masuk" ? "1" : "2",
+                                  ));
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.only(left: 10, right: 10),
+                                  child: Center(
+                                    child: Text(
+                                      "Absen Dengan Password",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                  width: MediaQuery.of(context).size.width - 20,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                        width: 1, color: Colors.white),
+                                  ),
+                                ),
+                              )
                             ],
                           ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              Get.back();
-                              Get.to(AbsenVrifyPassword(
-                                status: widget.status,
-                                type: widget.status == "masuk" ? "1" : "2",
-                              ));
-                            },
-                            child: Container(
-                              padding: EdgeInsets.only(left: 10, right: 10),
-                              child: Center(
-                                child: Text(
-                                  "Absen Dengan Password",
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                              width: MediaQuery.of(context).size.width - 20,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                border:
-                                    Border.all(width: 1, color: Colors.white),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    )):Container(),
+                        ))
+                    : Container(),
 
                 // _buildResults(),
               ],

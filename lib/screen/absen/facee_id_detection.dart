@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
@@ -92,19 +93,23 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
 
     _isBusy = true;
 
+    // Timer(Duration(seconds: 100), () async {
     try {
       final List<Face> faces = await _faceDetector.processImage(inputImage);
-      setState(() {
-        isCompatible = false;
-      });
+      if (faces.isNotEmpty) {
+        setState(() {
+          isCompatible = false;
+        });
+      }
       for (Face face in faces) {
         // If classification was enabled with FaceDetectorOptions:
         if (face.leftEyeOpenProbability == null) {
         } else {
           final double? rightEye = face.leftEyeOpenProbability;
           final double? leftEye = face.rightEyeOpenProbability;
-
-          if (rightEye! <= 0.05) {
+          print(rightEye);
+          print(leftEye);
+          if (rightEye! <= 0.1) {
             if (blinkEye >= 1.0) {
               setState(() {
                 blinkEye = 1.0;
@@ -130,9 +135,8 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
 
         if (mounted) {}
       }
-    } catch (e) {
-      print("erro ${e}");
-    }
+    } catch (e) {}
+    // });
   }
 
   void setImage() async {

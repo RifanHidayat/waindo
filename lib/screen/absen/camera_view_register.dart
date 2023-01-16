@@ -29,9 +29,8 @@ class CameraViewRegister extends StatefulWidget {
       this.onScreenModeChanged,
       this.status,
       required this.percentIndicator,
-       this.isCompatible=true,
+      this.isCompatible = true,
       this.initialDirection = CameraLensDirection.back})
-     
       : super(key: key);
 
   final String title;
@@ -124,7 +123,7 @@ class _CameraViewState extends State<CameraViewRegister> {
           } else {
             Get.back();
             controllerAbsensi.facedDetection(
-                status: "detection",
+                status: "registration",
                 absenStatus:
                     widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
                 img: image.path,
@@ -249,72 +248,74 @@ class _CameraViewState extends State<CameraViewRegister> {
                     progressColor: Constanst.colorPrimary,
                   ),
                 ),
-              widget.isCompatible==true?  Positioned(
-                    bottom: 10,
-                    child: Container(
-                      width: MediaQuery.of(context).size.width - 20,
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(width: 1, color: Colors.red)),
-                      padding: EdgeInsets.all(10),
-                      child: Column(
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
+                widget.isCompatible == true
+                    ? Positioned(
+                        bottom: 10,
+                        child: Container(
+                          width: MediaQuery.of(context).size.width - 20,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(width: 1, color: Colors.red)),
+                          padding: EdgeInsets.all(10),
+                          child: Column(
                             children: [
-                              Expanded(
-                                flex: 10,
-                                child: Icon(
-                                  Iconsax.info_circle,
-                                  color: Constanst.colorWhite,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 50,
-                                child: Text(
-                                  "Hpmu tidak kompatibel dengan fitur ini,ambil foto untuk melakukan reegistrasi",
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 12),
-                                ),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    flex: 10,
+                                    child: Icon(
+                                      Iconsax.info_circle,
+                                      color: Constanst.colorWhite,
+                                    ),
+                                  ),
+                                  Expanded(
+                                    flex: 50,
+                                    child: Text(
+                                      "Hpmu tidak kompatibel dengan fitur ini,ambil foto untuk melakukan reegistrasi",
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 12),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: 20,
+                                  ),
+                                ],
                               ),
                               SizedBox(
                                 height: 20,
                               ),
+                              InkWell(
+                                onTap: () {
+                                  Get.back();
+                                  _controller!.dispose();
+                                  _controller!.stopImageStream();
+                                  absenControllre.facedDetection(
+                                      status: "registration",
+                                      absenStatus: widget.status,
+                                      takePicturer: "1");
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.only(left: 10, right: 10),
+                                  child: Center(
+                                    child: Text(
+                                      "Ambil Photo",
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ),
+                                  width: MediaQuery.of(context).size.width - 20,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                        width: 1, color: Colors.white),
+                                  ),
+                                ),
+                              )
                             ],
                           ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              Get.back();
-                              _controller!.dispose();
-                              _controller!.stopImageStream();
-                              absenControllre.facedDetection(
-                                  status: "registration",
-                                  absenStatus: widget.status,
-                                  takePicturer: "1");
-                            },
-                            child: Container(
-                              padding: EdgeInsets.only(left: 10, right: 10),
-                              child: Center(
-                                child: Text(
-                                  "Ambil Photo",
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                              width: MediaQuery.of(context).size.width - 20,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                border:
-                                    Border.all(width: 1, color: Colors.white),
-                              ),
-                            ),
-                          )
-                        ],
-                      ),
-                    )):Container(),
+                        ))
+                    : Container(),
 
                 // _buildResults(),
               ],
