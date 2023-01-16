@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
@@ -40,12 +41,20 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
 
   File? img;
   var isBusyNumber = 0;
+  var isCompatible = true;
 
   @override
   void dispose() {
     _canProcess = false;
     _faceDetector.close();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    print("status ${widget.status}");
   }
 
   @override
@@ -58,6 +67,7 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
         : Screenshot(
             controller: screenshotController,
             child: CameraView(
+              isCompatible: isCompatible,
               percentIndicator: blinkEye,
               title: 'Face Detector',
               customPaint: _customPaint,
@@ -72,90 +82,61 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
   }
 
   Future<void> processImage(InputImage inputImage) async {
-    // if (!_canProcess) return;
-
-    // _isBusy = true;
-    // setState(() {
-    //   _text = '';
-    // });
-
-    // final faces = await _faceDetector.processImage(inputImage);
-    // if (inputImage.inputImageData?.size != null &&
-    //     inputImage.inputImageData?.imageRotation != null) {
-    //   print("Tes");
-
-    //   final painter = FaceDetectorPainter(
-    //       faces,
-    //       inputImage.inputImageData!.size,
-    //       inputImage.inputImageData!.imageRotation);
-    //   _customPaint = CustomPaint(painter: painter);
-    // } else {
-    //   print("tos");
-    //   String text = 'Faces found: ${faces.length}\n\n';
-    //   for (final face in faces) {
-    //     text += 'face: ${face.boundingBox}\n\n';
-    //   }
-    //   _text = text;
-    //   // TODO: set _customPaint to draw boundingRect on top of image
-    //   _customPaint = null;
-    // }
-    // _isBusy = false;
-    // if (mounted) {
-    //   setState(() {});
-    // }
-
     if (!_canProcess) {
       print("can proses");
       return;
     }
 
     if (_isBusy) {
-      if (isBusyNumber >= 5) {
-        _isBusy = false;
-        isBusyNumber >= 0;
-      }
       return;
     }
 
     _isBusy = true;
 
-    final List<Face> faces = await _faceDetector.processImage(inputImage);
-    for (Face face in faces) {
-      // If classification was enabled with FaceDetectorOptions:
-      if (face.leftEyeOpenProbability == null) {
-      } else {
-        final double? rightEye = face.leftEyeOpenProbability;
-        final double? leftEye = face.rightEyeOpenProbability;
-        print("left ${leftEye}");
-        print("right  ${rightEye}");
-        if (rightEye! <= 0.1) {
+    // Timer(Duration(seconds: 100), () async {
+    try {
+      final List<Face> faces = await _faceDetector.processImage(inputImage);
+      if (faces.isNotEmpty) {
+        setState(() {
+          isCompatible = false;
+        });
+      }
+      for (Face face in faces) {
+        // If classification was enabled with FaceDetectorOptions:
+        if (face.leftEyeOpenProbability == null) {
+        } else {
+          final double? rightEye = face.leftEyeOpenProbability;
+          final double? leftEye = face.rightEyeOpenProbability;
+          print(rightEye);
+          print(leftEye);
+          if (rightEye! <= 0.1) {
+            if (blinkEye >= 1.0) {
+              setState(() {
+                blinkEye = 1.0;
+              });
+            } else {
+              setState(() {
+                blinkEye += 0.5;
+              });
+            }
+          }
           if (blinkEye >= 1.0) {
-            setState(() {
-              blinkEye = 1.0;
-            });
-          } else {
-            setState(() {
-              blinkEye += 0.5;
-            });
+            _canProcess = false;
+            _faceDetector.close();
           }
         }
-        if (blinkEye >= 1.0) {
-          // setImage();
 
-          _canProcess = false;
-          _faceDetector.close();
+        // If face tracking was enabled with FaceDetectorOptions:
+        if (face.trackingId != null) {
+          final int? id = face.trackingId;
         }
+
+        _isBusy = false;
+
+        if (mounted) {}
       }
-
-      // If face tracking was enabled with FaceDetectorOptions:
-      if (face.trackingId != null) {
-        final int? id = face.trackingId;
-      }
-
-      _isBusy = false;
-
-      if (mounted) {}
-    }
+    } catch (e) {}
+    // });
   }
 
   void setImage() async {

@@ -458,7 +458,9 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
                                                       padding: EdgeInsets.only(
                                                           left: 10, right: 10),
                                                       child: Text(
-                                                        widget.status,
+                                                        widget.status == "masuk"
+                                                            ? "Absen Masuk"
+                                                            : "Absen Keluarrr",
                                                         textAlign:
                                                             TextAlign.center,
                                                         style: Constanst
