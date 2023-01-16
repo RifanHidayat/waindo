@@ -681,7 +681,7 @@ class AbsenController extends GetxController {
               }
               this.intervalControl.refresh();
               print("dapat interval ${intervalControl.value}");
-              Navigator.pop(Get.context!);
+              // Navigator.pop(Get.context!);
               Get.to(BerhasilAbsensi(
                 dataBerhasil: [
                   titleAbsen.value,
@@ -1913,6 +1913,7 @@ class AbsenController extends GetxController {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
           var data = valueBody['data'];
+          // print("data employee ${data[0]['face_recog']}");
           if (data[0]['face_recog'] == "" || data[0]['face_recog'] == null) {
             box.write("face_recog", false);
           } else {

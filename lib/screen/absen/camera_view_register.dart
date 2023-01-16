@@ -204,124 +204,145 @@ class _CameraViewState extends State<CameraViewRegister> {
 
     return Container(
         color: Constanst.colorBlack,
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.height,
-          child: Center(
-            child: Stack(
-              children: <Widget>[
-                Center(
+        child: SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 80,
                   child: Container(
-                      width: 300,
-                      height: 300,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(200),
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(200),
-                        // child: CameraPreview(_controller!),
-                        child: FutureBuilder<void>(
-                          future: _initializeControllerFuture,
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.done) {
-                              // If the Future is complete, display the preview.
-                              return CameraPreview(_controller!);
-                            } else {
-                              // Otherwise, display a loading indicator.
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            }
-                          },
+                    alignment: Alignment.center,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Center(
+                          child: Text(
+                            "Kedipkan mata anda untuk proses rekam wajah",
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
+                          ),
                         ),
-                      )),
-                ),
-
-                // Image.asset('assets/fac-recognition.png'),
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  height: MediaQuery.of(context).size.height,
-                  child: CircularPercentIndicator(
-                    radius: 150.0,
-                    lineWidth: 10.0,
-                    percent: widget.percentIndicator,
-                    progressColor: Constanst.colorPrimary,
+                        SizedBox(
+                          height: 18,
+                        ),
+                        Stack(
+                          children: [
+                            Container(
+                                width: 300,
+                                height: 300,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(200),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(200),
+                                  // child: CameraPreview(_controller!),
+                                  child: FutureBuilder<void>(
+                                    future: _initializeControllerFuture,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.done) {
+                                        // If the Future is complete, display the preview.
+                                        return CameraPreview(_controller!);
+                                      } else {
+                                        // Otherwise, display a loading indicator.
+                                        return const Center(
+                                            child: CircularProgressIndicator());
+                                      }
+                                    },
+                                  ),
+                                )),
+                            CircularPercentIndicator(
+                              radius: 150.0,
+                              lineWidth: 10.0,
+                              percent: widget.percentIndicator,
+                              progressColor: Constanst.colorPrimary,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-                widget.isCompatible == true
-                    ? Positioned(
-                        bottom: 10,
-                        child: Container(
-                          width: MediaQuery.of(context).size.width - 20,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(width: 1, color: Colors.red)),
+                Expanded(
+                  flex: 20,
+                  child: widget.isCompatible == true
+                      ? Container(
+                          width: MediaQuery.of(context).size.width,
                           padding: EdgeInsets.all(10),
-                          child: Column(
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Expanded(
-                                    flex: 10,
-                                    child: Icon(
-                                      Iconsax.info_circle,
-                                      color: Constanst.colorWhite,
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 50,
-                                    child: Text(
-                                      "Hpmu tidak kompatibel dengan fitur ini,ambil foto untuk melakukan reegistrasi",
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 12),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 20,
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              InkWell(
-                                onTap: () {
-                                  Get.back();
-                                  _controller!.dispose();
-                                  _controller!.stopImageStream();
-                                  absenControllre.facedDetection(
-                                      status: "registration",
-                                      absenStatus: widget.status,
-                                      takePicturer: "1");
-                                },
-                                child: Container(
-                                  padding: EdgeInsets.only(left: 10, right: 10),
-                                  child: Center(
-                                    child: Text(
-                                      "Ambil Photo",
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                  width: MediaQuery.of(context).size.width - 20,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                        width: 1, color: Colors.white),
+                          child: Padding(
+                            padding: const EdgeInsets.only(left: 16, right: 16),
+                            child: Column(
+                              children: [
+                                // Row(
+                                //   crossAxisAlignment: CrossAxisAlignment.center,
+                                //   children: [
+                                //     Expanded(
+                                //       flex: 10,
+                                //       child: Icon(
+                                //         Iconsax.info_circle,
+                                //         color: Constanst.colorWhite,
+                                //       ),
+                                //     ),
+                                //     Expanded(
+                                //       flex: 50,
+                                //       child:
+                                //     ),
+                                //     SizedBox(
+                                //       height: 20,
+                                //     ),
+                                //   ],
+                                // ),
+                                Center(
+                                  child: Text(
+                                    "Jika camera hp tidak merespon, anda dapat ambil foto melalui tombol di bawah ini",
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(color: Colors.white),
                                   ),
                                 ),
-                              )
-                            ],
+                                SizedBox(
+                                  height: 20,
+                                ),
+                                InkWell(
+                                  onTap: () {
+                                    Get.back();
+                                    _controller!.dispose();
+                                    _controller!.stopImageStream();
+                                    absenControllre.facedDetection(
+                                        status: "registration",
+                                        absenStatus: widget.status,
+                                        takePicturer: "1");
+                                  },
+                                  child: Container(
+                                    padding:
+                                        EdgeInsets.only(left: 10, right: 10),
+                                    child: Center(
+                                      child: Text(
+                                        "Ambil Photo",
+                                        style: TextStyle(color: Colors.white),
+                                      ),
+                                    ),
+                                    width:
+                                        MediaQuery.of(context).size.width - 20,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      border: Border.all(
+                                          width: 1, color: Colors.white),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
-                        ))
-                    : Container(),
-
-                // _buildResults(),
+                        )
+                      : Container(),
+                )
               ],
-            ),
-          ),
-        ));
+            )));
   }
 
   Widget _galleryBody() {

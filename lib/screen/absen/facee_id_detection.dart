@@ -86,14 +86,10 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
       print("can proses");
       return;
     }
-
     if (_isBusy) {
       return;
     }
-
     _isBusy = true;
-
-    // Timer(Duration(seconds: 100), () async {
     try {
       final List<Face> faces = await _faceDetector.processImage(inputImage);
       if (faces.isNotEmpty) {
@@ -103,13 +99,13 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
       }
       for (Face face in faces) {
         // If classification was enabled with FaceDetectorOptions:
-        if (face.leftEyeOpenProbability == null) {
+        if (face.leftEyeOpenProbability == null ||
+            face.rightEyeOpenProbability == null) {
         } else {
           final double? rightEye = face.leftEyeOpenProbability;
           final double? leftEye = face.rightEyeOpenProbability;
-          print(rightEye);
-          print(leftEye);
-          if (rightEye! <= 0.1) {
+
+          if (rightEye! <= 0.15 && leftEye! <= 0.15) {
             if (blinkEye >= 1.0) {
               setState(() {
                 blinkEye = 1.0;
@@ -121,6 +117,7 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
             }
           }
           if (blinkEye >= 1.0) {
+            // setImage();
             _canProcess = false;
             _faceDetector.close();
           }

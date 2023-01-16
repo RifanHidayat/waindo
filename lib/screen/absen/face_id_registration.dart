@@ -39,7 +39,7 @@ class _FaceidRegistrationState extends State<FaceidRegistration> {
   var isSent = false;
   ScreenshotController screenshotController = ScreenshotController();
 
-  var isCompatible=true;
+  var isCompatible = true;
 
   File? img;
 
@@ -48,7 +48,6 @@ class _FaceidRegistrationState extends State<FaceidRegistration> {
     _canProcess = false;
     _faceDetector.close();
     super.dispose();
-   
   }
 
   @override
@@ -61,6 +60,7 @@ class _FaceidRegistrationState extends State<FaceidRegistration> {
         : Screenshot(
             controller: screenshotController,
             child: CameraViewRegister(
+              isCompatible: isCompatible,
               percentIndicator: blinkEye,
               title: 'Face Detector',
               customPaint: _customPaint,
@@ -75,33 +75,28 @@ class _FaceidRegistrationState extends State<FaceidRegistration> {
   }
 
   Future<void> processImage(InputImage inputImage) async {
-    if (!_canProcess) {
-      
-  
-    }
+    if (!_canProcess) {}
     ;
     if (_isBusy) {
-     
       return;
     }
-    ;
     _isBusy = true;
     final List<Face> faces = await _faceDetector.processImage(inputImage);
     if (faces.isNotEmpty) {
-    setState(() {
-            isCompatible=false;
-            });
-   
+      setState(() {
+        isCompatible = false;
+      });
     }
+
     for (Face face in faces) {
       // If classification was enabled with FaceDetectorOptions:
-      if (face.leftEyeOpenProbability == null) {
+      if (face.leftEyeOpenProbability == null ||
+          face.rightEyeOpenProbability == null) {
       } else {
         final double? rightEye = face.leftEyeOpenProbability;
         final double? leftEye = face.rightEyeOpenProbability;
-        print("left ${leftEye}");
-        print("right  ${rightEye}");
-        if (rightEye! <= 0.1) {
+
+        if (rightEye! <= 0.15 && leftEye! <= 0.15) {
           if (blinkEye >= 1.0) {
             setState(() {
               blinkEye = 1.0;
@@ -114,7 +109,6 @@ class _FaceidRegistrationState extends State<FaceidRegistration> {
         }
         if (blinkEye >= 1.0) {
           // setImage();
-
           _canProcess = false;
           _faceDetector.close();
         }
