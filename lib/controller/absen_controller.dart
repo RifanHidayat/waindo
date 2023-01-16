@@ -412,37 +412,40 @@ class AbsenController extends GetxController {
     // Get.to(AbsenMasukKeluar());
   }
 
-  void facedDetection(
-      {required status, absenStatus, type, img, takePicturer = "0"}) async {
-    if (takePicturer == "0") {
+  void facedDetection({
+    required status,
+    absenStatus,
+    type,
+  }) async {
+    // if (takePicturer == "0") {
+    //   if (status == "registration") {
+    //     print("registration");
+    //     saveFaceregistration(img);
+    //   } else {
+    //     detection(file: img, status: absenStatus, type: type);
+    //   }
+    // } else {
+    //  Get.back();
+    final getFoto = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.front,
+        imageQuality: 100,
+        maxHeight: 350,
+        maxWidth: 350);
+    if (getFoto == null) {
+      UtilsAlert.showToast("Gagal mengambil gambar");
+    } else {
+      print(getFoto.path);
+      // fotoUser.value = File(getFoto.toString());
       if (status == "registration") {
         print("registration");
-        saveFaceregistration(img);
-      } else {
-        detection(file: img, status: absenStatus, type: type);
-      }
-    } else {
-      //  Get.back();
-      final getFoto = await ImagePicker().pickImage(
-          source: ImageSource.camera,
-          preferredCameraDevice: CameraDevice.front,
-          imageQuality: 100,
-          maxHeight: 350,
-          maxWidth: 350);
-      if (getFoto == null) {
-        UtilsAlert.showToast("Gagal mengambil gambar");
-      } else {
-        print(getFoto.path);
-        // fotoUser.value = File(getFoto.toString());
-        if (status == "registration") {
-          print("registration");
 
-          saveFaceregistration(getFoto.path);
-        } else {
-          detection(file: getFoto.path, status: absenStatus, type: type);
-        }
+        saveFaceregistration(getFoto.path);
+      } else {
+        detection(file: getFoto.path, status: absenStatus, type: type);
       }
     }
+    // }
   }
 
   void saveFaceregistration(file) async {
@@ -507,7 +510,7 @@ class AbsenController extends GetxController {
       print(getEmpId);
       print(getEmpId.toString());
       Map<String, String> body = {
-        'em_id': "SIS202210039",
+        'em_id': getEmpId.toString(),
         // 'image': file.toString()
       };
       Map<String, String> headers = {
@@ -564,19 +567,24 @@ class AbsenController extends GetxController {
         gagalAbsen.value = gagalAbsen.value + 1;
         UtilsAlert.showToast(res['message']);
         print("status ${titleAbsen.value}");
-        if (gagalAbsen.value > 3) {
+        if (gagalAbsen.value >= 3) {
           Get.back();
-          Get.off(AbsenVrifyPassword(
+          Get.to(AbsenVrifyPassword(
             status: status,
             type: type.toString(),
           ));
         } else {
           Get.back();
           print("titleAbsen.value");
-          UtilsAlert.showToast(res['message']);
-          Get.to(FaceDetectorView(
-            status: status == "Absent Masuk" ? "masuk" : "keluar",
-          ));
+
+          facedDetection(
+            absenStatus: status,
+            status: "detection",
+            type: type.toString(),
+          );
+          // Get.to(FaceDetectorView(
+          //   status: status == "Absent Masuk" ? "masuk" : "keluar",
+          // ));
         }
       }
     } on Exception catch (e) {
@@ -2020,10 +2028,10 @@ class AbsenController extends GetxController {
                   TextButtonWidget(
                     title: "Mulai",
                     onTap: () async {
-                      Get.to(FaceidRegistration(
-                        status: "registration",
-                      ));
-                      // facedDetection(status: "registration");
+                      // Get.to(FaceidRegistration(
+                      //   status: "registration",
+                      // ));
+                      facedDetection(status: "registration");
                       // Get.to(FaceRecognitionView());
                       // if (type == "checkTracking") {
                       //   print('kesini');

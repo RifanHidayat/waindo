@@ -105,35 +105,35 @@ class _CameraViewState extends State<CameraViewRegister> {
     // Take the Picture in a try / catch block. If anything goes wrong,
     // catch the error.
     try {
-      if (isSent == false) {
-        isSent == true;
-        try {
-          await _initializeControllerFuture;
-          final image = await _controller!.takePicture();
+      // if (isSent == false) {
+      //   isSent == true;
+      //   try {
+      //     await _initializeControllerFuture;
+      //     final image = await _controller!.takePicture();
 
-          if (!mounted) return;
-          if (widget.status == "registration") {
-            Get.back();
-            controllerAbsensi.facedDetection(
-                status: "registration",
-                absenStatus:
-                    widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
-                img: image.path,
-                type: "1");
-          } else {
-            Get.back();
-            controllerAbsensi.facedDetection(
-                status: "registration",
-                absenStatus:
-                    widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
-                img: image.path,
-                type: "1");
-          }
-        } catch (e) {
-          // If an error occurs, log the error to the console.
-          print(e);
-        }
-      }
+      //     if (!mounted) return;
+      //     if (widget.status == "registration") {
+      //       Get.back();
+      //       controllerAbsensi.facedDetection(
+      //           status: "registration",
+      //           absenStatus:
+      //               widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
+      //           img: image.path,
+      //           type: "1");
+      //     } else {
+      //       Get.back();
+      //       controllerAbsensi.facedDetection(
+      //           status: "registration",
+      //           absenStatus:
+      //               widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
+      //           img: image.path,
+      //           type: "1");
+      //     }
+      //   } catch (e) {
+      //     // If an error occurs, log the error to the console.
+      //     print(e);
+      //   }
+      // }
     } catch (e) {
       // If an error occurs, log the error to the console.
       print(e);
@@ -309,12 +309,12 @@ class _CameraViewState extends State<CameraViewRegister> {
                                 InkWell(
                                   onTap: () {
                                     Get.back();
-                                    _controller!.dispose();
-                                    _controller!.stopImageStream();
-                                    absenControllre.facedDetection(
-                                        status: "registration",
-                                        absenStatus: widget.status,
-                                        takePicturer: "1");
+                                    // _controller!.dispose();
+                                    // _controller!.stopImageStream();
+                                    // absenControllre.facedDetection(
+                                    //     status: "registration",
+                                    //     absenStatus: widget.status,
+                                    //     takePicturer: "1");
                                   },
                                   child: Container(
                                     padding:

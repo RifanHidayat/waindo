@@ -155,42 +155,42 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   void setImage() async {
     // Take the Picture in a try / catch block. If anything goes wrong,
     // catch the error.
-    try {
-      if (isSent == false) {
-        isSent == true;
-        try {
-          await _initializeControllerFuture;
-          final image = await _controller!.takePicture();
+    // try {
+    //   if (isSent == false) {
+    //     isSent == true;
+        // try {
+        //   await _initializeControllerFuture;
+        //   final image = await _controller!.takePicture();
 
-          if (!mounted) return;
-          if (widget.status == "registration") {
-            Get.back();
-            controllerAbsensi.facedDetection(
-                takePicturer: "0",
-                status: "registration",
-                absenStatus:
-                    widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
-                img: image.path,
-                type: "1");
-          } else {
-            Get.back();
-            controllerAbsensi.facedDetection(
-                status: "detection",
-                takePicturer: "0",
-                absenStatus:
-                    widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
-                img: image.path,
-                type: "1");
-          }
-        } catch (e) {
-          // If an error occurs, log the error to the console.
-          print(e);
-        }
-      }
-    } catch (e) {
-      // If an error occurs, log the error to the console.
-      print(e);
-    }
+        //   if (!mounted) return;
+        //   if (widget.status == "registration") {
+        //     Get.back();
+        //     controllerAbsensi.facedDetection(
+        //         takePicturer: "0",
+        //         status: "registration",
+        //         absenStatus:
+        //             widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
+        //         img: image.path,
+        //         type: "1");
+        //   } else {
+        //     Get.back();
+        //     controllerAbsensi.facedDetection(
+        //         status: "detection",
+        //         takePicturer: "0",
+        //         absenStatus:
+        //             widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
+        //         img: image.path,
+        //         type: "1");
+        //   }
+        // } catch (e) {
+        //   // If an error occurs, log the error to the console.
+        //   print(e);
+    //     }
+    //   }
+    // } catch (e) {
+    //   // If an error occurs, log the error to the console.
+    //   print(e);
+    // }
   }
 
   Future takePicture() async {
