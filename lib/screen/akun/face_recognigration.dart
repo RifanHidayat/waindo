@@ -7,6 +7,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/setting_controller.dart';
+import 'package:siscom_operasional/screen/akun/face_recognition_foto.dart';
 import 'package:siscom_operasional/screen/akun/face_registration_verify_password.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
@@ -147,22 +148,34 @@ class FaceRecognition extends StatelessWidget {
                                           Text(
                                             "Sudah di registrasi",
                                             style: TextStyle(
-                                                color: HexColor('#2F80ED')),
+                                                color: Constanst.colorBlack),
                                           ),
-                                          SizedBox(
-                                            width: 5,
-                                          ),
-                                          Icon(
-                                            Iconsax.tick_circle,
-                                            color: HexColor(
-                                              '#2F80ED',
-                                            ),
-                                            size: 20,
-                                          )
+                                          // SizedBox(
+                                          //   width: 5,
+                                          // ),
+                                          // Icon(
+                                          //   Iconsax.tick_circle,
+                                          //   color: HexColor(
+                                          //     '#2F80ED',
+                                          //   ),
+                                          //   size: 20,
+                                          // )
                                         ],
                                       ),
                                       SizedBox(
                                         height: 10,
+                                      ),
+                                      InkWell(
+                                        onTap: () {
+                                          Get.to(FaceRecognitionPhotoPage());
+                                        },
+                                        child: Text(
+                                          "Lihat Foto",
+                                          style: TextStyle(
+                                              decoration:
+                                                  TextDecoration.underline,
+                                              color: HexColor('#2F80ED')),
+                                        ),
                                       ),
                                     ],
                                   ),

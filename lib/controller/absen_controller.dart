@@ -427,11 +427,11 @@ class AbsenController extends GetxController {
     // } else {
     //  Get.back();
     final getFoto = await ImagePicker().pickImage(
-        source: ImageSource.camera,
-        preferredCameraDevice: CameraDevice.front,
-        imageQuality: 100,
-        maxHeight: 350,
-        maxWidth: 350);
+      source: ImageSource.camera,
+      preferredCameraDevice: CameraDevice.front,
+    );
+    // var bytes = File(getFoto.path).readAsBytesSync();
+    // base64fotoUser.value = base64Encode(bytes);
     if (getFoto == null) {
       UtilsAlert.showToast("Gagal mengambil gambar");
     } else {
@@ -475,15 +475,17 @@ class AbsenController extends GetxController {
 
       // if (fotoUser.value != null) {
       var picture = await http.MultipartFile.fromPath('file', file.toString(),
-          contentType: MediaType('image', 'jpg'));
+          contentType: MediaType('image', 'png'));
       request.files.add(picture);
       // }
       var response = await request.send();
       final respStr = await response.stream.bytesToString();
       final res = jsonDecode(respStr.toString());
       print(respStr.toString());
+
       if (res['status'] == true) {
         box.write("face_recog", true);
+        employeDetail();
         gagalAbsen.value = gagalAbsen.value;
 
         Get.to(BerhasilRegistration());
@@ -528,7 +530,7 @@ class AbsenController extends GetxController {
 
       // if (fotoUser.value != null) {
       var picture = await http.MultipartFile.fromPath('file', file,
-          contentType: MediaType('image', 'jpeg'));
+          contentType: MediaType('image', 'png'));
       request.files.add(picture);
       //  }
       var response = await request.send();
@@ -761,6 +763,7 @@ class AbsenController extends GetxController {
         });
       }
     }
+
     //  }
   }
 
@@ -785,9 +788,13 @@ class AbsenController extends GetxController {
   Future<bool> validasiRadius() async {
     UtilsAlert.showLoadingIndicator(Get.context!);
     var from = Point(latUser.value, langUser.value);
+    print("lat validasi" + latUser.value.toString());
+    print("long validasi" + langUser.value.toString());
     // var from = Point(-6.1716917, 106.7305503);
+    print("place cordinate value ${placeCoordinate.value}");
     var getPlaceTerpilih = placeCoordinate.value
         .firstWhere((element) => element['place'] == selectedType.value);
+
     var stringLatLang = "${getPlaceTerpilih['place_longlat']}";
     var defaultRadius = "${getPlaceTerpilih['place_radius']}";
     if (stringLatLang == "" ||
@@ -1911,7 +1918,7 @@ class AbsenController extends GetxController {
     final box = GetStorage();
 
     var id = dataUser![0].em_id;
-
+    print("em id ${id}");
     Map<String, dynamic> body = {'val': 'em_id', 'cari': id};
     var connect = Api.connectionApi("post", body, "whereOnce-employee");
     connect.then((dynamic res) {
@@ -1921,6 +1928,10 @@ class AbsenController extends GetxController {
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
           var data = valueBody['data'];
+          box.write("file_face", data[0]['file_face']);
+          print("data ${data}");
+
+          // box.write("face_recog_file", false);
           // print("data employee ${data[0]['face_recog']}");
           if (data[0]['face_recog'] == "" || data[0]['face_recog'] == null) {
             box.write("face_recog", false);
