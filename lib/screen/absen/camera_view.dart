@@ -13,9 +13,9 @@ import 'package:screenshot/screenshot.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 
 import 'package:siscom_operasional/main.dart';
-import 'package:siscom_operasional/screen/absen/absen_verify_password.dart';
+import 'package:siscom_operasional/screen/absen/loading_absen.dart';
 import 'package:siscom_operasional/utils/constans.dart';
-import 'package:siscom_operasional/utils/widget_utils.dart';
+import "package:get/get.dart";
 
 enum ScreenMode { liveFeed, gallery }
 
@@ -50,10 +50,9 @@ class CameraView extends StatefulWidget {
   State<CameraView> createState() => _CameraViewState();
 }
 
-class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
+class _CameraViewState extends State<CameraView> {
   ScreenMode _mode = ScreenMode.liveFeed;
   CameraController? _controller;
-
   File? _image;
   String? _path;
   ImagePicker? _imagePicker;
@@ -70,8 +69,6 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
-    print('check start');
 
     _imagePicker = ImagePicker();
 
@@ -93,6 +90,7 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
         }
       }
     }
+
     // _initializeControllerFuture = _controller.initialize();
     if (_cameraIndex != -1) {
       try {
@@ -105,92 +103,43 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     }
   }
 
-  @override
-  void dispose() {
-    print('check stop');
-    WidgetsBinding.instance.removeObserver(this);
-    _stopLiveFeed();
-    super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) async {
-    print('AppLifecycleState hasil $state');
-    if (state == AppLifecycleState.resumed) {
-      _controller != null
-          ? _startLiveFeed()
-          : null; //on pause camera is disposed, so we need to call again "issue is only for android"
-    }
-  }
-
-  Future _startLiveFeed() async {
-    final camera = cameras[1];
-    _controller = CameraController(
-      camera,
-      ResolutionPreset.high,
-      enableAudio: false,
-    );
-
-    _initializeControllerFuture = _controller?.initialize().then((_) {
-      if (!mounted) {
-        return;
-      }
-
-      print('mounted $mounted');
-      _controller?.getMinZoomLevel().then((value) {
-        zoomLevel = value;
-        minZoomLevel = value;
-      });
-      _controller?.getMaxZoomLevel().then((value) {
-        maxZoomLevel = value;
-      });
-      var liveStream = _controller?.startImageStream(_processCameraImage);
-
-      setState(() {});
-    }).catchError((Object e) {
-      print('error camera $e');
-    });
-  }
-
   void setImage() async {
     // Take the Picture in a try / catch block. If anything goes wrong,
     // catch the error.
-    // try {
-    //   if (isSent == false) {
-    //     isSent == true;
-        // try {
-        //   await _initializeControllerFuture;
-        //   final image = await _controller!.takePicture();
+    try {
+      // if (isSent == false) {
+      //   isSent == true;
+      //   try {
+      //     await _initializeControllerFuture;
+      //     final image = await _controller!.takePicture();
 
-        //   if (!mounted) return;
-        //   if (widget.status == "registration") {
-        //     Get.back();
-        //     controllerAbsensi.facedDetection(
-        //         takePicturer: "0",
-        //         status: "registration",
-        //         absenStatus:
-        //             widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
-        //         img: image.path,
-        //         type: "1");
-        //   } else {
-        //     Get.back();
-        //     controllerAbsensi.facedDetection(
-        //         status: "detection",
-        //         takePicturer: "0",
-        //         absenStatus:
-        //             widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
-        //         img: image.path,
-        //         type: "1");
-        //   }
-        // } catch (e) {
-        //   // If an error occurs, log the error to the console.
-        //   print(e);
-    //     }
-    //   }
-    // } catch (e) {
-    //   // If an error occurs, log the error to the console.
-    //   print(e);
-    // }
+      //     if (!mounted) return;
+      //     if (widget.status == "registration") {
+      //       Get.back();
+      //       controllerAbsensi.facedDetection(
+      //           status: "registration",
+      //           absenStatus:
+      //               widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
+      //           img: image.path,
+      //           type: "1");
+      //     } else {
+      //       Get.back();
+      //       controllerAbsensi.facedDetection(
+      //           status: "registration",
+      //           absenStatus:
+      //               widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
+      //           img: image.path,
+      //           type: "1");
+      //     }
+      //   } catch (e) {
+      //     // If an error occurs, log the error to the console.
+      //     print(e);
+      //   }
+      // }
+    } catch (e) {
+      // If an error occurs, log the error to the console.
+      print(e);
+    }
   }
 
   Future takePicture() async {
@@ -201,9 +150,36 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
       return null;
     }
     try {
-      await _controller!.setFlashMode(FlashMode.off);
+      // await _controller!.setFlashMode(FlashMode.off);
       XFile picture = await _controller!.takePicture();
       Get.back();
+      Get.to(LoadingAbsen(
+        file: picture.path,
+        status: "detection",
+        statusAbsen: widget.status,
+      ));
+
+      // if (widget.status == "registration") {
+      //   Get.back();
+      //   controllerAbsensi.facedDetection(
+      //       status: "registration",
+      //       absenStatus:
+      //           widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
+      //       img: picture.path,
+      //       type: "1");
+      // } else {
+      //   Get.off(LoadingAbsen(
+      //     file: picture.path,
+      //   ));
+      //   controllerAbsensi.facedDetection(
+      //       status: "detection",
+      //       absenStatus:
+      //           widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
+      //       img: picture.path,
+      //       type: "1");
+
+      // }
+      // Get.back();
 
       // Navigator.push(
       //     context,
@@ -215,6 +191,12 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
       debugPrint('Error occured while taking picture: $e');
       return null;
     }
+  }
+
+  @override
+  void dispose() {
+    _stopLiveFeed();
+    super.dispose();
   }
 
   @override
@@ -240,130 +222,67 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     }
 
     final size = MediaQuery.of(context).size;
-    // calculate scale depending on screen and camera ratios
-    // this is actually size.aspectRatio / (1 / camera.aspectRatio)
-    // because camera preview size is received as landscape
-    // but we're calculating for portrait orientation
-    var scale = size.aspectRatio * _controller!.value.aspectRatio;
-
-    // to prevent scaling down, invert the value
-    if (scale < 1) scale = 1 / scale;
 
     return Container(
         color: Constanst.colorBlack,
-        child: SizedBox(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  flex: 80,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Center(
-                        child: Text(
-                          "Kedipkan mata anda untuk proses rekam wajah",
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.bold),
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        child: Container(
+          alignment: Alignment.center,
+          child: Stack(
+            children: [
+              Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height,
+                  child: FutureBuilder<void>(
+                    future: _initializeControllerFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        // If the Future is complete, display the preview.
+                        return CameraPreview(_controller!);
+                      } else {
+                        // Otherwise, display a loading indicator.
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                    },
+                  )),
+              Positioned(
+                bottom: 20,
+                child: Container(
+                  width: MediaQuery.of(context).size.width,
+                  child: Align(
+                    alignment: Alignment.center,
+                    child: InkWell(
+                      onTap: () {
+                        // print("tes");
+                        takePicture();
+                      },
+                      child: Container(
+                        child: Container(
+                          width: 75,
+                          height: 75,
+                          decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(50)),
+                          child: Padding(
+                            padding: EdgeInsets.all(5),
+                            child: Container(
+                              width: 70,
+                              height: 70,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(50)),
+                            ),
+                          ),
                         ),
                       ),
-                      SizedBox(
-                        height: 18,
-                      ),
-                      Stack(
-                        children: [
-                          Container(
-                              width: 300,
-                              height: 300,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(200),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(200),
-                                // child: CameraPreview(_controller!),
-                                child: FutureBuilder<void>(
-                                  future: _initializeControllerFuture,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.done) {
-                                      // If the Future is complete, display the preview.
-                                      return CameraPreview(_controller!);
-                                    } else {
-                                      // Otherwise, display a loading indicator.
-                                      return const Center(
-                                          child: CircularProgressIndicator());
-                                    }
-                                  },
-                                ),
-                              )),
-                          CircularPercentIndicator(
-                            radius: 150.0,
-                            lineWidth: 10.0,
-                            percent: widget.percentIndicator,
-                            progressColor: Constanst.colorPrimary,
-                          ),
-                        ],
-                      )
-                    ],
+                    ),
                   ),
                 ),
-                Expanded(
-                  flex: 20,
-                  child: //
-                      widget.isCompatible == true
-                          ? Padding(
-                              padding:
-                                  const EdgeInsets.only(left: 16, right: 16),
-                              child: Column(
-                                children: [
-                                  Center(
-                                    child: Text(
-                                      "Jika camera hp tidak merespon, anda dapat absen melalui tombol di bawah ini",
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    height: 20,
-                                  ),
-                                  InkWell(
-                                    onTap: () {
-                                      Get.back();
-                                      Get.to(AbsenVrifyPassword(
-                                        status: widget.status,
-                                        type: widget.status == "masuk"
-                                            ? "1"
-                                            : "2",
-                                      ));
-                                    },
-                                    child: Container(
-                                      padding:
-                                          EdgeInsets.only(left: 10, right: 10),
-                                      child: Center(
-                                        child: Text(
-                                          "Absen Dengan Password",
-                                          style: TextStyle(color: Colors.white),
-                                        ),
-                                      ),
-                                      width: MediaQuery.of(context).size.width,
-                                      height: 40,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                            width: 1, color: Colors.white),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            )
-                          : Container(),
-                )
-              ],
-            )));
+              )
+            ],
+          ),
+        ));
   }
 
   Widget _galleryBody() {
@@ -434,8 +353,31 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     setState(() {});
   }
 
+  Future _startLiveFeed() async {
+    final camera = cameras[1];
+    _controller = CameraController(
+      camera,
+      ResolutionPreset.high,
+      enableAudio: false,
+    );
+    _initializeControllerFuture = _controller?.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      _controller?.getMinZoomLevel().then((value) {
+        zoomLevel = value;
+        minZoomLevel = value;
+      });
+      _controller?.getMaxZoomLevel().then((value) {
+        maxZoomLevel = value;
+      });
+
+      setState(() {});
+    });
+  }
+
   Future _stopLiveFeed() async {
-    await _controller!.stopImageStream();
+    //  await _controller!.stopImageStream();
     await _controller!.dispose();
   }
 
@@ -462,7 +404,7 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     widget.onImage(inputImage);
   }
 
-  Future<double> _processCameraImage(CameraImage image) async {
+  Future _processCameraImage(CameraImage image) async {
     if (widget.percentIndicator >= 1.0) {
       await _controller!.stopImageStream();
       setImage();
@@ -479,11 +421,11 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
     final camera = cameras[_cameraIndex];
     final imageRotation =
         InputImageRotationValue.fromRawValue(camera.sensorOrientation);
-    if (imageRotation == null) ;
+    if (imageRotation == null) return;
 
     final inputImageFormat =
         InputImageFormatValue.fromRawValue(image.format.raw);
-    if (inputImageFormat == null) ;
+    if (inputImageFormat == null) return;
 
     final planeData = image.planes.map(
       (Plane plane) {
@@ -497,14 +439,14 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
 
     final inputImageData = InputImageData(
       size: imageSize,
-      imageRotation: imageRotation!,
-      inputImageFormat: inputImageFormat!,
+      imageRotation: imageRotation,
+      inputImageFormat: inputImageFormat,
       planeData: planeData,
     );
 
     final inputImage =
         InputImage.fromBytes(bytes: bytes, inputImageData: inputImageData);
 
-    return Future.value(widget.percentIndicator);
+    widget.onImage(inputImage);
   }
 }

@@ -46,9 +46,12 @@ class _DashboardState extends State<Dashboard> {
     controller.refreshPagesStatus.value = true;
     await Future.delayed(Duration(seconds: 2));
     setState(() {
+      
       controllerAbsensi.employeDetail();
       controller.updateInformasiUser();
       controller.onInit();
+      controllerAbsensi.userShift();
+
     });
   }
 
@@ -541,11 +544,15 @@ class _DashboardState extends State<Dashboard> {
                         style: TextStyle(
                             fontSize: 12, color: Constanst.colorText2),
                       ),
-                      Text(
-                        "08:30 - 18:00",
-                        style: TextStyle(
-                            fontSize: 12, color: Constanst.colorText2),
-                      ),
+                      Obx(() {
+                        return controllerAbsensi.shift.value.timeIn != ""
+                            ? Text(
+                                "${controllerAbsensi.shift.value.timeIn ?? ""} - ${controllerAbsensi.shift.value.timeOut ?? ""}",
+                                style: TextStyle(
+                                    fontSize: 10, color: Constanst.colorText2),
+                              )
+                            : Text("");
+                      })
                     ],
                   ),
                 )
@@ -594,19 +601,19 @@ class _DashboardState extends State<Dashboard> {
                                           controller.validasiAbsenMasukUser();
                                       if (!validasiAbsenMasukUser) {
                                       } else {
-                                        // controllerAbsensi.typeAbsen.value = 1;
-                                        // Get.to(FaceDetectorView(
-                                        //   status: "masuk",
-                                        // ));
-                                        // controllerAbsensi.getPlaceCoordinate();
                                         controllerAbsensi.titleAbsen.value =
                                             "Absen masuk";
 
                                         controllerAbsensi.typeAbsen.value = 1;
-                                        controllerAbsensi.facedDetection(
-                                            status: "detection",
-                                            absenStatus: "Absen Masuk",
-                                            type: "1");
+                                        Get.to(FaceDetectorView(
+                                          status: "masuk",
+                                        ));
+                                        // controllerAbsensi.getPlaceCoordinate();
+                                        ;
+                                        // controllerAbsensi.facedDetection(
+                                        //     status: "detection",
+                                        //     absenStatus: "Absen Masuk",
+                                        //     type: "1");
 
                                         // var kalkulasiRadius =
                                         //     controller.radiusNotOpen();
@@ -666,14 +673,14 @@ class _DashboardState extends State<Dashboard> {
                                 controllerAbsensi.titleAbsen.value =
                                     "Absen Keluar";
                                 controllerAbsensi.typeAbsen.value = 2;
-                                // Get.to(FaceDetectorView(
-                                //   status: "keluar",
-                                // ));
+                                Get.to(FaceDetectorView(
+                                  status: "keluar",
+                                ));
 
-                                controllerAbsensi.facedDetection(
-                                    status: "detection",
-                                    type: "2",
-                                    absenStatus: "Absen Keluar");
+                                // controllerAbsensi.facedDetection(
+                                //     status: "detection",
+                                //     type: "2",
+                                //     absenStatus: "Absen Keluar");
                                 // Get.to(faceDetectionPage(
                                 //   status: "keluar",
                                 // ));
@@ -936,7 +943,7 @@ class _DashboardState extends State<Dashboard> {
                     crossAxisCount: 4,
                     childAspectRatio: MediaQuery.of(context).size.width /
                         (MediaQuery.of(context).size.height /
-                            controller.ratioDevice.value),
+                            controller. .value),
                   ),
                   itemBuilder: (context, idxMenu) {
                     var gambar = controller.menuShowInMain[index]['menu']

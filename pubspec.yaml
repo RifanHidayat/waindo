@@ -92,6 +92,8 @@ dependencies:
   location: ^4.2.0
   currency_text_input_formatter: ^2.1.8
   html_editor_enhanced: ^2.0.0
+  simple_animations: ^5.0.0+3
+  scanning_effect: ^1.0.4
   draggable_home: ^1.0.4
   draggable_bottom_sheet: ^1.0.2
   native_screenshot: ^1.0.0

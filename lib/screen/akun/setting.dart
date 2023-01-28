@@ -25,6 +25,7 @@ class Setting extends StatefulWidget {
 class _SettingState extends State<Setting> {
   final controller = Get.put(SettingController());
   final controllerDashboard = Get.put(DashboardController());
+  var faceRecog = false;
 
   Future<void> refreshData() async {
     controller.refreshPageStatus.value = true;
@@ -38,7 +39,16 @@ class _SettingState extends State<Setting> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getFace();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    getFace();
+
     return Scaffold(
       body: WillPopScope(
           onWillPop: () async {
@@ -487,7 +497,7 @@ class _SettingState extends State<Setting> {
                               SizedBox(
                                 height: 3,
                               ),
-                              GetStorage().read('face_recog') == false
+                              faceRecog == false
                                   ? Text(
                                       "Belum Registrasi",
                                       style: TextStyle(
@@ -529,6 +539,13 @@ class _SettingState extends State<Setting> {
         ),
       ],
     );
+  }
+
+  void getFace() {
+    setState(() {
+      print("tees");
+      faceRecog = GetStorage().read('face_recog');
+    });
   }
 
   Widget lineLainnya() {

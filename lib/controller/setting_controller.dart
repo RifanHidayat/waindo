@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:iconsax/iconsax.dart';
@@ -118,9 +119,14 @@ class SettingController extends GetxController {
         print(valueBody['data']);
         AppData.informasiUser = null;
         Navigator.pop(Get.context!);
+        _stopForegroundTask();
         Get.offAll(Login());
       }
     });
+  }
+
+  Future<bool> _stopForegroundTask() async {
+    return await FlutterForegroundTask.stopService();
   }
 
   void toRouteSimpanData() {

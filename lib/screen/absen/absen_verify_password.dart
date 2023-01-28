@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_html/style.dart';
 import 'package:get/get.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/auth_controller.dart';
@@ -47,11 +49,46 @@ class _AbsenVrifyPasswordState extends State<AbsenVrifyPassword> {
           padding: EdgeInsets.only(left: 20, right: 20, top: 10, bottom: 10),
           child: Column(
             children: [
+              Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: HexColor('3FF463D').withOpacity(0.1)),
+                padding: EdgeInsets.all(8),
+                child: Image.asset(
+                  "assets/face_recognition_sad.png",
+                  width: 48,
+                  height: 48,
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
               Padding(
                 padding: EdgeInsets.only(left: 5),
                 child: Text(
-                  "Konfirmasi Password",
+                  "Yah,maaf!",
                   style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 5),
+                child: Text(
+                  "Sepertinya ada kendala dalam proses \n pemindaian wajah kamu",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontWeight: FontWeight.w300, fontSize: 12),
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Padding(
+                padding: EdgeInsets.only(left: 5),
+                child: Text(
+                  "Silahkan masukan password untuk melanjutkan!",
+                  style: TextStyle(fontWeight: FontWeight.w300, fontSize: 12),
                 ),
               ),
               SizedBox(
@@ -145,9 +182,11 @@ class _AbsenVrifyPasswordState extends State<AbsenVrifyPassword> {
                                     // UtilsAlert.showToast(
                                     //     "Konfirmasi password berhasil");
                                     return Get.to(AbsenMasukKeluar(
-                                      status: widget.status,
-                                      type: widget.type,
+                                      status: widget.status == "masuk"
+                                          ? "Absen Masuk"
+                                          : "Absen Keluar",
                                     ));
+                                    print(widget.status);
                                   }
                                   return UtilsAlert.showToast(
                                       "Konfirmasi password gagal");

@@ -1162,6 +1162,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.27.7"
+  scanning_effect:
+    dependency: "direct main"
+    description:
+      name: scanning_effect
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.4"
   screen_capture_event:
     dependency: "direct main"
     description:
@@ -1246,6 +1253,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.0"
+  simple_animations:
+    dependency: "direct main"
+    description:
+      name: simple_animations
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "5.0.0+3"
   sky_engine:
     dependency: transitive
     description: flutter

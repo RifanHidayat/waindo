@@ -6,17 +6,28 @@ import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
 
 class BerhasilController extends GetxController {
-  void getPosisition(getEmid, jam, tanggal, lat, long) async {
+  Future<bool> getPosisition(getEmid, jam, tanggal, lat, long) async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(lat, long);
       Placemark place = placemarks[0];
       var alamatUser =
           "${placemarks[0].street} ${placemarks[0].name}, ${placemarks[0].subLocality}, ${placemarks[0].locality}, ${placemarks[0].subAdministrativeArea}, ${placemarks[0].administrativeArea}, ${placemarks[0].postalCode}";
-      kirimDataKontrol(lat, long, alamatUser, jam, tanggal, getEmid);
-    } on Exception catch (e) {}
+
+      Future<bool> prosesKirim =
+          kirimDataKontrol(lat, long, alamatUser, jam, tanggal, getEmid);
+      bool hasilProses = await prosesKirim;
+      if (hasilProses)
+        return true;
+      else
+        return false;
+    } on Exception catch (e) {
+      print("error ${e}");
+      return false;
+    }
   }
 
-  void kirimDataKontrol(latUser, langUser, alamatUser, jam, tanggal, getEmid) {
+  Future<bool> kirimDataKontrol(
+      latUser, langUser, alamatUser, jam, tanggal, getEmid) async {
     var latLangUserKontrol = "$latUser,$langUser";
     Map<String, dynamic> body = {
       'em_id': getEmid,
@@ -25,12 +36,23 @@ class BerhasilController extends GetxController {
       'latLangKontrol': latLangUserKontrol,
       'alamat': alamatUser,
     };
+
     var connect =
         Api.connectionApi("post", body, "insert_emp_control_employee");
-    connect.then((dynamic res) {
-      var valueBody = jsonDecode(res.body);
-      print(valueBody);
-    });
+    print("connect ${connect}");
+    var getValue = await connect;
+
+    var valueBody = jsonDecode(getValue.body);
+    print("value body ${valueBody}");
+    if (valueBody['status'] == true) {
+      return true;
+    }
+    return false;
+    // connect.then((dynamic res) {
+    //   var valueBody = jsonDecode(res.body);
+
+    //   print(valueBody);
+    // });
   }
 
   Future<String> checkUserKontrol() {

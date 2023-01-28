@@ -150,7 +150,26 @@ class _CameraViewState extends State<CameraViewRegister> {
     try {
       await _controller!.setFlashMode(FlashMode.off);
       XFile picture = await _controller!.takePicture();
-      Get.back();
+
+      if (widget.status == "registration") {
+        Get.back();
+        controllerAbsensi.facedDetection(
+            status: "registration",
+            absenStatus:
+                widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
+            img: picture.path,
+            type: "1");
+      } else {
+        Get.back();
+
+        controllerAbsensi.facedDetection(
+            status: "detection",
+            absenStatus:
+                widget.status == 'masuk' ? "Absen Masuk" : "Absen Keluar",
+            img: picture.path,
+            type: "1");
+      }
+      // Get.back();
 
       // Navigator.push(
       //     context,
@@ -207,139 +226,57 @@ class _CameraViewState extends State<CameraViewRegister> {
         child: SizedBox(
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Stack(
               children: [
-                Expanded(
-                  flex: 80,
+                Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(200),
+                    ),
+                    child: FutureBuilder<void>(
+                      future: _initializeControllerFuture,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          // If the Future is complete, display the preview.
+                          return CameraPreview(_controller!);
+                        } else {
+                          // Otherwise, display a loading indicator.
+                          return const Center(
+                              child: CircularProgressIndicator());
+                        }
+                      },
+                    )),
+                Positioned(
+                  bottom: 20,
                   child: Container(
-                    alignment: Alignment.center,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Center(
-                          child: Text(
-                            "Kedipkan mata anda untuk proses rekam wajah",
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold),
+                    width: MediaQuery.of(context).size.width,
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: InkWell(
+                        onTap: () {
+                          takePicture();
+                        },
+                        child: Container(
+                          child: Container(
+                            width: 75,
+                            height: 75,
+                            decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(50)),
+                            child: Padding(
+                              padding: EdgeInsets.all(5),
+                              child: Container(
+                                width: 70,
+                                height: 70,
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(50)),
+                              ),
+                            ),
                           ),
                         ),
-                        SizedBox(
-                          height: 18,
-                        ),
-                        Stack(
-                          children: [
-                            Container(
-                                width: 300,
-                                height: 300,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(200),
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(200),
-                                  // child: CameraPreview(_controller!),
-                                  child: FutureBuilder<void>(
-                                    future: _initializeControllerFuture,
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.done) {
-                                        // If the Future is complete, display the preview.
-                                        return CameraPreview(_controller!);
-                                      } else {
-                                        // Otherwise, display a loading indicator.
-                                        return const Center(
-                                            child: CircularProgressIndicator());
-                                      }
-                                    },
-                                  ),
-                                )),
-                            CircularPercentIndicator(
-                              radius: 150.0,
-                              lineWidth: 10.0,
-                              percent: widget.percentIndicator,
-                              progressColor: Constanst.colorPrimary,
-                            ),
-                          ],
-                        ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  flex: 20,
-                  child: widget.isCompatible == true
-                      ? Container(
-                          width: MediaQuery.of(context).size.width,
-                          padding: EdgeInsets.all(10),
-                          child: Padding(
-                            padding: const EdgeInsets.only(left: 16, right: 16),
-                            child: Column(
-                              children: [
-                                // Row(
-                                //   crossAxisAlignment: CrossAxisAlignment.center,
-                                //   children: [
-                                //     Expanded(
-                                //       flex: 10,
-                                //       child: Icon(
-                                //         Iconsax.info_circle,
-                                //         color: Constanst.colorWhite,
-                                //       ),
-                                //     ),
-                                //     Expanded(
-                                //       flex: 50,
-                                //       child:
-                                //     ),
-                                //     SizedBox(
-                                //       height: 20,
-                                //     ),
-                                //   ],
-                                // ),
-                                Center(
-                                  child: Text(
-                                    "Jika camera hp tidak merespon, anda dapat ambil foto melalui tombol di bawah ini",
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 20,
-                                ),
-                                InkWell(
-                                  onTap: () {
-                                    Get.back();
-                                    // _controller!.dispose();
-                                    // _controller!.stopImageStream();
-                                    // absenControllre.facedDetection(
-                                    //     status: "registration",
-                                    //     absenStatus: widget.status,
-                                    //     takePicturer: "1");
-                                  },
-                                  child: Container(
-                                    padding:
-                                        EdgeInsets.only(left: 10, right: 10),
-                                    child: Center(
-                                      child: Text(
-                                        "Ambil Photo",
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ),
-                                    width:
-                                        MediaQuery.of(context).size.width - 20,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(
-                                          width: 1, color: Colors.white),
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        )
-                      : Container(),
                 )
               ],
             )));
@@ -431,14 +368,13 @@ class _CameraViewState extends State<CameraViewRegister> {
       _controller?.getMaxZoomLevel().then((value) {
         maxZoomLevel = value;
       });
-      _controller?.startImageStream(_processCameraImage);
 
       setState(() {});
     });
   }
 
   Future _stopLiveFeed() async {
-    await _controller!.stopImageStream();
+    // await _controller!.stopImageStream();
     await _controller!.dispose();
   }
 
@@ -465,49 +401,49 @@ class _CameraViewState extends State<CameraViewRegister> {
     widget.onImage(inputImage);
   }
 
-  Future _processCameraImage(CameraImage image) async {
-    if (widget.percentIndicator >= 1.0) {
-      await _controller!.stopImageStream();
-      setImage();
-    }
-    final WriteBuffer allBytes = WriteBuffer();
-    for (final Plane plane in image.planes) {
-      allBytes.putUint8List(plane.bytes);
-    }
-    final bytes = allBytes.done().buffer.asUint8List();
+  // Future _processCameraImage(CameraImage image) async {
+  //   if (widget.percentIndicator >= 1.0) {
+  //     await _controller!.stopImageStream();
+  //     setImage();
+  //   }
+  //   final WriteBuffer allBytes = WriteBuffer();
+  //   for (final Plane plane in image.planes) {
+  //     allBytes.putUint8List(plane.bytes);
+  //   }
+  //   final bytes = allBytes.done().buffer.asUint8List();
 
-    final Size imageSize =
-        Size(image.width.toDouble(), image.height.toDouble());
+  //   final Size imageSize =
+  //       Size(image.width.toDouble(), image.height.toDouble());
 
-    final camera = cameras[_cameraIndex];
-    final imageRotation =
-        InputImageRotationValue.fromRawValue(camera.sensorOrientation);
-    if (imageRotation == null) return;
+  //   final camera = cameras[_cameraIndex];
+  //   final imageRotation =
+  //       InputImageRotationValue.fromRawValue(camera.sensorOrientation);
+  //   if (imageRotation == null) return;
 
-    final inputImageFormat =
-        InputImageFormatValue.fromRawValue(image.format.raw);
-    if (inputImageFormat == null) return;
+  //   final inputImageFormat =
+  //       InputImageFormatValue.fromRawValue(image.format.raw);
+  //   if (inputImageFormat == null) return;
 
-    final planeData = image.planes.map(
-      (Plane plane) {
-        return InputImagePlaneMetadata(
-          bytesPerRow: plane.bytesPerRow,
-          height: plane.height,
-          width: plane.width,
-        );
-      },
-    ).toList();
+  //   final planeData = image.planes.map(
+  //     (Plane plane) {
+  //       return InputImagePlaneMetadata(
+  //         bytesPerRow: plane.bytesPerRow,
+  //         height: plane.height,
+  //         width: plane.width,
+  //       );
+  //     },
+  //   ).toList();
 
-    final inputImageData = InputImageData(
-      size: imageSize,
-      imageRotation: imageRotation,
-      inputImageFormat: inputImageFormat,
-      planeData: planeData,
-    );
+  //   final inputImageData = InputImageData(
+  //     size: imageSize,
+  //     imageRotation: imageRotation,
+  //     inputImageFormat: inputImageFormat,
+  //     planeData: planeData,
+  //   );
 
-    final inputImage =
-        InputImage.fromBytes(bytes: bytes, inputImageData: inputImageData);
+  //   final inputImage =
+  //       InputImage.fromBytes(bytes: bytes, inputImageData: inputImageData);
 
-    widget.onImage(inputImage);
-  }
+  //   widget.onImage(inputImage);
+  // }
 }

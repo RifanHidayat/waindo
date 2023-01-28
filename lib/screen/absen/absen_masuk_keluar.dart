@@ -18,8 +18,8 @@ import 'package:siscom_operasional/utils/constans.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
 class AbsenMasukKeluar extends StatefulWidget {
-  var type, status;
-  AbsenMasukKeluar({super.key, this.type, this.status});
+  final status;
+  AbsenMasukKeluar({super.key, this.status});
   @override
   _AbsenMasukKeluarState createState() => _AbsenMasukKeluarState();
 }
@@ -56,7 +56,6 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
     });
 
     controller.getPlaceCoordinate();
-    print(widget.type.toString());
 
     _fabHeight = _initFabHeight;
   }
@@ -65,8 +64,8 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
     markers.add(Marker(
         //add first marker
         markerId: MarkerId("1"),
-        icon: destinationIcon!,
-        // icon: BitmapDescriptor.defaultMarker,
+        icon: destinationIcon ?? BitmapDescriptor.defaultMarker,
+        // icon: ,
         position: LatLng(
           double.parse(controller.latUser.toString()),
           double.parse(controller.langUser.toString()),
@@ -444,7 +443,8 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
                                                   fontWeight: FontWeight.bold)),
                                         ),
                                         Expanded(
-                                            child: widget.type == "1"
+                                            child: widget.status ==
+                                                    "Absen Masuk"
                                                 ? Container(
                                                     decoration: BoxDecoration(
                                                       color: Color.fromARGB(
@@ -479,8 +479,7 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
                                                       padding: EdgeInsets.only(
                                                           left: 10, right: 10),
                                                       child: Text(
-                                                        controller
-                                                            .titleAbsen.value,
+                                                        widget.status,
                                                         textAlign:
                                                             TextAlign.center,
                                                         style: Constanst

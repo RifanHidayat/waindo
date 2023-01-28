@@ -74,95 +74,95 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
               status: widget.status,
               text: _text,
               onImage: (inputImage) {
-                processImage(inputImage);
+                // processImage(inputImage);
               },
               initialDirection: CameraLensDirection.front,
             ),
           );
   }
 
-  Future<void> processImage(InputImage inputImage) async {
-    if (!_canProcess) {
-      print("can proses");
-      return;
-    }
-    if (_isBusy) {
-      return;
-    }
-    _isBusy = true;
-    try {
-      final List<Face> faces = await _faceDetector.processImage(inputImage);
-      if (faces.isNotEmpty) {
-        setState(() {
-          isCompatible = false;
-        });
-      }
-      for (Face face in faces) {
-        // If classification was enabled with FaceDetectorOptions:
-        if (face.leftEyeOpenProbability == null ||
-            face.rightEyeOpenProbability == null) {
-        } else {
-          final double? rightEye = face.leftEyeOpenProbability;
-          final double? leftEye = face.rightEyeOpenProbability;
+  // Future<void> processImage(InputImage inputImage) async {
+  //   if (!_canProcess) {
+  //     print("can proses");
+  //     return;
+  //   }
+  //   if (_isBusy) {
+  //     return;
+  //   }
+  //   _isBusy = true;
+  //   try {
+  //     final List<Face> faces = await _faceDetector.processImage(inputImage);
+  //     if (faces.isNotEmpty) {
+  //       setState(() {
+  //         isCompatible = false;
+  //       });
+  //     }
+  //     for (Face face in faces) {
+  //       // If classification was enabled with FaceDetectorOptions:
+  //       if (face.leftEyeOpenProbability == null ||
+  //           face.rightEyeOpenProbability == null) {
+  //       } else {
+  //         final double? rightEye = face.leftEyeOpenProbability;
+  //         final double? leftEye = face.rightEyeOpenProbability;
 
-          if (rightEye! <= 0.15 && leftEye! <= 0.15) {
-            if (blinkEye >= 1.0) {
-              setState(() {
-                blinkEye = 1.0;
-              });
-            } else {
-              setState(() {
-                blinkEye += 0.5;
-              });
-            }
-          }
-          if (blinkEye >= 1.0) {
-            // setImage();
-            _canProcess = false;
-            _faceDetector.close();
-          }
-        }
+  //         if (rightEye! <= 0.15 && leftEye! <= 0.15) {
+  //           if (blinkEye >= 1.0) {
+  //             setState(() {
+  //               blinkEye = 1.0;
+  //             });
+  //           } else {
+  //             setState(() {
+  //               blinkEye += 0.5;
+  //             });
+  //           }
+  //         }
+  //         if (blinkEye >= 1.0) {
+  //           // setImage();
+  //           _canProcess = false;
+  //           _faceDetector.close();
+  //         }
+  //       }
 
-        // If face tracking was enabled with FaceDetectorOptions:
-        if (face.trackingId != null) {
-          final int? id = face.trackingId;
-        }
+  //       // If face tracking was enabled with FaceDetectorOptions:
+  //       if (face.trackingId != null) {
+  //         final int? id = face.trackingId;
+  //       }
 
-        _isBusy = false;
+  //       _isBusy = false;
 
-        if (mounted) {}
-      }
-    } catch (e) {}
-    // });
-  }
+  //       if (mounted) {}
+  //     }
+  //   } catch (e) {}
+  //   // });
+  // }
 
-  void setImage() async {
-    if (isSent == false) {
-      await screenshotController
-          .capture(delay: const Duration(milliseconds: 1000))
-          .then((image) async {
-        if (image != null) {
-          // Get.back();
-          final tempDir = await getTemporaryDirectory();
-          File file = await File('${tempDir.path}/image.jpeg').create();
-          file.writeAsBytesSync(image);
-          isSent = true;
+  // void setImage() async {
+  //   if (isSent == false) {
+  //     await screenshotController
+  //         .capture(delay: const Duration(milliseconds: 1000))
+  //         .then((image) async {
+  //       if (image != null) {
+  //         // Get.back();
+  //         final tempDir = await getTemporaryDirectory();
+  //         File file = await File('${tempDir.path}/image.jpeg').create();
+  //         file.writeAsBytesSync(image);
+  //         isSent = true;
 
-          setState(() {
-            img = File(file.path);
+  //         setState(() {
+  //           img = File(file.path);
 
-            Future.delayed(const Duration(milliseconds: 500), () {
-              // controllerAbsensi.facedDetecxtion(
-              //     status: "detection",
-              //     absenStatus: "Absen Masuk",
-              //     img: File(img!.path),
-              //     type: "1");
-            });
-          });
-        }
-      });
-    }
-  }
+  //           Future.delayed(const Duration(milliseconds: 500), () {
+  //             // controllerAbsensi.facedDetecxtion(
+  //             //     status: "detection",
+  //             //     absenStatus: "Absen Masuk",
+  //             //     img: File(img!.path),
+  //             //     type: "1");
+  //           });
+  //         });
+  //       }
+  //     });
+  //   }
+  // }
   // Future<File> takePicture() async{
   //   Directory root=await getTemporaryDirectory();
   //   String direcotryPath="${root.path}/guided_camra";

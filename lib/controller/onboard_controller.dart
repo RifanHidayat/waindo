@@ -26,7 +26,7 @@ class OnboardController extends GetxController {
   void onInit() async {
     getSizeDevice();
     super.onInit();
-    iniFaceRecog(); 
+    iniFaceRecog();
   }
 
   void getSizeDevice() {
@@ -53,6 +53,7 @@ class OnboardController extends GetxController {
   }
 
   void validasiUser() {
+    print("validasion masuk");
     var dataUser = AppData.informasiUser;
     var getEmid = dataUser![0].em_id;
     Map<String, dynamic> body = {'em_id': getEmid};
@@ -62,6 +63,7 @@ class OnboardController extends GetxController {
       if (valueBody['status'] == true) {
         var dateNow = DateTime.now();
         var convert = DateFormat('yyyy-MM-dd').format(dateNow);
+   
         checkAbsenUser(convert, getEmid);
       } else {
         AppData.informasiUser = null;
@@ -81,11 +83,14 @@ class OnboardController extends GetxController {
           loading.value = false;
           AppData.statusAbsen = false;
 
-          Get.offAll(InitScreen());
+          Future.delayed(Duration.zero, () {
+            // Get.offAll(InitScreen());
+          });
         } else {
           var tanggalTerakhirAbsen = data[0]['atten_date'];
           if (tanggalTerakhirAbsen == convert) {
             loading.value = false;
+            // print("siggin time ${data[0]['sign_time']}");
             AppData.statusAbsen =
                 data[0]['signout_time'] == "00:00:00" ? true : false;
 

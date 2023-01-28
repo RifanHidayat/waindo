@@ -35,7 +35,7 @@ import 'package:percent_indicator/percent_indicator.dart';
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
- late List<CameraDescription> cameras;
+late List<CameraDescription> cameras;
 
 void main() async {
   await GetStorage.init();
@@ -80,24 +80,6 @@ void main() async {
         'User declined or has not accepted permission ${settings.authorizationStatus}');
   }
 
-  // flutterLocalNotificationsPlugin.show(
-  //     0,
-  //     "title",
-  //     "Subtitle",
-  //     NotificationDetails(
-  //         android: AndroidNotificationDetails(
-  //             DateTime.now().millisecondsSinceEpoch.toString(), "",
-  //             playSound: true,
-  //             priority: Priority.high,
-  //             importance: Importance.high,
-  //             icon: '@mipmap/ic_launcher'
-
-  //             // TODO add a proper drawable resource to android, for now using
-  //             //      one that already exists in example app.
-  //             ),
-  //         iOS: iosNotificationDetails),
-  //     payload: "");
-  // AppData.clearAllData();
   runApp(const MyApp());
 }
 
@@ -368,6 +350,27 @@ class _SplashScreenState extends State<SplashScreen> {
 //                 context, MaterialPageRoute(builder: (context) => _viewPage));
 //         },
 //       ),
+//     );
+//   }
+// }
+
+// import 'package:camera/camera.dart';
+// import 'package:flutter/cupertino.dart';
+// import 'package:flutter/material.dart';
+// import 'package:siscom_operasional/scanner_screeen.dart';
+
+// late List<CameraDescription> cameras;
+
+// void main() => runApp(MyApp());
+
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return CupertinoApp(
+//       debugShowCheckedModeBanner: false,
+//       title: 'Photo Scanner',
+//       home: ScannerScreen(),
+//       theme: CupertinoThemeData(brightness: Brightness.dark),
 //     );
 //   }
 // }

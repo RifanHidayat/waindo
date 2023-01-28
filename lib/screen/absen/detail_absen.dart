@@ -325,48 +325,48 @@ class DetailAbsen extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              flex: 30,
-              child: Center(
-                child: InkWell(
-                  onTap: () {
-                    Get.to(PhotoAbsen(
-                      image: Api.UrlfotoAbsen + gambarMasuk,
-                      type: "masuk",
-                      time: jamMasuk,
-                      alamat: alamatMasuk + placeIn,
-                      note: catatanMasuk,
-                    ));
-                  },
-                  child: gambarMasuk != ''
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(6.0),
-                          child: SizedBox(
-                              width: MediaQuery.of(Get.context!).size.width / 3,
-                              child: Image.network(
-                                Api.UrlfotoAbsen + gambarMasuk,
-                                errorBuilder: (context, exception, stackTrace) {
-                                  return ClipRRect(
-                                    child: SizedBox(
-                                        child: Image.asset(
-                                      'assets/Foto.png',
-                                      fit: BoxFit.fill,
-                                    )),
-                                  );
-                                },
-                                fit: BoxFit.fill,
-                              )),
-                        )
-                      : ClipRRect(
-                          child: SizedBox(
-                              width: MediaQuery.of(Get.context!).size.width / 3,
-                              child: Image.asset(
-                                'assets/Foto.png',
-                              )),
-                        ),
-                ),
-              ),
-            ),
+            // Expanded(
+            //   flex: 30,
+            //   child: Center(
+            //     child: InkWell(
+            //       onTap: () {
+            //         Get.to(PhotoAbsen(
+            //           image: Api.UrlfotoAbsen + gambarMasuk,
+            //           type: "masuk",
+            //           time: jamMasuk,
+            //           alamat: alamatMasuk + placeIn,
+            //           note: catatanMasuk,
+            //         ));
+            //       },
+            //       // child: gambarMasuk != ''
+            //       //     ? ClipRRect(
+            //       //         borderRadius: BorderRadius.circular(6.0),
+            //       //         child: SizedBox(
+            //       //             width: MediaQuery.of(Get.context!).size.width / 3,
+            //       //             child: Image.network(
+            //       //               Api.UrlfotoAbsen + gambarMasuk,
+            //       //               errorBuilder: (context, exception, stackTrace) {
+            //       //                 return ClipRRect(
+            //       //                   child: SizedBox(
+            //       //                       child: Image.asset(
+            //       //                     'assets/Foto.png',
+            //       //                     fit: BoxFit.fill,
+            //       //                   )),
+            //       //                 );
+            //       //               },
+            //       //               fit: BoxFit.fill,
+            //       //             )),
+            //       //       )
+            //       //     : ClipRRect(
+            //       //         child: SizedBox(
+            //       //             width: MediaQuery.of(Get.context!).size.width / 3,
+            //       //             child: Image.asset(
+            //       //               'assets/Foto.png',
+            //       //             )),
+            //       //       ),
+            //     ),
+            //   ),
+            // ),
             Expanded(
               flex: 70,
               child: SizedBox(
@@ -432,7 +432,7 @@ class DetailAbsen extends StatelessWidget {
                                   )),
                               Container(
                                 width:
-                                    MediaQuery.of(Get.context!).size.width / 2,
+                                    MediaQuery.of(Get.context!).size.width - 80,
                                 child: Padding(
                                     padding:
                                         const EdgeInsets.only(top: 3, left: 3),
@@ -457,9 +457,7 @@ class DetailAbsen extends StatelessWidget {
                             color: Constanst.colorPrimary,
                           ),
                           Container(
-                            width:
-                                MediaQuery.of(Get.context!).size.width / 2 -
-                                    20,
+                            width: MediaQuery.of(Get.context!).size.width - 80,
                             child: Padding(
                               padding: const EdgeInsets.only(top: 3, left: 3),
                               child: Text(catatanMasuk ?? '-'),
@@ -501,48 +499,48 @@ class DetailAbsen extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              flex: 30,
-              child: Center(
-                child: InkWell(
-                  onTap: () {
-                    Get.to(PhotoAbsen(
-                      image: Api.UrlfotoAbsen + gambarKeluar,
-                      type: "keluar",
-                      time: jamKeluar,
-                      alamat: alamatKeluar + placeOut,
-                      note: catatanKeluar,
-                    ));
-                  },
-                  child: gambarKeluar != ''
-                      ? ClipRRect(
-                          borderRadius: BorderRadius.circular(6.0),
-                          child: SizedBox(
-                              // width: MediaQuery.of(Get.context!).size.width / 3,
-                              child: Image.network(
-                            Api.UrlfotoAbsen + gambarKeluar,
-                            errorBuilder: (context, exception, stackTrace) {
-                              return ClipRRect(
-                                child: SizedBox(
-                                    child: Image.asset(
-                                  'assets/Foto.png',
-                                  fit: BoxFit.fitHeight,
-                                )),
-                              );
-                            },
-                            fit: BoxFit.fitHeight,
-                          )),
-                        )
-                      : ClipRRect(
-                          child: SizedBox(
-                              // width: MediaQuery.of(Get.context!).size.width / 3,
-                              child: Image.asset(
-                            'assets/Foto.png',
-                          )),
-                        ),
-                ),
-              ),
-            ),
+            // Expanded(
+            //   flex: 30,
+            //   child: Center(
+            //     child: InkWell(
+            //       onTap: () {
+            //         Get.to(PhotoAbsen(
+            //           image: Api.UrlfotoAbsen + gambarKeluar,
+            //           type: "keluar",
+            //           time: jamKeluar,
+            //           alamat: alamatKeluar + placeOut,
+            //           note: catatanKeluar,
+            //         ));
+            //       },
+            //       child: gambarKeluar != ''
+            //           ? ClipRRect(
+            //               borderRadius: BorderRadius.circular(6.0),
+            //               child: SizedBox(
+            //                   // width: MediaQuery.of(Get.context!).size.width / 3,
+            //                   child: Image.network(
+            //                 Api.UrlfotoAbsen + gambarKeluar,
+            //                 errorBuilder: (context, exception, stackTrace) {
+            //                   return ClipRRect(
+            //                     child: SizedBox(
+            //                         child: Image.asset(
+            //                       'assets/Foto.png',
+            //                       fit: BoxFit.fitHeight,
+            //                     )),
+            //                   );
+            //                 },
+            //                 fit: BoxFit.fitHeight,
+            //               )),
+            //             )
+            //           : ClipRRect(
+            //               child: SizedBox(
+            //                   // width: MediaQuery.of(Get.context!).size.width / 3,
+            //                   child: Image.asset(
+            //                 'assets/Foto.png',
+            //               )),
+            //             ),
+            //     ),
+            //   ),
+            //  ),
             Expanded(
               flex: 70,
               child: SizedBox(
@@ -608,7 +606,7 @@ class DetailAbsen extends StatelessWidget {
                                   )),
                               SizedBox(
                                 width:
-                                    MediaQuery.of(Get.context!).size.width / 2,
+                                    MediaQuery.of(Get.context!).size.width - 80,
                                 child: Padding(
                                     padding:
                                         const EdgeInsets.only(top: 3, left: 3),
@@ -633,8 +631,7 @@ class DetailAbsen extends StatelessWidget {
                             color: Constanst.colorPrimary,
                           ),
                           Container(
-                            width:
-                                MediaQuery.of(Get.context!).size.width / 2 - 20,
+                            width: MediaQuery.of(Get.context!).size.width - 80,
                             child: Padding(
                               padding: const EdgeInsets.only(top: 3, left: 3),
                               child: Text(catatanKeluar ?? '-'),

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/container.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -11,6 +12,7 @@ class FaceRecognitionPhotoPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    _deleteImageFromCache();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -26,22 +28,44 @@ class FaceRecognitionPhotoPage extends StatelessWidget {
         ),
       ),
       body: Center(
-        child: Image.network(
-          "${Api.urlFileRecog}${GetStorage().read('file_face')}",
-          loadingBuilder: (BuildContext context, Widget child,
-              ImageChunkEvent? loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Center(
-              child: CircularProgressIndicator(
-                value: loadingProgress.expectedTotalBytes != null
-                    ? loadingProgress.cumulativeBytesLoaded /
-                        loadingProgress.expectedTotalBytes!
-                    : null,
-              ),
-            );
-          },
+        child: CachedNetworkImage(
+          imageUrl: "${Api.urlFileRecog}${GetStorage().read('file_face')}",
+          progressIndicatorBuilder: (context, url, downloadProgress) =>
+              Container(
+            alignment: Alignment.center,
+            height: MediaQuery.of(context).size.height * 0.5,
+            width: MediaQuery.of(context).size.width,
+            child: CircularProgressIndicator(value: downloadProgress.progress),
+          ),
+          errorWidget: (context, url, error) => Image.asset(
+            'assets/avatar_default.png',
+            width: 40,
+            height: 40,
+          ),
+          fit: BoxFit.cover,
         ),
+        // child: Image.network(
+        //   "${Api.urlFileRecog}${GetStorage().read('file_face')}",
+        //   loadingBuilder: (BuildContext context, Widget child,
+        //       ImageChunkEvent? loadingProgress) {
+        //     print("load data");
+        //     if (loadingProgress == null) return child;
+        //     return Center(
+        //       child: CircularProgressIndicator(
+        //         value: loadingProgress.expectedTotalBytes != null
+        //             ? loadingProgress.cumulativeBytesLoaded /
+        //                 loadingProgress.expectedTotalBytes!
+        //             : null,
+        //       ),
+        //     );
+        //   },
+        // ),
       ),
     );
+  }
+
+  Future _deleteImageFromCache() async {
+    String url = "${Api.urlFileRecog}${GetStorage().read('file_face')}";
+    await CachedNetworkImage.evictFromCache(url);
   }
 }
