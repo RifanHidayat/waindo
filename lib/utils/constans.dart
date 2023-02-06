@@ -20,11 +20,18 @@ class Constanst {
   static Color colorText4 = HexColor('#333B4A');
 
   static Color colorNonAktif = Color(0xffD5DBE5);
-  static Color colorButton1 = Color(0xff001767);
-  static Color colorButton2 = Color(0xffE9F5FE);
-  static Color colorButton3 = Color(0xffE1E9FA);
+  // static Color colorButton1 = Color(0xff001767);
+  static Color colorButton1 = HexColor('#14A494');
 
-  static Color colorPrimary = Color(0xff001767);
+  static Color colorButton2 = Color(0xffE9F5FE);
+  // static Color colorButton3 = Color(0xffE1E9FA);
+  static Color colorButton3 = HexColor('#DFFFF0');
+
+  // static Color colorPrimary = Color(0xff001767);
+  static Color colorPrimary = HexColor('#14A494');
+  static Color colorPrimaryLight = HexColor('#CEFAE5');
+
+  // static Color color1 = Color(0xffBCC2CE);
   static Color color1 = Color(0xffBCC2CE);
   static Color color2 = Color(0xff11151E);
   static Color color3 = Color(0xffF2AA0D);

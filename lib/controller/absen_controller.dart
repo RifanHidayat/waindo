@@ -89,6 +89,7 @@ class AbsenController extends GetxController {
   var jumlahData = 0.obs;
   var isTracking = 0.obs;
   var selectedViewFilterAbsen = 0.obs;
+  var regType = 0.obs;
 
   Rx<DateTime> pilihTanggalTelatAbsen = DateTime.now().obs;
 
@@ -113,6 +114,7 @@ class AbsenController extends GetxController {
 
   @override
   void onReady() async {
+    print("Masulk ke controller absen");
     getTimeNow();
     getLoadsysData();
     loadHistoryAbsenUser();
@@ -324,8 +326,9 @@ class AbsenController extends GetxController {
     statusLoadingSubmitLaporan.value = true;
     listLaporanBelumAbsen.value.clear();
     Map<String, dynamic> body = {
+      // 'atten_date': '2022-12-05',
       'atten_date': tanggal,
-      'status': idDepartemenTerpilih.value
+      'status': "0"
     };
     var connect = Api.connectionApi("post", body, "load_laporan_belum_absen");
     connect.then((dynamic res) {
@@ -337,6 +340,7 @@ class AbsenController extends GetxController {
               "Data periode $bulanSelectedSearchHistory belum tersedia, harap hubungi HRD");
         } else {
           List data = valueBody['data'];
+
           data.sort((a, b) => a['full_name']
               .toUpperCase()
               .compareTo(b['full_name'].toUpperCase()));
@@ -374,7 +378,7 @@ class AbsenController extends GetxController {
     imageStatus.value = false;
 
     deskripsiAbsen.clear();
-    historyAbsen.value.clear();
+    //rhistoryAbsen.value.clear();
   }
 
   void absenSelfie() async {
@@ -565,21 +569,22 @@ class AbsenController extends GetxController {
   }
 
   void detection({file, type, status}) async {
+    employeDetail();
+    var bytes = File(file).readAsBytesSync();
+    base64fotoUser.value = base64Encode(bytes);
     Future.delayed(const Duration(milliseconds: 500), () {});
     File image = new File(file); // Or any other way to get a File instance.
     var decodedImage = await decodeImageFromList(image.readAsBytesSync());
 
-    print("fil path ${file}");
-
     try {
       var dataUser = AppData.informasiUser;
       var getEmpId = dataUser![0].em_id;
-      print(getEmpId);
-      print(getEmpId.toString());
+
       Map<String, String> body = {
         'em_id': getEmpId.toString(),
         'width': decodedImage.width.toString(),
-        'height': decodedImage.height.toString()
+        'height': decodedImage.height.toString(),
+
         // 'image': file.toString()
       };
       Map<String, String> headers = {
@@ -713,6 +718,7 @@ class AbsenController extends GetxController {
   }
 
   void kirimDataAbsensi() async {
+    employeDetail();
     // if (base64fotoUser.value == "") {
     //   UtilsAlert.showToast("Silahkan Absen");
     // } else {
@@ -742,7 +748,9 @@ class AbsenController extends GetxController {
             'em_id': getEmpId,
             'tanggal_absen': tanggalUserFoto.value,
             'waktu': timeString.value,
-            'gambar': validasiGambar,
+            // 'gambar': validasiGambar,
+            'reg_type': regType.value,
+            'gambar': base64fotoUser.value,
             'lokasi': alamatUserFoto.value,
             'latLang': latLangAbsen,
             'catatan': deskripsiAbsen.value.text,
@@ -801,7 +809,9 @@ class AbsenController extends GetxController {
           'em_id': getEmpId,
           'tanggal_absen': tanggalUserFoto.value,
           'waktu': timeString.value,
-          'gambar': validasiGambar,
+          // 'gambar': validasiGambar,
+          'reg_type': regType.value.toString(),
+          'gambar': base64fotoUser.value,
           'lokasi': alamatUserFoto.value,
           'latLang': latLangAbsen,
           'catatan': deskripsiAbsen.value.text,
@@ -920,8 +930,11 @@ class AbsenController extends GetxController {
 
   void loadHistoryAbsenUser() {
     historyAbsen.value.clear();
+
     var dataUser = AppData.informasiUser;
+
     var getEmpId = dataUser![0].em_id;
+    print(getEmpId);
     Map<String, dynamic> body = {
       'em_id': getEmpId,
       'bulan': bulanSelectedSearchHistory.value,
@@ -958,6 +971,7 @@ class AbsenController extends GetxController {
                 signout_note: el['signout_note'] ?? "",
                 signin_addr: el['signin_addr'] ?? "",
                 signout_addr: el['signout_addr'] ?? "",
+                reqType: el['reg_type'] ?? 0,
                 atttype: el['atttype'] ?? 0));
           }
           if (historyAbsen.value.length != 0) {
@@ -982,6 +996,7 @@ class AbsenController extends GetxController {
                     'signin_note': element1.signin_note,
                     'signin_longlat': element1.signin_longlat,
                     'signout_longlat': element1.signout_longlat,
+                    'reg_type': element1.reqType
                   };
                   stringDateAdaTurunan = "${element1.atten_date}";
                   valueTurunan.add(dataTurunan);
@@ -1021,6 +1036,7 @@ class AbsenController extends GetxController {
                   'signin_note': finalAllData[0]['signin_note'],
                   'signin_longlat': finalAllData[0]['signin_longlat'],
                   'signout_longlat': finalAllData[0]['signout_longlat'],
+                  'reg_type': finalAllData[0]['reg_type'],
                   'view_turunan': lengthTurunan,
                   'turunan': [],
                 };
@@ -2001,7 +2017,39 @@ class AbsenController extends GetxController {
           var valueBody = jsonDecode(res.body);
           var data = valueBody['data'];
           isTracking.value = data[0]['em_control'];
+          regType.value = data[0]['reg_type'];
+          print("Req tye ${regType.value}");
+          box.write("file_face", data[0]['file_face']);
 
+          if (data[0]['file_face'] == "" || data[0]['file_face'] == null) {
+            box.write("face_recog", false);
+          } else {
+            box.write("face_recog", true);
+          }
+        }
+        // Get.back();
+      }
+    });
+  }
+    void employeDetaiBpjs() {
+    // UtilsAlert.showLoadingIndicator(Get.context!);
+    var dataUser = AppData.informasiUser;
+    final box = GetStorage();
+
+    var id = dataUser![0].em_id;
+    print("em id ${id}");
+    Map<String, dynamic> body = {'val': 'em_id', 'cari': id};
+    var connect = Api.connectionApi("post", body, "whereOnce-employee");
+    connect.then((dynamic res) {
+      if (res == false) {
+        UtilsAlert.koneksiBuruk();
+      } else {
+        if (res.statusCode == 200) {
+          var valueBody = jsonDecode(res.body);
+          var data = valueBody['data'];
+          isTracking.value = data[0]['em_control'];
+          regType.value = data[0]['reg_type'];
+          print("Req tye ${regType.value}");
           box.write("file_face", data[0]['file_face']);
 
           if (data[0]['file_face'] == "" || data[0]['file_face'] == null) {

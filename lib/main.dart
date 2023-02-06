@@ -16,6 +16,7 @@ import 'package:siscom_operasional/model/notification_model.dart';
 import 'package:siscom_operasional/screen/absen/izin.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/screen/pesan/pesan.dart';
+import 'package:siscom_operasional/screen/slip_gaji/slip_gaji.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/local_storage.dart';
@@ -39,6 +40,7 @@ late List<CameraDescription> cameras;
 
 void main() async {
   await GetStorage.init();
+  AppData.clearAllData();
   cameras = await availableCameras();
 
   WidgetsFlutterBinding.ensureInitialized();
@@ -184,7 +186,9 @@ class MyApp extends StatelessWidget {
           Locale('en'),
         ],
         debugShowCheckedModeBanner: false,
-        home: SplashScreen());
+        home: SplashScreen()
+        // home: SlipGaji(),
+        );
   }
 }
 
@@ -211,11 +215,16 @@ class _SplashScreenState extends State<SplashScreen> {
           Container(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
-            decoration: const BoxDecoration(
-                image: DecorationImage(
-                    alignment: Alignment.topCenter,
-                    image: AssetImage('assets/Splash.png'),
-                    fit: BoxFit.cover)),
+            color: Constanst.colorPrimary,
+            // decoration: BoxDecoration(
+            //   borderRadius: BorderRadius.circular(19)
+            // ),
+            // decoration: const BoxDecoration(
+            //     image: DecorationImage(
+            //         alignment: Alignment.topCenter,
+            //         image: AssetImage('assets/Splash.png'),
+            //         fit: BoxFit.cover)
+            //         ),
           ),
           SizedBox(
               height: MediaQuery.of(context).size.height,
@@ -240,10 +249,10 @@ class _SplashScreenState extends State<SplashScreen> {
                         child: Padding(
                           padding: EdgeInsets.only(bottom: 20),
                           child: Text(
-                              "© Copyright 2022 PT. Shan Informasi Sistem",
+                              "© Copyright 2022 PT. Shan Informasi Sistem\nBuilld Version 2022.10.17",
+                              textAlign: TextAlign.center,
                               style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
+                                  color: Constanst.colorPrimaryLight,
                                   fontSize: 10)),
                         ),
                       ),

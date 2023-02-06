@@ -11,6 +11,7 @@ import 'package:new_version_plus/new_version_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
+import 'package:siscom_operasional/controller/bpjs.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
 import 'package:siscom_operasional/controller/global_controller.dart';
 import 'package:siscom_operasional/controller/pesan_controller.dart';
@@ -41,17 +42,17 @@ class _DashboardState extends State<Dashboard> {
   final controllerAbsensi = Get.put(AbsenController());
   final controllerPesan = Get.put(PesanController());
   var controllerGlobal = Get.put(GlobalController());
+  var controllerBpj = Get.put(BpjsController());
 
   Future<void> refreshData() async {
     controller.refreshPagesStatus.value = true;
     await Future.delayed(Duration(seconds: 2));
     setState(() {
-      
+      controllerBpj.employeDetaiBpjs();
       controllerAbsensi.employeDetail();
       controller.updateInformasiUser();
       controller.onInit();
       controllerAbsensi.userShift();
-
     });
   }
 
@@ -59,254 +60,266 @@ class _DashboardState extends State<Dashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Constanst.coloBackgroundScreen,
-      body: Stack(
-        children: [
-          Container(
-            height: 200,
-            width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    alignment: Alignment.topCenter,
-                    image: AssetImage('assets/bg_dashboard.png'),
-                    fit: BoxFit.cover)),
-          ),
-          Obx(
-            () => Padding(
-              padding: EdgeInsets.only(left: 16, right: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(
-                    height: 40,
-                  ),
-                  Text(
-                    "PT. Shan Informasi Sistem",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  controller.refreshPagesStatus.value
-                      ? UtilsAlert.shimmerInfoPersonal(Get.context!)
-                      : Obx(() => informasiUser()),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  InkWell(
-                      onTap: () {
-                        // widgetButtomSheetFaceRegistrattion();
-                      },
-                      child: cardInfoAbsen()),
-                  SizedBox(
-                    height: 20,
-                  ),
-                  Flexible(
-                      flex: 3,
-                      child: RefreshIndicator(
-                        onRefresh: refreshData,
-                        child: SingleChildScrollView(
-                          physics: BouncingScrollPhysics(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              controller.menuShowInMain.value.isEmpty
-                                  ? SizedBox()
-                                  : listModul(),
-                              SizedBox(
-                                height: 15,
-                              ),
-                              controller.menuShowInMain.value.isEmpty
-                                  ? UtilsAlert.shimmerMenuDashboard(
-                                      Get.context!)
-                                  : MenuDashboard(),
-                              cardFormPengajuan(),
-                              SizedBox(
-                                height: 8,
-                              ),
-                              controller.bannerDashboard.value.isEmpty
-                                  ? SizedBox()
-                                  : sliderBanner(),
-                              SizedBox(
-                                height: 8,
-                              ),
-                              controller.informasiDashboard.value.isEmpty
-                                  ? SizedBox()
-                                  : Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                            flex: 70,
-                                            child: Text(
-                                              "Informasi",
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Constanst.colorText3),
-                                            )),
-                                        Expanded(
-                                            flex: 30,
-                                            child: InkWell(
-                                              onTap: () => Get.offAll(Informasi(
-                                                index: 0,
-                                              )),
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 6.0),
-                                                child: Text(
-                                                  "Lihat semua",
-                                                  textAlign: TextAlign.end,
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Constanst
-                                                          .colorPrimary),
-                                                ),
-                                              ),
-                                            ))
-                                      ],
-                                    ),
-                              controller.informasiDashboard.value.isEmpty
-                                  ? SizedBox()
-                                  : SizedBox(
-                                      height: 16,
-                                    ),
-                              controller.informasiDashboard.value.isEmpty
-                                  ? SizedBox()
-                                  : listInformasi(),
-                              SizedBox(
-                                height: 8,
-                              ),
-                              controllerGlobal.employeeSisaCuti.value.isEmpty
-                                  ? SizedBox()
-                                  : Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                            flex: 70,
-                                            child: Text(
-                                              "Reminder PKWT",
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Constanst.colorText3),
-                                            )),
-                                        Expanded(
-                                            flex: 30,
-                                            child: InkWell(
-                                              onTap: () => Get.offAll(Informasi(
-                                                index: 3,
-                                              )),
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 4.0),
-                                                child: Text(
-                                                  "Lihat semua",
-                                                  textAlign: TextAlign.end,
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Constanst
-                                                          .colorPrimary),
-                                                ),
-                                              ),
-                                            ))
-                                      ],
-                                    ),
-                              controllerGlobal.employeeSisaCuti.isEmpty
-                                  ? SizedBox()
-                                  : SizedBox(
-                                      height: 8,
-                                    ),
-                              controllerGlobal.employeeSisaCuti.isEmpty
-                                  ? SizedBox()
-                                  : listReminderPkwt(),
-                              SizedBox(
-                                height: 8,
-                              ),
-                              controller.employeeUltah.isEmpty
-                                  ? SizedBox()
-                                  : Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
-                                            flex: 70,
-                                            child: Text(
-                                              "Ulang tahun bulan ini",
-                                              style: TextStyle(
-                                                  fontSize: 18,
-                                                  fontWeight: FontWeight.bold,
-                                                  color: Constanst.colorText3),
-                                            )),
-                                        Expanded(
-                                            flex: 30,
-                                            child: InkWell(
-                                              onTap: () => Get.offAll(
-                                                Informasi(index: 1),
-                                              ),
-                                              child: Padding(
-                                                padding: const EdgeInsets.only(
-                                                    top: 4.0),
-                                                child: Text(
-                                                  "Lihat semua",
-                                                  textAlign: TextAlign.end,
-                                                  style: TextStyle(
-                                                      fontSize: 12,
-                                                      color: Constanst
-                                                          .colorPrimary),
-                                                ),
-                                              ),
-                                            ))
-                                      ],
-                                    ),
-                              controller.employeeUltah.isEmpty
-                                  ? SizedBox()
-                                  : SizedBox(
-                                      height: 8,
-                                    ),
-                              controller.employeeUltah.isEmpty
-                                  ? SizedBox()
-                                  : listEmployeeUltah(),
-                              controller.employeeUltah.isEmpty
-                                  ? SizedBox()
-                                  : SizedBox(
-                                      height: 20,
-                                    ),
-                            ],
-                          ),
-                        ),
-                      ))
-
-                  // Padding(
-                  //   padding: const EdgeInsets.only(left: 5, right: 5),
-                  //   child: Row(
-                  //     crossAxisAlignment: CrossAxisAlignment.start,
-                  //     children: [
-                  //       Expanded(
-                  //         child: Text(
-                  //           "Menu",
-                  //           style: TextStyle(
-                  //               fontWeight: FontWeight.bold, fontSize: 14),
-                  //         ),
-                  //       ),
-                  //       Expanded(
-                  //         child: Text(
-                  //           "Lihat semua",
-                  //           textAlign: TextAlign.right,
-                  //           style: TextStyle(
-                  //               fontWeight: FontWeight.bold,
-                  //               color: Constanst.colorPrimary,
-                  //               fontSize: 10),
-                  //         ),
-                  //       )
-                  //     ],
-                  //   ),
-                  // ),
-                ],
-              ),
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light
+            .copyWith(statusBarColor: Colors.transparent),
+        child: Stack(
+          children: [
+            Container(
+              height: 200,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      alignment: Alignment.topCenter,
+                      image: AssetImage('assets/bg_dashboard.png'),
+                      fit: BoxFit.cover)),
             ),
-          )
-        ],
+            Obx(
+              () => Padding(
+                padding: EdgeInsets.only(left: 16, right: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(
+                      height: 40,
+                    ),
+                    Text(
+                      "PT. Shan Informasi Sistem",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    controller.refreshPagesStatus.value
+                        ? UtilsAlert.shimmerInfoPersonal(Get.context!)
+                        : Obx(() => informasiUser()),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    InkWell(
+                        onTap: () {
+                          // widgetButtomSheetFaceRegistrattion();
+                        },
+                        child: cardInfoAbsen()),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Flexible(
+                        flex: 3,
+                        child: RefreshIndicator(
+                          onRefresh: refreshData,
+                          child: SingleChildScrollView(
+                            physics: BouncingScrollPhysics(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                controller.menuShowInMain.value.isEmpty
+                                    ? SizedBox()
+                                    : listModul(),
+                                SizedBox(
+                                  height: 15,
+                                ),
+                                controller.menuShowInMain.value.isEmpty
+                                    ? UtilsAlert.shimmerMenuDashboard(
+                                        Get.context!)
+                                    : MenuDashboard(),
+                                cardFormPengajuan(),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                controller.bannerDashboard.value.isEmpty
+                                    ? SizedBox()
+                                    : sliderBanner(),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                controller.informasiDashboard.value.isEmpty
+                                    ? SizedBox()
+                                    : Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                              flex: 70,
+                                              child: Text(
+                                                "Informasi",
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color:
+                                                        Constanst.colorText3),
+                                              )),
+                                          Expanded(
+                                              flex: 30,
+                                              child: InkWell(
+                                                onTap: () =>
+                                                    Get.offAll(Informasi(
+                                                  index: 0,
+                                                )),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 6.0),
+                                                  child: Text(
+                                                    "Lihat semua",
+                                                    textAlign: TextAlign.end,
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Constanst
+                                                            .colorPrimary),
+                                                  ),
+                                                ),
+                                              ))
+                                        ],
+                                      ),
+                                controller.informasiDashboard.value.isEmpty
+                                    ? SizedBox()
+                                    : SizedBox(
+                                        height: 16,
+                                      ),
+                                controller.informasiDashboard.value.isEmpty
+                                    ? SizedBox()
+                                    : listInformasi(),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                controllerGlobal.employeeSisaCuti.value.isEmpty
+                                    ? SizedBox()
+                                    : Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                              flex: 70,
+                                              child: Text(
+                                                "Reminder PKWT",
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color:
+                                                        Constanst.colorText3),
+                                              )),
+                                          Expanded(
+                                              flex: 30,
+                                              child: InkWell(
+                                                onTap: () =>
+                                                    Get.offAll(Informasi(
+                                                  index: 3,
+                                                )),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 4.0),
+                                                  child: Text(
+                                                    "Lihat semua",
+                                                    textAlign: TextAlign.end,
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Constanst
+                                                            .colorPrimary),
+                                                  ),
+                                                ),
+                                              ))
+                                        ],
+                                      ),
+                                controllerGlobal.employeeSisaCuti.isEmpty
+                                    ? SizedBox()
+                                    : SizedBox(
+                                        height: 8,
+                                      ),
+                                controllerGlobal.employeeSisaCuti.isEmpty
+                                    ? SizedBox()
+                                    : listReminderPkwt(),
+                                SizedBox(
+                                  height: 8,
+                                ),
+                                controller.employeeUltah.isEmpty
+                                    ? SizedBox()
+                                    : Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Expanded(
+                                              flex: 70,
+                                              child: Text(
+                                                "Ulang tahun bulan ini",
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    fontWeight: FontWeight.bold,
+                                                    color:
+                                                        Constanst.colorText3),
+                                              )),
+                                          Expanded(
+                                              flex: 30,
+                                              child: InkWell(
+                                                onTap: () => Get.offAll(
+                                                  Informasi(index: 1),
+                                                ),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          top: 4.0),
+                                                  child: Text(
+                                                    "Lihat semua",
+                                                    textAlign: TextAlign.end,
+                                                    style: TextStyle(
+                                                        fontSize: 12,
+                                                        color: Constanst
+                                                            .colorPrimary),
+                                                  ),
+                                                ),
+                                              ))
+                                        ],
+                                      ),
+                                controller.employeeUltah.isEmpty
+                                    ? SizedBox()
+                                    : SizedBox(
+                                        height: 8,
+                                      ),
+                                controller.employeeUltah.isEmpty
+                                    ? SizedBox()
+                                    : listEmployeeUltah(),
+                                controller.employeeUltah.isEmpty
+                                    ? SizedBox()
+                                    : SizedBox(
+                                        height: 20,
+                                      ),
+                              ],
+                            ),
+                          ),
+                        ))
+
+                    // Padding(
+                    //   padding: const EdgeInsets.only(left: 5, right: 5),
+                    //   child: Row(
+                    //     crossAxisAlignment: CrossAxisAlignment.start,
+                    //     children: [
+                    //       Expanded(
+                    //         child: Text(
+                    //           "Menu",
+                    //           style: TextStyle(
+                    //               fontWeight: FontWeight.bold, fontSize: 14),
+                    //         ),
+                    //       ),
+                    //       Expanded(
+                    //         child: Text(
+                    //           "Lihat semua",
+                    //           textAlign: TextAlign.right,
+                    //           style: TextStyle(
+                    //               fontWeight: FontWeight.bold,
+                    //               color: Constanst.colorPrimary,
+                    //               fontSize: 10),
+                    //         ),
+                    //       )
+                    //     ],
+                    //   ),
+                    // ),
+                  ],
+                ),
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -943,7 +956,7 @@ class _DashboardState extends State<Dashboard> {
                     crossAxisCount: 4,
                     childAspectRatio: MediaQuery.of(context).size.width /
                         (MediaQuery.of(context).size.height /
-                            controller. .value),
+                            controller.ratioDevice.value),
                   ),
                   itemBuilder: (context, idxMenu) {
                     var gambar = controller.menuShowInMain[index]['menu']
@@ -1283,13 +1296,9 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    // _checkversion();
-    new Future.delayed(Duration(seconds: 5), () {
-      // deleayed code here
-      // widgetButtomSheetFaceRegistrattion();
-    });
+    controllerBpj.employeDetaiBpjs();
+    controllerAbsensi.employeDetail();
   }
 
   void _checkversion() async {

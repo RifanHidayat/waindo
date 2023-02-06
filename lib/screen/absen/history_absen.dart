@@ -1,11 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
-import 'package:siscom_operasional/controller/dashboard_controller.dart';
-import 'package:siscom_operasional/screen/absen/detail_absen.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:siscom_operasional/screen/absen/laporan/laporan_absen.dart';
 import 'package:siscom_operasional/screen/absen/laporan/laporan_absen_telat.dart';
@@ -14,8 +11,7 @@ import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/appbar_widget.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/month_year_picker.dart';
-import 'package:siscom_operasional/utils/widget_textButton.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
+
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 
 class HistoryAbsen extends StatefulWidget {
@@ -26,11 +22,12 @@ class HistoryAbsen extends StatefulWidget {
 }
 
 class _HistoryAbsenState extends State<HistoryAbsen> {
-  final controller = Get.put(AbsenController());
+  var controller = Get.put(AbsenController());
 
   @override
   void initState() {
     super.initState();
+    controller.loadHistoryAbsenUser();
   }
 
   Future<void> refreshData() async {
@@ -258,6 +255,8 @@ class _HistoryAbsenState extends State<HistoryAbsen> {
               controller.historyAbsenShow.value[index]['signin_longlat'] ?? '';
           var signOutLongLat =
               controller.historyAbsenShow.value[index]['signout_longlat'] ?? '';
+          var reqType =
+              controller.historyAbsenShow.value[index]['reg_type'] ?? '';
 
           var statusView;
           var listJamMasuk;
@@ -330,10 +329,19 @@ class _HistoryAbsenState extends State<HistoryAbsen> {
               flex: 90,
               child: Padding(
                 padding: const EdgeInsets.only(top: 6),
-                child: Text(
-                    "${Constanst.convertDate('${index['atten_date']}')}",
-                    style:
-                        TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text("${Constanst.convertDate('${index['atten_date']}')}",
+                        style: TextStyle(
+                            fontSize: 14, fontWeight: FontWeight.bold)),
+                    Text(
+                        "Type : ${index['reg_type'] == 0 ? "Face Recognition" : "Photo"}",
+                        style: TextStyle(
+                          fontSize: 9,
+                        )),
+                  ],
+                ),
               ),
             ),
             Expanded(
@@ -374,6 +382,7 @@ class _HistoryAbsenState extends State<HistoryAbsen> {
     var note = index['signin_note'] ?? '';
     var signInLongLat = index['signin_longlat'] ?? '';
     var signOutLongLat = index['signout_longlat'] ?? '';
+    var regType = index['regtype'] ?? 0;
     var statusView;
     if (placeIn != "") {
       statusView =
@@ -420,10 +429,20 @@ class _HistoryAbsenState extends State<HistoryAbsen> {
                   children: [
                     Expanded(
                       flex: 40,
-                      child: Text(
-                          "${Constanst.convertDate('${index['atten_date']}')}",
-                          style: TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.bold)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                              "${Constanst.convertDate('${index['atten_date']}')}",
+                              style: TextStyle(
+                                  fontSize: 14, fontWeight: FontWeight.bold)),
+                          Text(
+                              "Type : ${regType == 0 ? "Face Recognition" : "Photo"}",
+                              style: TextStyle(
+                                fontSize: 10,
+                              )),
+                        ],
+                      ),
                     ),
                     Expanded(
                       flex: 25,

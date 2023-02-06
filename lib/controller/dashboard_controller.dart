@@ -11,6 +11,7 @@ import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
+import 'package:siscom_operasional/controller/bpjs.dart';
 import 'package:siscom_operasional/model/menu_dashboard_model.dart';
 import 'package:google_maps_utils/google_maps_utils.dart';
 import 'package:siscom_operasional/model/user_model.dart';
@@ -24,11 +25,14 @@ import 'package:siscom_operasional/screen/absen/tugas_luar.dart';
 import 'package:siscom_operasional/screen/absen/form/form_pengajuan_cuti.dart';
 import 'package:siscom_operasional/screen/absen/riwayat_cuti.dart';
 import 'package:siscom_operasional/screen/absen/izin.dart';
+import 'package:siscom_operasional/screen/bpjs/bpjs_kesehatan.dart';
+import 'package:siscom_operasional/screen/bpjs/bpjs_ketenagakerjaan.dart';
 import 'package:siscom_operasional/screen/diskusi/ruang_diskusi.dart';
 import 'package:siscom_operasional/screen/kandidat/form_kandidat.dart';
 import 'package:siscom_operasional/screen/kandidat/list_kandidat.dart';
 import 'package:siscom_operasional/screen/klaim/form_klaim.dart';
 import 'package:siscom_operasional/screen/klaim/riwayat_klaim.dart';
+import 'package:siscom_operasional/screen/slip_gaji/slip_gaji.dart';
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
@@ -40,6 +44,8 @@ class DashboardController extends GetxController {
   CarouselController corouselDashboard = CarouselController();
   PageController menuController = PageController(initialPage: 0);
   PageController informasiController = PageController(initialPage: 0);
+
+  var bpjsController = Get.put(BpjsController());
 
   var controllerAbsensi = Get.put(AbsenController());
 
@@ -93,9 +99,13 @@ class DashboardController extends GetxController {
     super.onInit();
   }
 
-  void kirimNotification({title,body,token,bulan,tahun,})async {
-
-  }
+  void kirimNotification({
+    title,
+    body,
+    token,
+    bulan,
+    tahun,
+  }) async {}
 
   void getUserInfo() {
     var userTampung = AppData.informasiUser!
@@ -338,6 +348,9 @@ class DashboardController extends GetxController {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
         List data = valueBody['data'];
+        print("data pengajuan" + valueBody['data_pengajuan1'].toString());
+        data.addAll(valueBody['data_pengajuan1']);
+        data.addAll(valueBody['data_pengajuan2']);
         data.sort((a, b) => a['full_name']
             .toUpperCase()
             .compareTo(b['full_name'].toUpperCase()));
@@ -545,6 +558,24 @@ class DashboardController extends GetxController {
         UtilsAlert.showToast('Maaf anda tidak memiliki akses menu ini');
       } else {
         Get.offAll(Kandidat());
+      }
+    } else if (url == "SlipGaji") {
+      Get.to(SlipGaji());
+    } else if (url == "BpjsKesehatan") {
+      if (bpjsController.bpjsKesehatanNumber.value == "" ||
+          bpjsController.bpjsKesehatanNumber.value == null) {
+        UtilsAlert.showToast(
+            "Nomor BPJS anda belum tersedia,harap hubungi HRD");
+      } else {
+        Get.to(BpjsKesehatan());
+      }
+    } else if (url == "BpjsTenagaKerja") {
+      if (bpjsController.BpjsKetenagakerjaanNumber.value == "" ||
+          bpjsController.BpjsKetenagakerjaanNumber.value == null) {
+        UtilsAlert.showToast(
+            "Nomor BPJS anda belum tersedia,harap hubungi HRD");
+      } else {
+        Get.to(BpjsKetenagakerjaan());
       }
     } else if (url == "lainnya") {
       widgetButtomSheetMenuLebihDetail();

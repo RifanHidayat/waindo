@@ -5,10 +5,13 @@ import 'dart:math';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:screenshot/screenshot.dart';
 
 import 'package:siscom_operasional/controller/absen_controller.dart';
+import 'package:siscom_operasional/screen/face_detector_pointer.dart';
+import 'package:siscom_operasional/utils/widget_utils.dart';
 
 import 'camera_view.dart';
 
@@ -27,6 +30,9 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
     options: FaceDetectorOptions(
       enableContours: true,
       enableClassification: true,
+
+      // enableContours: true,
+      // enableClassification: true,
     ),
   );
   bool _canProcess = true;
@@ -39,9 +45,15 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
   var isSent = false;
   ScreenshotController screenshotController = ScreenshotController();
 
+  bool isBlink1 = false;
+  bool isBlink2 = false;
+
   File? img;
   var isBusyNumber = 0;
   var isCompatible = true;
+  var blinkTotal = 1;
+  var fileImage = File("").obs;
+  var faceCount = 0;
 
   @override
   void dispose() {
@@ -57,6 +69,84 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
     print("status ${widget.status}");
   }
 
+  Future<void> processImage(InputImage inputImage) async {
+    try {
+      if (!_canProcess) return;
+      if (_isBusy) return;
+      _isBusy = true;
+      setState(() {
+        _text = '';
+      });
+
+      final faces = await _faceDetector.processImage(inputImage);
+      if (faces.isEmpty) {
+        setState(() {
+          faceCount = faceCount + 1;
+        });
+      } else {
+        setState(() {
+          faceCount = 0;
+        });
+      }
+
+      if (inputImage.inputImageData?.size != null &&
+          inputImage.inputImageData?.imageRotation != null) {
+        for (Face face in faces) {
+          // If classification was enabled with FaceDetectorOptions:
+          if (face.leftEyeOpenProbability == null ||
+              face.rightEyeOpenProbability == null) {
+          } else {
+            double? rightEye = face.leftEyeOpenProbability ?? 0.0;
+            double? leftEye = face.rightEyeOpenProbability ?? 0.0;
+
+            if (rightEye! >= 0.6 && leftEye >= 0.6) {
+              setState(() {
+                isBlink1 = true;
+              });
+            } else {
+              if (isBlink1 == true) {
+                if (rightEye <= 0.3 && leftEye! <= 0.3) {
+                  isBlink2 = true;
+                } else {
+                  isBlink1 = false;
+                  isBlink2 = false;
+                }
+              } else {
+                isBlink2 = false;
+              }
+              //isBlink1 = false;
+            }
+            if (isBlink1 == true && isBlink2 == true) {
+              setState(() {
+                blinkTotal = blinkTotal - 1;
+                isBlink1 = false;
+                isBlink2 = false;
+              });
+              if (blinkTotal > 0) {
+                UtilsAlert.showToast("Kedipan matamu ${blinkTotal}x lagi");
+              }
+            }
+          }
+        }
+      } else {
+        String text = 'Faces found: ${faces.length}\n\n';
+        for (final face in faces) {
+          text += 'face: ${face.boundingBox}\n\n';
+        }
+        _text = text;
+        // TODO: set _customPaint to draw boundingRect on top of image
+        _customPaint = null;
+      }
+      _isBusy = false;
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      Get.back();
+      print(e);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return img != null
@@ -64,120 +154,167 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
             padding: const EdgeInsets.all(20.0),
             child: Image.file(File(img!.path)),
           )
-        : Screenshot(
-            controller: screenshotController,
-            child: CameraView(
-              isCompatible: isCompatible,
-              percentIndicator: blinkEye,
-              title: 'Face Detector',
-              customPaint: _customPaint,
-              status: widget.status,
-              text: _text,
-              onImage: (inputImage) {
-                // processImage(inputImage);
-              },
-              initialDirection: CameraLensDirection.front,
-            ),
+        : CameraView(
+            isCompatible: isCompatible,
+            percentIndicator: blinkEye,
+            blinkTtotal: blinkTotal,
+            title: 'Face Detector',
+            customPaint: _customPaint,
+            status: widget.status,
+            faceCount: faceCount,
+            text: _text,
+            onImage: (inputImage) {
+              processImage(inputImage);
+              // process(inputImage);
+            },
+            initialDirection: CameraLensDirection.front,
           );
   }
 
-  // Future<void> processImage(InputImage inputImage) async {
-  //   if (!_canProcess) {
-  //     print("can proses");
-  //     return;
-  //   }
-  //   if (_isBusy) {
-  //     return;
-  //   }
-  //   _isBusy = true;
-  //   try {
-  //     final List<Face> faces = await _faceDetector.processImage(inputImage);
-  //     if (faces.isNotEmpty) {
-  //       setState(() {
-  //         isCompatible = false;
-  //       });
-  //     }
-  //     for (Face face in faces) {
-  //       // If classification was enabled with FaceDetectorOptions:
-  //       if (face.leftEyeOpenProbability == null ||
-  //           face.rightEyeOpenProbability == null) {
-  //       } else {
-  //         final double? rightEye = face.leftEyeOpenProbability;
-  //         final double? leftEye = face.rightEyeOpenProbability;
+  Future<void> process(InputImage inputImage) async {
+    final List<Face> faces = await _faceDetector.processImage(inputImage);
 
-  //         if (rightEye! <= 0.15 && leftEye! <= 0.15) {
-  //           if (blinkEye >= 1.0) {
-  //             setState(() {
-  //               blinkEye = 1.0;
-  //             });
-  //           } else {
-  //             setState(() {
-  //               blinkEye += 0.5;
-  //             });
-  //           }
-  //         }
-  //         if (blinkEye >= 1.0) {
-  //           // setImage();
-  //           _canProcess = false;
-  //           _faceDetector.close();
-  //         }
-  //       }
+    for (Face face in faces) {
+      final Rect boundingBox = face.boundingBox;
+      print("bound ${boundingBox}");
 
-  //       // If face tracking was enabled with FaceDetectorOptions:
-  //       if (face.trackingId != null) {
-  //         final int? id = face.trackingId;
-  //       }
+      final double? rotX =
+          face.headEulerAngleX; // Head is tilted up and down rotX degrees
+      final double? rotY =
+          face.headEulerAngleY; // Head is rotated to the right rotY degrees
+      final double? rotZ =
+          face.headEulerAngleZ; // Head is tilted sideways rotZ degrees
 
-  //       _isBusy = false;
+      // If landmark detection was enabled with FaceDetectorOptions (mouth, ears,
+      // eyes, cheeks, and nose available):
+      final FaceLandmark? leftEar = face.landmarks[FaceLandmarkType.leftEar];
+      if (leftEar != null) {
+        final Point<int> leftEarPos = leftEar.position;
+      }
+      final double? leftEye = face.rightEyeOpenProbability;
+      print("left eye ${leftEye}");
 
-  //       if (mounted) {}
-  //     }
-  //   } catch (e) {}
-  //   // });
-  // }
+      // If classification was enabled with FaceDetectorOptions:
+      if (face.smilingProbability != null) {
+        final double? smileProb = face.smilingProbability;
+      }
 
-  // void setImage() async {
-  //   if (isSent == false) {
-  //     await screenshotController
-  //         .capture(delay: const Duration(milliseconds: 1000))
-  //         .then((image) async {
-  //       if (image != null) {
-  //         // Get.back();
-  //         final tempDir = await getTemporaryDirectory();
-  //         File file = await File('${tempDir.path}/image.jpeg').create();
-  //         file.writeAsBytesSync(image);
-  //         isSent = true;
+      // If face tracking was enabled with FaceDetectorOptions:
+      if (face.trackingId != null) {
+        final int? id = face.trackingId;
+      }
+    }
+  }
 
-  //         setState(() {
-  //           img = File(file.path);
+  Future<void> takePicture() async {
+    final getFoto = await ImagePicker().pickImage(
+        source: ImageSource.camera,
+        preferredCameraDevice: CameraDevice.front,
+        imageQuality: 100,
+        maxHeight: 350,
+        maxWidth: 350);
+    if (getFoto != null) {
+      fileImage.value = File(getFoto.path);
 
-  //           Future.delayed(const Duration(milliseconds: 500), () {
-  //             // controllerAbsensi.facedDetecxtion(
-  //             //     status: "detection",
-  //             //     absenStatus: "Absen Masuk",
-  //             //     img: File(img!.path),
-  //             //     type: "1");
-  //           });
-  //         });
-  //       }
-  //     });
-  //   }
-  // }
-  // Future<File> takePicture() async{
-  //   Directory root=await getTemporaryDirectory();
-  //   String direcotryPath="${root.path}/guided_camra";
-  //   await Directory(direcotryPath).create(recursive: true);
-  //   String filePath="${direcotryPath}/${DateTime.now()}.jpg";
+      print(getFoto.path);
+      process(InputImage.fromFilePath(getFoto.path));
+    }
 
-  //   try{
-  //     await cont
+    // Future<void> processImage(InputImage inputImage) async {
+    //   print("tts");
+    //   if (!_canProcess) {
+    //     print("can proses");
+    //     return;
+    //   }
+    //   if (_isBusy) {
+    //     return;
+    //   }
+    //   _isBusy = true;
+    //   try {
+    //     final List<Face> faces = await _faceDetector.processImage(inputImage);
 
-  //   }catch(e){
+    //     for (Face face in faces) {
+    //       // If classification was enabled with FaceDetectorOptions:
+    //       if (face.leftEyeOpenProbability == null ||
+    //           face.rightEyeOpenProbability == null) {
+    //       } else {
+    //         final double? rightEye = face.leftEyeOpenProbability;
+    //         final double? leftEye = face.rightEyeOpenProbability;
+    //         print(rightEye);
 
-  //   }
+    //         // if (rightEye! <= 0.15 && leftEye! <= 0.15) {
+    //         //   if (blinkEye >= 1.0) {
+    //         //     setState(() {
+    //         //       blinkEye = 1.0;
+    //         //     });
+    //         //   } else {
+    //         //     setState(() {
+    //         //       blinkEye += 0.5;
+    //         //     });
+    //         //   }
+    //         // }
+    //         // if (blinkEye >= 1.0) {
+    //         //   // setImage();
+    //         //   _canProcess = false;
+    //         //   _faceDetector.close();
+    //         // }
+    //       }
 
-  // }
-}
+    //       // If face tracking was enabled with FaceDetectorOptions:
+    //       if (face.trackingId != null) {
+    //         final int? id = face.trackingId;
+    //       }
+
+    //       _isBusy = false;
+
+    //       if (mounted) {}
+    //     }
+    //   } catch (e) {}
+    //   // });
+    // }
+
+    // void setImage() async {
+    //   if (isSent == false) {
+    //     await screenshotController
+    //         .capture(delay: const Duration(milliseconds: 1000))
+    //         .then((image) async {
+    //       if (image != null) {
+    //         // Get.back();
+    //         final tempDir = await getTemporaryDirectory();
+    //         File file = await File('${tempDir.path}/image.jpeg').create();
+    //         file.writeAsBytesSync(image);
+    //         isSent = true;
+
+    //         setState(() {
+    //           img = File(file.path);
+
+    //           Future.delayed(const Duration(milliseconds: 500), () {
+    //             // controllerAbsensi.facedDetecxtion(
+    //             //     status: "detection",
+    //             //     absenStatus: "Absen Masuk",
+    //             //     img: File(img!.path),
+    //             //     type: "1");
+    //           });
+    //         });
+    //       }
+    //     });
+    //   }
+    // }
+    // Future<File> takePicture() async{
+    //   Directory root=await getTemporaryDirectory();
+    //   String direcotryPath="${root.path}/guided_camra";
+    //   await Directory(direcotryPath).create(recursive: true);
+    //   String filePath="${direcotryPath}/${DateTime.now()}.jpg";
+
+    //   try{
+    //     await cont
+
+    //   }catch(e){
+
+    //   }
+
+    // }
+  }
 
 // import 'package:camera/camera.dart';
 // import 'package:flutter/material.dart';
@@ -209,7 +346,6 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
 //   CustomPaint? _customPaint;
 //   String? _text;
 //   CameraController? _controller;
-
 
 //   @override
 //   void dispose() {
@@ -317,3 +453,4 @@ class _FaceDetectorViewState extends State<FaceDetectorView> {
 //     }
 //   }
 // }
+}

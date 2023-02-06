@@ -44,6 +44,7 @@ class OnboardController extends GetxController {
   void validasiToNextRoute() async {
     loading.value = true;
     var dataInformasiUser = AppData.informasiUser;
+
     if (dataInformasiUser != null) {
       validasiUser();
     } else {
@@ -56,14 +57,17 @@ class OnboardController extends GetxController {
     print("validasion masuk");
     var dataUser = AppData.informasiUser;
     var getEmid = dataUser![0].em_id;
+
     Map<String, dynamic> body = {'em_id': getEmid};
     var connect = Api.connectionApi("post", body, "refresh_employee");
+
     connect.then((dynamic res) {
       var valueBody = jsonDecode(res.body);
+
       if (valueBody['status'] == true) {
         var dateNow = DateTime.now();
         var convert = DateFormat('yyyy-MM-dd').format(dateNow);
-   
+
         checkAbsenUser(convert, getEmid);
       } else {
         AppData.informasiUser = null;
@@ -72,38 +76,47 @@ class OnboardController extends GetxController {
     });
   }
 
-  void checkAbsenUser(convert, getEmid) {
+  void checkAbsenUser(convert, getEmid) async {
     Map<String, dynamic> body = {'atten_date': convert, 'em_id': getEmid};
+    print(body);
+
     var connect = Api.connectionApi("post", body, "view_last_absen_user");
-    connect.then((dynamic res) {
-      if (res.statusCode == 200) {
-        var valueBody = jsonDecode(res.body);
-        List data = valueBody['data'];
-        if (data.isEmpty) {
-          loading.value = false;
-          AppData.statusAbsen = false;
+    var value = await connect;
+    var valueBody = jsonDecode(value.body);
 
-          Future.delayed(Duration.zero, () {
-            // Get.offAll(InitScreen());
-          });
-        } else {
-          var tanggalTerakhirAbsen = data[0]['atten_date'];
-          if (tanggalTerakhirAbsen == convert) {
-            loading.value = false;
-            // print("siggin time ${data[0]['sign_time']}");
-            AppData.statusAbsen =
-                data[0]['signout_time'] == "00:00:00" ? true : false;
+    List data = valueBody['data'];
 
-            Get.offAll(InitScreen());
-          } else {
-            loading.value = false;
-            AppData.statusAbsen = false;
+    print('data response $valueBody');
+    if (data.isEmpty) {
+      loading.value = false;
+      AppData.statusAbsen = false;
+      Get.offAll(InitScreen());
+      // Future.delayed(Duration.zero, () {});
+    } else {
+      var tanggalTerakhirAbsen = data[0]['atten_date'];
+      if (tanggalTerakhirAbsen == convert) {
+        loading.value = false;
+        // print("siggin time ${data[0]['sign_time']}");
+        AppData.statusAbsen =
+            data[0]['signout_time'] == "00:00:00" ? true : false;
 
-            Get.offAll(InitScreen());
-          }
-        }
+        Get.offAll(InitScreen());
+      } else {
+        loading.value = false;
+        AppData.statusAbsen = false;
+
+        Get.offAll(InitScreen());
       }
-    });
+    }
+
+    // conne.then((dynamic res) {
+    //   if (res.statusCode == 200) {
+    //     var valueBody = jsonDecode(res.body);
+
+    //     print("value body ${valueBody}");
+
+    //   }
+    // });
   }
 
   void iniFaceRecog() async {

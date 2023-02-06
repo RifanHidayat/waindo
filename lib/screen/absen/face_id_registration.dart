@@ -1,16 +1,9 @@
 import 'dart:io';
-import 'dart:math';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:screenshot/screenshot.dart';
-
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/screen/absen/camera_view_register.dart';
-
-import 'camera_view.dart';
-
 import 'package:get/get.dart';
 
 class FaceidRegistration extends StatefulWidget {

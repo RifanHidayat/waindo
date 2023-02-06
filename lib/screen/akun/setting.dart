@@ -12,7 +12,7 @@ import 'package:siscom_operasional/screen/akun/info_karyawan.dart';
 import 'package:siscom_operasional/screen/akun/personal_info.dart';
 import 'package:siscom_operasional/screen/akun/pusat_bantuan.dart';
 import 'package:siscom_operasional/utils/api.dart';
-import 'package:siscom_operasional/utils/app_data.dart';
+
 import 'package:siscom_operasional/utils/constans.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 
@@ -506,7 +506,8 @@ class _SettingState extends State<Setting> {
                                   : Text(
                                       "Sudah Registrasi",
                                       style: TextStyle(
-                                          fontSize: 12, color: Colors.blue),
+                                          fontSize: 12,
+                                          color: Constanst.colorPrimary),
                                     ),
                             ],
                           ),

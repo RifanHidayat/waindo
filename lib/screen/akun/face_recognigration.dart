@@ -120,7 +120,8 @@ class FaceRecognition extends StatelessWidget {
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
-                                        width: 1, color: HexColor('#2F80ED'))),
+                                        width: 1,
+                                        color: Constanst.colorPrimary)),
                                 child: Padding(
                                   padding: EdgeInsets.only(
                                     top: 20,
@@ -174,7 +175,7 @@ class FaceRecognition extends StatelessWidget {
                                           style: TextStyle(
                                               decoration:
                                                   TextDecoration.underline,
-                                              color: HexColor('#2F80ED')),
+                                              color: Constanst.colorPrimary),
                                         ),
                                       ),
                                     ],

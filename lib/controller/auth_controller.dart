@@ -4,7 +4,9 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:intl/intl.dart';
+import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/model/user_model.dart';
+import 'package:siscom_operasional/screen/absen/camera_view_register.dart';
 import 'package:siscom_operasional/screen/dashboard.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/api.dart';
@@ -17,6 +19,8 @@ class AuthController extends GetxController {
   var password = TextEditingController().obs;
   var email = TextEditingController().obs;
   var showpassword = false.obs;
+
+  var controllerAbsnsi = Get.put(AbsenController());
 
   @override
   void onReady() {
@@ -123,6 +127,7 @@ class AuthController extends GetxController {
           getAktif = "${element['status_aktif']}";
           print(element.toString());
         }
+      
         print(lastLoginUser);
         if (getAktif == "ACTIVE") {
           if (lastLoginUser == "" ||

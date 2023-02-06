@@ -23,6 +23,7 @@ class AbsenModel {
   String? signin_addr;
   String? signout_addr;
   int? atttype;
+  var reqType;
 
   AbsenModel(
       {this.id,
@@ -45,6 +46,7 @@ class AbsenModel {
       this.signin_note,
       this.signout_note,
       this.signin_addr,
+      this.reqType,
       this.signout_addr,
       this.atttype});
 
@@ -71,7 +73,8 @@ class AbsenModel {
       "signout_note": signout_note,
       "signin_addr": signin_addr,
       "signout_addr": signout_addr,
-      "atttype": atttype
+      "atttype": atttype,
+      "req_type": reqType
     };
   }
 
@@ -98,7 +101,8 @@ class AbsenModel {
         signout_note: map['signout_note'],
         signin_addr: map['signin_addr'],
         signout_addr: map['signout_addr'],
-        atttype: map['atttype']);
+        atttype: map['atttype'],
+        reqType: map['reg_type']);
   }
 
   String toJson() => json.encode(toMap());

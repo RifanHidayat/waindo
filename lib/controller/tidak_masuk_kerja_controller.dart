@@ -768,8 +768,7 @@ class TidakMasukKerjaController extends GetxController {
               'nameType': '${selectedDropdownFormTidakMasukKerjaTipe.value}',
               'nomor_ajuan': '${getNomorAjuanTerakhir}',
             };
-        
-          
+
             for (var item in globalCt.konfirmasiAtasan) {
               print(item['token_notif']);
               var pesan;
@@ -878,6 +877,7 @@ class TidakMasukKerjaController extends GetxController {
       'status': '2',
       'view': '0',
     };
+    print(body);
     var connect = Api.connectionApi("post", body, "notifikasi_reportTo");
     connect.then((dynamic res) {
       if (res.statusCode == 200) {

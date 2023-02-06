@@ -16,7 +16,6 @@ import 'package:siscom_operasional/utils/app_data.dart';
 
 import 'package:siscom_operasional/utils/constans.dart';
 
-
 // The callback function should always be a top-level function.
 @pragma('vm:entry-point')
 void startCallback() {
@@ -255,11 +254,12 @@ class Onboard extends StatelessWidget {
           Container(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    alignment: Alignment.topCenter,
-                    image: AssetImage('assets/Splash.png'),
-                    fit: BoxFit.cover)),
+            color: Constanst.colorPrimary,
+            // decoration: BoxDecoration(
+            //     image: DecorationImage(
+            //         alignment: Alignment.topCenter,
+            //         image: AssetImage('assets/Splash.png'),
+            //         fit: BoxFit.cover)),
           ),
           SizedBox(
               height: MediaQuery.of(context).size.height,

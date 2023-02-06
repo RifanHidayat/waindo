@@ -263,6 +263,7 @@ class Informasi extends StatelessWidget {
                   controller.informasiDashboard.value[index]['description'];
               var create =
                   controller.informasiDashboard.value[index]['created_on'];
+
               return Padding(
                 padding: EdgeInsets.only(left: 8, right: 8, top: 0),
                 child: Column(
@@ -540,6 +541,18 @@ class Informasi extends StatelessWidget {
                   controller.employeeTidakHadir.value[index]['full_name'];
               var jobtitle =
                   controller.employeeTidakHadir.value[index]['job_title'];
+              var ket = controller.employeeTidakHadir.value[index]
+                          ['ket_izin'] ==
+                      null
+                  ? "Tidak hadir/Belum absen"
+                  : controller.employeeTidakHadir.value[index]['ket_izin'] == 1
+                      ? "Lembur"
+                      : controller.employeeTidakHadir.value[index]
+                                  ['ket_izin'] ==
+                              2
+                          ? "Tugas Luar"
+                          : controller.employeeTidakHadir.value[index]
+                              ['ket_izin'];
               return Padding(
                 padding: EdgeInsets.only(left: 8, right: 8, top: 0),
                 child: Column(
@@ -555,6 +568,10 @@ class Informasi extends StatelessWidget {
                     ),
                     Text(
                       "$jobtitle",
+                      style: TextStyle(color: Constanst.colorText2),
+                    ),
+                    Text(
+                      "$ket",
                       style: TextStyle(color: Constanst.colorText2),
                     ),
                     SizedBox(
@@ -664,7 +681,6 @@ class Informasi extends StatelessWidget {
   }
 
   void moveeToAbsen() {
-    
     Get.off(AbsenMasukKeluar());
   }
 }
