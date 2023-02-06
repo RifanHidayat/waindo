@@ -50,59 +50,59 @@ class TabbController extends GetxController {
   }
 
   Future<bool> onWillPop() {
-    DateTime now = DateTime.now();
-    if (_currentBackPressTime == null ||
-        now.difference(_currentBackPressTime!) > const Duration(seconds: 2)) {
-      _currentBackPressTime = now;
-      UtilsAlert.showToast("Tekan sekali lagi untuk keluar");
-      return Future.value(false);
-    }
-    return Future.value(true);
-    // print("${absenControllre.isTracking.value}");
-    // if (absenControllre.isTracking.value == 1) {
-    //   showGeneralDialog(
-    //     barrierDismissible: false,
-    //     context: Get.context!,
-    //     barrierColor: Colors.black54, // space around dialog
-    //     transitionDuration: Duration(milliseconds: 200),
-    //     transitionBuilder: (context, a1, a2, child) {
-    //       return ScaleTransition(
-    //         scale: CurvedAnimation(
-    //             parent: a1,
-    //             curve: Curves.elasticOut,
-    //             reverseCurve: Curves.easeOutCubic),
-    //         child: CustomDialog(
-    //           // our custom dialog
-    //           title: "Peringatan",
-    //           content: "Lagi proses tracking ,yaking mau keluar aplikasi?",
-    //           positiveBtnText: "Keluar",
-    //           negativeBtnText: "Kembali",
-    //           style: 1,
-    //           buttonStatus: 1,
-    //           positiveBtnPressed: () {
-    //             SystemNavigator.pop();
-
-    //             // aksiEditLastLogin();
-    //           },
-    //         ),
-    //       );
-    //     },
-    //     pageBuilder: (BuildContext context, Animation animation,
-    //         Animation secondaryAnimation) {
-    //       return null!;
-    //     },
-    //   );
-    //   return Future.value(true);
-    // } else {
-    //   DateTime now = DateTime.now();
-    //   if (_currentBackPressTime == null ||
-    //       now.difference(_currentBackPressTime!) > const Duration(seconds: 2)) {
-    //     _currentBackPressTime = now;
-    //     UtilsAlert.showToast("Tekan sekali lagi untuk keluar");
-    //     return Future.value(false);
-    //   }
-    //   return Future.value(true);
+    // DateTime now = DateTime.now();
+    // if (_currentBackPressTime == null ||
+    //     now.difference(_currentBackPressTime!) > const Duration(seconds: 2)) {
+    //   _currentBackPressTime = now;
+    //   UtilsAlert.showToast("Tekan sekali lagi untuk keluar");
+    //   return Future.value(false);
     // }
+    // return Future.value(true);
+    print("${absenControllre.isTracking.value}");
+    if (absenControllre.isTracking.value == 1) {
+      showGeneralDialog(
+        barrierDismissible: false,
+        context: Get.context!,
+        barrierColor: Colors.black54, // space around dialog
+        transitionDuration: Duration(milliseconds: 200),
+        transitionBuilder: (context, a1, a2, child) {
+          return ScaleTransition(
+            scale: CurvedAnimation(
+                parent: a1,
+                curve: Curves.elasticOut,
+                reverseCurve: Curves.easeOutCubic),
+            child: CustomDialog(
+              // our custom dialog
+              title: "Peringatan",
+              content: "Lagi proses tracking ,yaking mau keluar aplikasi?",
+              positiveBtnText: "Keluar",
+              negativeBtnText: "Kembali",
+              style: 1,
+              buttonStatus: 1,
+              positiveBtnPressed: () {
+                SystemNavigator.pop();
+
+                // aksiEditLastLogin();
+              },
+            ),
+          );
+        },
+        pageBuilder: (BuildContext context, Animation animation,
+            Animation secondaryAnimation) {
+          return null!;
+        },
+      );
+      return Future.value(true);
+    } else {
+      DateTime now = DateTime.now();
+      if (_currentBackPressTime == null ||
+          now.difference(_currentBackPressTime!) > const Duration(seconds: 2)) {
+        _currentBackPressTime = now;
+        UtilsAlert.showToast("Tekan sekali lagi untuk keluar");
+        return Future.value(false);
+      }
+      return Future.value(true);
+    }
   }
 
   void onClickItem(s) async {

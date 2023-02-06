@@ -9,6 +9,7 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/berhasil_controller.dart';
+import 'package:siscom_operasional/screen/absen/camera_view_register.dart';
 import 'package:siscom_operasional/screen/init_screen.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
@@ -347,7 +348,14 @@ class _BerhasilAbsensiState extends State<BerhasilAbsensi> {
                 _startForegroundTask();
                 AbsenController().removeAll();
                 Get.offAll(InitScreen());
+                if (absenControllre.isTracking.value == 1) {
+                  absenControllre.activeTracking.value = 1;
+                } else {
+                  absenControllre.activeTracking.value = 0;
+                }
               } else {
+                absenControllre.activeTracking.value = 0;
+
                 AbsenController().removeAll();
                 Get.offAll(InitScreen());
               }

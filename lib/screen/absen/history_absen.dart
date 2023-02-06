@@ -552,6 +552,7 @@ class _HistoryAbsenState extends State<HistoryAbsen> {
           var note = indexData[index]['signin_note'] ?? '';
           var signInLongLat = indexData[index]['signin_longlat'] ?? '';
           var signOutLongLat = indexData[index]['signout_longlat'] ?? '';
+          var regType = indexData[index]['reg_type'] ?? '';
           var statusView;
           if (placeIn != "") {
             statusView = placeIn == "pengajuan" && placeOut == "pengajuan"
@@ -594,62 +595,83 @@ class _HistoryAbsenState extends State<HistoryAbsen> {
                   height: 16,
                 ),
                 statusView == false
-                    ? Row(
+                    ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            flex: 45,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.login_rounded,
-                                  color: getColorMasuk,
-                                  size: 14,
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 8),
-                                  child: Text(
-                                    "${jamMasuk}",
-                                    style: TextStyle(
-                                        color: getColorMasuk, fontSize: 14),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            flex: 45,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.logout_rounded,
-                                  color: getColorKeluar,
-                                  size: 14,
-                                ),
-                                Flexible(
-                                  child: Padding(
-                                    padding: EdgeInsets.only(left: 8),
-                                    child: signInLongLat == ""
-                                        ? Text("")
-                                        : Text(
-                                            "${jamKeluar}",
-                                            style: TextStyle(
-                                                color: getColorKeluar,
-                                                fontSize: 14),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 45,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 20),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Icon(
+                                            Icons.login_rounded,
+                                            color: getColorMasuk,
+                                            size: 14,
                                           ),
+                                          Padding(
+                                            padding: EdgeInsets.only(left: 8),
+                                            child: Text(
+                                              "${jamMasuk}",
+                                              style: TextStyle(
+                                                  color: getColorMasuk,
+                                                  fontSize: 14),
+                                            ),
+                                          )
+                                        ],
+                                      ),
+                                      Text(
+                                          "Type : ${regType == 0 ? "Face Recognition" : "Photo"}",
+                                          style: TextStyle(
+                                            fontSize: 9,
+                                          )),
+                                    ],
                                   ),
-                                )
-                              ],
-                            ),
-                          ),
-                          Expanded(
-                            flex: 10,
-                            child: Icon(
-                              Icons.arrow_forward_ios_rounded,
-                              size: 14,
-                            ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 45,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.logout_rounded,
+                                      color: getColorKeluar,
+                                      size: 14,
+                                    ),
+                                    Flexible(
+                                      child: Padding(
+                                        padding: EdgeInsets.only(left: 8),
+                                        child: signInLongLat == ""
+                                            ? Text("")
+                                            : Text(
+                                                "${jamKeluar}",
+                                                style: TextStyle(
+                                                    color: getColorKeluar,
+                                                    fontSize: 14),
+                                              ),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                flex: 10,
+                                child: Icon(
+                                  Icons.arrow_forward_ios_rounded,
+                                  size: 14,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       )

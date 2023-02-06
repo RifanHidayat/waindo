@@ -17,6 +17,7 @@ import 'package:siscom_operasional/main.dart';
 import 'package:siscom_operasional/screen/absen/loading_absen.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import "package:get/get.dart";
+import 'package:siscom_operasional/utils/widget_utils.dart';
 
 enum ScreenMode { liveFeed, gallery }
 
@@ -191,6 +192,7 @@ class _CameraViewState extends State<CameraView> {
       final faces2 = await _faceDetector
           .processImage(InputImage.fromFilePath(picture2.path));
       if (faces1.isEmpty || faces2.isEmpty) {
+        UtilsAlert.showToast("Wajah tidak ke deteksi");
         return Get.back();
       } else {
         if (faces1[0].leftEyeOpenProbability == null &&

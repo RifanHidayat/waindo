@@ -88,6 +88,7 @@ class AbsenController extends GetxController {
   Rx<AbsenModel> absenModel = AbsenModel().obs;
   var jumlahData = 0.obs;
   var isTracking = 0.obs;
+  var activeTracking = 0.obs;
   var selectedViewFilterAbsen = 0.obs;
   var regType = 0.obs;
 
@@ -2013,10 +2014,22 @@ class AbsenController extends GetxController {
       if (res == false) {
         UtilsAlert.koneksiBuruk();
       } else {
+        bool lastAbsen = AppData.statusAbsen;
+        print("ASEE ABSEN ${lastAbsen}");
+
         if (res.statusCode == 200) {
           var valueBody = jsonDecode(res.body);
           var data = valueBody['data'];
-          isTracking.value = data[0]['em_control'];
+          // isTracking.value = data[0]['em_control'];
+          if (lastAbsen == true) {
+            if (data[0]['em_control'] == 1) {
+              isTracking.value = 1;
+            } else {
+              isTracking.value = 0;
+            }
+          } else {
+            isTracking.value = 0;
+          }
           regType.value = data[0]['reg_type'];
           print("Req tye ${regType.value}");
           box.write("file_face", data[0]['file_face']);
@@ -2031,7 +2044,8 @@ class AbsenController extends GetxController {
       }
     });
   }
-    void employeDetaiBpjs() {
+
+  void employeDetaiBpjs() {
     // UtilsAlert.showLoadingIndicator(Get.context!);
     var dataUser = AppData.informasiUser;
     final box = GetStorage();
@@ -2146,11 +2160,11 @@ class AbsenController extends GetxController {
                   ),
                   Container(
                     decoration: BoxDecoration(
-                        color: HexColor('#E9F5FE'),
+                        color: Constanst.colorPrimaryLight.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
                           width: 1,
-                          color: HexColor('#2F80ED'),
+                          color: Constanst.colorPrimary,
                         )),
                     padding:
                         EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
@@ -2160,7 +2174,7 @@ class AbsenController extends GetxController {
                           flex: 5,
                           child: Icon(
                             Icons.info_outline,
-                            color: HexColor('#2F80ED'),
+                            color: Constanst.colorPrimary,
                           ),
                         ),
                         SizedBox(
