@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:siscom_operasional/controller/absen_controller.dart';
 import 'package:siscom_operasional/controller/dashboard_controller.dart';
@@ -588,7 +589,7 @@ class DetailAbsen extends StatelessWidget {
                           ),
                           Container(
                             decoration: Constanst.styleBoxDecoration2(
-                                Color.fromARGB(156, 223, 253, 223)),
+                                HexColor('#FFF2EB')),
                             margin: EdgeInsets.only(left: 10, right: 10),
                             child: Padding(
                               padding: EdgeInsets.only(left: 10, right: 10),

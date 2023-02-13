@@ -5,7 +5,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-import 'package:html_editor_enhanced/html_editor.dart';
+// import 'package:html_editor_enhanced/html_editor.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
@@ -24,7 +24,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 class KandidatController extends GetxController {
   var controllerApiGlobal = Get.put(ApiController());
-  HtmlEditorController controllerHtmlEditor = HtmlEditorController();
+  // HtmlEditorController controllerHtmlEditor = HtmlEditorController();
   PageController DetailController = PageController(initialPage: 0);
 
   var cari = TextEditingController().obs;
@@ -1084,97 +1084,97 @@ class KandidatController extends GetxController {
                 SizedBox(
                   height: 16,
                 ),
-                Flexible(
-                  flex: 3,
-                  child: HtmlEditor(
-                    controller: controllerHtmlEditor, //required
-                    htmlEditorOptions: HtmlEditorOptions(
-                      hint: "Your text here...",
-                      initialText: spesifikasi.value.text,
-                    ),
-                    htmlToolbarOptions: HtmlToolbarOptions(
-                      toolbarPosition: ToolbarPosition.aboveEditor, //by default
-                      toolbarType: ToolbarType.nativeScrollable, //by default
-                      onButtonPressed: (ButtonType type, bool? status,
-                          Function? updateStatus) {
-                        return true;
-                      },
-                      defaultToolbarButtons: [
-                        //add any other buttons here otherwise only a few buttons will show up!
-                        // OtherButtons(copy: true, paste: true),
-                        StyleButtons(),
-                        FontSettingButtons(),
-                        FontButtons(),
-                        ColorButtons(),
-                        ListButtons(),
-                        ParagraphButtons(),
-                        InsertButtons(),
-                        OtherButtons(),
-                      ],
-                      onDropdownChanged: (DropdownType type, dynamic changed,
-                          Function(dynamic)? updateSelectedItem) {
-                        return true;
-                      },
-                    ),
-                    otherOptions: OtherOptions(
-                      height: 500,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      TextButton(
-                        style: TextButton.styleFrom(
-                            backgroundColor: Colors.blueGrey),
-                        onPressed: () {
-                          controllerHtmlEditor.undo();
-                        },
-                        child:
-                            Text('Undo', style: TextStyle(color: Colors.white)),
-                      ),
-                      SizedBox(
-                        width: 16,
-                      ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                            backgroundColor: Colors.blueGrey),
-                        onPressed: () {
-                          controllerHtmlEditor.clear();
-                        },
-                        child: Text('Reset',
-                            style: TextStyle(color: Colors.white)),
-                      ),
-                      SizedBox(
-                        width: 16,
-                      ),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                            backgroundColor:
-                                Theme.of(context).colorScheme.secondary),
-                        onPressed: () async {
-                          var txt = await controllerHtmlEditor.getText();
-                          if (txt.contains('src=\"data:')) {
-                            txt =
-                                '<text removed due to base-64 data, displaying the text could cause the app to crash>';
-                          }
-                          spesifikasi.value.text = txt;
-                          this.spesifikasi.refresh();
-                          Navigator.pop(context);
-                        },
-                        child: Text(
-                          'Submit',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      SizedBox(
-                        width: 16,
-                      ),
-                    ],
-                  ),
-                ),
+                // Flexible(
+                //   flex: 3,
+                //   child: HtmlEditor(
+                //     controller: controllerHtmlEditor, //required
+                //     htmlEditorOptions: HtmlEditorOptions(
+                //       hint: "Your text here...",
+                //       initialText: spesifikasi.value.text,
+                //     ),
+                //     htmlToolbarOptions: HtmlToolbarOptions(
+                //       toolbarPosition: ToolbarPosition.aboveEditor, //by default
+                //       toolbarType: ToolbarType.nativeScrollable, //by default
+                //       onButtonPressed: (ButtonType type, bool? status,
+                //           Function? updateStatus) {
+                //         return true;
+                //       },
+                //       defaultToolbarButtons: [
+                //         //add any other buttons here otherwise only a few buttons will show up!
+                //         // OtherButtons(copy: true, paste: true),
+                //         StyleButtons(),
+                //         FontSettingButtons(),
+                //         FontButtons(),
+                //         ColorButtons(),
+                //         ListButtons(),
+                //         ParagraphButtons(),
+                //         InsertButtons(),
+                //         OtherButtons(),
+                //       ],
+                //       onDropdownChanged: (DropdownType type, dynamic changed,
+                //           Function(dynamic)? updateSelectedItem) {
+                //         return true;
+                //       },
+                //     ),
+                //     otherOptions: OtherOptions(
+                //       height: 500,
+                //     ),
+                //   ),
+                // ),
+                // Padding(
+                //   padding: const EdgeInsets.all(8.0),
+                //   child: Row(
+                //     mainAxisAlignment: MainAxisAlignment.center,
+                //     children: <Widget>[
+                //       TextButton(
+                //         style: TextButton.styleFrom(
+                //             backgroundColor: Colors.blueGrey),
+                //         onPressed: () {
+                //           controllerHtmlEditor.undo();
+                //         },
+                //         child:
+                //             Text('Undo', style: TextStyle(color: Colors.white)),
+                //       ),
+                //       SizedBox(
+                //         width: 16,
+                //       ),
+                //       TextButton(
+                //         style: TextButton.styleFrom(
+                //             backgroundColor: Colors.blueGrey),
+                //         onPressed: () {
+                //           controllerHtmlEditor.clear();
+                //         },
+                //         child: Text('Reset',
+                //             style: TextStyle(color: Colors.white)),
+                //       ),
+                //       SizedBox(
+                //         width: 16,
+                //       ),
+                //       TextButton(
+                //         style: TextButton.styleFrom(
+                //             backgroundColor:
+                //                 Theme.of(context).colorScheme.secondary),
+                //         onPressed: () async {
+                //           var txt = await controllerHtmlEditor.getText();
+                //           if (txt.contains('src=\"data:')) {
+                //             txt =
+                //                 '<text removed due to base-64 data, displaying the text could cause the app to crash>';
+                //           }
+                //           spesifikasi.value.text = txt;
+                //           this.spesifikasi.refresh();
+                //           Navigator.pop(context);
+                //         },
+                //         child: Text(
+                //           'Submit',
+                //           style: TextStyle(color: Colors.white),
+                //         ),
+                //       ),
+                //       SizedBox(
+                //         width: 16,
+                //       ),
+                //     ],
+                //   ),
+                // ),
               ]),
         );
       },

@@ -421,7 +421,7 @@ class DashboardController extends GetxController {
   }
 
   Future<bool> radiusNotOpen() async {
-    UtilsAlert.showLoadingIndicator(Get.context!);
+    UtilsAlert.showLoadingIndicator(Get.context!);                  
     Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high);
     var latUser = position.latitude;

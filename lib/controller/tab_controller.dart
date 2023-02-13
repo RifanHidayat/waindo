@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +51,17 @@ class TabbController extends GetxController {
   }
 
   Future<bool> onWillPop() {
+    // var _androidAppRetain = MethodChannel("android_app_retain");
+    // if (Platform.isAndroid) {
+    //   if (Navigator.of(Get.context!).canPop()) {
+    //     return Future.value(true);
+    //   } else {
+    //     _androidAppRetain.invokeMethod("sendToBackground");
+    //     return Future.value(false);
+    //   }
+    // } else {
+    //   return Future.value(true);
+    // }
     // DateTime now = DateTime.now();
     // if (_currentBackPressTime == null ||
     //     now.difference(_currentBackPressTime!) > const Duration(seconds: 2)) {
@@ -80,7 +92,8 @@ class TabbController extends GetxController {
               style: 1,
               buttonStatus: 1,
               positiveBtnPressed: () {
-                SystemNavigator.pop();
+                //   MinimizeApp .minimizeApp();
+                // SystemNavigator.pop();
 
                 // aksiEditLastLogin();
               },

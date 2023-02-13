@@ -84,6 +84,7 @@ class AuthController extends GetxController {
     var connect = Api.connectionApi("post", body, "validasiLogin");
     connect.then((dynamic res) {
       var valueBody = jsonDecode(res.body);
+      print('data login ${valueBody}');
       if (valueBody['status'] == false) {
         UtilsAlert.showToast(valueBody['message']);
         Navigator.pop(Get.context!);
@@ -127,7 +128,7 @@ class AuthController extends GetxController {
           getAktif = "${element['status_aktif']}";
           print(element.toString());
         }
-      
+
         print(lastLoginUser);
         if (getAktif == "ACTIVE") {
           if (lastLoginUser == "" ||
@@ -183,6 +184,7 @@ class AuthController extends GetxController {
     connect.then((dynamic res) {
       if (res.statusCode == 200) {
         var valueBody = jsonDecode(res.body);
+        print("data login ${valueBody}");
         var data = valueBody['data'];
         if (data.isEmpty) {
           AppData.statusAbsen = false;

@@ -54,137 +54,139 @@ class _SettingState extends State<Setting> {
           onWillPop: () async {
             return false;
           },
-          child: Column(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                        alignment: Alignment.topCenter,
-                        image: AssetImage('assets/bg_dashboard.png'),
-                        fit: BoxFit.cover)),
-                child: Obx(() => Padding(
-                      padding: EdgeInsets.only(
-                          left: 16, right: 16, top: 50, bottom: 30),
-                      child: firstLine(),
-                    )),
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                  left: 16,
-                  right: 16,
+          child: Container(
+            height: MediaQuery.of(context).size.height,
+            child: Column(
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                          alignment: Alignment.topCenter,
+                          image: AssetImage('assets/bg_dashboard.png'),
+                          fit: BoxFit.cover)),
+                  child: Obx(() => Padding(
+                        padding: EdgeInsets.only(
+                            left: 16, right: 16, top: 50, bottom: 30),
+                        child: firstLine(),
+                      )),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
-                      children: [
-                        SizedBox(
-                          height: 40,
-                        ),
-                      ],
-                    ),
-                    SizedBox(
+                Expanded(
+                  child: Container(
+                    height: double.maxFinite,
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                      ),
                       child: RefreshIndicator(
                         onRefresh: refreshData,
                         child: SingleChildScrollView(
-                          physics: AlwaysScrollableScrollPhysics(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "Perusahaan",
-                                style: TextStyle(
-                                    fontSize: 14, color: Constanst.colorText1),
-                              ),
-                              Padding(
-                                padding:
-                                    EdgeInsets.only(left: 8, right: 5, top: 15),
-                                child: lineInfoPengguna(),
-                              ),
-                              Text(
-                                "Pengaturan",
-                                style: TextStyle(
-                                    fontSize: 14, color: Constanst.colorText1),
-                              ),
-                              Padding(
-                                padding:
-                                    EdgeInsets.only(left: 8, right: 5, top: 15),
-                                child: lineKeamananAkun(),
-                              ),
-                              Padding(
-                                padding:
-                                    EdgeInsets.only(left: 8, right: 5, top: 0),
-                                child: faceRegistration(),
-                              ),
-                              Text(
-                                "Lainnya",
-                                style: TextStyle(
-                                    fontSize: 14, color: Constanst.colorText1),
-                              ),
-                              Padding(
-                                padding:
-                                    EdgeInsets.only(left: 8, right: 5, top: 15),
-                                child: lineLainnya(),
-                              ),
-                              TextButton(
-                                style: ButtonStyle(
-                                    backgroundColor:
-                                        MaterialStateProperty.all<Color>(
-                                            Colors.white),
-                                    overlayColor:
-                                        MaterialStateProperty.all<Color>(
+                          child: Container(
+                            child: SizedBox(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Perusahaan",
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: Constanst.colorText1),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        left: 8, right: 5, top: 15),
+                                    child: lineInfoPengguna(),
+                                  ),
+                                  Text(
+                                    "Pengaturan",
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: Constanst.colorText1),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        left: 8, right: 5, top: 15),
+                                    child: lineKeamananAkun(),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        left: 8, right: 5, top: 0),
+                                    child: faceRegistration(),
+                                  ),
+                                  Text(
+                                    "Lainnya",
+                                    style: TextStyle(
+                                        fontSize: 14,
+                                        color: Constanst.colorText1),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        left: 8, right: 5, top: 15),
+                                    child: lineLainnya(),
+                                  ),
+                                  TextButton(
+                                    style: ButtonStyle(
+                                        backgroundColor:
+                                            MaterialStateProperty.all<Color>(
+                                                Colors.white),
+                                        overlayColor: MaterialStateProperty.all<
+                                                Color>(
                                             Color.fromARGB(255, 255, 200, 196)),
-                                    shape: MaterialStateProperty.all<
-                                        RoundedRectangleBorder>(
-                                      RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        side: BorderSide(color: Colors.red),
-                                      ),
-                                    )),
-                                onPressed: () {
-                                  controller.logout();
-                                },
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      "Keluar",
-                                      style: TextStyle(color: Colors.red),
+                                        shape: MaterialStateProperty.all<
+                                            RoundedRectangleBorder>(
+                                          RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
+                                            side: BorderSide(color: Colors.red),
+                                          ),
+                                        )),
+                                    onPressed: () {
+                                      controller.logout();
+                                    },
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "Keluar",
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                        Padding(
+                                          padding: EdgeInsets.only(left: 8),
+                                          child: Icon(
+                                            Iconsax.logout,
+                                            color: Colors.red,
+                                            size: 20,
+                                          ),
+                                        )
+                                      ],
                                     ),
-                                    Padding(
-                                      padding: EdgeInsets.only(left: 8),
-                                      child: Icon(
-                                        Iconsax.logout,
-                                        color: Colors.red,
-                                        size: 20,
-                                      ),
-                                    )
-                                  ],
-                                ),
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Center(
+                                    child: Text(
+                                      "© Copyright 2022 PT. Shan Informasi Sistem",
+                                      style: TextStyle(
+                                          color: Constanst.colorText1,
+                                          fontSize: 10),
+                                    ),
+                                  )
+                                ],
                               ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Center(
-                                child: Text(
-                                  "© Copyright 2022 PT. Shan Informasi Sistem",
-                                  style: TextStyle(
-                                      color: Constanst.colorText1,
-                                      fontSize: 10),
-                                ),
-                              )
-                            ],
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           )),
     );
   }

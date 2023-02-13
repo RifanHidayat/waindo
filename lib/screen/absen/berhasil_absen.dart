@@ -418,7 +418,7 @@ class _BerhasilAbsensiState extends State<BerhasilAbsensi> {
 //     final customData =
 //         await FlutterForegroundTask.getData<String>(key: 'customData');
 //     print('customData: $customData');
-//   }
+//   } s
 
 //   @override
 //   Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {

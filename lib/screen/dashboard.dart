@@ -420,9 +420,12 @@ class _DashboardState extends State<Dashboard> {
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 10),
                       child: Center(
-                        child: Icon(
-                          Iconsax.notification,
-                          color: Colors.white,
+                        child: CircleAvatar(
+                          backgroundColor: Constanst.colorWhite,
+                          child: Icon(
+                            Iconsax.notification,
+                            color: Colors.black,
+                          ),
                         ),
                       ),
                     ),

@@ -335,11 +335,17 @@ class _HistoryAbsenState extends State<HistoryAbsen> {
                     Text("${Constanst.convertDate('${index['atten_date']}')}",
                         style: TextStyle(
                             fontSize: 14, fontWeight: FontWeight.bold)),
-                    Text(
-                        "Type : ${index['reg_type'] == 0 ? "Face Recognition" : "Photo"}",
-                        style: TextStyle(
-                          fontSize: 9,
-                        )),
+                    index['status_view'] == true
+                        ? Text(
+                            "${index['turunan'][0]['reg_type'] == 0 ? "Face Recognition" : "Photo"}",
+                            style: TextStyle(
+                              fontSize: 9,
+                            ))
+                        : Text(
+                            " ${index['reg_type'] == 0 ? "Face Recognition" : "Photo"}",
+                            style: TextStyle(
+                              fontSize: 9,
+                            )),
                   ],
                 ),
               ),
@@ -436,8 +442,7 @@ class _HistoryAbsenState extends State<HistoryAbsen> {
                               "${Constanst.convertDate('${index['atten_date']}')}",
                               style: TextStyle(
                                   fontSize: 14, fontWeight: FontWeight.bold)),
-                          Text(
-                              "Type : ${regType == 0 ? "Face Recognition" : "Photo"}",
+                          Text("${regType == 0 ? "Face Recognition" : "Photo"}",
                               style: TextStyle(
                                 fontSize: 10,
                               )),
@@ -630,7 +635,7 @@ class _HistoryAbsenState extends State<HistoryAbsen> {
                                         ],
                                       ),
                                       Text(
-                                          "Type : ${regType == 0 ? "Face Recognition" : "Photo"}",
+                                          " ${regType == 0 ? "Face Recognition" : "Photo"}",
                                           style: TextStyle(
                                             fontSize: 9,
                                           )),

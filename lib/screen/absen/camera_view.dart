@@ -18,6 +18,7 @@ import 'package:siscom_operasional/screen/absen/loading_absen.dart';
 import 'package:siscom_operasional/utils/constans.dart';
 import "package:get/get.dart";
 import 'package:siscom_operasional/utils/widget_utils.dart';
+import 'dart:math' as math;
 
 enum ScreenMode { liveFeed, gallery }
 
@@ -81,6 +82,7 @@ class _CameraViewState extends State<CameraView> {
       // enableClassification: true,
     ),
   );
+  // final double mirror = math.pi;
 
   @override
   void initState() {

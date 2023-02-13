@@ -14,6 +14,7 @@ import 'package:siscom_operasional/controller/absen_controller.dart';
 
 import 'package:siscom_operasional/main.dart';
 import 'package:siscom_operasional/utils/constans.dart';
+import 'dart:math' as math;
 
 enum ScreenMode { liveFeed, gallery }
 
@@ -229,6 +230,7 @@ class _CameraViewState extends State<CameraViewRegister> {
             child: Stack(
               children: [
                 Container(
+                    height: MediaQuery.of(context).size.height,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(200),
                     ),
@@ -238,6 +240,7 @@ class _CameraViewState extends State<CameraViewRegister> {
                         if (snapshot.connectionState == ConnectionState.done) {
                           // If the Future is complete, display the preview.
                           return CameraPreview(_controller!);
+                          ;
                         } else {
                           // Otherwise, display a loading indicator.
                           return const Center(

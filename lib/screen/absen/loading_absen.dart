@@ -13,6 +13,7 @@ import 'package:siscom_operasional/screen/absen/absen_masuk_keluar.dart';
 import 'package:siscom_operasional/screen/absen/absen_verify_password.dart';
 import 'package:siscom_operasional/screen/absen/facee_id_detection.dart';
 import 'package:siscom_operasional/utils/constans.dart';
+import 'dart:math' as math;
 
 class LoadingAbsen extends StatefulWidget {
   final file, status, statusAbsen;
@@ -30,6 +31,7 @@ class _LoadingAbsenState extends State<LoadingAbsen>
   bool _animationStopped = false;
   String scanText = "Scan";
   bool scanning = false;
+  final double mirror = math.pi;
 
   @override
   void initState() {
@@ -153,61 +155,65 @@ class _LoadingAbsenState extends State<LoadingAbsen>
             Positioned(
               child: Align(
                 alignment: Alignment.center,
-                child: Container(
-                  height: 400,
-                  // decoration: BoxDecoration(
-                  //   borderRadius: BorderRadius.circular(56),
-                  //   image: DecorationImage(
-                  //     image: AssetImage('assets/face_id.png'),
-                  //     fit: BoxFit.fill,
-                  //   ),
-                  // ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(56),
-                    image: DecorationImage(
-                      image: FileImage(File(widget.file)),
-                      fit: BoxFit.fill,
-                    ),
-                  ),
+                child: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.rotationY(mirror),
                   child: Container(
                     height: 400,
                     // decoration: BoxDecoration(
                     //   borderRadius: BorderRadius.circular(56),
                     //   image: DecorationImage(
-                    //     image: FileImage(File(widget.file)),
+                    //     image: AssetImage('assets/face_id.png'),
                     //     fit: BoxFit.fill,
                     //   ),
                     // ),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(56),
                       image: DecorationImage(
-                        image: AssetImage('assets/face_id.png'),
+                        image: FileImage(File(widget.file)),
                         fit: BoxFit.fill,
                       ),
                     ),
-                    child: Stack(
-                      children: [
-                        Container(child: Obx(() {
-                          return abseController.absenSuccess.value == ""
-                              ? Container(
-                                  width: 275,
-                                )
-                              : abseController.absenSuccess.value == "1"
-                                  ? succesAbsen()
-                                  : failedAbsen();
-                        })),
-                        Obx(() {
-                          return abseController.absenSuccess == ""
-                              ? ImageScannerAnimation(
-                                  _animationStopped,
-                                  334,
-                                  animation: _animationController!,
-                                )
-                              : Container(
-                                  width: 275,
-                                );
-                        })
-                      ],
+                    child: Container(
+                      height: 400,
+                      // decoration: BoxDecoration(
+                      //   borderRadius: BorderRadius.circular(56),
+                      //   image: DecorationImage(
+                      //     image: FileImage(File(widget.file)),
+                      //     fit: BoxFit.fill,
+                      //   ),
+                      // ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(56),
+                        image: DecorationImage(
+                          image: AssetImage('assets/face_id.png'),
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                      child: Stack(
+                        children: [
+                          Container(child: Obx(() {
+                            return abseController.absenSuccess.value == ""
+                                ? Container(
+                                    width: 275,
+                                  )
+                                : abseController.absenSuccess.value == "1"
+                                    ? succesAbsen()
+                                    : failedAbsen();
+                          })),
+                          Obx(() {
+                            return abseController.absenSuccess == ""
+                                ? ImageScannerAnimation(
+                                    _animationStopped,
+                                    334,
+                                    animation: _animationController!,
+                                  )
+                                : Container(
+                                    width: 275,
+                                  );
+                          })
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -322,10 +328,14 @@ class _LoadingAbsenState extends State<LoadingAbsen>
               child: CircleAvatar(
                 radius: 50,
                 backgroundColor: Constanst.colorWhite,
-                child: Icon(
-                  Icons.check,
-                  size: 70,
-                  color: HexColor('#0E3389'),
+                child: Transform(
+                  alignment: Alignment.center,
+                  transform: Matrix4.rotationY(mirror),
+                  child: Icon(
+                    Icons.check,
+                    size: 70,
+                    color: HexColor('#0E3389'),
+                  ),
                 ),
               ),
             ),

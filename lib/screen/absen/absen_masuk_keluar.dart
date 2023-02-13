@@ -84,7 +84,7 @@ class _AbsenMasukKeluarState extends State<AbsenMasukKeluar> {
     ));
   }
 
-  var panel = PanelState.CLOSED;
+  var panel = PanelState.OPEN;
   @override
   Widget build(BuildContext context) {
     _panelHeightOpen = MediaQuery.of(context).size.height * .80;
