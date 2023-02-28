@@ -497,40 +497,42 @@ class AbsenController extends GetxController {
   void facedDetection({required status, absenStatus, type, img}) async {
     // if (takePicturer == "0") {
     if (status == "registration") {
-      final getFoto = await ImagePicker().pickImage(
-          source: ImageSource.camera,
-          preferredCameraDevice: CameraDevice.front,
-          imageQuality: 100,
-          maxHeight: 350,
-          maxWidth: 350);
-      if (getFoto == null) {
-        UtilsAlert.showToast("Gagal mengambil gambar");
-      } else {
-        saveFaceregistration(getFoto.path);
-      }
+      saveFaceregistration(img);
+      // final getFoto = await ImagePicker().pickImage(
+      //     source: ImageSource.camera,
+      //     preferredCameraDevice: CameraDevice.front,
+      //     imageQuality: 100,
+      //     maxHeight: 350,
+      //     maxWidth: 350);
+      // if (getFoto == null) {
+      //   UtilsAlert.showToast("Gagal mengambil gambar");
+      // } else {
+      //   saveFaceregistration(getFoto.path);
+      // }
     } else {
-      final getFoto = await ImagePicker().pickImage(
-          source: ImageSource.camera,
-          preferredCameraDevice: CameraDevice.front,
-          imageQuality: 100,
-          maxHeight: 350,
-          maxWidth: 350);
-      if (getFoto == null) {
-        UtilsAlert.showToast("Gagal mengambil gambar");
-      } else {
-        Navigator.push(
-          Get.context!,
-          MaterialPageRoute(
-              builder: (context) => LoadingAbsen(
-                    file: getFoto.path,
-                    status: "detection",
-                    statusAbsen: absenStatus,
-                    // type: type.toString(),
-                  )),
-        );
-        detection(file: getFoto.path, status: absenStatus, type: type);
-      }
-      // detection(file: img, status: absenStatus, type: type);
+      detection(file: img, status: absenStatus, type: type);
+      // final getFoto = await ImagePicker().pickImage(
+      //     source: ImageSource.camera,
+      //     preferredCameraDevice: CameraDevice.front,
+      //     imageQuality: 100,
+      //     maxHeight: 350,
+      //     maxWidth: 350);
+      // if (getFoto == null) {
+      //   UtilsAlert.showToast("Gagal mengambil gambar");
+      // } else {
+      //   Navigator.push(
+      //     Get.context!,
+      //     MaterialPageRoute(
+      //         builder: (context) => LoadingAbsen(
+      //               file: getFoto.path,
+      //               status: "detection",
+      //               statusAbsen: absenStatus,
+      //               // type: type.toString(),
+      //             )),
+      //   );
+      //   detection(file: getFoto.path, status: absenStatus, type: type);
+      // }
+      // // detection(file: img, status: absenStatus, type: type);
     }
   }
 
@@ -598,6 +600,7 @@ class AbsenController extends GetxController {
   }
 
   void detection({file, type, status}) async {
+    print("Masuk");
     employeDetail();
     var bytes = File(file).readAsBytesSync();
     base64fotoUser.value = base64Encode(bytes);
@@ -669,6 +672,7 @@ class AbsenController extends GetxController {
         // UtilsAlert.showToast(res['message']);
       } else {
         absenSuccess.value = "0";
+
         gagalAbsen.value = gagalAbsen.value + 1;
 
         // UtilsAlert.showToast(res['message']);
@@ -2224,10 +2228,10 @@ class AbsenController extends GetxController {
                   TextButtonWidget(
                     title: "Mulai",
                     onTap: () async {
-                      // Get.to(FaceidRegistration(
-                      //   status: "registration",
-                      // ));
-                      facedDetection(status: "registration");
+                      Get.to(FaceidRegistration(
+                        status: "registration",
+                      ));
+                      // facedDetection(status: "registration");
                       // Get.to(FaceRecognitionView());
                       // if (type == "checkTracking") {
                       //   print('kesini');
