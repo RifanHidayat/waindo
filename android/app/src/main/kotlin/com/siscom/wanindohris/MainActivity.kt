@@ -1,4 +1,4 @@
-package com.example.hris_manajemen
+package com.siscom.wanindohris
 
 import io.flutter.embedding.android.FlutterActivity
 

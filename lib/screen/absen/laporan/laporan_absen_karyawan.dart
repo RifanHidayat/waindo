@@ -214,7 +214,6 @@ class _LaporanAbsenKaryawanState extends State<LaporanAbsenKaryawan> {
           return InkWell(
             onTap: () {
               if (statusView == false) {
-                
                 print(idAbsen);
                 controller.historySelected(idAbsen, "laporan");
               }

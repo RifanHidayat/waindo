@@ -22,7 +22,7 @@
    <application
      android:requestLegacyExternalStorage="true"
         tools:replace="android:label"
-        android:label="SISCOM HRIS"
+        android:label="WANINDO HRIS"
         android:name="${applicationName}"
        
         android:icon="@mipmap/logo"

@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:siscom_operasional/screen/cordinate_transllator.dart';
 
-
-
 class FaceDetectorPainter extends CustomPainter {
   FaceDetectorPainter(this.faces, this.absoluteImageSize, this.rotation);
 
@@ -31,6 +29,9 @@ class FaceDetectorPainter extends CustomPainter {
         ),
         paint,
       );
+
+
+      
 
       void paintContour(FaceContourType type) {
         final faceContour = face.contours[type];

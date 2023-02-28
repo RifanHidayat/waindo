@@ -1322,8 +1322,13 @@ class TidakMasukKerjaController extends GetxController {
                   ),
                   Expanded(
                     flex: 68,
-                    child: Text(
-                        "${Constanst.convertDate("$tanggalAjuanDari")}  SD  ${Constanst.convertDate("$tanggalAjuanSampai")}"),
+                    child: listTanggalTerpilih.length == 1
+                        ? Text("${Constanst.convertDate("$tanggalAjuanDari")}")
+                        : listTanggalTerpilih.length == 2
+                            ? Text(
+                                "${Constanst.convertDate("$tanggalAjuanDari")}  dan  ${Constanst.convertDate("$tanggalAjuanSampai")}")
+                            : Text(
+                                "${Constanst.convertDate("$tanggalAjuanDari")}  sd  ${Constanst.convertDate("$tanggalAjuanSampai")}"),
                   )
                 ],
               ),

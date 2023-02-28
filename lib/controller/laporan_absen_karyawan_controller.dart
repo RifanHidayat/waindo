@@ -100,6 +100,7 @@ class LaporanAbsenKaryawanController extends GetxController {
       prosesLoad.value = true;
       var tampung = [];
       for (var element in AlldetailRiwayat.value) {
+        print(element);
         var listJamMasuk = (element['signin_time']!.split(':'));
         var perhitunganJamMasuk1 =
             830 - int.parse("${listJamMasuk[0]}${listJamMasuk[1]}");
@@ -110,7 +111,11 @@ class LaporanAbsenKaryawanController extends GetxController {
       }
       loading.value =
           tampung.length == 0 ? "Data tidak tersedia" : "Memuat data...";
-      detailRiwayat.value = tampung;
+      var seen = Set<String>();
+      List t =
+          tampung.where((country) => seen.add(country['atten_date'])).toList();
+
+      detailRiwayat.value = t;
       prosesLoad.value = false;
       this.detailRiwayat.refresh();
     } else if (id == '2') {

@@ -37,6 +37,59 @@
             {
               "client_id": "90235107077-j4q7agk35mir40pltfperc5hr90fnnk3.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "90235107077-ghl3lgba803pjbcctcqvvifbe5egcqso.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.siscom.siscomhris",
+                "app_store_id": "6444096273"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:90235107077:android:4ef199afc4a5ef59ba296c",
+        "android_client_info": {
+          "package_name": "com.siscom.wanindohris"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "90235107077-1q2spujdqtkqsqnig413pf018q4aaaj8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.siscom.wanindohris",
+            "certificate_hash": "706edbacd28a4e21c39f8706547e92eae557b08a"
+          }
+        },
+        {
+          "client_id": "90235107077-j4q7agk35mir40pltfperc5hr90fnnk3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCjde4QH5ewSM01qSkvkobtmoFoFFuu1XA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "90235107077-j4q7agk35mir40pltfperc5hr90fnnk3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "90235107077-ghl3lgba803pjbcctcqvvifbe5egcqso.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.siscom.siscomhris",
+                "app_store_id": "6444096273"
+              }
             }
           ]
         }

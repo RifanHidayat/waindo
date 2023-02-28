@@ -42,7 +42,7 @@ class OnboardController extends GetxController {
   }
 
   void validasiToNextRoute() async {
-    loading.value = true;
+    // loading.value = true;
     var dataInformasiUser = AppData.informasiUser;
 
     if (dataInformasiUser != null) {
@@ -63,6 +63,7 @@ class OnboardController extends GetxController {
 
     connect.then((dynamic res) {
       var valueBody = jsonDecode(res.body);
+      print("body ${valueBody}");
 
       if (valueBody['status'] == true) {
         var dateNow = DateTime.now();
@@ -83,6 +84,7 @@ class OnboardController extends GetxController {
     var connect = Api.connectionApi("post", body, "view_last_absen_user");
     var value = await connect;
     var valueBody = jsonDecode(value.body);
+    print("view last absen ${valueBody}");
 
     List data = valueBody['data'];
 

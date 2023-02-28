@@ -62,22 +62,22 @@ class _LoadingAbsenState extends State<LoadingAbsen>
     // TODO: implement initState
     super.initState();
     abseController.absenSuccess.value = "";
-    if (widget.status == "registration") {
-      Get.back();
-      abseController.facedDetection(
-          status: "registration",
-          absenStatus:
-              widget.statusAbsen == 'masuk' ? "Absen Masuk" : "Absen Keluar",
-          img: widget.file,
-          type: "1");
-    } else {
-      abseController.facedDetection(
-          status: "detection",
-          absenStatus:
-              widget.statusAbsen == 'masuk' ? "Absen Masuk" : "Absen Keluar",
-          img: widget.file,
-          type: "1");
-    }
+    // if (widget.status == "registration") {
+    //   Get.back();
+    //   abseController.facedDetection(
+    //       status: "registration",
+    //       absenStatus:
+    //           widget.statusAbsen == 'masuk' ? "Absen Masuk" : "Absen Keluar",
+    //       img: widget.file,
+    //       type: "1");
+    // } else {
+    //   abseController.facedDetection(
+    //       status: "detection",
+    //       absenStatus:
+    //           widget.statusAbsen == 'masuk' ? "Absen Masuk" : "Absen Keluar",
+    //       img: widget.file,
+    //       type: "1");
+    // }
   }
 
   @override
@@ -281,11 +281,15 @@ class _LoadingAbsenState extends State<LoadingAbsen>
                                             type: "",
                                           ));
                                         } else {
-                                          Get.off(FaceDetectorView(
-                                            status: widget.statusAbsen,
-                                          ));
+                                          Get.back();
+                                          abseController.facedDetection(
+                                              status: "detection",
+                                              absenStatus: widget.statusAbsen,
+                                              type: "1");
+                                          // Get.off(FaceDetectorView(
+                                          //   status: widget.statusAbsen,
+                                          // ));
                                           // cont
-
                                         }
                                       },
                                       child: Row(

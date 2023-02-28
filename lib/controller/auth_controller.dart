@@ -129,7 +129,7 @@ class AuthController extends GetxController {
           print(element.toString());
         }
 
-        print(lastLoginUser);
+        print("las login user ${lastLoginUser}");
         if (getAktif == "ACTIVE") {
           if (lastLoginUser == "" ||
               lastLoginUser == "null" ||
@@ -145,6 +145,7 @@ class AuthController extends GetxController {
               print("sampe sini 2");
               fillLastLoginUser(getEmId, getData);
             } else {
+              
               UtilsAlert.showToast("Anda telah masuk di perangkat lain");
               Navigator.pop(Get.context!);
             }

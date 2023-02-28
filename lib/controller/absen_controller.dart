@@ -16,16 +16,15 @@ import 'dart:math';
 
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:siscom_operasional/controller/dashboard_controller.dart';
+
 import 'package:siscom_operasional/model/absen_model.dart';
 import 'package:siscom_operasional/model/shift_model.dart';
-import 'package:siscom_operasional/screen/absen/absen_masuk_keluar.dart';
-import 'package:siscom_operasional/screen/absen/absen_verify_password.dart';
 import 'package:siscom_operasional/screen/absen/berhasil_absen.dart';
 import 'package:siscom_operasional/screen/absen/berhasil_registrasi.dart';
 import 'package:siscom_operasional/screen/absen/detail_absen.dart';
 import 'package:siscom_operasional/screen/absen/face_id_registration.dart';
-import 'package:siscom_operasional/screen/absen/facee_id_detection.dart';
+import 'package:siscom_operasional/screen/absen/loading_absen.dart';
+
 import 'package:siscom_operasional/utils/api.dart';
 import 'package:siscom_operasional/utils/app_data.dart';
 import 'package:siscom_operasional/utils/constans.dart';
@@ -34,10 +33,10 @@ import 'package:siscom_operasional/utils/month_year_picker.dart';
 import 'package:siscom_operasional/utils/widget_textButton.dart';
 import 'package:siscom_operasional/utils/widget_utils.dart';
 import 'package:google_maps_utils/google_maps_utils.dart';
-import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:trust_location/trust_location.dart';
 import 'package:http/http.dart' as http;
 import 'package:http_parser/http_parser.dart';
+import 'package:siscom_operasional/screen/absen/absen_masuk_keluar.dart';
 
 class AbsenController extends GetxController {
   PageController? pageViewFilterAbsen;
@@ -498,12 +497,41 @@ class AbsenController extends GetxController {
   void facedDetection({required status, absenStatus, type, img}) async {
     // if (takePicturer == "0") {
     if (status == "registration") {
-      saveFaceregistration(img);
+      final getFoto = await ImagePicker().pickImage(
+          source: ImageSource.camera,
+          preferredCameraDevice: CameraDevice.front,
+          imageQuality: 100,
+          maxHeight: 350,
+          maxWidth: 350);
+      if (getFoto == null) {
+        UtilsAlert.showToast("Gagal mengambil gambar");
+      } else {
+        saveFaceregistration(getFoto.path);
+      }
     } else {
-      detection(file: img, status: absenStatus, type: type);
+      final getFoto = await ImagePicker().pickImage(
+          source: ImageSource.camera,
+          preferredCameraDevice: CameraDevice.front,
+          imageQuality: 100,
+          maxHeight: 350,
+          maxWidth: 350);
+      if (getFoto == null) {
+        UtilsAlert.showToast("Gagal mengambil gambar");
+      } else {
+        Navigator.push(
+          Get.context!,
+          MaterialPageRoute(
+              builder: (context) => LoadingAbsen(
+                    file: getFoto.path,
+                    status: "detection",
+                    statusAbsen: absenStatus,
+                    // type: type.toString(),
+                  )),
+        );
+        detection(file: getFoto.path, status: absenStatus, type: type);
+      }
+      // detection(file: img, status: absenStatus, type: type);
     }
-    // } else {
-    //  Get.back();
   }
 
   void saveFaceregistration(file) async {
@@ -611,7 +639,6 @@ class AbsenController extends GetxController {
       final res = jsonDecode(respStr.toString());
 
       if (res['status'] == true) {
-        print("berhasil");
         absenSuccess.value = "1";
 
         // // absenSelfie();
@@ -635,7 +662,7 @@ class AbsenController extends GetxController {
         //   MaterialPageRoute(
         //       builder: (context) => AbsenMasukKeluar(
         //             status: status,
-        //             type: type.toString(),
+        //             // type: type.toString(),
         //           )),
         // );
 
@@ -2197,10 +2224,10 @@ class AbsenController extends GetxController {
                   TextButtonWidget(
                     title: "Mulai",
                     onTap: () async {
-                      Get.to(FaceidRegistration(
-                        status: "registration",
-                      ));
-                      // facedDetection(status: "registration");
+                      // Get.to(FaceidRegistration(
+                      //   status: "registration",
+                      // ));
+                      facedDetection(status: "registration");
                       // Get.to(FaceRecognitionView());
                       // if (type == "checkTracking") {
                       //   print('kesini');
