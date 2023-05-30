@@ -620,16 +620,16 @@ class _DashboardState extends State<Dashboard> {
                                         controllerAbsensi.titleAbsen.value =
                                             "Absen masuk";
 
-                                        controllerAbsensi.typeAbsen.value = 1;
-                                        Get.to(FaceDetectorView(
-                                          status: "masuk",
-                                        ));
+                                    
+                                        // Get.to(FaceDetectorView(
+                                        //   status: "masuk",
+                                        // ));
                                         // // controllerAbsensi.getPlaceCoordinate();
                                         // ;
-                                        // controllerAbsensi.facedDetection(
-                                        //     status: "detection",
-                                        //     absenStatus: "masuk",
-                                        //     type: "1");
+                                        controllerAbsensi.facedDetection(
+                                            status: "detection",
+                                            absenStatus: "masuk",
+                                            type: "1");
 
                                         // var kalkulasiRadius =
                                         //     controller.radiusNotOpen();
@@ -690,14 +690,14 @@ class _DashboardState extends State<Dashboard> {
                                     "Absen Keluar";
                                 controllerAbsensi.typeAbsen.value = 2;
 
-                                Get.to(FaceDetectorView(
-                                  status: "keluar",
-                                ));
+                                // Get.to(FaceDetectorView(
+                                //   status: "keluar",
+                                // ));
 
-                                // controllerAbsensi.facedDetection(
-                                //     status: "detection",
-                                //     type: "2",
-                                // //     absenStatus: "keluar");
+                                controllerAbsensi.facedDetection(
+                                    status: "detection",
+                                    type: "2",
+                                    absenStatus: "keluar");
                                 // Get.to(faceDetectionPage(
                                 //   status: "keluar",
                                 // ));

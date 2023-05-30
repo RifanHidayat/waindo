@@ -494,7 +494,50 @@ class AbsenController extends GetxController {
   //   // }
   // }
 
+  // void facedDetection({required status, absenStatus, type, img}) async {
+  //   // if (takePicturer == "0") {
+  //   if (status == "registration") {
+  //     saveFaceregistration(img);
+  //     // final getFoto = await ImagePicker().pickImage(
+  //     //     source: ImageSource.camera,
+  //     //     preferredCameraDevice: CameraDevice.front,
+  //     //     imageQuality: 100,
+  //     //     maxHeight: 350,
+  //     //     maxWidth: 350);
+  //     // if (getFoto == null) {
+  //     //   UtilsAlert.showToast("Gagal mengambil gambar");
+  //     // } else {
+  //     //   saveFaceregistration(getFoto.path);
+  //     // }
+  //   } else {
+  //     detection(file: img, status: absenStatus, type: type);
+  //     // final getFoto = await ImagePicker().pickImage(
+  //     //     source: ImageSource.camera,
+  //     //     preferredCameraDevice: CameraDevice.front,
+  //     //     imageQuality: 100,
+  //     //     maxHeight: 350,
+  //     //     maxWidth: 350);
+  //     // if (getFoto == null) {
+  //     //   UtilsAlert.showToast("Gagal mengambil gambar");
+  //     // } else {
+  //     //   Navigator.push(
+  //     //     Get.context!,
+  //     //     MaterialPageRoute(
+  //     //         builder: (context) => LoadingAbsen(
+  //     //               file: getFoto.path,
+  //     //               status: "detection",
+  //     //               statusAbsen: absenStatus,
+  //     //               // type: type.toString(),
+  //     //             )),
+  //     //   );
+  //     //   detection(file: getFoto.path, status: absenStatus, type: type);
+  //     // }
+  //     // // detection(file: img, status: absenStatus, type: type);
+  //   }
+  // }
+
   void facedDetection({required status, absenStatus, type, img}) async {
+    absenSelfie();
     // if (takePicturer == "0") {
     if (status == "registration") {
       saveFaceregistration(img);
@@ -510,29 +553,37 @@ class AbsenController extends GetxController {
       //   saveFaceregistration(getFoto.path);
       // }
     } else {
-      detection(file: img, status: absenStatus, type: type);
-      // final getFoto = await ImagePicker().pickImage(
-      //     source: ImageSource.camera,
-      //     preferredCameraDevice: CameraDevice.front,
-      //     imageQuality: 100,
-      //     maxHeight: 350,
-      //     maxWidth: 350);
-      // if (getFoto == null) {
-      //   UtilsAlert.showToast("Gagal mengambil gambar");
-      // } else {
-      //   Navigator.push(
-      //     Get.context!,
-      //     MaterialPageRoute(
-      //         builder: (context) => LoadingAbsen(
-      //               file: getFoto.path,
-      //               status: "detection",
-      //               statusAbsen: absenStatus,
-      //               // type: type.toString(),
-      //             )),
-      //   );
-      //   detection(file: getFoto.path, status: absenStatus, type: type);
-      // }
-      // // detection(file: img, status: absenStatus, type: type);
+      final getFoto = await ImagePicker().pickImage(
+          source: ImageSource.camera,
+          preferredCameraDevice: CameraDevice.front,
+          imageQuality: 100,
+          maxHeight: 350,
+          maxWidth: 350);
+      if (getFoto == null) {
+        UtilsAlert.showToast("Gagal mengambil gambar");
+      } else {
+        Navigator.push(
+          Get.context!,
+          MaterialPageRoute(
+              builder: (context) => AbsenMasukKeluar(
+                    status:
+                        absenStatus == 'masuk' ? "Absen Masuk" : "Absen Keluar",
+
+                    // type: type.toString(),
+                  )),
+          // Navigator.push(
+          //   Get.context!,
+          //   MaterialPageRoute(
+          //       builder: (context) => LoadingAbsen(
+          //             file: getFoto.path,
+          //             status: "detection",
+          //             statusAbsen: absenStatus,
+          //             // type: type.toString(),
+          //           )),
+        );
+        // detection(file: getFoto.path, status: absenStatus, type: type);
+      }
+      // detection(file: img, status: absenStatus, type: type);
     }
   }
 

@@ -29,7 +29,7 @@ class Constanst {
 
   // static Color colorPrimary = Color(0xff001767);
   static Color colorPrimary = HexColor('#14A494');
-  static Color colorPrimaryLight = HexColor('#CEFAE5');
+  static Color colorPrimaryLight = HexColor('#CEFFAE5');
 
   // static Color color1 = Color(0xffBCC2CE);
   static Color color1 = Color(0xffBCC2CE);
